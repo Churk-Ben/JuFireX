@@ -84,16 +84,25 @@
 
                         <div class="mt-auto">
                             <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">
-                                    <i class="fas fa-user"></i>
-                                    {% if project.author %}
-                                    {{ project.author.username }}
-                                    <span class="ms-1"
-                                        style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: {% if project.author.role == 3 %}var(--bs-danger){% elif project.author.role == 2 %}var(--bs-warning){% elif project.author.role == 1 %}var(--bs-success){% else %}var(--bs-secondary){% endif %}; vertical-align: middle; position: relative; top: -1px;"></span>
-                                    {% else %}
-                                    未知
-                                    {% endif %}
-                                </small>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        {% if project.author and project.author.avatar_path %}
+                                        <img src="{{ url_for('user_avatar', filename=project.author.avatar_path) }}" alt="{{ project.author.username }}的头像" 
+                                            class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;">
+                                        {% else %}
+                                        <i class="fas fa-user-circle" style="font-size: 1.2rem; color: var(--github-text-secondary);"></i>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">
+                                        {% if project.author %}
+                                        {{ project.author.username }}
+                                        <span class="ms-1"
+                                            style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: {% if project.author.role == 3 %}var(--bs-danger){% elif project.author.role == 2 %}var(--bs-warning){% elif project.author.role == 1 %}var(--bs-success){% else %}var(--bs-secondary){% endif %}; vertical-align: middle; position: relative; top: -1px;"></span>
+                                        {% else %}
+                                        未知
+                                        {% endif %}
+                                    </small>
+                                </div>
                                 <small class="text-muted">
                                     {{ project.created_at.strftime('%Y-%m-%d') }}
                                 </small>

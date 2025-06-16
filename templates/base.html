@@ -171,26 +171,49 @@
 
                 <ul class="navbar-nav">
                     {% if current_user %}
-                    <li class="nav-item">
+                    <li class="nav-item" style="display: flex; align-items: center;">
                         <a class="nav-link" href="{{ url_for('profile') }}"
-                            style="border: 1px solid var(--github-border); border-radius: 20px; padding: 5px 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user"></i> {{ current_user.username }}
+                            style="border: 1px solid var(--github-border); border-radius: 16px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: auto 0;">
+                            <div
+                                style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin: 0 0 0 -1px;">
+                                {% if current_user.avatar_path %}
+                                <img src="{{ url_for('user_avatar', filename=current_user.avatar_path) }}"
+                                    alt="{{ current_user.username }}的头像"
+                                    style="width: 24px; height: 24px; border-radius: 50%; overflow: hidden; object-fit: cover; display: block;">
+                                {% else %}
+                                <i class="fas fa-user-circle"
+                                    style="font-size: 24px; color: var(--github-accent); display: flex; align-items: center; justify-content: center;"></i>
+                                {% endif %}
+                            </div>
+                            <span style="padding: 0 8px; line-height: 32px;">{{ current_user.username }}</span>
                             {% if current_user.role == 0 %}
-                            <span class="badge rounded-circle bg-secondary"
-                                style="width: 8px; height: 8px; padding: 0; display: inline-block; margin-left: 5px;"
-                                title="权限等级: {{ current_user.role }} (普通用户)"></span>
+                            <div
+                                style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin-right: -1px;">
+                                <span class="badge rounded-circle bg-secondary"
+                                    style="width: 8px; height: 8px; padding: 0; display: block;"
+                                    title="权限等级: {{ current_user.role }} (普通用户)"></span>
+                            </div>
                             {% elif current_user.role == 1 %}
-                            <span class="badge rounded-circle bg-info"
-                                style="width: 8px; height: 8px; padding: 0; display: inline-block; margin-left: 5px;"
-                                title="权限等级: {{ current_user.role }} (高级用户)"></span>
+                            <div
+                                style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin-right: -1px;">
+                                <span class="badge rounded-circle bg-info"
+                                    style="width: 8px; height: 8px; padding: 0; display: block;"
+                                    title="权限等级: {{ current_user.role }} (高级用户)"></span>
+                            </div>
                             {% elif current_user.role == 2 %}
-                            <span class="badge rounded-circle bg-warning"
-                                style="width: 8px; height: 8px; padding: 0; display: inline-block; margin-left: 5px;"
-                                title="权限等级: {{ current_user.role }} (管理员)"></span>
+                            <div
+                                style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin-right: -1px;">
+                                <span class="badge rounded-circle bg-warning"
+                                    style="width: 8px; height: 8px; padding: 0; display: block;"
+                                    title="权限等级: {{ current_user.role }} (管理员)"></span>
+                            </div>
                             {% elif current_user.role >= 3 %}
-                            <span class="badge rounded-circle bg-danger"
-                                style="width: 8px; height: 8px; padding: 0; display: inline-block; margin-left: 5px;"
-                                title="权限等级: {{ current_user.role }} (超级管理员)"></span>
+                            <div
+                                style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin-right: -1px;">
+                                <span class="badge rounded-circle bg-danger"
+                                    style="width: 8px; height: 8px; padding: 0; display: block;"
+                                    title="权限等级: {{ current_user.role }} (超级管理员)"></span>
+                            </div>
                             {% endif %}
                         </a>
                     </li>
