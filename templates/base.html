@@ -171,7 +171,7 @@
 
                 <ul class="navbar-nav">
                     {% if current_user %}
-                    <li class="nav-item" style="display: flex; align-items: center;">
+                    <li class="nav-item" style="display: flex; align-items: center; margin: 0 5px;">
                         <a class="nav-link" href="{{ url_for('profile') }}"
                             style="border: 1px solid var(--github-border); border-radius: 16px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: auto 0;">
                             <div
@@ -219,8 +219,13 @@
                         </a>
                     </li>
                     <li class="nav-item" style="margin: 0 5px;">
-                        <a class="nav-link" href="{{ url_for('logout') }}" title="退出登录">
-                            <i class="fas fa-sign-out-alt"></i>
+                        <a class="nav-link" href="{{ url_for('logout') }}" title="退出登录"
+                            style="border: 1px solid var(--github-border); border-radius: 16px; height: 32px; padding: 0 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: auto 0;">
+                            <div
+                                style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </div>
+                            <span style="padding: 0 8px 0 0; line-height: 32px;">登出</span>
                         </a>
                     </li>
                     {% else %}
