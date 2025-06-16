@@ -484,6 +484,55 @@ def toggle_project_featured(project_id):
     return jsonify({"success": True, "message": "项目状态更新成功"})
 
 
+@app.route("/api/projects/<int:project_id>", methods=["GET"])
+@require_role(ROLE_ADMIN)
+def get_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    
+    # 构建项目数据
+    project_data = {
+        "id": project.id,
+        "title": project.title,
+        "description": project.description,
+        "github_url": project.github_url,
+        "demo_url": project.demo_url,
+        "image_url": project.image_url,
+        "is_featured": project.is_featured,
+        "created_at": project.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "author_id": project.author_id,
+        "author": project.author.username if project.author else None
+    }
+    
+    return jsonify({"success": True, "project": project_data})
+
+
+@app.route("/api/projects/<int:project_id>", methods=["PUT"])
+@require_role(ROLE_ADMIN)
+def update_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    
+    # 检查权限：只有项目作者或超级管理员可以更新
+    if (
+        project.author_id != session["user_id"]
+        and session.get("role", 0) < ROLE_SUPER_ADMIN
+    ):
+        return jsonify({"success": False, "message": "权限不足"})
+    
+    data = request.get_json()
+    
+    # 更新项目信息
+    project.title = data.get("title", project.title)
+    project.description = data.get("description", project.description)
+    project.github_url = data.get("github_url", project.github_url)
+    project.demo_url = data.get("demo_url", project.demo_url)
+    project.image_url = data.get("image_url", project.image_url)
+    project.is_featured = data.get("is_featured", project.is_featured)
+    
+    db.session.commit()
+    
+    return jsonify({"success": True, "message": "项目更新成功"})
+
+
 @app.route("/api/projects/<int:project_id>", methods=["DELETE"])
 @require_role(ROLE_ADMIN)
 def delete_project(project_id):

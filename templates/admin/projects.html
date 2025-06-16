@@ -252,6 +252,134 @@
         </div>
     </div>
 </div>
+
+<!-- 编辑项目模态框 -->
+<div class="modal fade" id="editProjectModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-edit"></i> 编辑项目</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" 
+                    style="background-color: var(--github-accent);"></button>
+            </div>
+            <form id="editProjectForm">
+                <input type="hidden" id="editProjectId">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editProjectTitle" class="form-label">项目标题 *</label>
+                                <input type="text" class="form-control" id="editProjectTitle" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editProjectImage" class="form-label">项目图片链接</label>
+                                <input type="url" class="form-control" id="editProjectImage" placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProjectDescription" class="form-label">项目描述 *</label>
+                        <textarea class="form-control" id="editProjectDescription" rows="4" required
+                            placeholder="详细描述项目的功能和特点..."></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editProjectGithub" class="form-label">GitHub 链接</label>
+                                <input type="url" class="form-control" id="editProjectGithub"
+                                    placeholder="https://github.com/...">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editProjectDemo" class="form-label">演示链接</label>
+                                <input type="url" class="form-control" id="editProjectDemo" placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editProjectFeatured">
+                        <label class="form-check-label" for="editProjectFeatured">
+                            设为精选项目（将在首页展示）
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> 保存修改
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑项目模态框 -->
+<div class="modal fade" id="editProjectModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-edit"></i> 编辑项目</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" 
+                    style="background-color: var(--github-accent);"></button>
+            </div>
+            <form id="editProjectForm">
+                <input type="hidden" id="editProjectId">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editProjectTitle" class="form-label">项目标题 *</label>
+                                <input type="text" class="form-control" id="editProjectTitle" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editProjectImage" class="form-label">项目图片链接</label>
+                                <input type="url" class="form-control" id="editProjectImage" placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editProjectDescription" class="form-label">项目描述 *</label>
+                        <textarea class="form-control" id="editProjectDescription" rows="4" required
+                            placeholder="详细描述项目的功能和特点..."></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editProjectGithub" class="form-label">GitHub 链接</label>
+                                <input type="url" class="form-control" id="editProjectGithub"
+                                    placeholder="https://github.com/...">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editProjectDemo" class="form-label">演示链接</label>
+                                <input type="url" class="form-control" id="editProjectDemo" placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editProjectFeatured">
+                        <label class="form-check-label" for="editProjectFeatured">
+                            设为精选项目（将在首页展示）
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> 保存修改
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -290,6 +418,42 @@
                 alert('创建失败，请重试');
             });
     });
+    
+    // 编辑项目表单提交
+    document.getElementById('editProjectForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        
+        const projectId = document.getElementById('editProjectId').value;
+        const formData = {
+            title: document.getElementById('editProjectTitle').value,
+            description: document.getElementById('editProjectDescription').value,
+            github_url: document.getElementById('editProjectGithub').value,
+            demo_url: document.getElementById('editProjectDemo').value,
+            image_url: document.getElementById('editProjectImage').value,
+            is_featured: document.getElementById('editProjectFeatured').checked
+        };
+        
+        fetch(`/api/projects/${projectId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('项目更新成功！');
+                    location.reload();
+                } else {
+                    alert('更新失败：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('更新失败，请重试');
+            });
+    });
 
     // 切换精选状态
     function toggleFeatured(projectId, currentStatus) {
@@ -318,7 +482,32 @@
 
     // 编辑项目
     function editProject(projectId) {
-        alert('编辑功能正在开发中...');
+        // 获取项目详情
+        fetch(`/api/projects/${projectId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const project = data.project;
+                    
+                    // 填充表单
+                    document.getElementById('editProjectId').value = project.id;
+                    document.getElementById('editProjectTitle').value = project.title;
+                    document.getElementById('editProjectDescription').value = project.description;
+                    document.getElementById('editProjectGithub').value = project.github_url || '';
+                    document.getElementById('editProjectDemo').value = project.demo_url || '';
+                    document.getElementById('editProjectImage').value = project.image_url || '';
+                    document.getElementById('editProjectFeatured').checked = project.is_featured;
+                    
+                    // 显示模态框
+                    new bootstrap.Modal(document.getElementById('editProjectModal')).show();
+                } else {
+                    alert('获取项目详情失败：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('获取项目详情失败，请重试');
+            });
     }
 
     // 删除项目
