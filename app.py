@@ -176,14 +176,18 @@ def logout():
 @require_role(ROLE_GUEST)
 def profile():
     user = User.query.get(session["user_id"])
+    current_user = user  # 确保current_user变量可用于base.html
     user_projects = Project.query.filter_by(author_id=user.id).all()
-    return render_template("profile.html", user=user, projects=user_projects)
+    return render_template(
+        "profile.html", user=user, current_user=current_user, projects=user_projects
+    )
 
 
 @app.route("/navigation")
 @require_role(ROLE_MEMBER)
 def navigation():
-    return render_template("navigation.html")
+    current_user = User.query.get(session["user_id"])
+    return render_template("navigation.html", current_user=current_user)
 
 
 @app.route("/admin/projects")

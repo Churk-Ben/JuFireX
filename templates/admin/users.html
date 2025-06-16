@@ -8,7 +8,6 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2><i class="fas fa-users-cog"></i> 用户管理</h2>
-                <span class="badge bg-danger">超级管理员专享</span>
             </div>
         </div>
     </div>
@@ -59,7 +58,7 @@
             <h5 class="mb-0"><i class="fas fa-list"></i> 用户列表</h5>
             <div class="input-group" style="width: 300px;">
                 <input type="text" class="form-control" id="searchInput" placeholder="搜索用户...">
-                <button class="btn btn-outline-secondary" type="button">
+                <button class="btn btn-outline-primary" type="button">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
@@ -89,7 +88,11 @@
                                             style="font-size: 2rem; color: var(--github-accent);"></i>
                                     </div>
                                     <div>
-                                        <h6 class="mb-0">{{ user.username }}</h6>
+                                        <h6 class="mb-0">
+                                            {{ user.username }}
+                                            <span class="ms-1"
+                                                style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {% if user.role == 3 %}var(--bs-danger){% elif user.role == 2 %}var(--bs-warning){% elif user.role == 1 %}var(--bs-info){% else %}var(--bs-secondary){% endif %}; vertical-align: middle; position: relative; top: -1px;"></span>
+                                        </h6>
                                         <small class="text-muted">{{ user.email }}</small>
                                     </div>
                                 </div>
@@ -106,13 +109,15 @@
                             <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
                             <td>
                                 {% if user.is_active %}
-                                <span class="badge bg-success">活跃</span>
+                                <span class="status-badge status-active">活跃</span>
                                 {% else %}
-                                <span class="badge bg-danger">禁用</span>
+                                <span class="status-badge status-inactive">禁用</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <span class="badge bg-info">{{ user.projects|length }}</span>
+                                <span class="status-badge"
+                                    style="background-color: rgba(88, 166, 255, 0.15); color: var(--github-accent); border: 1px solid var(--github-accent);">{{
+                                    user.projects|length }}</span>
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm" role="group">
@@ -131,7 +136,8 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                     {% else %}
-                                    <span class="badge bg-primary">当前用户</span>
+                                    <span class="status-badge"
+                                        style="background-color: rgba(88, 166, 255, 0.15); color: var(--github-accent); border: 1px solid var(--github-accent);">当前用户</span>
                                     {% endif %}
                                 </div>
                             </td>
@@ -165,7 +171,7 @@
                         <li>无法使用高级功能</li>
                     </ul>
 
-                    <h6><i class="fas fa-users text-success"></i> 成员 (权限级别: 1)</h6>
+                    <h6><i class="fas fa-users text-info"></i> 成员 (权限级别: 1)</h6>
                     <ul class="small text-muted">
                         <li>拥有游客的所有权限</li>
                         <li>可以使用导航页功能</li>

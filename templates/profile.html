@@ -12,13 +12,11 @@
                     <div class="mb-3">
                         <i class="fas fa-user-circle" style="font-size: 5rem; color: var(--github-accent);"></i>
                     </div>
-                    <h4 class="card-title">{{ user.username }}</h4>
-                    <p class="card-text">
-                        <span
-                            class="badge bg-{% if user.role == 3 %}danger{% elif user.role == 2 %}warning{% elif user.role == 1 %}success{% else %}secondary{% endif %}">
-                            {{ user.get_role_name() }}
-                        </span>
-                    </p>
+                    <h4 class="card-title">
+                        {{ user.username }}
+                        <span class="ms-1"
+                            style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: {% if user.role == 3 %}var(--bs-danger){% elif user.role == 2 %}var(--bs-warning){% elif user.role == 1 %}var(--bs-success){% else %}var(--bs-secondary){% endif %}; vertical-align: middle; position: relative; top: -1px;"></span>
+                    </h4>
                     <p class="card-text">
                         <small class="text-muted">
                             <i class="fas fa-envelope"></i> {{ user.email }}

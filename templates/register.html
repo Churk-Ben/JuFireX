@@ -3,10 +3,11 @@
 {% block title %}注册 - JuFire Studio{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
+<div class="container d-flex align-items-center justify-content-center"
+    style="min-height: 75vh; padding-top: 30px; padding-bottom: 30px;">
+    <div class="row justify-content-center w-100">
         <div class="col-md-6 col-lg-4">
-            <div class="card mt-5">
+            <div class="card">
                 <div class="card-header text-center">
                     <h3><i class="fas fa-user-plus"></i> 注册账号</h3>
                 </div>
@@ -59,21 +60,7 @@
                 </div>
             </div>
 
-            <!-- 权限说明 -->
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h6 class="card-title"><i class="fas fa-info-circle"></i> 权限说明</h6>
-                    <ul class="list-unstyled small text-muted mb-0">
-                        <li><i class="fas fa-user"></i> <strong>游客：</strong> 默认权限，可查看公开内容</li>
-                        <li><i class="fas fa-users"></i> <strong>成员：</strong> 可使用导航页功能</li>
-                        <li><i class="fas fa-user-cog"></i> <strong>管理员：</strong> 可管理工作室项目</li>
-                        <li><i class="fas fa-crown"></i> <strong>超级管理员：</strong> 拥有所有权限</li>
-                    </ul>
-                    <p class="small text-muted mt-2 mb-0">
-                        注册后默认为游客权限，如需提升权限请联系管理员。
-                    </p>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>

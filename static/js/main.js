@@ -29,22 +29,53 @@ function showNotification(message, type = 'info') {
         'info': 'alert-info'
     }[type] || 'alert-info';
 
-    const alertHtml = `
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+    // 创建通知元素
+    const alertElement = document.createElement('div');
+    alertElement.className = `alert ${alertClass} alert-dismissible fade show`;
+    alertElement.setAttribute('role', 'alert');
+
+    // 设置通知内容
+    alertElement.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close custom-close" aria-label="关闭"></button>
     `;
 
+    // 确保关闭按钮在DOM中完全渲染
+    const closeButton = alertElement.querySelector('.custom-close');
+    if (closeButton) {
+        // 直接在这里绑定事件，确保绑定成功
+        closeButton.onclick = function () {
+            alertElement.classList.remove('show');
+            setTimeout(() => {
+                if (alertElement.parentNode) {
+                    alertElement.remove();
+                }
+            }, 300);
+            return false; // 阻止事件冒泡
+        };
+    }
+
+    // 添加到容器
     const container = document.getElementById('messages');
     if (container) {
-        container.innerHTML = alertHtml;
+        container.appendChild(alertElement);
+
+        // 添加进入动画
+        setTimeout(() => {
+            alertElement.classList.add('show');
+        }, 10);
+
         // 自动隐藏通知
         setTimeout(() => {
-            const alert = container.querySelector('.alert');
-            if (alert) {
-                alert.remove();
-            }
+            // 添加淡出动画
+            alertElement.classList.remove('show');
+
+            // 移除元素
+            setTimeout(() => {
+                if (alertElement.parentNode) {
+                    alertElement.remove();
+                }
+            }, 300);
         }, 5000);
     }
 }
@@ -239,6 +270,10 @@ class Utils {
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function () {
+    // 恢复页面可见性，防止闪烁
+    document.documentElement.style.visibility = 'visible';
+    document.body.style.visibility = 'visible';
+
     // 初始化 Socket.IO
     if (typeof io !== 'undefined') {
         initSocket();
