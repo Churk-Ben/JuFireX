@@ -1,0 +1,254 @@
+/* JuFire Studio 自定义样式 */
+
+/* GitHub 风格变量 */
+:root {
+    --github-bg: #0d1117;
+    --github-secondary: #161b22;
+    --github-border: #30363d;
+    --github-text: #c9d1d9;
+    --github-text-secondary: #8b949e;
+    --github-accent: #58a6ff;
+    --github-success: #238636;
+    --github-warning: #f0883e;
+    --github-danger: #da3633;
+}
+
+/* 全局样式 */
+body {
+    background-color: var(--github-bg);
+    color: var(--github-text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+/* 导航栏 */
+.navbar {
+    background-color: var(--github-secondary) !important;
+    border-bottom: 1px solid var(--github-border);
+}
+
+.navbar-brand,
+.nav-link {
+    color: var(--github-text) !important;
+}
+
+.nav-link:hover {
+    color: var(--github-accent) !important;
+}
+
+.dropdown-menu {
+    background-color: var(--github-secondary);
+    border: 1px solid var(--github-border);
+}
+
+.dropdown-item {
+    color: var(--github-text);
+}
+
+.dropdown-item:hover {
+    background-color: var(--github-bg);
+    color: var(--github-accent);
+}
+
+.dropdown-divider {
+    border-top: 1px solid var(--github-border);
+}
+
+/* 卡片 */
+.card {
+    background-color: var(--github-secondary);
+    border: 1px solid var(--github-border);
+    color: var(--github-text);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-header,
+.card-footer {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-color: var(--github-border);
+}
+
+/* 按钮 */
+.btn-primary {
+    background-color: var(--github-accent);
+    border-color: var(--github-accent);
+}
+
+.btn-primary:hover {
+    background-color: #4493f8;
+    border-color: #4493f8;
+}
+
+.btn-success {
+    background-color: var(--github-success);
+    border-color: var(--github-success);
+}
+
+.btn-danger {
+    background-color: var(--github-danger);
+    border-color: var(--github-danger);
+}
+
+.btn-outline-light {
+    color: var(--github-text);
+    border-color: var(--github-border);
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--github-accent);
+    border-color: var(--github-accent);
+}
+
+/* 表单 */
+.form-control {
+    background-color: var(--github-bg);
+    border: 1px solid var(--github-border);
+    color: var(--github-text);
+}
+
+.form-control:focus {
+    background-color: var(--github-bg);
+    border-color: var(--github-accent);
+    color: var(--github-text);
+    box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+}
+
+.form-select {
+    background-color: var(--github-bg);
+    border: 1px solid var(--github-border);
+    color: var(--github-text);
+}
+
+.form-select:focus {
+    border-color: var(--github-accent);
+    box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+}
+
+/* 表格 */
+.table {
+    color: var(--github-text);
+}
+
+.table thead th {
+    border-bottom-color: var(--github-border);
+}
+
+.table td,
+.table th {
+    border-top-color: var(--github-border);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 警告框 */
+.alert {
+    border: 1px solid var(--github-border);
+}
+
+.alert-success {
+    background-color: rgba(35, 134, 54, 0.15);
+    border-color: var(--github-success);
+    color: #7ee787;
+}
+
+.alert-danger {
+    background-color: rgba(218, 54, 51, 0.15);
+    border-color: var(--github-danger);
+    color: #f85149;
+}
+
+.alert-info {
+    background-color: rgba(88, 166, 255, 0.15);
+    border-color: var(--github-accent);
+    color: var(--github-accent);
+}
+
+.alert-warning {
+    background-color: rgba(240, 136, 62, 0.15);
+    border-color: var(--github-warning);
+    color: #f0883e;
+}
+
+/* 徽章 */
+.badge {
+    font-weight: 500;
+}
+
+/* 模态框 */
+.modal-content {
+    background-color: var(--github-secondary);
+    border: 1px solid var(--github-border);
+    color: var(--github-text);
+}
+
+.modal-header,
+.modal-footer {
+    border-color: var(--github-border);
+}
+
+/* 项目卡片 */
+.project-card {
+    transition: transform 0.2s;
+}
+
+.project-card:hover {
+    transform: translateY(-2px);
+}
+
+/* 页脚 */
+.footer {
+    background-color: var(--github-secondary);
+    border-top: 1px solid var(--github-border);
+    margin-top: 4rem;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+    }
+
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--github-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--github-border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--github-text-secondary);
+}

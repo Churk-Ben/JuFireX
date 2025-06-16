@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}用户管理 - JuFire Studio{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-users-cog"></i> 用户管理</h2>
+                <span class="badge bg-danger">超级管理员专享</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户统计 -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-users" style="font-size: 2rem; color: var(--github-accent);"></i>
+                    <h4 class="mt-2 mb-0">{{ users|length }}</h4>
+                    <p class="text-muted mb-0">总用户数</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-crown" style="font-size: 2rem; color: #ffd700;"></i>
+                    <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 3)|list|length }}</h4>
+                    <p class="text-muted mb-0">超级管理员</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-user-cog" style="font-size: 2rem; color: var(--github-warning);"></i>
+                    <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 2)|list|length }}</h4>
+                    <p class="text-muted mb-0">管理员</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-users" style="font-size: 2rem; color: var(--github-success);"></i>
+                    <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 1)|list|length }}</h4>
+                    <p class="text-muted mb-0">成员</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户列表 -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-list"></i> 用户列表</h5>
+            <div class="input-group" style="width: 300px;">
+                <input type="text" class="form-control" id="searchInput" placeholder="搜索用户...">
+                <button class="btn btn-outline-secondary" type="button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if users %}
+            <div class="table-responsive">
+                <table class="table table-hover" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>用户信息</th>
+                            <th>角色</th>
+                            <th>注册时间</th>
+                            <th>状态</th>
+                            <th>项目数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        {% set user_active_js = 'true' if user.is_active else 'false' %}
+                        <tr data-user-id="{{ user.id }}">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="fas fa-user-circle"
+                                            style="font-size: 2rem; color: var(--github-accent);"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ user.username }}</h6>
+                                        <small class="text-muted">{{ user.email }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm role-select" data-user-id="{{ user.id }}" {%
+                                    if user.id==current_user.id %}disabled{% endif %}>
+                                    <option value="0" {% if user.role==0 %}selected{% endif %}>游客</option>
+                                    <option value="1" {% if user.role==1 %}selected{% endif %}>成员</option>
+                                    <option value="2" {% if user.role==2 %}selected{% endif %}>管理员</option>
+                                    <option value="3" {% if user.role==3 %}selected{% endif %}>超级管理员</option>
+                                </select>
+                            </td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if user.is_active %}
+                                <span class="badge bg-success">活跃</span>
+                                {% else %}
+                                <span class="badge bg-danger">禁用</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ user.projects|length }}</span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    {% if user.id != current_user.id %}
+                                    <button class="btn btn-outline-warning"
+                                        onclick="toggleUserStatus({{ user.id }}, {{ user_active_js }})"
+                                        title="{% if user.is_active %}禁用用户{% else %}启用用户{% endif %}">
+                                        <i class="fas fa-{% if user.is_active %}ban{% else %}check{% endif %}"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info" onclick="viewUserDetails({{ user.id }})"
+                                        title="查看详情">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" onclick="deleteUser({{ user.id }})"
+                                        title="删除用户">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {% else %}
+                                    <span class="badge bg-primary">当前用户</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-users" style="font-size: 4rem; color: var(--github-text-secondary);"></i>
+                <h4 class="mt-3 text-muted">暂无用户</h4>
+                <p class="text-muted">系统中还没有注册用户</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 权限说明 -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-info-circle"></i> 权限说明</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6><i class="fas fa-user text-secondary"></i> 游客 (权限级别: 0)</h6>
+                    <ul class="small text-muted">
+                        <li>可以查看公开内容</li>
+                        <li>可以访问个人主页</li>
+                        <li>无法使用高级功能</li>
+                    </ul>
+
+                    <h6><i class="fas fa-users text-success"></i> 成员 (权限级别: 1)</h6>
+                    <ul class="small text-muted">
+                        <li>拥有游客的所有权限</li>
+                        <li>可以使用导航页功能</li>
+                        <li>可以查看更多内部资源</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6><i class="fas fa-user-cog text-warning"></i> 管理员 (权限级别: 2)</h6>
+                    <ul class="small text-muted">
+                        <li>拥有成员的所有权限</li>
+                        <li>可以管理工作室项目</li>
+                        <li>可以创建、编辑、删除项目</li>
+                    </ul>
+
+                    <h6><i class="fas fa-crown text-danger"></i> 超级管理员 (权限级别: 3)</h6>
+                    <ul class="small text-muted">
+                        <li>拥有管理员的所有权限</li>
+                        <li>可以管理所有用户</li>
+                        <li>可以修改用户权限和状态</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 用户详情模态框 -->
+<div class="modal fade" id="userDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user"></i> 用户详情</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="userDetailsContent">
+                <!-- 用户详情内容将通过 JavaScript 动态加载 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 搜索功能
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#usersTable tbody tr');
+
+        rows.forEach(row => {
+            const username = row.querySelector('h6').textContent.toLowerCase();
+            const email = row.querySelector('small').textContent.toLowerCase();
+
+            if (username.includes(searchTerm) || email.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // 角色变更
+    document.querySelectorAll('.role-select').forEach(select => {
+        select.addEventListener('change', function () {
+            const userId = this.dataset.userId;
+            const newRole = this.value;
+
+            if (confirm('确定要修改用户角色吗？')) {
+                updateUserRole(userId, newRole);
+            } else {
+                // 恢复原值
+                this.selectedIndex = this.dataset.originalIndex || 0;
+            }
+        });
+
+        // 保存原始选中索引
+        select.dataset.originalIndex = select.selectedIndex;
+    });
+
+    // 更新用户角色
+    function updateUserRole(userId, role) {
+        fetch(`/api/users/${userId}/role`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ role: parseInt(role) })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('用户角色更新成功！');
+                    location.reload();
+                } else {
+                    alert('更新失败：' + data.message);
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('更新失败，请重试');
+                location.reload();
+            });
+    }
+
+    // 切换用户状态
+    function toggleUserStatus(userId, currentStatus) {
+        const action = currentStatus ? '禁用' : '启用';
+        if (confirm(`确定要${action}这个用户吗？`)) {
+            fetch(`/api/users/${userId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ is_active: !currentStatus })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`用户${action}成功！`);
+                        location.reload();
+                    } else {
+                        alert(`${action}失败：` + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(`${action}失败，请重试`);
+                });
+        }
+    }
+
+    // 查看用户详情
+    function viewUserDetails(userId) {
+        fetch(`/api/users/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const user = data.user;
+                    const content = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>基本信息</h6>
+                        <p><strong>用户名：</strong> ${user.username}</p>
+                        <p><strong>邮箱：</strong> ${user.email}</p>
+                        <p><strong>角色：</strong> ${user.role_name}</p>
+                        <p><strong>状态：</strong> ${user.is_active ? '活跃' : '禁用'}</p>
+                        <p><strong>注册时间：</strong> ${user.created_at}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>统计信息</h6>
+                        <p><strong>项目数量：</strong> ${user.project_count}</p>
+                        <p><strong>精选项目：</strong> ${user.featured_project_count}</p>
+                        <p><strong>活跃天数：</strong> ${user.active_days}</p>
+                    </div>
+                </div>
+            `;
+                    document.getElementById('userDetailsContent').innerHTML = content;
+                    new bootstrap.Modal(document.getElementById('userDetailsModal')).show();
+                } else {
+                    alert('获取用户详情失败：' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('获取用户详情失败，请重试');
+            });
+    }
+
+    // 删除用户
+    function deleteUser(userId) {
+        if (confirm('确定要删除这个用户吗？此操作不可恢复！\n\n注意：删除用户将同时删除其所有项目。')) {
+            fetch(`/api/users/${userId}`, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('用户删除成功！');
+                        location.reload();
+                    } else {
+                        alert('删除失败：' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('删除失败，请重试');
+                });
+        }
+    }
+</script>
+{% endblock %}
