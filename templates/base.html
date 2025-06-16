@@ -145,16 +145,16 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
+                    <li class="nav-item" style="margin: 0 5px;">
                         <a class="nav-link" href="{{ url_for('index') }}">首页</a>
                     </li>
                     {% if current_user and current_user.role >= 1 %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('navigation') }}">导航页</a>
+                    <li class="nav-item" style="margin: 0 5px;">
+                        <a class="nav-link" href="{{ url_for('navigation') }}">导航</a>
                     </li>
                     {% endif %}
                     {% if current_user and current_user.role >= 2 %}
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" style="margin: 0 5px;">
                         <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
                             data-bs-toggle="dropdown">
                             管理
@@ -185,7 +185,8 @@
                                     style="font-size: 24px; color: var(--github-accent); display: flex; align-items: center; justify-content: center;"></i>
                                 {% endif %}
                             </div>
-                            <span style="padding: 0 8px; line-height: 32px;">{{ current_user.username }}</span>
+                            <span style="padding: 0 4px 0 8px; line-height: 32px;">{{ current_user.username
+                                }}</span>
                             {% if current_user.role == 0 %}
                             <div
                                 style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin-right: -1px;">
@@ -217,16 +218,16 @@
                             {% endif %}
                         </a>
                     </li>
-                    <li class="nav-item" style="margin-left: 10px;">
+                    <li class="nav-item" style="margin: 0 5px;">
                         <a class="nav-link" href="{{ url_for('logout') }}" title="退出登录">
                             <i class="fas fa-sign-out-alt"></i>
                         </a>
                     </li>
                     {% else %}
-                    <li class="nav-item">
+                    <li class="nav-item" style="margin: 0 5px;">
                         <a class="nav-link" href="{{ url_for('login') }}">登录</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" style="margin: 0 5px;">
                         <a class="nav-link" href="{{ url_for('register') }}">注册</a>
                     </li>
                     {% endif %}

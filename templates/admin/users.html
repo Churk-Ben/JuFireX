@@ -123,10 +123,8 @@
                                 <span class="status-badge status-inactive">禁用</span>
                                 {% endif %}
                             </td>
-                            <td>
-                                <span class="status-badge"
-                                    style="background-color: rgba(88, 166, 255, 0.15); color: var(--github-accent); border: 1px solid var(--github-accent);">{{
-                                    user.projects|length }}</span>
+                            <td class="text-center project-count" title="用户项目数量">
+                                {{ user.projects|length }}
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm" role="group">
@@ -325,30 +323,60 @@
                 if (data.success) {
                     const user = data.user;
                     const avatarHtml = user.avatar_path ?
-                        `<img src="/user_data/${user.avatar_path}" alt="${user.username}的头像" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">` :
-                        `<i class="fas fa-user-circle" style="font-size: 5rem; color: var(--github-accent);"></i>`;
+                        `<img src="{{ url_for('user_avatar', filename='') }}${user.avatar_path}" alt="${user.username}的头像" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--github-accent);">` :
+                        `<i class="fas fa-user-circle" style="font-size: 4rem; color: var(--github-accent);"></i>`;
 
                     const content = `
-                <div class="row mb-4">
-                    <div class="col-12 text-center">
-                        ${avatarHtml}
+                <div class="card mb-4 border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="me-3">
+                                ${avatarHtml}
+                            </div>
+                            <div>
+                                <h4 class="mb-1">${user.username}</h4>
+                                <p class="text-muted mb-0">${user.email}</p>
+                                <div class="mt-1">
+                                    <span class="badge bg-${user.is_active ? 'success' : 'danger'} me-2">${user.is_active ? '活跃' : '禁用'}</span>
+                                    <span class="badge" style="background-color: var(--github-accent);">${user.role_name}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card" style="background-color: rgba(88, 166, 255, 0.1); border-color: var(--github-accent);">
+                                    <div class="card-body">
+                                        <h6 class="card-title"><i class="fas fa-info-circle me-2"></i>基本信息</h6>
+                                        <hr style="border-color: rgba(88, 166, 255, 0.3);">
+                                        <p><strong>注册时间：</strong> ${user.created_at}</p>
+                                        <p><strong>活跃天数：</strong> ${user.active_days} 天</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card" style="background-color: rgba(88, 166, 255, 0.1); border-color: var(--github-accent);">
+                                    <div class="card-body">
+                                        <h6 class="card-title"><i class="fas fa-chart-bar me-2"></i>统计信息</h6>
+                                        <hr style="border-color: rgba(88, 166, 255, 0.3);">
+                                        <p><strong>项目数量：</strong> ${user.project_count}</p>
+                                        <p><strong>精选项目：</strong> ${user.featured_project_count}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>基本信息</h6>
-                        <p><strong>用户名：</strong> ${user.username}</p>
-                        <p><strong>邮箱：</strong> ${user.email}</p>
-                        <p><strong>角色：</strong> ${user.role_name}</p>
-                        <p><strong>状态：</strong> ${user.is_active ? '活跃' : '禁用'}</p>
-                        <p><strong>注册时间：</strong> ${user.created_at}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>统计信息</h6>
-                        <p><strong>项目数量：</strong> ${user.project_count}</p>
-                        <p><strong>精选项目：</strong> ${user.featured_project_count}</p>
-                        <p><strong>活跃天数：</strong> ${user.active_days}</p>
-                    </div>
+                
+                <div class="d-flex justify-content-end mt-3">
+                    <button class="btn btn-sm btn-outline-warning me-2" onclick="toggleUserStatus(${user.id}, ${user.is_active})">
+                        <i class="fas fa-${user.is_active ? 'ban' : 'check'} me-1"></i>
+                        ${user.is_active ? '禁用用户' : '启用用户'}
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${user.id})">
+                        <i class="fas fa-trash me-1"></i>
+                        删除用户
+                    </button>
                 </div>
             `;
                     document.getElementById('userDetailsContent').innerHTML = content;

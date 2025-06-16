@@ -65,7 +65,7 @@ class AvatarCropper {
                 aspectRatio: 1, // 1:1 圆形头像
                 viewMode: 1,
                 dragMode: 'move',
-                autoCropArea: 0.9, // 增大初始裁剪区域
+                autoCropArea: 0.8, // 减小初始裁剪区域
                 restore: false,
                 guides: true,
                 center: true,
@@ -86,12 +86,12 @@ class AvatarCropper {
 
         // 获取裁剪后的图像
         const canvas = this.cropper.getCroppedCanvas({
-            width: 200,
-            height: 200,
+            width: 120,
+            height: 120,
             minWidth: 100,
             minHeight: 100,
-            maxWidth: 1000,
-            maxHeight: 1000,
+            maxWidth: 500,
+            maxHeight: 500,
             fillColor: '#fff',
             imageSmoothingEnabled: true,
             imageSmoothingQuality: 'high',

@@ -443,11 +443,13 @@ def get_user_details(user_id):
                 "username": user.username,
                 "email": user.email,
                 "role_name": user.get_role_name(),
+                "role": user.role,
                 "is_active": user.is_active,
                 "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S"),
                 "project_count": len(user_projects),
                 "featured_project_count": len(featured_projects),
                 "active_days": active_days,
+                "avatar_path": user.avatar_path,
             },
         }
     )

@@ -428,6 +428,17 @@ main {
     text-align: center;
 }
 
+/* 项目数量样式 */
+.table .project-count {
+    font-weight: 500;
+    color: var(--github-text-secondary);
+    transition: color 0.2s ease;
+}
+
+.table-hover tbody tr:hover .project-count {
+    color: var(--github-accent);
+}
+
 .table .status-active {
     background-color: rgba(35, 134, 54, 0.15);
     color: #7ee787;
@@ -569,6 +580,11 @@ main {
 
 .modal-header {
     border-bottom: 1px solid var(--github-border);
+}
+
+.modal-header .btn-close {
+    margin: 0;
+    padding: 1rem;
 }
 
 .modal-footer {
