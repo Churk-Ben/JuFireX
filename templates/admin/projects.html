@@ -107,9 +107,26 @@
                             </td>
                             <td>
                                 {% if project.author %}
-                                {{ project.author.username }}
-                                <span class="ms-1"
-                                    style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {% if project.author.role == 3 %}var(--bs-danger){% elif project.author.role == 2 %}var(--bs-warning){% elif project.author.role == 1 %}var(--bs-success){% else %}var(--bs-secondary){% endif %}; vertical-align: middle; position: relative; top: -1px;"></span>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        {% if project.author.avatar_path %}
+                                        <img src="{{ url_for('user_avatar', filename=project.author.avatar_path) }}"
+                                            alt="{{ project.author.username }}的头像" class="rounded-circle"
+                                            style="width: 30px; height: 30px; object-fit: cover;">
+                                        {% else %}
+                                        <div
+                                            style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-user-circle"
+                                                style="font-size: 30px; color: var(--github-accent);"></i>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        {{ project.author.username }}
+                                        <span class="ms-1"
+                                            style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {% if project.author.role == 3 %}var(--bs-danger){% elif project.author.role == 2 %}var(--bs-warning){% elif project.author.role == 1 %}var(--bs-success){% else %}var(--bs-secondary){% endif %}; vertical-align: middle; position: relative; top: -1px;"></span>
+                                    </div>
+                                </div>
                                 {% else %}
                                 未知
                                 {% endif %}
