@@ -237,7 +237,7 @@
     </nav>
 
     <!-- 消息提示容器 - 固定在右下角 -->
-    <div id="messages" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+    <div id="messages" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999;"></div>
 
     <!-- 处理Flask闪现消息 -->
     {% with messages = get_flashed_messages(with_categories=true) %}

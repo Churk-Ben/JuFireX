@@ -308,6 +308,7 @@ main {
     display: flex;
     align-items: center;
     padding-right: 2.5rem;
+    z-index: 9999;
 }
 
 .alert.show {
