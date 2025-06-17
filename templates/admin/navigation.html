@@ -21,108 +21,155 @@
     </div>
 
     <!-- 分类和导航项列表 -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-list"></i> 导航分类与项目</h5>
-                </div>
+    <!-- 导航统计 -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card text-center">
                 <div class="card-body">
-                    <div class="accordion" id="categoriesAccordion">
-                        {% for category in categories %}
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="heading{{ category.id }}">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapse{{ category.id }}" aria-expanded="true"
-                                    aria-controls="collapse{{ category.id }}">
-                                    <i class="{{ category.icon }} me-2"></i> {{ category.name }}
-                                    <span class="badge bg-primary ms-2">{{ category.nav_items|length }}</span>
-                                    <div class="ms-auto">
-                                        <button class="btn btn-sm btn-outline-primary edit-category-btn"
-                                            data-category-id="{{ category.id }}"
-                                            data-category-name="{{ category.name }}"
-                                            data-category-icon="{{ category.icon }}"
-                                            data-category-order="{{ category.order }}">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger delete-category-btn"
-                                            data-category-id="{{ category.id }}">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </button>
-                            </h2>
-                            <div id="collapse{{ category.id }}" class="accordion-collapse collapse show"
-                                aria-labelledby="heading{{ category.id }}" data-bs-parent="#categoriesAccordion">
-                                <div class="accordion-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>标题</th>
-                                                    <th>URL</th>
-                                                    <th>创建者</th>
-                                                    <th>状态</th>
-                                                    <th>操作</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for item in nav_items if item.category_id == category.id %}
-                                                <tr>
-                                                    <td>
-                                                        <i class="{{ item.icon }}"></i> {{ item.title }}
-                                                    </td>
-                                                    <td>
-                                                        <a href="{{ item.url }}" target="_blank"
-                                                            class="text-truncate d-inline-block"
-                                                            style="max-width: 200px;">
-                                                            {{ item.url }}
-                                                        </a>
-                                                    </td>
-                                                    <td>{{ item.creator.username }}</td>
-                                                    <td>
-                                                        {% if item.is_public %}
-                                                        <span class="badge bg-success">公开</span>
-                                                        {% else %}
-                                                        <span class="badge bg-secondary">私有</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        <button class="btn btn-sm btn-outline-primary edit-nav-item-btn"
-                                                            data-item-id="{{ item.id }}"
-                                                            data-item-title="{{ item.title }}"
-                                                            data-item-url="{{ item.url }}"
-                                                            data-item-description="{{ item.description }}"
-                                                            data-item-icon="{{ item.icon }}"
-                                                            data-item-is-public="{{ item.is_public|lower }}"
-                                                            data-item-category-id="{{ item.category_id }}"
-                                                            data-item-order="{{ item.order }}">
-                                                            <i class="fas fa-edit"></i>
-                                                        </button>
-                                                        <button
-                                                            class="btn btn-sm btn-outline-danger delete-nav-item-btn"
-                                                            data-item-id="{{ item.id }}">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                {% else %}
-                                                <tr>
-                                                    <td colspan="5" class="text-center">该分类下暂无导航项</td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
+                    <i class="fas fa-folder" style="font-size: 2rem; color: var(--github-accent);"></i>
+                    <h4 class="mt-2 mb-0">{{ categories|length }}</h4>
+                    <p class="text-muted mb-0">总分类数</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-link" style="font-size: 2rem; color: var(--github-success);"></i>
+                    <h4 class="mt-2 mb-0">{{ nav_items|length }}</h4>
+                    <p class="text-muted mb-0">总导航项</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-eye" style="font-size: 2rem; color: var(--github-warning);"></i>
+                    <h4 class="mt-2 mb-0">{{ nav_items|selectattr('is_public')|list|length }}</h4>
+                    <p class="text-muted mb-0">公开导航</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-eye-slash" style="font-size: 2rem; color: var(--github-danger);"></i>
+                    <h4 class="mt-2 mb-0">{{ nav_items|rejectattr('is_public')|list|length }}</h4>
+                    <p class="text-muted mb-0">私有导航</p>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- 分类列表 -->
+    {% if categories %}
+    {% for category in categories %}
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="{{ category.icon }}"></i> {{ category.name }}
+                <span class="badge bg-primary ms-2">{{ category.nav_items|length }}</span>
+            </h5>
+            <div>
+                <button class="btn btn-sm btn-outline-primary edit-category" 
+                        data-category-id="{{ category.id }}" 
+                        data-category-name="{{ category.name }}" 
+                        data-category-icon="{{ category.icon }}" 
+                        data-category-order="{{ category.order }}">
+                    <i class="fas fa-edit"></i> 编辑
+                </button>
+                <button class="btn btn-sm btn-outline-danger delete-category" 
+                        data-category-id="{{ category.id }}" 
+                        data-category-name="{{ category.name }}">
+                    <i class="fas fa-trash-alt"></i> 删除
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if category.nav_items %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>导航信息</th>
+                            <th>URL</th>
+                            <th>状态</th>
+                            <th>排序</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in category.nav_items|sort(attribute='order') %}
+                        {% set item_public_js = 'true' if item.is_public else 'false' %}
+                        <tr data-nav-item-id="{{ item.id }}">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="{{ item.icon }}" style="font-size: 1.5rem; color: var(--github-accent);"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ item.title }}</h6>
+                                        <small class="text-muted">{{ item.description|truncate(50) }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{{ item.url }}" target="_blank" class="text-truncate d-inline-block" style="max-width: 200px;">
+                                    {{ item.url }}
+                                </a>
+                            </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input toggle-nav-item-status" type="checkbox" 
+                                           data-nav-item-id="{{ item.id }}" 
+                                           data-is-public="{{ item_public_js }}" 
+                                           {% if item.is_public %}checked{% endif %}>
+                                    <label class="form-check-label">
+                                        {% if item.is_public %}
+                                        <span class="badge bg-success">公开</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">私有</span>
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            </td>
+                            <td>{{ item.order }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary edit-nav-item" 
+                                        data-nav-item-id="{{ item.id }}" 
+                                        data-nav-item-title="{{ item.title }}" 
+                                        data-nav-item-url="{{ item.url }}" 
+                                        data-nav-item-description="{{ item.description }}" 
+                                        data-nav-item-icon="{{ item.icon }}" 
+                                        data-nav-item-category="{{ item.category_id }}" 
+                                        data-nav-item-order="{{ item.order }}" 
+                                        data-nav-item-is-public="{{ item_public_js }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-nav-item" 
+                                        data-nav-item-id="{{ item.id }}" 
+                                        data-nav-item-title="{{ item.title }}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> 该分类下暂无导航项
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> 暂无导航分类，请点击"新增分类"按钮添加
+    </div>
+    {% endif %}
 </div>
 
 <!-- 添加分类模态框 -->
@@ -617,4 +664,45 @@
             });
     });
 </script>
+
+<style>
+    /* 修复手风琴按钮样式 */
+    .accordion-button.collapsed {
+        background-color: var(--github-secondary) !important;
+        color: var(--github-text) !important;
+        border-bottom: 1px solid var(--github-border);
+    }
+
+    .accordion-button:not(.collapsed) {
+        background-color: var(--github-bg) !important;
+        color: var(--github-accent) !important;
+        box-shadow: none;
+    }
+
+    /* 确保按钮在收起状态也能显示 */
+    .accordion-button.collapsed::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23c9d1d9'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+        transform: rotate(-90deg);
+    }
+
+    .accordion-button:not(.collapsed)::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2358a6ff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    }
+
+    /* 修复按钮后面的白色条 */
+    .accordion-button .ms-auto .btn {
+        z-index: 2;
+        position: relative;
+    }
+
+    /* 确保所有分类在同一层级 */
+    #categoriesAccordion {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .accordion-item {
+        width: 100%;
+    }
+</style>
 {% endblock %}
