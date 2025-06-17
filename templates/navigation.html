@@ -1,257 +1,764 @@
 {% extends "base.html" %}
 
-{% block title %}导航页 - JuFire Studio{% endblock %}
+{% block title %}导航 - JuFire Studio{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="fas fa-compass"></i> 工作室导航</h2>
-            </div>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>导航</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal">
+            <i class="fas fa-plus"></i> 添加导航
+        </button>
     </div>
 
     <!-- 快速访问 -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h4 class="mb-3"><i class="fas fa-bolt"></i> 快速访问</h4>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card h-100 text-center">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>快速访问</h2>
+        {% if current_user.role >= 2 %}
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
+            data-category-id="{{ categories[0].id }}">
+            <i class="fas fa-plus"></i> 添加到此分类
+        </button>
+        {% endif %}
+    </div>
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        <div class="col">
+            <div class="card h-100 nav-card">
                 <div class="card-body">
-                    <i class="fas fa-home" style="font-size: 2.5rem; color: var(--github-accent);"></i>
-                    <h5 class="mt-3">工作室首页</h5>
-                    <p class="card-text">返回工作室主页</p>
+                    <h5 class="card-title"><i class="fas fa-home"></i> 首页</h5>
+                    <p class="card-text">返回工作室首页</p>
                     <a href="{{ url_for('index') }}" class="btn btn-primary">访问</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card h-100 text-center">
+        <div class="col">
+            <div class="card h-100 nav-card">
                 <div class="card-body">
-                    <i class="fas fa-user" style="font-size: 2.5rem; color: var(--github-success);"></i>
-                    <h5 class="mt-3">个人主页</h5>
-                    <p class="card-text">查看个人信息和项目</p>
-                    <a href="{{ url_for('profile') }}" class="btn btn-success">访问</a>
+                    <h5 class="card-title"><i class="fas fa-user"></i> 个人资料</h5>
+                    <p class="card-text">查看和编辑您的个人资料</p>
+                    <a href="{{ url_for('profile') }}" class="btn btn-primary">访问</a>
                 </div>
             </div>
         </div>
         {% if current_user.role >= 2 %}
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card h-100 text-center">
+        <div class="col">
+            <div class="card h-100 nav-card">
                 <div class="card-body">
-                    <i class="fas fa-project-diagram" style="font-size: 2.5rem; color: var(--github-warning);"></i>
-                    <h5 class="mt-3">项目管理</h5>
-                    <p class="card-text">管理工作室项目</p>
-                    <a href="{{ url_for('admin_projects') }}" class="btn btn-warning">访问</a>
+                    <h5 class="card-title"><i class="fas fa-cogs"></i> 管理后台</h5>
+                    <p class="card-text">访问管理员控制面板</p>
+                    <a href="{{ url_for('admin_projects') }}" class="btn btn-primary">访问</a>
                 </div>
             </div>
         </div>
         {% endif %}
         {% if current_user.role >= 3 %}
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card h-100 text-center">
+        <div class="col">
+            <div class="card h-100 nav-card">
                 <div class="card-body">
-                    <i class="fas fa-users-cog" style="font-size: 2.5rem; color: var(--github-danger);"></i>
-                    <h5 class="mt-3">用户管理</h5>
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title"><i class="fas fa-users-cog" style="color: var(--github-danger);"></i> 用户管理</h5>
+                    </div>
                     <p class="card-text">管理用户权限</p>
                     <a href="{{ url_for('admin_users') }}" class="btn btn-danger">访问</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card h-100 text-center">
+        <div class="col">
+            <div class="card h-100 nav-card">
                 <div class="card-body">
-                    <i class="fas fa-building" style="font-size: 2.5rem; color: var(--github-accent);"></i>
-                    <h5 class="mt-3">工作室信息</h5>
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title"><i class="fas fa-building" style="color: var(--github-accent);"></i> 工作室信息</h5>
+                    </div>
                     <p class="card-text">管理工作室信息</p>
                     <a href="{{ url_for('admin_studio_info') }}" class="btn btn-primary">访问</a>
                 </div>
             </div>
         </div>
         {% endif %}
+
+        {% for item in nav_items_by_category.get(categories[0].id, []) %}
+        <div class="col">
+            <div class="card h-100 nav-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title"><i class="{{ item.icon }}"></i> {{ item.title }}</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                id="dropdownMenuButton{{ item.id }}" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end"
+                                aria-labelledby="dropdownMenuButton{{ item.id }}">
+                                {% if item.created_by == current_user.id %}
+                                <li><a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"
+                                        data-item-title="{{ item.title }}" data-item-url="{{ item.url }}"
+                                        data-item-description="{{ item.description }}" data-item-icon="{{ item.icon }}"
+                                        data-item-is-public="{{ item.is_public|lower }}"
+                                        data-item-category-id="{{ item.category_id }}"
+                                        data-item-order="{{ item.order }}"><i class="fas fa-edit"></i> 编辑</a></li>
+                                <li><a class="dropdown-item delete-nav-item" href="#" data-item-id="{{ item.id }}"><i
+                                            class="fas fa-trash"></i> 删除</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item toggle-visibility" href="#" data-item-id="{{ item.id }}"
+                                        data-is-public="{{ item.is_public|lower }}"><i
+                                            class="fas {% if item.is_public %}fa-lock{% else %}fa-globe{% endif %}"></i>
+                                        {% if item.is_public %}设为私有{% else %}设为公开{% endif %}</a></li>
+                                {% elif item.is_public %}
+                                <li><a class="dropdown-item toggle-hidden" href="#" data-item-id="{{ item.id }}"
+                                        data-is-hidden="{{ item.id in hidden_items }}"><i
+                                            class="fas {% if item.id in hidden_items %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
+                                        {% if item.id in hidden_items %}显示{% else %}隐藏{% endif %}</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="card-text">{{ item.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ item.url }}" target="_blank" class="btn btn-primary">访问</a>
+                        {% if not item.is_public %}
+                        <span class="badge bg-secondary"><i class="fas fa-lock"></i> 私有</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 
     <!-- 开发工具 -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h4 class="mb-3"><i class="fas fa-tools"></i> 开发工具</h4>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>开发工具</h2>
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
+            data-category-id="{{ categories[1].id }}">
+            <i class="fas fa-plus"></i> 添加到此分类
+        </button>
+    </div>
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        <div class="col">
+            <div class="card h-100 nav-card">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fab fa-github" style="font-size: 2rem; color: var(--github-accent);"></i>
-                        <div class="ms-3">
-                            <h5 class="mb-0">GitHub</h5>
-                            <small class="text-muted">代码托管平台</small>
-                        </div>
-                    </div>
-                    <p class="card-text">访问我们的 GitHub 组织，查看开源项目和贡献代码。</p>
-                    <a href="https://github.com" class="btn btn-outline-light" target="_blank">
-                        <i class="fas fa-external-link-alt"></i> 访问
-                    </a>
+                    <h5 class="card-title"><i class="fab fa-github"></i> GitHub</h5>
+                    <p class="card-text">代码托管和版本控制平台</p>
+                    <a href="https://github.com" target="_blank" class="btn btn-primary">访问</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="card">
+        <div class="col">
+            <div class="card h-100 nav-card">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-code" style="font-size: 2rem; color: #007acc;"></i>
-                        <div class="ms-3">
-                            <h5 class="mb-0">VS Code</h5>
-                            <small class="text-muted">代码编辑器</small>
-                        </div>
-                    </div>
-                    <p class="card-text">推荐的代码编辑器，支持多种编程语言和插件。</p>
-                    <a href="https://code.visualstudio.com" class="btn btn-outline-light" target="_blank">
-                        <i class="fas fa-external-link-alt"></i> 下载
-                    </a>
+                    <h5 class="card-title"><i class="fab fa-microsoft"></i> VS Code</h5>
+                    <p class="card-text">微软开源代码编辑器</p>
+                    <a href="https://code.visualstudio.com" target="_blank" class="btn btn-primary">访问</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="card">
+        <div class="col">
+            <div class="card h-100 nav-card">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fab fa-docker" style="font-size: 2rem; color: #2496ed;"></i>
-                        <div class="ms-3">
-                            <h5 class="mb-0">Docker</h5>
-                            <small class="text-muted">容器化平台</small>
+                    <h5 class="card-title"><i class="fab fa-docker"></i> Docker</h5>
+                    <p class="card-text">容器化平台</p>
+                    <a href="https://www.docker.com" target="_blank" class="btn btn-primary">访问</a>
+                </div>
+            </div>
+        </div>
+
+        {% for item in nav_items_by_category.get(categories[1].id, []) %}
+        <div class="col">
+            <div class="card h-100 nav-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title"><i class="{{ item.icon }}"></i> {{ item.title }}</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                id="dropdownMenuButton{{ item.id }}" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end"
+                                aria-labelledby="dropdownMenuButton{{ item.id }}">
+                                {% if item.created_by == current_user.id %}
+                                <li><a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"
+                                        data-item-title="{{ item.title }}" data-item-url="{{ item.url }}"
+                                        data-item-description="{{ item.description }}" data-item-icon="{{ item.icon }}"
+                                        data-item-is-public="{{ item.is_public|lower }}"
+                                        data-item-category-id="{{ item.category_id }}"
+                                        data-item-order="{{ item.order }}"><i class="fas fa-edit"></i> 编辑</a></li>
+                                <li><a class="dropdown-item delete-nav-item" href="#" data-item-id="{{ item.id }}"><i
+                                            class="fas fa-trash"></i> 删除</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item toggle-visibility" href="#" data-item-id="{{ item.id }}"
+                                        data-is-public="{{ item.is_public|lower }}"><i
+                                            class="fas {% if item.is_public %}fa-lock{% else %}fa-globe{% endif %}"></i>
+                                        {% if item.is_public %}设为私有{% else %}设为公开{% endif %}</a></li>
+                                {% elif item.is_public %}
+                                <li><a class="dropdown-item toggle-hidden" href="#" data-item-id="{{ item.id }}"
+                                        data-is-hidden="{{ item.id in hidden_items }}"><i
+                                            class="fas {% if item.id in hidden_items %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
+                                        {% if item.id in hidden_items %}显示{% else %}隐藏{% endif %}</a></li>
+                                {% endif %}
+                            </ul>
                         </div>
                     </div>
-                    <p class="card-text">容器化部署工具，简化应用程序的部署和管理。</p>
-                    <a href="https://www.docker.com" class="btn btn-outline-light" target="_blank">
-                        <i class="fas fa-external-link-alt"></i> 访问
-                    </a>
+                    <p class="card-text">{{ item.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ item.url }}" target="_blank" class="btn btn-primary">访问</a>
+                        {% if not item.is_public %}
+                        <span class="badge bg-secondary"><i class="fas fa-lock"></i> 私有</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- 学习资源 -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>学习资源</h2>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
+                data-category-id="{{ categories[2].id }}">
+                <i class="fas fa-plus"></i> 添加到此分类
+            </button>
+        </div>
+        <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+            <div class="col">
+                <div class="card h-100 nav-card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fab fa-python"></i> Python 资源</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><a href="https://www.python.org/doc/" target="_blank">Python
+                                    官方文档</a></li>
+                            <li class="list-group-item"><a href="https://flask.palletsprojects.com/"
+                                    target="_blank">Flask 文档</a></li>
+                            <li class="list-group-item"><a href="https://python-socketio.readthedocs.io/"
+                                    target="_blank">Socket.IO 文档</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 nav-card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fab fa-js"></i> 前端资源</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><a href="https://getbootstrap.com/docs/5.0/"
+                                    target="_blank">Bootstrap 文档</a></li>
+                            <li class="list-group-item"><a href="https://fontawesome.com/icons" target="_blank">Font
+                                    Awesome 图标</a></li>
+                            <li class="list-group-item"><a href="https://developer.mozilla.org/zh-CN/"
+                                    target="_blank">MDN Web 文档</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {% for item in nav_items_by_category.get(categories[2].id, []) %}
+            <div class="col">
+                <div class="card h-100 nav-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title"><i class="{{ item.icon }}"></i> {{ item.title }}</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                    id="dropdownMenuButton{{ item.id }}" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end"
+                                    aria-labelledby="dropdownMenuButton{{ item.id }}">
+                                    {% if item.created_by == current_user.id %}
+                                    <li><a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"
+                                            data-item-title="{{ item.title }}" data-item-url="{{ item.url }}"
+                                            data-item-description="{{ item.description }}"
+                                            data-item-icon="{{ item.icon }}"
+                                            data-item-is-public="{{ item.is_public|lower }}"
+                                            data-item-category-id="{{ item.category_id }}"
+                                            data-item-order="{{ item.order }}"><i class="fas fa-edit"></i> 编辑</a></li>
+                                    <li><a class="dropdown-item delete-nav-item" href="#"
+                                            data-item-id="{{ item.id }}"><i class="fas fa-trash"></i> 删除</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item toggle-visibility" href="#" data-item-id="{{ item.id }}"
+                                            data-is-public="{{ item.is_public|lower }}"><i
+                                                class="fas {% if item.is_public %}fa-lock{% else %}fa-globe{% endif %}"></i>
+                                            {% if item.is_public %}设为私有{% else %}设为公开{% endif %}</a></li>
+                                    {% elif item.is_public %}
+                                    <li><a class="dropdown-item toggle-hidden" href="#" data-item-id="{{ item.id }}"
+                                            data-is-hidden="{{ item.id in hidden_items }}"><i
+                                                class="fas {% if item.id in hidden_items %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
+                                            {% if item.id in hidden_items %}显示{% else %}隐藏{% endif %}</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="card-text">{{ item.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ item.url }}" target="_blank" class="btn btn-primary">访问</a>
+                            {% if not item.is_public %}
+                            <span class="badge bg-secondary"><i class="fas fa-lock"></i> 私有</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- 常用链接 -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>常用链接</h2>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
+                data-category-id="{{ categories[3].id }}">
+                <i class="fas fa-plus"></i> 添加到此分类
+            </button>
+        </div>
+        <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+            {% for item in nav_items_by_category.get(categories[3].id, []) %}
+            <div class="col">
+                <div class="card h-100 nav-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title"><i class="{{ item.icon }}"></i> {{ item.title }}</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                    id="dropdownMenuButton{{ item.id }}" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end"
+                                    aria-labelledby="dropdownMenuButton{{ item.id }}">
+                                    {% if item.created_by == current_user.id %}
+                                    <li><a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"
+                                            data-item-title="{{ item.title }}" data-item-url="{{ item.url }}"
+                                            data-item-description="{{ item.description }}"
+                                            data-item-icon="{{ item.icon }}"
+                                            data-item-is-public="{{ item.is_public|lower }}"
+                                            data-item-category-id="{{ item.category_id }}"
+                                            data-item-order="{{ item.order }}"><i class="fas fa-edit"></i> 编辑</a></li>
+                                    <li><a class="dropdown-item delete-nav-item" href="#"
+                                            data-item-id="{{ item.id }}"><i class="fas fa-trash"></i> 删除</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item toggle-visibility" href="#" data-item-id="{{ item.id }}"
+                                            data-is-public="{{ item.is_public|lower }}"><i
+                                                class="fas {% if item.is_public %}fa-lock{% else %}fa-globe{% endif %}"></i>
+                                            {% if item.is_public %}设为私有{% else %}设为公开{% endif %}</a></li>
+                                    {% elif item.is_public %}
+                                    <li><a class="dropdown-item toggle-hidden" href="#" data-item-id="{{ item.id }}"
+                                            data-is-hidden="{{ item.id in hidden_items }}"><i
+                                                class="fas {% if item.id in hidden_items %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
+                                            {% if item.id in hidden_items %}显示{% else %}隐藏{% endif %}</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="card-text">{{ item.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ item.url }}" target="_blank" class="btn btn-primary">访问</a>
+                            {% if not item.is_public %}
+                            <span class="badge bg-secondary"><i class="fas fa-lock"></i> 私有</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- 其他分类 -->
+        {% for category in categories[4:] %}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>{{ category.name }}</h2>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
+                data-category-id="{{ category.id }}">
+                <i class="fas fa-plus"></i> 添加到此分类
+            </button>
+        </div>
+        <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+            {% for item in nav_items_by_category.get(category.id, []) %}
+            <div class="col">
+                <div class="card h-100 nav-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title"><i class="{{ item.icon }}"></i> {{ item.title }}</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                    id="dropdownMenuButton{{ item.id }}" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end"
+                                    aria-labelledby="dropdownMenuButton{{ item.id }}">
+                                    {% if item.created_by == current_user.id %}
+                                    <li><a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"
+                                            data-item-title="{{ item.title }}" data-item-url="{{ item.url }}"
+                                            data-item-description="{{ item.description }}"
+                                            data-item-icon="{{ item.icon }}"
+                                            data-item-is-public="{{ item.is_public|lower }}"
+                                            data-item-category-id="{{ item.category_id }}"
+                                            data-item-order="{{ item.order }}"><i class="fas fa-edit"></i> 编辑</a></li>
+                                    <li><a class="dropdown-item delete-nav-item" href="#"
+                                            data-item-id="{{ item.id }}"><i class="fas fa-trash"></i> 删除</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item toggle-visibility" href="#" data-item-id="{{ item.id }}"
+                                            data-is-public="{{ item.is_public|lower }}"><i
+                                                class="fas {% if item.is_public %}fa-lock{% else %}fa-globe{% endif %}"></i>
+                                            {% if item.is_public %}设为私有{% else %}设为公开{% endif %}</a></li>
+                                    {% elif item.is_public %}
+                                    <li><a class="dropdown-item toggle-hidden" href="#" data-item-id="{{ item.id }}"
+                                            data-is-hidden="{{ item.id in hidden_items }}"><i
+                                                class="fas {% if item.id in hidden_items %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
+                                            {% if item.id in hidden_items %}显示{% else %}隐藏{% endif %}</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="card-text">{{ item.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ item.url }}" target="_blank" class="btn btn-primary">访问</a>
+                            {% if not item.is_public %}
+                            <span class="badge bg-secondary"><i class="fas fa-lock"></i> 私有</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 该分类下暂无导航项
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <!-- 添加导航项模态框 -->
+        <div class="modal fade" id="addNavItemModal" tabindex="-1" aria-labelledby="addNavItemModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNavItemModalLabel">添加导航项</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addNavItemForm">
+                            <div class="mb-3">
+                                <label for="navItemTitle" class="form-label">标题</label>
+                                <input type="text" class="form-control" id="navItemTitle" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="navItemUrl" class="form-label">URL</label>
+                                <input type="url" class="form-control" id="navItemUrl" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="navItemDescription" class="form-label">描述</label>
+                                <textarea class="form-control" id="navItemDescription" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="navItemIcon" class="form-label">图标 (Font Awesome)</label>
+                                <input type="text" class="form-control" id="navItemIcon" value="fas fa-link">
+                                <small class="form-text text-muted">例如: fas fa-link, fas fa-book 等</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="navItemCategory" class="form-label">分类</label>
+                                <select class="form-select" id="navItemCategory" required>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="navItemIsPublic" checked>
+                                <label class="form-check-label" for="navItemIsPublic">公开</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="saveNavItemBtn">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 编辑导航项模态框 -->
+        <div class="modal fade" id="editNavItemModal" tabindex="-1" aria-labelledby="editNavItemModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editNavItemModalLabel">编辑导航项</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editNavItemForm">
+                            <input type="hidden" id="editNavItemId">
+                            <div class="mb-3">
+                                <label for="editNavItemTitle" class="form-label">标题</label>
+                                <input type="text" class="form-control" id="editNavItemTitle" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editNavItemUrl" class="form-label">URL</label>
+                                <input type="url" class="form-control" id="editNavItemUrl" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editNavItemDescription" class="form-label">描述</label>
+                                <textarea class="form-control" id="editNavItemDescription" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editNavItemIcon" class="form-label">图标 (Font Awesome)</label>
+                                <input type="text" class="form-control" id="editNavItemIcon">
+                                <small class="form-text text-muted">例如: fas fa-link, fas fa-book 等</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editNavItemCategory" class="form-label">分类</label>
+                                <select class="form-select" id="editNavItemCategory" required>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="editNavItemIsPublic">
+                                <label class="form-check-label" for="editNavItemIsPublic">公开</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="updateNavItemBtn">更新</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 删除确认模态框 -->
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteConfirmModalLabel">确认删除</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="deleteConfirmMessage">确定要删除这个导航项吗？此操作不可撤销。</p>
+                        <input type="hidden" id="deleteItemId">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">删除</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 学习资源 -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h4 class="mb-3"><i class="fas fa-graduation-cap"></i> 学习资源</h4>
-        </div>
-        <div class="col-md-6 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fab fa-python"></i> Python 资源</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <a href="https://docs.python.org/zh-cn/3/" class="text-decoration-none" target="_blank">
-                                <i class="fas fa-book"></i> Python 官方文档
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="https://flask.palletsprojects.com/" class="text-decoration-none" target="_blank">
-                                <i class="fas fa-flask"></i> Flask 文档
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="https://python-socketio.readthedocs.io/" class="text-decoration-none"
-                                target="_blank">
-                                <i class="fas fa-plug"></i> Socket.IO 文档
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fab fa-js-square"></i> 前端资源</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <a href="https://getbootstrap.com/docs/5.1/" class="text-decoration-none" target="_blank">
-                                <i class="fab fa-bootstrap"></i> Bootstrap 文档
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="https://fontawesome.com/icons" class="text-decoration-none" target="_blank">
-                                <i class="fas fa-icons"></i> Font Awesome 图标
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="https://developer.mozilla.org/zh-CN/" class="text-decoration-none" target="_blank">
-                                <i class="fab fa-firefox-browser"></i> MDN Web 文档
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 常用链接 -->
-    <div class="row">
-        <div class="col-12">
-            <h4 class="mb-3"><i class="fas fa-link"></i> 常用链接</h4>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-title"><i class="fas fa-cloud"></i> 云服务</h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="https://aws.amazon.com" class="btn btn-sm btn-outline-light" target="_blank">AWS</a>
-                        <a href="https://azure.microsoft.com" class="btn btn-sm btn-outline-light"
-                            target="_blank">Azure</a>
-                        <a href="https://cloud.google.com" class="btn btn-sm btn-outline-light" target="_blank">GCP</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-title"><i class="fas fa-database"></i> 数据库</h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="https://www.postgresql.org" class="btn btn-sm btn-outline-light"
-                            target="_blank">PostgreSQL</a>
-                        <a href="https://www.mongodb.com" class="btn btn-sm btn-outline-light"
-                            target="_blank">MongoDB</a>
-                        <a href="https://redis.io" class="btn btn-sm btn-outline-light" target="_blank">Redis</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 col-sm-6 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-title"><i class="fas fa-chart-line"></i> 监控工具</h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="https://grafana.com" class="btn btn-sm btn-outline-light" target="_blank">Grafana</a>
-                        <a href="https://prometheus.io" class="btn btn-sm btn-outline-light"
-                            target="_blank">Prometheus</a>
-                        <a href="https://sentry.io" class="btn btn-sm btn-outline-light" target="_blank">Sentry</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // 添加一些交互效果
-    document.querySelectorAll('.card').forEach(card => {
-        card.addEventListener('mouseenter', function () {
-            this.style.transform = 'translateY(-2px)';
-            this.style.transition = 'transform 0.2s';
+    {% block extra_js %}
+    <script>
+        // 卡片悬停效果
+        function setupCardHoverEffects() {
+            // 先移除现有的事件监听器
+            $('.nav-card').off('mouseenter mouseleave');
+            
+            // 添加新的事件监听器
+            $('.nav-card').on('mouseenter', function() {
+                $(this).css('box-shadow', '0 8px 16px rgba(0, 0, 0, 0.1)');
+                $(this).css('transform', 'translateY(-5px)');
+            }).on('mouseleave', function() {
+                $(this).css('box-shadow', 'none');
+                $(this).css('transform', 'translateY(0)');
+            });
+        }
+    
+        // 添加导航项
+        $(document).ready(function() {
+            // 初始化卡片悬停效果
+            setupCardHoverEffects();
+            
+            // 打开添加导航项模态框时设置分类
+            $('#addNavItemModal').off('show.bs.modal').on('show.bs.modal', function(event) {
+                var button = $(event.relatedTarget);
+                var categoryId = button.data('category-id');
+                if (categoryId) {
+                    $('#navItemCategory').val(categoryId);
+                }
+            });
+    
+            // 保存导航项
+            $('#saveNavItemBtn').off('click').on('click', function() {
+                var title = $('#navItemTitle').val();
+                var url = $('#navItemUrl').val();
+                var description = $('#navItemDescription').val();
+                var icon = $('#navItemIcon').val();
+                var categoryId = $('#navItemCategory').val();
+                var isPublic = $('#navItemIsPublic').is(':checked');
+    
+                if (!title || !url) {
+                    alert('标题和URL不能为空');
+                    return;
+                }
+    
+                $.ajax({
+                    url: '/api/nav-items',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        title: title,
+                        url: url,
+                        description: description,
+                        icon: icon,
+                        category_id: categoryId,
+                        is_public: isPublic
+                    }),
+                    success: function(response) {
+                        $('#addNavItemModal').modal('hide');
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('添加失败: ' + xhr.responseJSON.message);
+                    }
+                });
+            });
+    
+            // 打开编辑导航项模态框
+            $('.edit-nav-item').off('click').on('click', function(e) {
+                e.preventDefault();
+                var itemId = $(this).data('item-id');
+                var title = $(this).data('item-title');
+                var url = $(this).data('item-url');
+                var description = $(this).data('item-description');
+                var icon = $(this).data('item-icon');
+                var isPublic = $(this).data('item-is-public') === 'true';
+                var categoryId = $(this).data('item-category-id');
+    
+                $('#editNavItemId').val(itemId);
+                $('#editNavItemTitle').val(title);
+                $('#editNavItemUrl').val(url);
+                $('#editNavItemDescription').val(description);
+                $('#editNavItemIcon').val(icon);
+                $('#editNavItemIsPublic').prop('checked', isPublic);
+                $('#editNavItemCategory').val(categoryId);
+    
+                $('#editNavItemModal').modal('show');
+            });
+    
+            // 更新导航项
+            $('#updateNavItemBtn').off('click').on('click', function() {
+                var itemId = $('#editNavItemId').val();
+                var title = $('#editNavItemTitle').val();
+                var url = $('#editNavItemUrl').val();
+                var description = $('#editNavItemDescription').val();
+                var icon = $('#editNavItemIcon').val();
+                var categoryId = $('#editNavItemCategory').val();
+                var isPublic = $('#editNavItemIsPublic').is(':checked');
+    
+                if (!title || !url) {
+                    alert('标题和URL不能为空');
+                    return;
+                }
+    
+                $.ajax({
+                    url: '/api/nav-items/' + itemId,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        title: title,
+                        url: url,
+                        description: description,
+                        icon: icon,
+                        category_id: categoryId,
+                        is_public: isPublic
+                    }),
+                    success: function(response) {
+                        $('#editNavItemModal').modal('hide');
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('更新失败: ' + xhr.responseJSON.message);
+                    }
+                });
+            });
+    
+            // 打开删除确认模态框
+            $('.delete-nav-item').off('click').on('click', function(e) {
+                e.preventDefault();
+                var itemId = $(this).data('item-id');
+                $('#deleteItemId').val(itemId);
+                $('#deleteConfirmModal').modal('show');
+            });
+    
+            // 确认删除
+            $('#confirmDeleteBtn').off('click').on('click', function() {
+                var itemId = $('#deleteItemId').val();
+    
+                $.ajax({
+                    url: '/api/nav-items/' + itemId,
+                    type: 'DELETE',
+                    success: function(response) {
+                        $('#deleteConfirmModal').modal('hide');
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('删除失败: ' + xhr.responseJSON.message);
+                    }
+                });
+            });
+    
+            // 切换可见性
+            $('.toggle-visibility').off('click').on('click', function(e) {
+                e.preventDefault();
+                var itemId = $(this).data('item-id');
+                var isPublic = $(this).data('is-public') === 'true';
+    
+                $.ajax({
+                    url: '/api/nav-items/' + itemId + '/visibility',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        is_public: !isPublic
+                    }),
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('操作失败: ' + xhr.responseJSON.message);
+                    }
+                });
+            });
+    
+            // 切换隐藏状态
+            $('.toggle-hidden').off('click').on('click', function(e) {
+                e.preventDefault();
+                var itemId = $(this).data('item-id');
+                var isHidden = $(this).data('is-hidden');
+    
+                $.ajax({
+                    url: '/api/nav-items/' + itemId + '/visibility',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        toggle_hidden: true
+                    }),
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('操作失败: ' + xhr.responseJSON.message);
+                    }
+                });
+            });
         });
-
-        card.addEventListener('mouseleave', function () {
-            this.style.transform = 'translateY(0)';
-        });
-    });
-</script>
-{% endblock %}
+    </script>
+    {% endblock %}
+    {% endblock %}

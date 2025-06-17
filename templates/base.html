@@ -154,15 +154,16 @@
                     </li>
                     {% endif %}
                     {% if current_user and current_user.role >= 2 %}
-                    <li class="nav-item dropdown" style="margin: 0 5px;">
-                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
-                            data-bs-toggle="dropdown">
+                    <li class="nav-item dropdown" style="margin: 0 5px;" {% if current_user.is_anonymous or current_user.role < 2 %}hidden{% endif %}>                        
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
                             管理
                         </a>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="{{ url_for('admin_projects') }}">项目管理</a></li>
                             {% if current_user.role >= 3 %}
                             <li><a class="dropdown-item" href="{{ url_for('admin_users') }}">用户管理</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin_navigation') }}">导航管理</a></li>
                             {% endif %}
                         </ul>
                     </li>

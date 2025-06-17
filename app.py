@@ -103,6 +103,48 @@ class StudioInfo(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now)
 
 
+# 导航分类模型
+class NavCategory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    icon = db.Column(db.String(50), default="fas fa-link")
+    order = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    created_by = db.Column(db.Integer, db.ForeignKey("user.id"))
+
+    creator = db.relationship("User", backref=db.backref("nav_categories", lazy=True))
+    nav_items = db.relationship(
+        "NavItem", backref="category", lazy=True, cascade="all, delete-orphan"
+    )
+
+
+# 导航项模型
+class NavItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    url = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    icon = db.Column(db.String(50), default="fas fa-link")
+    is_public = db.Column(db.Boolean, default=True)
+    order = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    category_id = db.Column(db.Integer, db.ForeignKey("nav_category.id"))
+    created_by = db.Column(db.Integer, db.ForeignKey("user.id"))
+
+    creator = db.relationship("User", backref=db.backref("nav_items", lazy=True))
+
+
+# 用户隐藏的导航项
+class HiddenNavItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    nav_item_id = db.Column(db.Integer, db.ForeignKey("nav_item.id"))
+    hidden_at = db.Column(db.DateTime, default=datetime.now)
+
+    user = db.relationship("User", backref=db.backref("hidden_nav_items", lazy=True))
+    nav_item = db.relationship("NavItem")
+
+
 # 权限检查装饰器
 def require_role(min_role):
     def decorator(f):
@@ -365,7 +407,38 @@ def upload_avatar():
 @require_role(ROLE_MEMBER)
 def navigation():
     current_user = db.session.get(User, session["user_id"])
-    return render_template("navigation.html", current_user=current_user)
+
+    # 获取所有导航分类
+    categories = NavCategory.query.order_by(NavCategory.order).all()
+
+    # 获取当前用户隐藏的导航项ID列表
+    hidden_nav_items = HiddenNavItem.query.filter_by(user_id=current_user.id).all()
+    hidden_nav_item_ids = [item.nav_item_id for item in hidden_nav_items]
+
+    # 获取所有公开的导航项和当前用户创建的私有导航项
+    nav_items = NavItem.query.filter(
+        db.or_(NavItem.is_public == True, NavItem.created_by == current_user.id)
+    ).all()
+
+    # 过滤掉用户隐藏的导航项
+    visible_nav_items = [
+        item for item in nav_items if item.id not in hidden_nav_item_ids
+    ]
+
+    # 按分类组织导航项
+    nav_items_by_category = {}
+    for category in categories:
+        nav_items_by_category[category.id] = [
+            item for item in visible_nav_items if item.category_id == category.id
+        ]
+
+    return render_template(
+        "navigation.html",
+        current_user=current_user,
+        categories=categories,
+        nav_items_by_category=nav_items_by_category,
+        hidden_items=hidden_nav_item_ids,
+    )
 
 
 @app.route("/admin/projects")
@@ -391,7 +464,24 @@ def admin_users():
 def admin_studio_info():
     current_user = db.session.get(User, session["user_id"])
     studio_info = StudioInfo.query.first()
-    return render_template("admin/studio_info.html", studio_info=studio_info, current_user=current_user)
+    return render_template(
+        "admin/studio_info.html", studio_info=studio_info, current_user=current_user
+    )
+
+
+@app.route("/admin/navigation")
+@require_role(ROLE_SUPER_ADMIN)
+def admin_navigation():
+    current_user = db.session.get(User, session["user_id"])
+    categories = NavCategory.query.order_by(NavCategory.order).all()
+    nav_items = NavItem.query.order_by(NavItem.category_id, NavItem.order).all()
+
+    return render_template(
+        "admin/navigation.html",
+        categories=categories,
+        nav_items=nav_items,
+        current_user=current_user,
+    )
 
 
 @app.route("/api/projects", methods=["POST"])
@@ -564,10 +654,10 @@ def delete_project(project_id):
 def update_studio_info():
     data = request.get_json()
     studio_info = StudioInfo.query.first()
-    
+
     if not studio_info:
         studio_info = StudioInfo()
-    
+
     # 更新工作室信息
     studio_info.name = data.get("name", studio_info.name)
     studio_info.description = data.get("description", studio_info.description)
@@ -575,11 +665,285 @@ def update_studio_info():
     studio_info.github_url = data.get("github_url", studio_info.github_url)
     studio_info.logo_url = data.get("logo_url", studio_info.logo_url)
     studio_info.updated_at = datetime.now()
-    
+
     db.session.add(studio_info)
     db.session.commit()
-    
+
     return jsonify({"success": True, "message": "工作室信息更新成功"})
+
+
+# 导航分类API
+@app.route("/api/nav-categories", methods=["GET"])
+@require_role(ROLE_MEMBER)
+def get_nav_categories():
+    categories = NavCategory.query.order_by(NavCategory.order).all()
+    categories_data = [
+        {
+            "id": cat.id,
+            "name": cat.name,
+            "icon": cat.icon,
+            "order": cat.order,
+            "created_by": cat.created_by,
+            "creator_name": cat.creator.username if cat.creator else None,
+        }
+        for cat in categories
+    ]
+
+    return jsonify({"success": True, "categories": categories_data})
+
+
+@app.route("/api/nav-categories", methods=["POST"])
+@require_role(ROLE_ADMIN)
+def create_nav_category():
+    data = request.get_json()
+
+    # 验证数据
+    if not data.get("name"):
+        return jsonify({"success": False, "message": "分类名称不能为空"})
+
+    # 创建新分类
+    category = NavCategory(
+        name=data["name"],
+        icon=data.get("icon", "fas fa-link"),
+        order=data.get("order", 0),
+        created_by=session["user_id"],
+    )
+
+    db.session.add(category)
+    db.session.commit()
+
+    return jsonify(
+        {
+            "success": True,
+            "message": "导航分类创建成功",
+            "category": {
+                "id": category.id,
+                "name": category.name,
+                "icon": category.icon,
+                "order": category.order,
+            },
+        }
+    )
+
+
+@app.route("/api/nav-categories/<int:category_id>", methods=["PUT"])
+@require_role(ROLE_ADMIN)
+def update_nav_category(category_id):
+    category = NavCategory.query.get_or_404(category_id)
+    data = request.get_json()
+
+    # 更新分类信息
+    if "name" in data:
+        category.name = data["name"]
+    if "icon" in data:
+        category.icon = data["icon"]
+    if "order" in data:
+        category.order = data["order"]
+
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "导航分类更新成功"})
+
+
+@app.route("/api/nav-categories/<int:category_id>", methods=["DELETE"])
+@require_role(ROLE_SUPER_ADMIN)
+def delete_nav_category(category_id):
+    category = NavCategory.query.get_or_404(category_id)
+
+    # 删除分类（关联的导航项会通过cascade自动删除）
+    db.session.delete(category)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "导航分类删除成功"})
+
+
+# 导航项API
+@app.route("/api/nav-items", methods=["GET"])
+@require_role(ROLE_MEMBER)
+def get_nav_items():
+    current_user = db.session.get(User, session["user_id"])
+
+    # 获取所有公开的导航项和当前用户创建的私有导航项
+    nav_items = (
+        NavItem.query.filter(
+            db.or_(NavItem.is_public == True, NavItem.created_by == current_user.id)
+        )
+        .order_by(NavItem.category_id, NavItem.order)
+        .all()
+    )
+
+    # 获取当前用户隐藏的导航项ID列表
+    hidden_items = HiddenNavItem.query.filter_by(user_id=current_user.id).all()
+    hidden_item_ids = [item.nav_item_id for item in hidden_items]
+
+    items_data = [
+        {
+            "id": item.id,
+            "title": item.title,
+            "url": item.url,
+            "description": item.description,
+            "icon": item.icon,
+            "is_public": item.is_public,
+            "order": item.order,
+            "category_id": item.category_id,
+            "created_by": item.created_by,
+            "creator_name": item.creator.username if item.creator else None,
+            "is_hidden": item.id in hidden_item_ids,
+            "is_owner": item.created_by == current_user.id,
+        }
+        for item in nav_items
+    ]
+
+    return jsonify({"success": True, "nav_items": items_data})
+
+
+@app.route("/api/nav-items", methods=["POST"])
+@require_role(ROLE_MEMBER)
+def create_nav_item():
+    data = request.get_json()
+
+    # 验证数据
+    if not data.get("title"):
+        return jsonify({"success": False, "message": "导航标题不能为空"})
+    if not data.get("url"):
+        return jsonify({"success": False, "message": "导航URL不能为空"})
+    if not data.get("category_id"):
+        return jsonify({"success": False, "message": "必须选择一个分类"})
+
+    # 检查分类是否存在
+    category = NavCategory.query.get(data["category_id"])
+    if not category:
+        return jsonify({"success": False, "message": "所选分类不存在"})
+
+    # 创建新导航项
+    nav_item = NavItem(
+        title=data["title"],
+        url=data["url"],
+        description=data.get("description", ""),
+        icon=data.get("icon", "fas fa-link"),
+        is_public=data.get("is_public", True),
+        order=data.get("order", 0),
+        category_id=data["category_id"],
+        created_by=session["user_id"],
+    )
+
+    db.session.add(nav_item)
+    db.session.commit()
+
+    return jsonify(
+        {
+            "success": True,
+            "message": "导航项创建成功",
+            "nav_item": {
+                "id": nav_item.id,
+                "title": nav_item.title,
+                "url": nav_item.url,
+                "description": nav_item.description,
+                "icon": nav_item.icon,
+                "is_public": nav_item.is_public,
+                "category_id": nav_item.category_id,
+            },
+        }
+    )
+
+
+@app.route("/api/nav-items/<int:item_id>", methods=["PUT"])
+@require_role(ROLE_MEMBER)
+def update_nav_item(item_id):
+    nav_item = NavItem.query.get_or_404(item_id)
+    current_user = db.session.get(User, session["user_id"])
+
+    # 检查权限：只有创建者或超级管理员可以更新
+    if nav_item.created_by != current_user.id and current_user.role < ROLE_SUPER_ADMIN:
+        return jsonify({"success": False, "message": "权限不足"})
+
+    data = request.get_json()
+
+    # 更新导航项信息
+    if "title" in data:
+        nav_item.title = data["title"]
+    if "url" in data:
+        nav_item.url = data["url"]
+    if "description" in data:
+        nav_item.description = data["description"]
+    if "icon" in data:
+        nav_item.icon = data["icon"]
+    if "is_public" in data:
+        nav_item.is_public = data["is_public"]
+    if "order" in data:
+        nav_item.order = data["order"]
+    if "category_id" in data:
+        # 检查分类是否存在
+        category = NavCategory.query.get(data["category_id"])
+        if not category:
+            return jsonify({"success": False, "message": "所选分类不存在"})
+        nav_item.category_id = data["category_id"]
+
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "导航项更新成功"})
+
+
+@app.route("/api/nav-items/<int:item_id>", methods=["DELETE"])
+@require_role(ROLE_MEMBER)
+def delete_nav_item(item_id):
+    nav_item = NavItem.query.get_or_404(item_id)
+    current_user = db.session.get(User, session["user_id"])
+
+    # 检查权限：只有创建者或超级管理员可以删除
+    if nav_item.created_by != current_user.id and current_user.role < ROLE_SUPER_ADMIN:
+        return jsonify({"success": False, "message": "权限不足"})
+
+    # 删除相关的隐藏记录
+    HiddenNavItem.query.filter_by(nav_item_id=item_id).delete()
+
+    # 删除导航项
+    db.session.delete(nav_item)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "导航项删除成功"})
+
+
+# 隐藏/显示导航项API
+@app.route("/api/nav-items/<int:item_id>/visibility", methods=["PUT"])
+@require_role(ROLE_MEMBER)
+def toggle_nav_item_visibility(item_id):
+    nav_item = NavItem.query.get_or_404(item_id)
+    current_user = db.session.get(User, session["user_id"])
+    data = request.get_json()
+
+    # 检查是否是自己创建的导航项
+    if nav_item.created_by == current_user.id:
+        # 如果是自己的导航项，可以设置公开/私有
+        if "is_public" in data:
+            nav_item.is_public = data["is_public"]
+            db.session.commit()
+            return jsonify({"success": True, "message": "导航项可见性更新成功"})
+
+    # 对于其他用户的公开导航项，可以选择隐藏/显示
+    if "is_hidden" in data:
+        # 检查是否已经存在隐藏记录
+        hidden_record = HiddenNavItem.query.filter_by(
+            user_id=current_user.id, nav_item_id=item_id
+        ).first()
+
+        if data["is_hidden"]:
+            # 隐藏导航项
+            if not hidden_record:
+                hidden_record = HiddenNavItem(
+                    user_id=current_user.id, nav_item_id=item_id
+                )
+                db.session.add(hidden_record)
+                db.session.commit()
+            return jsonify({"success": True, "message": "导航项已隐藏"})
+        else:
+            # 显示导航项
+            if hidden_record:
+                db.session.delete(hidden_record)
+                db.session.commit()
+            return jsonify({"success": True, "message": "导航项已显示"})
+
+    return jsonify({"success": False, "message": "无效的请求"})
 
 
 # SocketIO 事件
@@ -619,6 +983,20 @@ if __name__ == "__main__":
                 github_url="https://github.com/JuFireX",
             )
             db.session.add(studio)
+
+            # 创建默认导航分类
+            categories = [
+                NavCategory(name="快速访问", icon="fas fa-bolt", order=1, created_by=1),
+                NavCategory(
+                    name="开发工具", icon="fas fa-tools", order=2, created_by=1
+                ),
+                NavCategory(
+                    name="学习资源", icon="fas fa-graduation-cap", order=3, created_by=1
+                ),
+                NavCategory(name="常用链接", icon="fas fa-link", order=4, created_by=1),
+            ]
+            db.session.add_all(categories)
+
             db.session.commit()
 
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)
