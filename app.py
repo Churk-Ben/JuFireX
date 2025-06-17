@@ -386,6 +386,14 @@ def admin_users():
     return render_template("admin/users.html", users=users, current_user=current_user)
 
 
+@app.route("/admin/studio-info")
+@require_role(ROLE_SUPER_ADMIN)
+def admin_studio_info():
+    current_user = db.session.get(User, session["user_id"])
+    studio_info = StudioInfo.query.first()
+    return render_template("admin/studio_info.html", studio_info=studio_info, current_user=current_user)
+
+
 @app.route("/api/projects", methods=["POST"])
 @require_role(ROLE_ADMIN)
 def create_project():
@@ -488,7 +496,7 @@ def toggle_project_featured(project_id):
 @require_role(ROLE_ADMIN)
 def get_project(project_id):
     project = Project.query.get_or_404(project_id)
-    
+
     # 构建项目数据
     project_data = {
         "id": project.id,
@@ -500,9 +508,9 @@ def get_project(project_id):
         "is_featured": project.is_featured,
         "created_at": project.created_at.strftime("%Y-%m-%d %H:%M:%S"),
         "author_id": project.author_id,
-        "author": project.author.username if project.author else None
+        "author": project.author.username if project.author else None,
     }
-    
+
     return jsonify({"success": True, "project": project_data})
 
 
@@ -510,16 +518,16 @@ def get_project(project_id):
 @require_role(ROLE_ADMIN)
 def update_project(project_id):
     project = Project.query.get_or_404(project_id)
-    
+
     # 检查权限：只有项目作者或超级管理员可以更新
     if (
         project.author_id != session["user_id"]
         and session.get("role", 0) < ROLE_SUPER_ADMIN
     ):
         return jsonify({"success": False, "message": "权限不足"})
-    
+
     data = request.get_json()
-    
+
     # 更新项目信息
     project.title = data.get("title", project.title)
     project.description = data.get("description", project.description)
@@ -527,9 +535,9 @@ def update_project(project_id):
     project.demo_url = data.get("demo_url", project.demo_url)
     project.image_url = data.get("image_url", project.image_url)
     project.is_featured = data.get("is_featured", project.is_featured)
-    
+
     db.session.commit()
-    
+
     return jsonify({"success": True, "message": "项目更新成功"})
 
 
@@ -549,6 +557,29 @@ def delete_project(project_id):
     db.session.commit()
 
     return jsonify({"success": True, "message": "项目删除成功"})
+
+
+@app.route("/api/studio-info", methods=["PUT"])
+@require_role(ROLE_SUPER_ADMIN)
+def update_studio_info():
+    data = request.get_json()
+    studio_info = StudioInfo.query.first()
+    
+    if not studio_info:
+        studio_info = StudioInfo()
+    
+    # 更新工作室信息
+    studio_info.name = data.get("name", studio_info.name)
+    studio_info.description = data.get("description", studio_info.description)
+    studio_info.contact_email = data.get("contact_email", studio_info.contact_email)
+    studio_info.github_url = data.get("github_url", studio_info.github_url)
+    studio_info.logo_url = data.get("logo_url", studio_info.logo_url)
+    studio_info.updated_at = datetime.now()
+    
+    db.session.add(studio_info)
+    db.session.commit()
+    
+    return jsonify({"success": True, "message": "工作室信息更新成功"})
 
 
 # SocketIO 事件
@@ -585,6 +616,7 @@ if __name__ == "__main__":
                 name="JuFire Studio",
                 description="一个专注于创新技术开发的游戏创意工作室",
                 contact_email="contact@jufire.studio",
+                github_url="https://github.com/JuFireX",
             )
             db.session.add(studio)
             db.session.commit()

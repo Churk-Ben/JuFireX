@@ -3,7 +3,7 @@
 /* 防止页面闪烁的过渡效果 */
 html,
 body {
-    transition: opacity 0.3s ease;
+    transition: opacity 0.1s ease;
 }
 
 /* GitHub 风格变量 */
