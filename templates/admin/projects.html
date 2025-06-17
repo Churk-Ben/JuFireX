@@ -99,7 +99,8 @@
                                     <div>
                                         <h6 class="mb-0">{{ project.title }}</h6>
                                         <small class="text-muted">
-                                            {{ project.description[:50] }}{% if project.description|length > 50 %}...{% endif %}
+                                            {{ project.description[:50] }}{% if project.description|length > 50 %}...{%
+                                            endif %}
                                         </small>
                                     </div>
                                 </div>
@@ -195,7 +196,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="fas fa-plus"></i> 添加新项目</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" 
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     style="background-color: var(--github-accent);"></button>
             </div>
             <form id="addProjectForm">
@@ -258,7 +259,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="fas fa-edit"></i> 编辑项目</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" 
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     style="background-color: var(--github-accent);"></button>
             </div>
             <form id="editProjectForm">
@@ -355,11 +356,11 @@
                 alert('创建失败，请重试');
             });
     });
-    
+
     // 编辑项目表单提交
     document.getElementById('editProjectForm').addEventListener('submit', function (e) {
         e.preventDefault();
-        
+
         const projectId = document.getElementById('editProjectId').value;
         const formData = {
             title: document.getElementById('editProjectTitle').value,
@@ -369,7 +370,7 @@
             image_url: document.getElementById('editProjectImage').value,
             is_featured: document.getElementById('editProjectFeatured').checked
         };
-        
+
         fetch(`/api/projects/${projectId}`, {
             method: 'PUT',
             headers: {
@@ -425,7 +426,7 @@
             .then(data => {
                 if (data.success) {
                     const project = data.project;
-                    
+
                     // 填充表单
                     document.getElementById('editProjectId').value = project.id;
                     document.getElementById('editProjectTitle').value = project.title;
@@ -434,7 +435,7 @@
                     document.getElementById('editProjectDemo').value = project.demo_url || '';
                     document.getElementById('editProjectImage').value = project.image_url || '';
                     document.getElementById('editProjectFeatured').checked = project.is_featured;
-                    
+
                     // 显示模态框
                     new bootstrap.Modal(document.getElementById('editProjectModal')).show();
                 } else {

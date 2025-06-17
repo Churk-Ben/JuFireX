@@ -154,7 +154,8 @@
                     </li>
                     {% endif %}
                     {% if current_user and current_user.role >= 2 %}
-                    <li class="nav-item dropdown" style="margin: 0 5px;" {% if current_user.is_anonymous or current_user.role < 2 %}hidden{% endif %}>                        
+                    <li class="nav-item dropdown" style="margin: 0 5px;" {% if current_user.is_anonymous or
+                        current_user.role < 2 %}hidden{% endif %}>
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             管理
@@ -186,8 +187,7 @@
                                     style="font-size: 24px; color: var(--github-accent); display: flex; align-items: center; justify-content: center;"></i>
                                 {% endif %}
                             </div>
-                            <span style="padding: 0 4px 0 8px; line-height: 32px;">{{ current_user.username
-                                }}</span>
+                            <span style="padding: 0 4px 0 8px; line-height: 32px;">{{ current_user.username }}</span>
                             {% if current_user.role == 0 %}
                             <div
                                 style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin-right: -1px;">
@@ -271,9 +271,15 @@
                     <p class="mb-0">&copy; 2025 JuFire Studio. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <a href="#" class="text-decoration-none me-3">
+                    {% if studio_info and studio_info.github_url %}
+                    <a href="{{ studio_info.github_url }}" class="text-decoration-none me-3">
                         <i class="fab fa-github"></i> GitHub
                     </a>
+                    {% else %}
+                    <a href="{{ url_for('index') }}" class="text-decoration-none me-3">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    {% endif %}
                     <a href="#" class="text-decoration-none">
                         <i class="fas fa-envelope"></i> Contact
                     </a>
