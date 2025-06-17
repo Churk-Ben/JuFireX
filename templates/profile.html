@@ -9,8 +9,8 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div id="avatarContainer" class="me-4 text-center position-relative">
+                    <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start">
+                        <div id="avatarContainer" class="mb-3 mb-md-0 me-md-4 text-center position-relative">
                             {% if user.avatar_path %}
                             <img src="{{ url_for('user_avatar', filename=user.avatar_path) }}" alt="用户头像"
                                 class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
@@ -23,13 +23,13 @@
                                 <i class="fas fa-camera"></i>
                             </button>
                         </div>
-                        <div>
+                        <div class="text-center text-md-start">
                             <h5 class="card-title">{{ user.username }}</h5>
                             <p class="card-text">{{ user.email }}</p>
                             <p class="card-text">
                                 <small class="text-muted">注册于 {{ user.created_at|format_datetime }}</small>
                             </p>
-                            <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center justify-content-center justify-content-md-start">
                                 <span class="me-2">权限等级:</span>
                                 <span class="badge rounded-pill {{ role_colors[user.role] }}">{{ role_names[user.role]
                                     }}</span>
@@ -183,7 +183,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="fas fa-plus"></i> 添加新项目</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" 
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     style="background-color: var(--github-accent);"></button>
             </div>
             <form id="addProjectForm">
@@ -225,7 +225,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="fas fa-camera"></i> 更新头像</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" 
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     style="background-color: var(--github-accent);"></button>
             </div>
             <div class="modal-body">
