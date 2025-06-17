@@ -1,148 +1,142 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}工作室信息管理 - JuFire Studio{% endblock %}
+{% block title %}
+  工作室信息管理 - JuFire Studio
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+  <div class="container mt-4">
     <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="fas fa-building"></i> 工作室信息管理</h2>
-            </div>
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2><i class="fas fa-building"></i> 工作室信息管理</h2>
         </div>
+      </div>
     </div>
 
     <!-- 工作室信息表单 -->
     <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-edit"></i> 编辑工作室信息</h5>
-        </div>
-        <div class="card-body">
-            <form id="studioInfoForm">
-                <div class="mb-3">
-                    <label for="studioName" class="form-label">工作室名称</label>
-                    <input type="text" class="form-control" id="studioName" name="name" value="{{ studio_info.name }}"
-                        required>
-                </div>
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-edit"></i> 编辑工作室信息</h5>
+      </div>
+      <div class="card-body">
+        <form id="studioInfoForm">
+          <div class="mb-3">
+            <label for="studioName" class="form-label">工作室名称</label>
+            <input type="text" class="form-control" id="studioName" name="name" value="{{ studio_info.name }}" required />
+          </div>
 
-                <div class="mb-3">
-                    <label for="studioDescription" class="form-label">工作室描述</label>
-                    <textarea class="form-control" id="studioDescription" name="description"
-                        rows="4">{{ studio_info.description }}</textarea>
-                </div>
+          <div class="mb-3">
+            <label for="studioDescription" class="form-label">工作室描述</label>
+            <textarea class="form-control" id="studioDescription" name="description" rows="4">{{ studio_info.description }}</textarea>
+          </div>
 
-                <div class="mb-3">
-                    <label for="studioEmail" class="form-label">联系邮箱</label>
-                    <input type="email" class="form-control" id="studioEmail" name="contact_email"
-                        value="{{ studio_info.contact_email }}">
-                </div>
+          <div class="mb-3">
+            <label for="studioEmail" class="form-label">联系邮箱</label>
+            <input type="email" class="form-control" id="studioEmail" name="contact_email" value="{{ studio_info.contact_email }}" />
+          </div>
 
-                <div class="mb-3">
-                    <label for="studioGithub" class="form-label">GitHub 链接</label>
-                    <input type="url" class="form-control" id="studioGithub" name="github_url"
-                        value="{{ studio_info.github_url }}">
-                </div>
+          <div class="mb-3">
+            <label for="studioGithub" class="form-label">GitHub 链接</label>
+            <input type="url" class="form-control" id="studioGithub" name="github_url" value="{{ studio_info.github_url }}" />
+          </div>
 
-                <div class="mb-3">
-                    <label for="studioLogo" class="form-label">Logo URL</label>
-                    <input type="url" class="form-control" id="studioLogo" name="logo_url"
-                        value="{{ studio_info.logo_url }}">
-                </div>
+          <div class="mb-3">
+            <label for="studioLogo" class="form-label">Logo URL</label>
+            <input type="url" class="form-control" id="studioLogo" name="logo_url" value="{{ studio_info.logo_url }}" />
+          </div>
 
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> 保存更改
-                    </button>
-                </div>
-            </form>
-        </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 保存更改</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- 预览卡片 -->
     <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-eye"></i> 信息预览</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4 text-center mb-3">
-                    {% if studio_info.logo_url %}
-                    <img src="{{ studio_info.logo_url }}" alt="工作室Logo" style="max-width: 150px; max-height: 150px;">
-                    {% else %}
-                    <i class="fas fa-building" style="font-size: 5rem; color: var(--github-accent);"></i>
-                    {% endif %}
-                </div>
-                <div class="col-md-8">
-                    <h3 id="previewName">{{ studio_info.name }}</h3>
-                    <p id="previewDescription" class="text-muted">{{ studio_info.description }}</p>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-envelope me-2"></i>
-                        <span id="previewEmail">{{ studio_info.contact_email }}</span>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <i class="fab fa-github me-2"></i>
-                        <a id="previewGithub" href="{{ studio_info.github_url }}" target="_blank">{{
-                            studio_info.github_url }}</a>
-                    </div>
-                </div>
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-eye"></i> 信息预览</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 text-center mb-3">
+            {% if studio_info.logo_url %}
+              <img src="{{ studio_info.logo_url }}" alt="工作室Logo" style="max-width: 150px; max-height: 150px;" />
+            {% else %}
+              <i class="fas fa-building" style="font-size: 5rem; color: var(--github-accent);"></i>
+            {% endif %}
+          </div>
+          <div class="col-md-8">
+            <h3 id="previewName">{{ studio_info.name }}</h3>
+            <p id="previewDescription" class="text-muted">{{ studio_info.description }}</p>
+            <div class="d-flex align-items-center mb-2">
+              <i class="fas fa-envelope me-2"></i>
+              <span id="previewEmail">{{ studio_info.contact_email }}</span>
             </div>
+            <div class="d-flex align-items-center">
+              <i class="fab fa-github me-2"></i>
+              <a id="previewGithub" href="{{ studio_info.github_url }}" target="_blank">{{ studio_info.github_url }}</a>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<script>
+  <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // 实时预览功能
-        document.getElementById('studioName').addEventListener('input', function () {
-            document.getElementById('previewName').textContent = this.value;
-        });
-
-        document.getElementById('studioDescription').addEventListener('input', function () {
-            document.getElementById('previewDescription').textContent = this.value;
-        });
-
-        document.getElementById('studioEmail').addEventListener('input', function () {
-            document.getElementById('previewEmail').textContent = this.value;
-        });
-
-        document.getElementById('studioGithub').addEventListener('input', function () {
-            const link = document.getElementById('previewGithub');
-            link.href = this.value;
-            link.textContent = this.value;
-        });
-
-        // 表单提交处理
-        document.getElementById('studioInfoForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const formData = {
-                name: document.getElementById('studioName').value,
-                description: document.getElementById('studioDescription').value,
-                contact_email: document.getElementById('studioEmail').value,
-                github_url: document.getElementById('studioGithub').value,
-                logo_url: document.getElementById('studioLogo').value
-            };
-
-            fetch('/api/studio-info', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showNotification('工作室信息更新成功', 'success');
-                    } else {
-                        showNotification('更新失败: ' + data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('更新失败，请重试', 'error');
-                });
-        });
-    });
-</script>
+      // 实时预览功能
+      document.getElementById('studioName').addEventListener('input', function () {
+        document.getElementById('previewName').textContent = this.value
+      })
+    
+      document.getElementById('studioDescription').addEventListener('input', function () {
+        document.getElementById('previewDescription').textContent = this.value
+      })
+    
+      document.getElementById('studioEmail').addEventListener('input', function () {
+        document.getElementById('previewEmail').textContent = this.value
+      })
+    
+      document.getElementById('studioGithub').addEventListener('input', function () {
+        const link = document.getElementById('previewGithub')
+        link.href = this.value
+        link.textContent = this.value
+      })
+    
+      // 表单提交处理
+      document.getElementById('studioInfoForm').addEventListener('submit', function (e) {
+        e.preventDefault()
+    
+        const formData = {
+          name: document.getElementById('studioName').value,
+          description: document.getElementById('studioDescription').value,
+          contact_email: document.getElementById('studioEmail').value,
+          github_url: document.getElementById('studioGithub').value,
+          logo_url: document.getElementById('studioLogo').value
+        }
+    
+        fetch('/api/studio-info', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showNotification('工作室信息更新成功', 'success')
+            } else {
+              showNotification('更新失败: ' + data.message, 'error')
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error)
+            showNotification('更新失败，请重试', 'error')
+          })
+      })
+    })
+  </script>
 {% endblock %}

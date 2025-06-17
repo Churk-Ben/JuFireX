@@ -1,6 +1,6 @@
 // 管理导航分类和导航项的JavaScript文件
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // 获取DOM元素
     const categoryAccordion = document.getElementById('categoryAccordion');
     const addCategoryBtn = document.getElementById('addCategoryBtn');
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmDeleteNavItemBtn = document.getElementById('confirmDeleteNavItemBtn');
 
     // 添加分类
-    saveCategoryBtn.addEventListener('click', function() {
+    saveCategoryBtn.addEventListener('click', function () {
         const name = document.getElementById('categoryName').value;
         const icon = document.getElementById('categoryIcon').value;
         const order = document.getElementById('categoryOrder').value;
@@ -33,26 +33,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 order: parseInt(order) || 0
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert(data.message || '创建分类失败');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('创建分类时出错');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message || '创建分类失败');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('创建分类时出错');
+            });
     });
 
     // 编辑分类 - 打开模态框
     document.querySelectorAll('.edit-category').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             const categoryId = this.getAttribute('data-category-id');
             const name = this.getAttribute('data-category-name');
             const icon = this.getAttribute('data-category-icon');
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 更新分类
-    updateCategoryBtn.addEventListener('click', function() {
+    updateCategoryBtn.addEventListener('click', function () {
         const categoryId = document.getElementById('editCategoryId').value;
         const name = document.getElementById('editCategoryName').value;
         const icon = document.getElementById('editCategoryIcon').value;
@@ -91,26 +91,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 order: parseInt(order) || 0
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert(data.message || '更新分类失败');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('更新分类时出错');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message || '更新分类失败');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('更新分类时出错');
+            });
     });
 
     // 删除分类 - 打开确认模态框
     document.querySelectorAll('.delete-category').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             const categoryId = this.getAttribute('data-category-id');
             const categoryName = this.getAttribute('data-category-name');
             document.getElementById('deleteCategoryId').value = categoryId;
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 确认删除分类
-    confirmDeleteCategoryBtn.addEventListener('click', function() {
+    confirmDeleteCategoryBtn.addEventListener('click', function () {
         const categoryId = document.getElementById('deleteCategoryId').value;
 
         fetch(`/api/nav-categories/${categoryId}`, {
@@ -131,24 +131,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json',
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert(data.message || '删除分类失败');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('删除分类时出错');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message || '删除分类失败');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('删除分类时出错');
+            });
     });
 
     // 添加导航项模态框预设分类
     document.querySelectorAll('[data-bs-target="#addNavItemModal"]').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const categoryId = this.getAttribute('data-category-id');
             if (categoryId) {
                 document.getElementById('navItemCategory').value = categoryId;
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 添加导航项
-    saveNavItemBtn.addEventListener('click', function() {
+    saveNavItemBtn.addEventListener('click', function () {
         const title = document.getElementById('navItemTitle').value;
         const url = document.getElementById('navItemUrl').value;
         const description = document.getElementById('navItemDescription').value;
@@ -190,26 +190,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 order: parseInt(order) || 0
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert(data.message || '创建导航项失败');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('创建导航项时出错');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message || '创建导航项失败');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('创建导航项时出错');
+            });
     });
 
     // 编辑导航项 - 打开模态框
     document.querySelectorAll('.edit-nav-item').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             const itemId = this.getAttribute('data-item-id');
             const title = this.getAttribute('data-item-title');
             const url = this.getAttribute('data-item-url');
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 更新导航项
-    updateNavItemBtn.addEventListener('click', function() {
+    updateNavItemBtn.addEventListener('click', function () {
         const itemId = document.getElementById('editNavItemId').value;
         const title = document.getElementById('editNavItemTitle').value;
         const url = document.getElementById('editNavItemUrl').value;
@@ -268,26 +268,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 order: parseInt(order) || 0
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert(data.message || '更新导航项失败');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('更新导航项时出错');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message || '更新导航项失败');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('更新导航项时出错');
+            });
     });
 
     // 删除导航项 - 打开确认模态框
     document.querySelectorAll('.delete-nav-item').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             const itemId = this.getAttribute('data-item-id');
             const itemTitle = this.getAttribute('data-item-title');
             document.getElementById('deleteNavItemId').value = itemId;
@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 确认删除导航项
-    confirmDeleteNavItemBtn.addEventListener('click', function() {
+    confirmDeleteNavItemBtn.addEventListener('click', function () {
         const itemId = document.getElementById('deleteNavItemId').value;
 
         fetch(`/api/nav-items/${itemId}`, {
@@ -308,26 +308,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json',
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload();
-            } else {
-                alert(data.message || '删除导航项失败');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('删除导航项时出错');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message || '删除导航项失败');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('删除导航项时出错');
+            });
     });
 
     // 切换导航项公开/私有状态
     document.querySelectorAll('.toggle-visibility').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             const itemId = this.getAttribute('data-item-id');
             const isPublic = this.getAttribute('data-is-public') === 'true';
 
@@ -340,19 +340,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     is_public: !isPublic
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    location.reload();
-                } else {
-                    alert(data.message || '更新导航项状态失败');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('更新导航项状态时出错');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message || '更新导航项状态失败');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('更新导航项状态时出错');
+                });
         });
     });
 });
