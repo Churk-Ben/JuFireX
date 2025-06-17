@@ -3,762 +3,1614 @@
 {% block title %}导航 - JuFire Studio{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>导航</h1>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal">
-            <i class="fas fa-plus"></i> 添加导航
-        </button>
-    </div>
-
-    <!-- 快速访问 -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>快速访问</h2>
-        {% if current_user.role >= 2 %}
-        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
-            data-category-id="{{ categories[0].id }}">
-            <i class="fas fa-plus"></i> 添加到此分类
-        </button>
-        {% endif %}
-    </div>
-    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-home"></i> 首页</h5>
-                    <p class="card-text">返回工作室首页</p>
-                    <a href="{{ url_for('index') }}" class="btn btn-primary">访问</a>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-user"></i> 个人资料</h5>
-                    <p class="card-text">查看和编辑您的个人资料</p>
-                    <a href="{{ url_for('profile') }}" class="btn btn-primary">访问</a>
-                </div>
-            </div>
-        </div>
-        {% if current_user.role >= 2 %}
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-cogs"></i> 管理后台</h5>
-                    <p class="card-text">访问管理员控制面板</p>
-                    <a href="{{ url_for('admin_projects') }}" class="btn btn-primary">访问</a>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-        {% if current_user.role >= 3 %}
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-users-cog" style="color: var(--github-danger);"></i>
-                            用户管理</h5>
-                    </div>
-                    <p class="card-text">管理用户权限</p>
-                    <a href="{{ url_for('admin_users') }}" class="btn btn-danger">访问</a>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-building" style="color: var(--github-accent);"></i>
-                            工作室信息</h5>
-                    </div>
-                    <p class="card-text">管理工作室信息</p>
-                    <a href="{{ url_for('admin_studio_info') }}" class="btn btn-primary">访问</a>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        {% for item in nav_items_by_category.get(categories[0].id, []) %}
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="{{ item.icon }}"></i> {{ item.title }}</h5>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                                id="dropdownMenuButton{{ item.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end"
-                                aria-labelledby="dropdownMenuButton{{ item.id }}">
-                                {% if item.created_by == current_user.id %}
-                                <li><a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"
-                                        data-item-title="{{ item.title }}" data-item-url="{{ item.url }}"
-                                        data-item-description="{{ item.description }}" data-item-icon="{{ item.icon }}"
-                                        data-item-is-public="{{ item.is_public|lower }}"
-                                        data-item-category-id="{{ item.category_id }}"
-                                        data-item-order="{{ item.order }}"><i class="fas fa-edit"></i> 编辑</a></li>
-                                <li><a class="dropdown-item delete-nav-item" href="#" data-item-id="{{ item.id }}"><i
-                                            class="fas fa-trash"></i> 删除</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item toggle-visibility" href="#" data-item-id="{{ item.id }}"
-                                        data-is-public="{{ item.is_public|lower }}"><i
-                                            class="fas {% if item.is_public %}fa-lock{% else %}fa-globe{% endif %}"></i>
-                                        {% if item.is_public %}设为私有{% else %}设为公开{% endif %}</a></li>
-                                {% elif item.is_public %}
-                                <li><a class="dropdown-item toggle-hidden" href="#" data-item-id="{{ item.id }}"
-                                        data-is-hidden="{{ item.id in hidden_items }}"><i
-                                            class="fas {% if item.id in hidden_items %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
-                                        {% if item.id in hidden_items %}显示{% else %}隐藏{% endif %}</a></li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-                    <p class="card-text">{{ item.description }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ item.url }}" target="_blank" class="btn btn-primary">访问</a>
-                        {% if not item.is_public %}
-                        <span class="badge bg-secondary"><i class="fas fa-lock"></i> 私有</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- 开发工具 -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>开发工具</h2>
-        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
-            data-category-id="{{ categories[1].id }}">
-            <i class="fas fa-plus"></i> 添加到此分类
-        </button>
-    </div>
-    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fab fa-github"></i> GitHub</h5>
-                    <p class="card-text">代码托管和版本控制平台</p>
-                    <a href="https://github.com" target="_blank" class="btn btn-primary">访问</a>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fab fa-microsoft"></i> VS Code</h5>
-                    <p class="card-text">微软开源代码编辑器</p>
-                    <a href="https://code.visualstudio.com" target="_blank" class="btn btn-primary">访问</a>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fab fa-docker"></i> Docker</h5>
-                    <p class="card-text">容器化平台</p>
-                    <a href="https://www.docker.com" target="_blank" class="btn btn-primary">访问</a>
-                </div>
-            </div>
-        </div>
-
-        {% for item in nav_items_by_category.get(categories[1].id, []) %}
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="{{ item.icon }}"></i> {{ item.title }}</h5>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                                id="dropdownMenuButton{{ item.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end"
-                                aria-labelledby="dropdownMenuButton{{ item.id }}">
-                                {% if item.created_by == current_user.id %}
-                                <li><a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"
-                                        data-item-title="{{ item.title }}" data-item-url="{{ item.url }}"
-                                        data-item-description="{{ item.description }}" data-item-icon="{{ item.icon }}"
-                                        data-item-is-public="{{ item.is_public|lower }}"
-                                        data-item-category-id="{{ item.category_id }}"
-                                        data-item-order="{{ item.order }}"><i class="fas fa-edit"></i> 编辑</a></li>
-                                <li><a class="dropdown-item delete-nav-item" href="#" data-item-id="{{ item.id }}"><i
-                                            class="fas fa-trash"></i> 删除</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item toggle-visibility" href="#" data-item-id="{{ item.id }}"
-                                        data-is-public="{{ item.is_public|lower }}"><i
-                                            class="fas {% if item.is_public %}fa-lock{% else %}fa-globe{% endif %}"></i>
-                                        {% if item.is_public %}设为私有{% else %}设为公开{% endif %}</a></li>
-                                {% elif item.is_public %}
-                                <li><a class="dropdown-item toggle-hidden" href="#" data-item-id="{{ item.id }}"
-                                        data-is-hidden="{{ item.id in hidden_items }}"><i
-                                            class="fas {% if item.id in hidden_items %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
-                                        {% if item.id in hidden_items %}显示{% else %}隐藏{% endif %}</a></li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-                    <p class="card-text">{{ item.description }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ item.url }}" target="_blank" class="btn btn-primary">访问</a>
-                        {% if not item.is_public %}
-                        <span class="badge bg-secondary"><i class="fas fa-lock"></i> 私有</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- 学习资源 -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>学习资源</h2>
-        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
-            data-category-id="{{ categories[2].id }}">
-            <i class="fas fa-plus"></i> 添加到此分类
-        </button>
-    </div>
-    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fab fa-python"></i> Python 资源</h5>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><a href="https://www.python.org/doc/" target="_blank">Python
-                                官方文档</a></li>
-                        <li class="list-group-item"><a href="https://flask.palletsprojects.com/" target="_blank">Flask
-                                文档</a></li>
-                        <li class="list-group-item"><a href="https://python-socketio.readthedocs.io/"
-                                target="_blank">Socket.IO 文档</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fab fa-js"></i> 前端资源</h5>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><a href="https://getbootstrap.com/docs/5.0/"
-                                target="_blank">Bootstrap 文档</a></li>
-                        <li class="list-group-item"><a href="https://fontawesome.com/icons" target="_blank">Font
-                                Awesome 图标</a></li>
-                        <li class="list-group-item"><a href="https://developer.mozilla.org/zh-CN/" target="_blank">MDN
-                                Web 文档</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        {% for item in nav_items_by_category.get(categories[2].id, []) %}
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="{{ item.icon }}"></i> {{ item.title }}</h5>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                                id="dropdownMenuButton{{ item.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end"
-                                aria-labelledby="dropdownMenuButton{{ item.id }}">
-                                {% if item.created_by == current_user.id %}
-                                <li><a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"
-                                        data-item-title="{{ item.title }}" data-item-url="{{ item.url }}"
-                                        data-item-description="{{ item.description }}" data-item-icon="{{ item.icon }}"
-                                        data-item-is-public="{{ item.is_public|lower }}"
-                                        data-item-category-id="{{ item.category_id }}"
-                                        data-item-order="{{ item.order }}"><i class="fas fa-edit"></i> 编辑</a></li>
-                                <li><a class="dropdown-item delete-nav-item" href="#" data-item-id="{{ item.id }}"><i
-                                            class="fas fa-trash"></i> 删除</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item toggle-visibility" href="#" data-item-id="{{ item.id }}"
-                                        data-is-public="{{ item.is_public|lower }}"><i
-                                            class="fas {% if item.is_public %}fa-lock{% else %}fa-globe{% endif %}"></i>
-                                        {% if item.is_public %}设为私有{% else %}设为公开{% endif %}</a></li>
-                                {% elif item.is_public %}
-                                <li><a class="dropdown-item toggle-hidden" href="#" data-item-id="{{ item.id }}"
-                                        data-is-hidden="{{ item.id in hidden_items }}"><i
-                                            class="fas {% if item.id in hidden_items %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
-                                        {% if item.id in hidden_items %}显示{% else %}隐藏{% endif %}</a></li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-                    <p class="card-text">{{ item.description }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ item.url }}" target="_blank" class="btn btn-primary">访问</a>
-                        {% if not item.is_public %}
-                        <span class="badge bg-secondary"><i class="fas fa-lock"></i> 私有</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- 常用链接 -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>常用链接</h2>
-        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
-            data-category-id="{{ categories[3].id }}">
-            <i class="fas fa-plus"></i> 添加到此分类
-        </button>
-    </div>
-    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-        {% for item in nav_items_by_category.get(categories[3].id, []) %}
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="{{ item.icon }}"></i> {{ item.title }}</h5>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                                id="dropdownMenuButton{{ item.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end"
-                                aria-labelledby="dropdownMenuButton{{ item.id }}">
-                                {% if item.created_by == current_user.id %}
-                                <li><a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"
-                                        data-item-title="{{ item.title }}" data-item-url="{{ item.url }}"
-                                        data-item-description="{{ item.description }}" data-item-icon="{{ item.icon }}"
-                                        data-item-is-public="{{ item.is_public|lower }}"
-                                        data-item-category-id="{{ item.category_id }}"
-                                        data-item-order="{{ item.order }}"><i class="fas fa-edit"></i> 编辑</a></li>
-                                <li><a class="dropdown-item delete-nav-item" href="#" data-item-id="{{ item.id }}"><i
-                                            class="fas fa-trash"></i> 删除</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item toggle-visibility" href="#" data-item-id="{{ item.id }}"
-                                        data-is-public="{{ item.is_public|lower }}"><i
-                                            class="fas {% if item.is_public %}fa-lock{% else %}fa-globe{% endif %}"></i>
-                                        {% if item.is_public %}设为私有{% else %}设为公开{% endif %}</a></li>
-                                {% elif item.is_public %}
-                                <li><a class="dropdown-item toggle-hidden" href="#" data-item-id="{{ item.id }}"
-                                        data-is-hidden="{{ item.id in hidden_items }}"><i
-                                            class="fas {% if item.id in hidden_items %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
-                                        {% if item.id in hidden_items %}显示{% else %}隐藏{% endif %}</a></li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-                    <p class="card-text">{{ item.description }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ item.url }}" target="_blank" class="btn btn-primary">访问</a>
-                        {% if not item.is_public %}
-                        <span class="badge bg-secondary"><i class="fas fa-lock"></i> 私有</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- 其他分类 -->
-    {% for category in categories[4:] %}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>{{ category.name }}</h2>
-        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
-            data-category-id="{{ category.id }}">
-            <i class="fas fa-plus"></i> 添加到此分类
-        </button>
-    </div>
-    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-        {% for item in nav_items_by_category.get(category.id, []) %}
-        <div class="col">
-            <div class="card h-100 nav-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="{{ item.icon }}"></i> {{ item.title }}</h5>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                                id="dropdownMenuButton{{ item.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end"
-                                aria-labelledby="dropdownMenuButton{{ item.id }}">
-                                {% if item.created_by == current_user.id %}
-                                <li><a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"
-                                        data-item-title="{{ item.title }}" data-item-url="{{ item.url }}"
-                                        data-item-description="{{ item.description }}" data-item-icon="{{ item.icon }}"
-                                        data-item-is-public="{{ item.is_public|lower }}"
-                                        data-item-category-id="{{ item.category_id }}"
-                                        data-item-order="{{ item.order }}"><i class="fas fa-edit"></i> 编辑</a></li>
-                                <li><a class="dropdown-item delete-nav-item" href="#" data-item-id="{{ item.id }}"><i
-                                            class="fas fa-trash"></i> 删除</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item toggle-visibility" href="#" data-item-id="{{ item.id }}"
-                                        data-is-public="{{ item.is_public|lower }}"><i
-                                            class="fas {% if item.is_public %}fa-lock{% else %}fa-globe{% endif %}"></i>
-                                        {% if item.is_public %}设为私有{% else %}设为公开{% endif %}</a></li>
-                                {% elif item.is_public %}
-                                <li><a class="dropdown-item toggle-hidden" href="#" data-item-id="{{ item.id }}"
-                                        data-is-hidden="{{ item.id in hidden_items }}"><i
-                                            class="fas {% if item.id in hidden_items %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
-                                        {% if item.id in hidden_items %}显示{% else %}隐藏{% endif %}</a></li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-                    <p class="card-text">{{ item.description }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ item.url }}" target="_blank" class="btn btn-primary">访问</a>
-                        {% if not item.is_public %}
-                        <span class="badge bg-secondary"><i class="fas fa-lock"></i> 私有</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% else %}
+<div class="container-fluid mt-4">
+    <!-- 页面头部 -->
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> 该分类下暂无导航项
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endfor %}
-
-    <!-- 添加导航项模态框 -->
-    <div class="modal fade" id="addNavItemModal" tabindex="-1" aria-labelledby="addNavItemModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addNavItemModalLabel">添加导航项</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        style="background-color: var(--github-accent);"></button>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-1"><i class="fas fa-compass text-primary"></i> 导航中心</h1>
+                    <p class="text-muted mb-0">快速访问您的常用工具和资源</p>
                 </div>
-                <div class="modal-body">
-                    <form id="addNavItemForm">
-                        <div class="mb-3">
-                            <label for="navItemTitle" class="form-label">标题</label>
-                            <input type="text" class="form-control" id="navItemTitle" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="navItemUrl" class="form-label">URL</label>
-                            <input type="url" class="form-control" id="navItemUrl" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="navItemDescription" class="form-label">描述</label>
-                            <textarea class="form-control" id="navItemDescription" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="navItemIcon" class="form-label">图标 (Font Awesome)</label>
-                            <input type="text" class="form-control" id="navItemIcon" value="fas fa-link">
-                            <small class="form-text text-muted">例如: fas fa-link, fas fa-book 等</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="navItemCategory" class="form-label">分类</label>
-                            <select class="form-select" id="navItemCategory" required>
-                                {% for category in categories %}
-                                <option value="{{ category.id }}">{{ category.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="navItemIsPublic" checked>
-                            <label class="form-check-label" for="navItemIsPublic">公开</label>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="saveNavItemBtn">
-                        <i class="fas fa-save"></i> 保存
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary" id="toggleViewMode">
+                        <i class="fas fa-th-large"></i> 切换视图
+                    </button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal">
+                        <i class="fas fa-plus"></i> 添加导航
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 编辑导航项模态框 -->
-    <div class="modal fade" id="editNavItemModal" tabindex="-1" aria-labelledby="editNavItemModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editNavItemModalLabel">编辑导航项</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        style="background-color: var(--github-accent);"></button>
+    <!-- 导航统计卡片 -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-layer-group fa-2x mb-2"></i>
+                    <h4 class="mb-0">{{ categories|length }}</h4>
+                    <small>分类总数</small>
                 </div>
-                <div class="modal-body">
-                    <form id="editNavItemForm">
-                        <input type="hidden" id="editNavItemId">
-                        <div class="mb-3">
-                            <label for="editNavItemTitle" class="form-label">标题</label>
-                            <input type="text" class="form-control" id="editNavItemTitle" required>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-link fa-2x mb-2"></i>
+                    <h4 class="mb-0">{{ nav_items_by_category.values()|map('length')|sum|default(0) }}</h4>
+                    <small>导航总数</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-eye fa-2x mb-2"></i>
+                    <h4 class="mb-0" id="publicCount">0</h4>
+                    <small>公开导航</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-lock fa-2x mb-2"></i>
+                    <h4 class="mb-0" id="privateCount">0</h4>
+                    <small>私有导航</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索和筛选 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" id="searchInput" placeholder="搜索导航项...">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="editNavItemUrl" class="form-label">URL</label>
-                            <input type="url" class="form-control" id="editNavItemUrl" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editNavItemDescription" class="form-label">描述</label>
-                            <textarea class="form-control" id="editNavItemDescription" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editNavItemIcon" class="form-label">图标 (Font Awesome)</label>
-                            <input type="text" class="form-control" id="editNavItemIcon">
-                            <small class="form-text text-muted">例如: fas fa-link, fas fa-book 等</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editNavItemCategory" class="form-label">分类</label>
-                            <select class="form-select" id="editNavItemCategory" required>
+                        <div class="col-md-3">
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">所有分类</option>
                                 {% for category in categories %}
                                 <option value="{{ category.id }}">{{ category.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="editNavItemIsPublic">
-                            <label class="form-check-label" for="editNavItemIsPublic">公开</label>
+                        <div class="col-md-3">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">所有状态</option>
+                                <option value="public">公开</option>
+                                <option value="private">私有</option>
+                                <option value="hidden">已隐藏</option>
+                            </select>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="updateNavItemBtn">更新</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 删除确认模态框 -->
-    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteConfirmModalLabel">确认删除</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        style="background-color: var(--github-accent);"></button>
+    <!-- 动态分类导航 -->
+    {% for category in categories %}
+    <div class="category-section" data-category-id="{{ category.id }}">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center">
+                <h2 class="mb-0">
+                    <i class="{{ category.icon }} text-primary"></i>
+                    {{ category.name }}
+                    <span class="badge bg-secondary ms-2">{{ nav_items_by_category.get(category.id, [])|length }}</span>
+                </h2>
+            </div>
+            <div class="d-flex gap-2">
+                {% if current_user.role >= 2 %}
+                <button class="btn btn-sm btn-outline-primary add-to-category" data-category-id="{{ category.id }}"
+                    data-category-name="{{ category.name }}">
+                    <i class="fas fa-plus"></i> 添加到此分类
+                </button>
+                {% endif %}
+                <button class="btn btn-sm btn-outline-secondary toggle-category" data-category-id="{{ category.id }}">
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="category-content" id="category-{{ category.id }}">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-5">
+                <!-- 系统内置导航项 -->
+                {% if category.name == '快速访问' %}
+                <div class="col">
+                    <div class="card h-100 nav-card system-nav">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-home text-primary"></i> 首页
+                                </h5>
+                                <span class="badge bg-light text-dark">系统</span>
+                            </div>
+                            <p class="card-text text-muted">返回工作室首页</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('index') }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> 访问
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <p id="deleteConfirmMessage">确定要删除这个导航项吗？此操作不可撤销。</p>
-                    <input type="hidden" id="deleteItemId">
+
+                <div class="col">
+                    <div class="card h-100 nav-card system-nav">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-user text-info"></i> 个人资料
+                                </h5>
+                                <span class="badge bg-light text-dark">系统</span>
+                            </div>
+                            <p class="card-text text-muted">查看和编辑您的个人资料</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('profile') }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> 访问
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">删除</button>
+
+                {% if current_user.role >= 2 %}
+                <div class="col">
+                    <div class="card h-100 nav-card system-nav">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-cogs text-warning"></i> 管理后台
+                                </h5>
+                                <span class="badge bg-light text-dark">系统</span>
+                            </div>
+                            <p class="card-text text-muted">访问管理员控制面板</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('admin_projects') }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> 访问
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                {% endif %}
+
+                {% if current_user.role >= 3 %}
+                <div class="col">
+                    <div class="card h-100 nav-card system-nav">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-users-cog text-danger"></i> 用户管理
+                                </h5>
+                                <span class="badge bg-light text-dark">系统</span>
+                            </div>
+                            <p class="card-text text-muted">管理用户权限</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('admin_users') }}" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> 访问
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card h-100 nav-card system-nav">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-building text-primary"></i> 工作室信息
+                                </h5>
+                                <span class="badge bg-light text-dark">系统</span>
+                            </div>
+                            <p class="card-text text-muted">管理工作室信息</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('admin_studio_info') }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> 访问
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+
+                {% if category.name == '开发工具' %}
+                <div class="col">
+                    <div class="card h-100 nav-card system-nav">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">
+                                    <i class="fab fa-github"></i> GitHub
+                                </h5>
+                                <span class="badge bg-light text-dark">推荐</span>
+                            </div>
+                            <p class="card-text text-muted">代码托管和版本控制平台</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="https://github.com" target="_blank" class="btn btn-dark btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> 访问
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card h-100 nav-card system-nav">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">
+                                    <i class="fab fa-microsoft text-primary"></i> VS Code
+                                </h5>
+                                <span class="badge bg-light text-dark">推荐</span>
+                            </div>
+                            <p class="card-text text-muted">微软开源代码编辑器</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="https://code.visualstudio.com" target="_blank" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> 访问
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card h-100 nav-card system-nav">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">
+                                    <i class="fab fa-docker text-info"></i> Docker
+                                </h5>
+                                <span class="badge bg-light text-dark">推荐</span>
+                            </div>
+                            <p class="card-text text-muted">容器化平台</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="https://www.docker.com" target="_blank" class="btn btn-info btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> 访问
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if category.name == '学习资源' %}
+                <div class="col">
+                    <div class="card h-100 nav-card system-nav">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fab fa-python text-warning"></i> Python 资源
+                            </h5>
+                            <div class="list-group list-group-flush">
+                                <a href="https://www.python.org/doc/" target="_blank"
+                                    class="list-group-item list-group-item-action border-0 px-0">
+                                    <i class="fas fa-book"></i> Python 官方文档
+                                </a>
+                                <a href="https://flask.palletsprojects.com/" target="_blank"
+                                    class="list-group-item list-group-item-action border-0 px-0">
+                                    <i class="fas fa-flask"></i> Flask 文档
+                                </a>
+                                <a href="https://python-socketio.readthedocs.io/" target="_blank"
+                                    class="list-group-item list-group-item-action border-0 px-0">
+                                    <i class="fas fa-plug"></i> Socket.IO 文档
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="card h-100 nav-card system-nav">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fab fa-js text-warning"></i> 前端资源
+                            </h5>
+                            <div class="list-group list-group-flush">
+                                <a href="https://getbootstrap.com/docs/5.0/" target="_blank"
+                                    class="list-group-item list-group-item-action border-0 px-0">
+                                    <i class="fab fa-bootstrap"></i> Bootstrap 文档
+                                </a>
+                                <a href="https://fontawesome.com/icons" target="_blank"
+                                    class="list-group-item list-group-item-action border-0 px-0">
+                                    <i class="fas fa-icons"></i> Font Awesome 图标
+                                </a>
+                                <a href="https://developer.mozilla.org/zh-CN/" target="_blank"
+                                    class="list-group-item list-group-item-action border-0 px-0">
+                                    <i class="fab fa-firefox"></i> MDN Web 文档
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- 用户自定义导航项 -->
+                {% for item in nav_items_by_category.get(category.id, []) %}
+                <div class="col nav-item-col" data-item-id="{{ item.id }}" data-category-id="{{ item.category_id }}"
+                    data-is-public="{{ item.is_public|lower }}" data-is-hidden="{{ item.id in hidden_items }}"
+                    data-search-text="{{ item.title|lower }} {{ item.description|lower }}">
+                    <div class="card h-100 nav-card user-nav {{ 'hidden-item' if item.id in hidden_items else '' }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">
+                                    <i class="{{ item.icon }}"></i> {{ item.title }}
+                                </h5>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if not item.is_public %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-lock"></i> 私有
+                                    </span>
+                                    {% endif %}
+                                    {% if item.id in hidden_items %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-eye-slash"></i> 已隐藏
+                                    </span>
+                                    {% endif %}
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            {% if item.created_by == current_user.id %}
+                                            <li>
+                                                <a class="dropdown-item edit-nav-item" href="#"
+                                                    data-item-id="{{ item.id }}" data-item-title="{{ item.title }}"
+                                                    data-item-url="{{ item.url }}"
+                                                    data-item-description="{{ item.description }}"
+                                                    data-item-icon="{{ item.icon }}"
+                                                    data-item-is-public="{{ item.is_public|lower }}"
+                                                    data-item-category-id="{{ item.category_id }}">
+                                                    <i class="fas fa-edit"></i> 编辑
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item delete-nav-item text-danger" href="#"
+                                                    data-item-id="{{ item.id }}" data-item-title="{{ item.title }}">
+                                                    <i class="fas fa-trash"></i> 删除
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item toggle-visibility" href="#"
+                                                    data-item-id="{{ item.id }}"
+                                                    data-is-public="{{ item.is_public|lower }}">
+                                                    <i
+                                                        class="fas {% if item.is_public %}fa-lock{% else %}fa-globe{% endif %}"></i>
+                                                    {% if item.is_public %}设为私有{% else %}设为公开{% endif %}
+                                                </a>
+                                            </li>
+                                            {% elif item.is_public %}
+                                            <li>
+                                                <a class="dropdown-item toggle-hidden" href="#"
+                                                    data-item-id="{{ item.id }}"
+                                                    data-is-hidden="{{ item.id in hidden_items }}">
+                                                    <i
+                                                        class="fas {% if item.id in hidden_items %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
+                                                    {% if item.id in hidden_items %}显示{% else %}隐藏{% endif %}
+                                                </a>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="card-text text-muted">{{ item.description or '暂无描述' }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ item.url }}" target="_blank" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> 访问
+                                </a>
+                                <small class="text-muted">
+                                    <i class="fas fa-user"></i> {{ item.creator.username if item.creator else '未知' }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- 空状态提示 -->
+                {% if not nav_items_by_category.get(category.id, []) and category.name not in ['快速访问', '开发工具', '学习资源']
+                %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">该分类下暂无导航项</h5>
+                        <p class="text-muted">点击上方按钮添加第一个导航项</p>
+                        {% if current_user.role >= 2 %}
+                        <button class="btn btn-primary add-to-category" data-category-id="{{ category.id }}"
+                            data-category-name="{{ category.name }}">
+                            <i class="fas fa-plus"></i> 立即添加
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 添加导航项模态框 -->
+<div class="modal fade" id="addNavItemModal" tabindex="-1" aria-labelledby="addNavItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addNavItemModalLabel">
+                    <i class="fas fa-plus"></i> 添加导航项
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addNavItemForm" novalidate>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="navItemTitle" class="form-label">
+                                    <i class="fas fa-heading"></i> 标题 <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="navItemTitle" required>
+                                <div class="invalid-feedback">请输入导航标题</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="navItemIcon" class="form-label">
+                                    <i class="fas fa-icons"></i> 图标
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="iconPreview">
+                                        <i class="fas fa-link"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="navItemIcon" value="fas fa-link"
+                                        placeholder="例如: fas fa-link">
+                                </div>
+                                <div class="form-text">使用 Font Awesome 图标类名</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="navItemUrl" class="form-label">
+                            <i class="fas fa-link"></i> URL <span class="text-danger">*</span>
+                        </label>
+                        <input type="url" class="form-control" id="navItemUrl" required
+                            placeholder="https://example.com">
+                        <div class="invalid-feedback">请输入有效的URL地址</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="navItemDescription" class="form-label">
+                            <i class="fas fa-align-left"></i> 描述
+                        </label>
+                        <textarea class="form-control" id="navItemDescription" rows="3"
+                            placeholder="简要描述这个导航项的用途..."></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="navItemCategory" class="form-label">
+                                    <i class="fas fa-folder"></i> 分类 <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="navItemCategory" required>
+                                    <option value="">请选择分类</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">请选择一个分类</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-eye"></i> 可见性
+                                </label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="navItemIsPublic" checked>
+                                    <label class="form-check-label" for="navItemIsPublic">
+                                        <span class="public-text">公开 - 所有用户可见</span>
+                                        <span class="private-text" style="display: none;">私有 - 仅自己可见</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- URL 预览 -->
+                    <div class="mb-3" id="urlPreview" style="display: none;">
+                        <label class="form-label">
+                            <i class="fas fa-eye"></i> 预览
+                        </label>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i id="previewIcon" class="fas fa-link fa-2x text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1" id="previewTitle">导航标题</h6>
+                                        <p class="mb-0 text-muted" id="previewDescription">导航描述</p>
+                                        <small class="text-muted" id="previewUrl">https://example.com</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> 取消
+                </button>
+                <button type="button" class="btn btn-primary" id="saveNavItemBtn">
+                    <i class="fas fa-save"></i> 保存
+                </button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- 编辑导航项模态框 -->
+<div class="modal fade" id="editNavItemModal" tabindex="-1" aria-labelledby="editNavItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="editNavItemModalLabel">
+                    <i class="fas fa-edit"></i> 编辑导航项
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editNavItemForm" novalidate>
+                    <input type="hidden" id="editNavItemId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editNavItemTitle" class="form-label">
+                                    <i class="fas fa-heading"></i> 标题 <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="editNavItemTitle" required>
+                                <div class="invalid-feedback">请输入导航标题</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editNavItemIcon" class="form-label">
+                                    <i class="fas fa-icons"></i> 图标
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="editIconPreview">
+                                        <i class="fas fa-link"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="editNavItemIcon"
+                                        placeholder="例如: fas fa-link">
+                                </div>
+                                <div class="form-text">使用 Font Awesome 图标类名</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editNavItemUrl" class="form-label">
+                            <i class="fas fa-link"></i> URL <span class="text-danger">*</span>
+                        </label>
+                        <input type="url" class="form-control" id="editNavItemUrl" required>
+                        <div class="invalid-feedback">请输入有效的URL地址</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editNavItemDescription" class="form-label">
+                            <i class="fas fa-align-left"></i> 描述
+                        </label>
+                        <textarea class="form-control" id="editNavItemDescription" rows="3"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editNavItemCategory" class="form-label">
+                                    <i class="fas fa-folder"></i> 分类 <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="editNavItemCategory" required>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">请选择一个分类</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-eye"></i> 可见性
+                                </label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="editNavItemIsPublic">
+                                    <label class="form-check-label" for="editNavItemIsPublic">
+                                        <span class="edit-public-text">公开 - 所有用户可见</span>
+                                        <span class="edit-private-text" style="display: none;">私有 - 仅自己可见</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 编辑预览 -->
+                    <div class="mb-3" id="editUrlPreview">
+                        <label class="form-label">
+                            <i class="fas fa-eye"></i> 预览
+                        </label>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i id="editPreviewIcon" class="fas fa-link fa-2x text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1" id="editPreviewTitle">导航标题</h6>
+                                        <p class="mb-0 text-muted" id="editPreviewDescription">导航描述</p>
+                                        <small class="text-muted" id="editPreviewUrl">https://example.com</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> 取消
+                </button>
+                <button type="button" class="btn btn-warning" id="updateNavItemBtn">
+                    <i class="fas fa-save"></i> 更新
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <i class="fas fa-exclamation-triangle"></i> 确认删除
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                    <h5 id="deleteConfirmMessage">确定要删除这个导航项吗？</h5>
+                    <p class="text-muted">此操作不可撤销，请谨慎操作。</p>
+                    <input type="hidden" id="deleteItemId">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> 取消
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> 确认删除
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
 {% block extra_js %}
 <script>
-    // 卡片悬停效果
-    function setupCardHoverEffects() {
-        // 先移除现有的事件监听器
-        $('.nav-card').off('mouseenter mouseleave');
+    // 全局变量
+    let currentEditingItem = null;
+    let searchTimeout = null;
 
-        // 添加新的事件监听器
-        $('.nav-card').on('mouseenter', function () {
-            $(this).css('box-shadow', '0 8px 16px rgba(0, 0, 0, 0.1)');
-            $(this).css('transform', 'translateY(-5px)');
-        }).on('mouseleave', function () {
-            $(this).css('box-shadow', 'none');
-            $(this).css('transform', 'translateY(0)');
+    // 页面加载完成后初始化
+    $(document).ready(function () {
+        initializeNavigation();
+        setupEventListeners();
+        updateStatistics();
+        setupCardAnimations();
+    });
+
+    // 初始化导航功能
+    function initializeNavigation() {
+        // 初始化工具提示
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
         });
+
+        // 初始化表单验证
+        setupFormValidation();
+
+        // 设置图标预览
+        setupIconPreview();
+
+        console.log('导航页面初始化完成');
     }
 
-    // 添加导航项
-    $(document).ready(function () {
-        // 初始化卡片悬停效果
-        setupCardHoverEffects();
+    // 设置事件监听器
+    function setupEventListeners() {
+        // 搜索功能
+        $('#searchInput').on('input', function () {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch($(this).val());
+            }, 300);
+        });
 
-        // 打开添加导航项模态框时设置分类
-        $('#addNavItemModal').off('show.bs.modal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var categoryId = button.data('category-id');
+        // 分类筛选
+        $('#categoryFilter').on('change', function () {
+            filterByCategory($(this).val());
+        });
+
+        // 状态筛选
+        $('#statusFilter').on('change', function () {
+            filterByStatus($(this).val());
+        });
+
+        // 视图切换
+        $('#toggleViewMode').on('click', function () {
+            toggleViewMode();
+        });
+
+        // 分类折叠/展开
+        $('.toggle-category').on('click', function () {
+            const categoryId = $(this).data('category-id');
+            toggleCategory(categoryId);
+        });
+
+        // 添加到分类按钮
+        $('.add-to-category').on('click', function () {
+            const categoryId = $(this).data('category-id');
+            const categoryName = $(this).data('category-name');
+            openAddModal(categoryId, categoryName);
+        });
+
+        // 模态框事件
+        setupModalEvents();
+
+        // 导航项操作事件
+        setupNavItemEvents();
+    }
+
+    // 设置模态框事件
+    function setupModalEvents() {
+        // 添加模态框显示时
+        $('#addNavItemModal').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const categoryId = button.data('category-id');
+
             if (categoryId) {
                 $('#navItemCategory').val(categoryId);
             }
+
+            // 重置表单
+            resetAddForm();
         });
 
-        // 保存导航项
-        $('#saveNavItemBtn').off('click').on('click', function () {
-            var title = $('#navItemTitle').val();
-            var url = $('#navItemUrl').val();
-            var description = $('#navItemDescription').val();
-            var icon = $('#navItemIcon').val();
-            var categoryId = $('#navItemCategory').val();
-            var isPublic = $('#navItemIsPublic').is(':checked');
-
-            if (!title || !url) {
-                alert('标题和URL不能为空');
-                return;
-            }
-
-            $.ajax({
-                url: '/api/nav-items',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    title: title,
-                    url: url,
-                    description: description,
-                    icon: icon,
-                    category_id: categoryId,
-                    is_public: isPublic
-                }),
-                success: function (response) {
-                    $('#addNavItemModal').modal('hide');
-                    location.reload();
-                },
-                error: function (xhr) {
-                    alert('添加失败: ' + xhr.responseJSON.message);
-                }
-            });
+        // 编辑模态框显示时
+        $('#editNavItemModal').on('show.bs.modal', function () {
+            updateEditPreview();
         });
 
-        // 打开编辑导航项模态框
-        $('.edit-nav-item').off('click').on('click', function (e) {
+        // 可见性开关变化
+        $('#navItemIsPublic').on('change', function () {
+            updateVisibilityText(this, '.public-text', '.private-text');
+            updateAddPreview();
+        });
+
+        $('#editNavItemIsPublic').on('change', function () {
+            updateVisibilityText(this, '.edit-public-text', '.edit-private-text');
+            updateEditPreview();
+        });
+
+        // 保存按钮
+        $('#saveNavItemBtn').on('click', saveNavItem);
+        $('#updateNavItemBtn').on('click', updateNavItem);
+        $('#confirmDeleteBtn').on('click', confirmDelete);
+    }
+
+    // 设置导航项事件
+    function setupNavItemEvents() {
+        // 编辑导航项
+        $(document).on('click', '.edit-nav-item', function (e) {
             e.preventDefault();
-            var itemId = $(this).data('item-id');
-            var title = $(this).data('item-title');
-            var url = $(this).data('item-url');
-            var description = $(this).data('item-description');
-            var icon = $(this).data('item-icon');
-            var isPublic = $(this).data('item-is-public') === 'true';
-            var categoryId = $(this).data('item-category-id');
+            const itemData = {
+                id: $(this).data('item-id'),
+                title: $(this).data('item-title'),
+                url: $(this).data('item-url'),
+                description: $(this).data('item-description'),
+                icon: $(this).data('item-icon'),
+                isPublic: $(this).data('item-is-public') === 'true',
+                categoryId: $(this).data('item-category-id')
+            };
 
-            $('#editNavItemId').val(itemId);
-            $('#editNavItemTitle').val(title);
-            $('#editNavItemUrl').val(url);
-            $('#editNavItemDescription').val(description);
-            $('#editNavItemIcon').val(icon);
-            $('#editNavItemIsPublic').prop('checked', isPublic);
-            $('#editNavItemCategory').val(categoryId);
-
-            $('#editNavItemModal').modal('show');
+            openEditModal(itemData);
         });
 
-        // 更新导航项
-        $('#updateNavItemBtn').off('click').on('click', function () {
-            var itemId = $('#editNavItemId').val();
-            var title = $('#editNavItemTitle').val();
-            var url = $('#editNavItemUrl').val();
-            var description = $('#editNavItemDescription').val();
-            var icon = $('#editNavItemIcon').val();
-            var categoryId = $('#editNavItemCategory').val();
-            var isPublic = $('#editNavItemIsPublic').is(':checked');
-
-            if (!title || !url) {
-                alert('标题和URL不能为空');
-                return;
-            }
-
-            $.ajax({
-                url: '/api/nav-items/' + itemId,
-                type: 'PUT',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    title: title,
-                    url: url,
-                    description: description,
-                    icon: icon,
-                    category_id: categoryId,
-                    is_public: isPublic
-                }),
-                success: function (response) {
-                    $('#editNavItemModal').modal('hide');
-                    location.reload();
-                },
-                error: function (xhr) {
-                    alert('更新失败: ' + xhr.responseJSON.message);
-                }
-            });
-        });
-
-        // 打开删除确认模态框
-        $('.delete-nav-item').off('click').on('click', function (e) {
+        // 删除导航项
+        $(document).on('click', '.delete-nav-item', function (e) {
             e.preventDefault();
-            var itemId = $(this).data('item-id');
-            $('#deleteItemId').val(itemId);
-            $('#deleteConfirmModal').modal('show');
-        });
+            const itemId = $(this).data('item-id');
+            const itemTitle = $(this).data('item-title');
 
-        // 确认删除
-        $('#confirmDeleteBtn').off('click').on('click', function () {
-            var itemId = $('#deleteItemId').val();
-
-            $.ajax({
-                url: '/api/nav-items/' + itemId,
-                type: 'DELETE',
-                success: function (response) {
-                    $('#deleteConfirmModal').modal('hide');
-                    location.reload();
-                },
-                error: function (xhr) {
-                    alert('删除失败: ' + xhr.responseJSON.message);
-                }
-            });
+            openDeleteModal(itemId, itemTitle);
         });
 
         // 切换可见性
-        $('.toggle-visibility').off('click').on('click', function (e) {
+        $(document).on('click', '.toggle-visibility', function (e) {
             e.preventDefault();
-            var itemId = $(this).data('item-id');
-            var isPublic = $(this).data('is-public') === 'true';
+            const itemId = $(this).data('item-id');
+            const isPublic = $(this).data('is-public') === 'true';
 
-            $.ajax({
-                url: '/api/nav-items/' + itemId + '/visibility',
-                type: 'PUT',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    is_public: !isPublic
-                }),
-                success: function (response) {
-                    location.reload();
-                },
-                error: function (xhr) {
-                    alert('操作失败: ' + xhr.responseJSON.message);
-                }
-            });
+            toggleItemVisibility(itemId, !isPublic);
         });
 
         // 切换隐藏状态
-        $('.toggle-hidden').off('click').on('click', function (e) {
+        $(document).on('click', '.toggle-hidden', function (e) {
             e.preventDefault();
-            var itemId = $(this).data('item-id');
-            var isHidden = $(this).data('is-hidden');
+            const itemId = $(this).data('item-id');
+            const isHidden = $(this).data('is-hidden');
 
-            $.ajax({
-                url: '/api/nav-items/' + itemId + '/visibility',
-                type: 'PUT',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    toggle_hidden: true
-                }),
-                success: function (response) {
-                    location.reload();
-                },
-                error: function (xhr) {
-                    alert('操作失败: ' + xhr.responseJSON.message);
-                }
-            });
+            toggleItemHidden(itemId, !isHidden);
         });
+    }
+
+    // 设置表单验证
+    function setupFormValidation() {
+        // Bootstrap 表单验证
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }
+
+    // 设置图标预览
+    function setupIconPreview() {
+        // 添加表单图标预览
+        $('#navItemIcon').on('input', function () {
+            const iconClass = $(this).val() || 'fas fa-link';
+            $('#iconPreview i').attr('class', iconClass);
+            updateAddPreview();
+        });
+
+        // 编辑表单图标预览
+        $('#editNavItemIcon').on('input', function () {
+            const iconClass = $(this).val() || 'fas fa-link';
+            $('#editIconPreview i').attr('class', iconClass);
+            updateEditPreview();
+        });
+
+        // 实时预览更新
+        $('#navItemTitle, #navItemDescription, #navItemUrl').on('input', updateAddPreview);
+        $('#editNavItemTitle, #editNavItemDescription, #editNavItemUrl').on('input', updateEditPreview);
+    }
+
+    // 更新添加预览
+    function updateAddPreview() {
+        const title = $('#navItemTitle').val() || '导航标题';
+        const description = $('#navItemDescription').val() || '导航描述';
+        const url = $('#navItemUrl').val() || 'https://example.com';
+        const icon = $('#navItemIcon').val() || 'fas fa-link';
+
+        $('#previewTitle').text(title);
+        $('#previewDescription').text(description);
+        $('#previewUrl').text(url);
+        $('#previewIcon').attr('class', icon + ' fa-2x text-primary');
+
+        // 显示预览
+        if (title !== '导航标题' || description !== '导航描述' || url !== 'https://example.com') {
+            $('#urlPreview').show();
+        } else {
+            $('#urlPreview').hide();
+        }
+    }
+
+    // 更新编辑预览
+    function updateEditPreview() {
+        const title = $('#editNavItemTitle').val() || '导航标题';
+        const description = $('#editNavItemDescription').val() || '导航描述';
+        const url = $('#editNavItemUrl').val() || 'https://example.com';
+        const icon = $('#editNavItemIcon').val() || 'fas fa-link';
+
+        $('#editPreviewTitle').text(title);
+        $('#editPreviewDescription').text(description);
+        $('#editPreviewUrl').text(url);
+        $('#editPreviewIcon').attr('class', icon + ' fa-2x text-primary');
+    }
+
+    // 更新可见性文本
+    function updateVisibilityText(checkbox, publicSelector, privateSelector) {
+        if (checkbox.checked) {
+            $(publicSelector).show();
+            $(privateSelector).hide();
+        } else {
+            $(publicSelector).hide();
+            $(privateSelector).show();
+        }
+    }
+
+    // 搜索功能
+    function performSearch(query) {
+        const searchTerm = query.toLowerCase().trim();
+
+        $('.nav-item-col').each(function () {
+            const searchText = $(this).data('search-text') || '';
+            const isMatch = searchText.includes(searchTerm);
+
+            if (searchTerm === '' || isMatch) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+
+        // 更新分类显示状态
+        updateCategoryVisibility();
+    }
+
+    // 按分类筛选
+    function filterByCategory(categoryId) {
+        if (categoryId === '') {
+            $('.category-section').show();
+            $('.nav-item-col').show();
+        } else {
+            $('.category-section').hide();
+            $(`.category-section[data-category-id="${categoryId}"]`).show();
+        }
+    }
+
+    // 按状态筛选
+    function filterByStatus(status) {
+        $('.nav-item-col').each(function () {
+            const isPublic = $(this).data('is-public');
+            const isHidden = $(this).data('is-hidden');
+            let shouldShow = true;
+
+            switch (status) {
+                case 'public':
+                    shouldShow = isPublic;
+                    break;
+                case 'private':
+                    shouldShow = !isPublic;
+                    break;
+                case 'hidden':
+                    shouldShow = isHidden;
+                    break;
+                default:
+                    shouldShow = true;
+            }
+
+            if (shouldShow) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+
+        updateCategoryVisibility();
+    }
+
+    // 更新分类可见性
+    function updateCategoryVisibility() {
+        $('.category-section').each(function () {
+            const visibleItems = $(this).find('.nav-item-col:visible').length;
+            const hasSystemItems = $(this).find('.system-nav').length > 0;
+
+            if (visibleItems > 0 || hasSystemItems) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    }
+
+    // 切换视图模式
+    function toggleViewMode() {
+        const container = $('.row.row-cols-1');
+        const button = $('#toggleViewMode');
+
+        if (container.hasClass('row-cols-xl-4')) {
+            // 切换到列表视图
+            container.removeClass('row-cols-md-2 row-cols-lg-3 row-cols-xl-4').addClass('row-cols-md-1');
+            button.html('<i class="fas fa-th"></i> 网格视图');
+        } else {
+            // 切换到网格视图
+            container.removeClass('row-cols-md-1').addClass('row-cols-md-2 row-cols-lg-3 row-cols-xl-4');
+            button.html('<i class="fas fa-list"></i> 列表视图');
+        }
+    }
+
+    // 切换分类展开/折叠
+    function toggleCategory(categoryId) {
+        const content = $(`#category-${categoryId}`);
+        const button = $(`.toggle-category[data-category-id="${categoryId}"] i`);
+
+        if (content.is(':visible')) {
+            content.slideUp();
+            button.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        } else {
+            content.slideDown();
+            button.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+        }
+    }
+
+    // 打开添加模态框
+    function openAddModal(categoryId, categoryName) {
+        if (categoryId) {
+            $('#navItemCategory').val(categoryId);
+        }
+        $('#addNavItemModal').modal('show');
+    }
+
+    // 打开编辑模态框
+    function openEditModal(itemData) {
+        currentEditingItem = itemData;
+
+        $('#editNavItemId').val(itemData.id);
+        $('#editNavItemTitle').val(itemData.title);
+        $('#editNavItemUrl').val(itemData.url);
+        $('#editNavItemDescription').val(itemData.description);
+        $('#editNavItemIcon').val(itemData.icon);
+        $('#editNavItemIsPublic').prop('checked', itemData.isPublic);
+        $('#editNavItemCategory').val(itemData.categoryId);
+
+        // 更新图标预览
+        $('#editIconPreview i').attr('class', itemData.icon || 'fas fa-link');
+
+        // 更新可见性文本
+        updateVisibilityText(document.getElementById('editNavItemIsPublic'), '.edit-public-text', '.edit-private-text');
+
+        // 更新预览
+        updateEditPreview();
+
+        $('#editNavItemModal').modal('show');
+    }
+
+    // 打开删除模态框
+    function openDeleteModal(itemId, itemTitle) {
+        $('#deleteItemId').val(itemId);
+        $('#deleteConfirmMessage').text(`确定要删除导航项 "${itemTitle}" 吗？`);
+        $('#deleteConfirmModal').modal('show');
+    }
+
+    // 重置添加表单
+    function resetAddForm() {
+        $('#addNavItemForm')[0].reset();
+        $('#navItemIcon').val('fas fa-link');
+        $('#navItemIsPublic').prop('checked', true);
+        $('#iconPreview i').attr('class', 'fas fa-link');
+        updateVisibilityText(document.getElementById('navItemIsPublic'), '.public-text', '.private-text');
+        $('#urlPreview').hide();
+
+        // 清除验证状态
+        $('#addNavItemForm').removeClass('was-validated');
+        $('.is-invalid').removeClass('is-invalid');
+    }
+
+    // 保存导航项
+    function saveNavItem() {
+        const form = document.getElementById('addNavItemForm');
+
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        const data = {
+            title: $('#navItemTitle').val(),
+            url: $('#navItemUrl').val(),
+            description: $('#navItemDescription').val(),
+            icon: $('#navItemIcon').val(),
+            category_id: parseInt($('#navItemCategory').val()),
+            is_public: $('#navItemIsPublic').is(':checked')
+        };
+
+        // 显示加载状态
+        const saveBtn = $('#saveNavItemBtn');
+        const originalText = saveBtn.html();
+        saveBtn.html('<i class="fas fa-spinner fa-spin"></i> 保存中...').prop('disabled', true);
+
+        $.ajax({
+            url: '/api/nav-items',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function (response) {
+                if (response.success) {
+                    showNotification('导航项添加成功！', 'success');
+                    $('#addNavItemModal').modal('hide');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(response.message || '添加失败', 'error');
+                }
+            },
+            error: function (xhr) {
+                const message = xhr.responseJSON?.message || '添加失败，请重试';
+                showNotification(message, 'error');
+            },
+            complete: function () {
+                saveBtn.html(originalText).prop('disabled', false);
+            }
+        });
+    }
+
+    // 更新导航项
+    function updateNavItem() {
+        const form = document.getElementById('editNavItemForm');
+
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        const itemId = $('#editNavItemId').val();
+        const data = {
+            title: $('#editNavItemTitle').val(),
+            url: $('#editNavItemUrl').val(),
+            description: $('#editNavItemDescription').val(),
+            icon: $('#editNavItemIcon').val(),
+            category_id: parseInt($('#editNavItemCategory').val()),
+            is_public: $('#editNavItemIsPublic').is(':checked')
+        };
+
+        // 显示加载状态
+        const updateBtn = $('#updateNavItemBtn');
+        const originalText = updateBtn.html();
+        updateBtn.html('<i class="fas fa-spinner fa-spin"></i> 更新中...').prop('disabled', true);
+
+        $.ajax({
+            url: `/api/nav-items/${itemId}`,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function (response) {
+                if (response.success) {
+                    showNotification('导航项更新成功！', 'success');
+                    $('#editNavItemModal').modal('hide');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(response.message || '更新失败', 'error');
+                }
+            },
+            error: function (xhr) {
+                const message = xhr.responseJSON?.message || '更新失败，请重试';
+                showNotification(message, 'error');
+            },
+            complete: function () {
+                updateBtn.html(originalText).prop('disabled', false);
+            }
+        });
+    }
+
+    // 确认删除
+    function confirmDelete() {
+        const itemId = $('#deleteItemId').val();
+
+        // 显示加载状态
+        const deleteBtn = $('#confirmDeleteBtn');
+        const originalText = deleteBtn.html();
+        deleteBtn.html('<i class="fas fa-spinner fa-spin"></i> 删除中...').prop('disabled', true);
+
+        $.ajax({
+            url: `/api/nav-items/${itemId}`,
+            type: 'DELETE',
+            success: function (response) {
+                if (response.success) {
+                    showNotification('导航项删除成功！', 'success');
+                    $('#deleteConfirmModal').modal('hide');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(response.message || '删除失败', 'error');
+                }
+            },
+            error: function (xhr) {
+                const message = xhr.responseJSON?.message || '删除失败，请重试';
+                showNotification(message, 'error');
+            },
+            complete: function () {
+                deleteBtn.html(originalText).prop('disabled', false);
+            }
+        });
+    }
+
+    // 切换导航项可见性
+    function toggleItemVisibility(itemId, isPublic) {
+        $.ajax({
+            url: `/api/nav-items/${itemId}/visibility`,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({ is_public: isPublic }),
+            success: function (response) {
+                if (response.success) {
+                    const message = isPublic ? '导航项已设为公开' : '导航项已设为私有';
+                    showNotification(message, 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(response.message || '操作失败', 'error');
+                }
+            },
+            error: function (xhr) {
+                const message = xhr.responseJSON?.message || '操作失败，请重试';
+                showNotification(message, 'error');
+            }
+        });
+    }
+
+    // 切换导航项隐藏状态
+    function toggleItemHidden(itemId, isHidden) {
+        $.ajax({
+            url: `/api/nav-items/${itemId}/visibility`,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({ is_hidden: isHidden }),
+            success: function (response) {
+                if (response.success) {
+                    const message = isHidden ? '导航项已隐藏' : '导航项已显示';
+                    showNotification(message, 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(response.message || '操作失败', 'error');
+                }
+            },
+            error: function (xhr) {
+                const message = xhr.responseJSON?.message || '操作失败，请重试';
+                showNotification(message, 'error');
+            }
+        });
+    }
+
+    // 更新统计数据
+    function updateStatistics() {
+        let publicCount = 0;
+        let privateCount = 0;
+
+        $('.nav-item-col').each(function () {
+            const isPublic = $(this).data('is-public');
+            if (isPublic) {
+                publicCount++;
+            } else {
+                privateCount++;
+            }
+        });
+
+        $('#publicCount').text(publicCount);
+        $('#privateCount').text(privateCount);
+    }
+
+    // 设置卡片动画
+    function setupCardAnimations() {
+        // 卡片悬停效果
+        $('.nav-card').hover(
+            function () {
+                $(this).addClass('shadow-lg').css('transform', 'translateY(-5px)');
+            },
+            function () {
+                $(this).removeClass('shadow-lg').css('transform', 'translateY(0)');
+            }
+        );
+
+        // 卡片点击动画
+        $('.nav-card').on('click', 'a[href]', function () {
+            $(this).closest('.nav-card').addClass('animate__animated animate__pulse');
+        });
+    }
+
+    // 显示通知
+    function showNotification(message, type = 'info') {
+        // 移除现有通知
+        $('.notification').remove();
+
+        const alertClass = {
+            'success': 'alert-success',
+            'error': 'alert-danger',
+            'warning': 'alert-warning',
+            'info': 'alert-info'
+        }[type] || 'alert-info';
+
+        const icon = {
+            'success': 'fas fa-check-circle',
+            'error': 'fas fa-exclamation-circle',
+            'warning': 'fas fa-exclamation-triangle',
+            'info': 'fas fa-info-circle'
+        }[type] || 'fas fa-info-circle';
+
+        const notification = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show notification" 
+             style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+            <i class="${icon} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+
+        $('body').append(notification);
+
+        // 自动隐藏
+        setTimeout(() => {
+            notification.alert('close');
+        }, 5000);
+    }
+
+    // 工具函数：格式化URL
+    function formatUrl(url) {
+        if (!url) return '';
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            return 'https://' + url;
+        }
+        return url;
+    }
+
+    // 工具函数：验证URL
+    function isValidUrl(url) {
+        try {
+            new URL(formatUrl(url));
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    // 工具函数：截断文本
+    function truncateText(text, maxLength) {
+        if (!text || text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
+    }
+
+    // 键盘快捷键
+    $(document).keydown(function (e) {
+        // Ctrl/Cmd + K 打开搜索
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            $('#searchInput').focus();
+        }
+
+        // Ctrl/Cmd + N 添加新导航
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+            e.preventDefault();
+            $('#addNavItemModal').modal('show');
+        }
+
+        // ESC 关闭模态框
+        if (e.key === 'Escape') {
+            $('.modal').modal('hide');
+        }
     });
+
+    // 页面可见性变化时刷新数据
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+            updateStatistics();
+        }
+    });
+
+    // 错误处理
+    window.addEventListener('error', function (e) {
+        console.error('页面错误:', e.error);
+        showNotification('页面发生错误，请刷新重试', 'error');
+    });
+
+    // 网络状态监听
+    window.addEventListener('online', function () {
+        showNotification('网络连接已恢复', 'success');
+    });
+
+    window.addEventListener('offline', function () {
+        showNotification('网络连接已断开', 'warning');
+    });
+
+    // 导出函数供外部使用
+    window.NavigationManager = {
+        openAddModal,
+        openEditModal,
+        openDeleteModal,
+        performSearch,
+        filterByCategory,
+        filterByStatus,
+        toggleViewMode,
+        updateStatistics,
+        showNotification
+    };
+
+    console.log('导航管理器已加载完成');
 </script>
-{% endblock %}
+
+<style>
+    /* 自定义样式 */
+    .nav-card {
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        cursor: pointer;
+    }
+
+    .nav-card:hover {
+        border-color: #007bff;
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.15);
+    }
+
+    .nav-card.system-nav {
+        border-left: 4px solid #28a745;
+    }
+
+    .nav-card.user-nav {
+        border-left: 4px solid #007bff;
+    }
+
+    .nav-card.hidden-item {
+        opacity: 0.6;
+        border-left-color: #6c757d;
+    }
+
+    .category-section {
+        margin-bottom: 2rem;
+    }
+
+    .category-content {
+        transition: all 0.3s ease;
+    }
+
+    .search-highlight {
+        background-color: #fff3cd;
+        padding: 2px 4px;
+        border-radius: 3px;
+    }
+
+    .notification {
+        animation: slideInRight 0.3s ease;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    .badge {
+        font-size: 0.75em;
+    }
+
+    .dropdown-menu {
+        border: 1px solid #e9ecef;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .modal-content {
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e9ecef;
+    }
+
+    .list-group-item {
+        transition: all 0.2s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .nav-card {
+            margin-bottom: 1rem;
+        }
+
+        .modal-dialog {
+            margin: 1rem;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .d-flex.gap-2 {
+            flex-direction: column;
+            gap: 0.5rem !important;
+        }
+    }
+
+    /* 深色模式支持 */
+    @media (prefers-color-scheme: dark) {
+        .nav-card {
+            background-color: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        .nav-card:hover {
+            border-color: #63b3ed;
+        }
+
+        .text-muted {
+            color: #a0aec0 !important;
+        }
+    }
+
+    /* 打印样式 */
+    @media print {
+
+        .btn,
+        .dropdown,
+        .modal {
+            display: none !important;
+        }
+
+        .nav-card {
+            break-inside: avoid;
+            margin-bottom: 1rem;
+        }
+    }
+</style>
 {% endblock %}

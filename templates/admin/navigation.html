@@ -71,16 +71,13 @@
                 <span class="badge bg-primary ms-2">{{ category.nav_items|length }}</span>
             </h5>
             <div>
-                <button class="btn btn-sm btn-outline-primary edit-category" 
-                        data-category-id="{{ category.id }}" 
-                        data-category-name="{{ category.name }}" 
-                        data-category-icon="{{ category.icon }}" 
-                        data-category-order="{{ category.order }}">
+                <button class="btn btn-sm btn-outline-primary edit-category" data-category-id="{{ category.id }}"
+                    data-category-name="{{ category.name }}" data-category-icon="{{ category.icon }}"
+                    data-category-order="{{ category.order }}">
                     <i class="fas fa-edit"></i> 编辑
                 </button>
-                <button class="btn btn-sm btn-outline-danger delete-category" 
-                        data-category-id="{{ category.id }}" 
-                        data-category-name="{{ category.name }}">
+                <button class="btn btn-sm btn-outline-danger delete-category" data-category-id="{{ category.id }}"
+                    data-category-name="{{ category.name }}">
                     <i class="fas fa-trash-alt"></i> 删除
                 </button>
             </div>
@@ -105,7 +102,8 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="me-3">
-                                        <i class="{{ item.icon }}" style="font-size: 1.5rem; color: var(--github-accent);"></i>
+                                        <i class="{{ item.icon }}"
+                                            style="font-size: 1.5rem; color: var(--github-accent);"></i>
                                     </div>
                                     <div>
                                         <h6 class="mb-0">{{ item.title }}</h6>
@@ -114,16 +112,16 @@
                                 </div>
                             </td>
                             <td>
-                                <a href="{{ item.url }}" target="_blank" class="text-truncate d-inline-block" style="max-width: 200px;">
+                                <a href="{{ item.url }}" target="_blank" class="text-truncate d-inline-block"
+                                    style="max-width: 200px;">
                                     {{ item.url }}
                                 </a>
                             </td>
                             <td>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input toggle-nav-item-status" type="checkbox" 
-                                           data-nav-item-id="{{ item.id }}" 
-                                           data-is-public="{{ item_public_js }}" 
-                                           {% if item.is_public %}checked{% endif %}>
+                                    <input class="form-check-input toggle-nav-item-status" type="checkbox"
+                                        data-nav-item-id="{{ item.id }}" data-is-public="{{ item_public_js }}" {% if
+                                        item.is_public %}checked{% endif %}>
                                     <label class="form-check-label">
                                         {% if item.is_public %}
                                         <span class="badge bg-success">公开</span>
@@ -135,20 +133,17 @@
                             </td>
                             <td>{{ item.order }}</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary edit-nav-item" 
-                                        data-nav-item-id="{{ item.id }}" 
-                                        data-nav-item-title="{{ item.title }}" 
-                                        data-nav-item-url="{{ item.url }}" 
-                                        data-nav-item-description="{{ item.description }}" 
-                                        data-nav-item-icon="{{ item.icon }}" 
-                                        data-nav-item-category="{{ item.category_id }}" 
-                                        data-nav-item-order="{{ item.order }}" 
-                                        data-nav-item-is-public="{{ item_public_js }}">
+                                <button class="btn btn-sm btn-outline-primary edit-nav-item"
+                                    data-nav-item-id="{{ item.id }}" data-nav-item-title="{{ item.title }}"
+                                    data-nav-item-url="{{ item.url }}"
+                                    data-nav-item-description="{{ item.description }}"
+                                    data-nav-item-icon="{{ item.icon }}" data-nav-item-category="{{ item.category_id }}"
+                                    data-nav-item-order="{{ item.order }}"
+                                    data-nav-item-is-public="{{ item_public_js }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger delete-nav-item" 
-                                        data-nav-item-id="{{ item.id }}" 
-                                        data-nav-item-title="{{ item.title }}">
+                                <button class="btn btn-sm btn-outline-danger delete-nav-item"
+                                    data-nav-item-id="{{ item.id }}" data-nav-item-title="{{ item.title }}">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </td>
