@@ -1,41 +1,56 @@
-{% extends 'base.html' %}
-
-{% block title %}
-  登录 - JuFire Studio
-{% endblock %}
-
+{% extends 'base.html' %} {% block title %} 登录 - JuFire Studio {% endblock %}
 {% block content %}
-  <div class="container d-flex align-items-center justify-content-center" style="min-height: 75vh;">
-    <div class="row justify-content-center w-100">
-      <div class="col-md-6 col-lg-4">
-        <div class="card">
-          <div class="card-header text-center">
-            <h3><i class="fas fa-sign-in-alt"></i> 登录</h3>
-          </div>
-          <div class="card-body">
-            <form method="POST">
-              <div class="mb-3">
-                <label for="username" class="form-label">用户名</label>
-                <input type="text" class="form-control" id="username" name="username" required />
-              </div>
+<div
+  class="container d-flex align-items-center justify-content-center"
+  style="min-height: 75vh"
+>
+  <div class="row justify-content-center w-100">
+    <div class="col-md-6 col-lg-4">
+      <div class="card">
+        <div class="card-header text-center">
+          <h3><i class="fas fa-sign-in-alt"></i> 登录</h3>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            <div class="mb-3">
+              <label for="username" class="form-label">用户名</label>
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                name="username"
+                required
+              />
+            </div>
 
-              <div class="mb-3">
-                <label for="password" class="form-label">密码</label>
-                <input type="password" class="form-control" id="password" name="password" required />
-              </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">密码</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                required
+              />
+            </div>
 
-              <div class="d-grid">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> 登录</button>
-              </div>
-            </form>
-          </div>
-          <div class="card-footer text-center">
-            <p class="mb-0">
-              还没有账号？ <a href="{{ url_for('register') }}" class="text-decoration-none">立即注册</a>
-            </p>
-          </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> 登录
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="card-footer text-center">
+          <p class="mb-0">
+            还没有账号？
+            <a href="{{ url_for('register') }}" class="text-decoration-none"
+              >立即注册</a
+            >
+          </p>
         </div>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}
