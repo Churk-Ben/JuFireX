@@ -1,116 +1,5 @@
 {% extends "base.html" %} {% block title %}导航站 - JuFire Studio{% endblock %}
-{% block scripts %}
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const csrftoken = document
-      .querySelector('meta[name="csrf-token"]')
-      .getAttribute("content");
-
-    // 隐藏卡片
-    document.querySelectorAll(".hide-card-btn").forEach((button) => {
-      button.addEventListener("click", function (e) {
-        e.preventDefault();
-        const cardCol = this.closest(".nav-card-col");
-        const navItemId = cardCol.dataset.navItemId;
-
-        fetch(`/navigation/hide/${navItemId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              cardCol.style.display = "none";
-            }
-          });
-      });
-    });
-
-    // 切换隐私状态
-    document.querySelectorAll(".toggle-privacy-btn").forEach((button) => {
-      button.addEventListener("click", function (e) {
-        e.preventDefault();
-        const navItemId = this.closest(".nav-card-col").dataset.navItemId;
-        const isPublic = this.dataset.isPublic === "true";
-
-        fetch(`/navigation/toggle_privacy/${navItemId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-          },
-          body: JSON.stringify({ is_public: !isPublic }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              this.dataset.isPublic = data.is_public ? "true" : "false";
-              this.textContent = data.is_public ? "设为私有" : "设为公开";
-            }
-          });
-      });
-    });
-
-    // 加载隐藏的卡片
-    const manageCardsModal = document.getElementById("manageCardsModal");
-    manageCardsModal.addEventListener("show.bs.modal", function () {
-      fetch("/navigation/hidden_items")
-        .then((response) => response.json())
-        .then((data) => {
-          const list = document.getElementById("hidden-cards-list");
-          list.innerHTML = "";
-          if (data.hidden_items.length > 0) {
-            data.hidden_items.forEach((item) => {
-              const li = document.createElement("li");
-              li.className =
-                "list-group-item d-flex justify-content-between align-items-center";
-              li.innerHTML = `
-                <span>${item.title}</span>
-                <button class="btn btn-sm btn-outline-success unhide-card-btn" data-nav-item-id="${item.id}">恢复显示</button>
-              `;
-              list.appendChild(li);
-            });
-          } else {
-            list.innerHTML =
-              '<li class="list-group-item">没有隐藏的卡片。</li>';
-          }
-        });
-    });
-
-    // 恢复显示卡片
-    document
-      .getElementById("hidden-cards-list")
-      .addEventListener("click", function (e) {
-        if (e.target.classList.contains("unhide-card-btn")) {
-          const navItemId = e.target.dataset.navItemId;
-
-          fetch(`/navigation/unhide/${navItemId}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": csrftoken,
-            },
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              if (data.success) {
-                e.target.closest("li").remove();
-                const cardCol = document.querySelector(
-                  `.nav-card-col[data-nav-item-id="${navItemId}"]`
-                );
-                if (cardCol) {
-                  cardCol.style.display = "";
-                }
-              }
-            });
-        }
-      });
-  });
-</script>
-{% endblock %} {% block content %}
+{% block content %}
 <div class="container mt-4">
   <div class="row">
     <div class="col-12">
@@ -154,14 +43,20 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li>
-                    <a class="dropdown-item hide-card-btn" href="#">隐藏</a>
+                    <a
+                      class="dropdown-item hide-card-btn"
+                      onclick="hideCard('{{ item.id }}'); return false;"
+                      href="javascript:void(0);"
+                      >隐藏</a
+                    >
                   </li>
                   {% if current_user and item.created_by == current_user.id %}
                   <li><hr class="dropdown-divider" /></li>
                   <li>
                     <a
                       class="dropdown-item toggle-privacy-btn"
-                      href="#"
+                      onclick="togglePrivacy('{{ item.id }}', {{ 'true' if item.is_public else 'false' }}, this); return false;"
+                      href="javascript:void(0);"
                       data-is-public="{{ 'true' if item.is_public else 'false' }}"
                       >{{ '设为私有' if item.is_public else '设为公开' }}</a
                     >
@@ -188,9 +83,8 @@
                 {% endif %}
                 <div>
                   <small class="text-white"
-                    >{{ item.creator.username if item.creator else '未知'
-                    }}</small
-                  >
+                    >{{ item.creator.username if item.creator else '未知' }}
+                  </small>
                   <small class="text-muted d-block"
                     >{{ item.created_at.strftime('%Y-%m-%d') }}</small
                   >
@@ -250,4 +144,161 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // 将函数直接附加到 window 对象，确保它们是全局的
+  window.hideCard = function(navItemId) {
+    const csrftoken =
+      document
+        .querySelector('meta[name="csrf-token"]')
+        ?.getAttribute("content") || "";
+    const cardCol = document.querySelector(
+      `.nav-card-col[data-nav-item-id="${navItemId}"]`
+    );
+    if (!cardCol) return;
+
+    fetch(`/navigation/hide/${navItemId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          cardCol.style.display = "none";
+          if (typeof showNotification === "function") {
+            showNotification("卡片已隐藏", "success");
+          }
+        } else if (data.message && typeof showNotification === "function") {
+          showNotification(data.message, "error");
+        }
+      })
+      .catch((error) => {
+        console.error("隐藏卡片出错:", error);
+        if (typeof showNotification === "function") {
+          showNotification("操作失败，请重试", "error");
+        }
+      });
+  }
+
+  window.togglePrivacy = function(navItemId, isPublic, button) {
+    const csrftoken =
+      document
+        .querySelector('meta[name="csrf-token"]')
+        ?.getAttribute("content") || "";
+    fetch(`/navigation/toggle_privacy/${navItemId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+      },
+      body: JSON.stringify({ is_public: !isPublic }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          button.dataset.isPublic = data.is_public ? "true" : "false";
+          button.textContent = data.is_public ? "设为私有" : "设为公开";
+          if (typeof showNotification === "function") {
+            showNotification(
+              data.is_public ? "已设为公开" : "已设为私有",
+              "success"
+            );
+          }
+        } else if (data.message && typeof showNotification === "function") {
+          showNotification(data.message, "error");
+        }
+      })
+      .catch((error) => {
+        console.error("切换隐私状态出错:", error);
+        if (typeof showNotification === "function") {
+          showNotification("操作失败，请重试", "error");
+        }
+      });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const csrftoken = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute("content");
+
+    // 加载隐藏的卡片
+    const manageCardsModal = document.getElementById("manageCardsModal");
+    manageCardsModal.addEventListener("show.bs.modal", function () {
+      fetch("/navigation/hidden_items")
+        .then((response) => response.json())
+        .then((data) => {
+          const list = document.getElementById("hidden-cards-list");
+          list.innerHTML = "";
+          if (data.hidden_items.length > 0) {
+            data.hidden_items.forEach((item) => {
+              const li = document.createElement("li");
+              li.className =
+                "list-group-item d-flex justify-content-between align-items-center";
+              li.innerHTML = `
+                <span>${item.title}</span>
+                <button class="btn btn-sm btn-outline-success unhide-card-btn" data-nav-item-id="${item.id}">恢复显示</button>
+              `;
+              list.appendChild(li);
+            });
+          } else {
+            list.innerHTML =
+              '<li class="list-group-item">没有隐藏的卡片。</li>';
+          }
+        });
+    });
+
+    // 恢复显示卡片
+    document
+      .getElementById("hidden-cards-list")
+      .addEventListener("click", function (e) {
+        if (e.target.classList.contains("unhide-card-btn")) {
+          const navItemId = e.target.dataset.navItemId;
+
+          fetch(`/navigation/unhide/${navItemId}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrftoken,
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                e.target.closest("li").remove();
+                const cardCol = document.querySelector(
+                  `.nav-card-col[data-nav-item-id="${navItemId}"]`
+                );
+                if (cardCol) {
+                  cardCol.style.display = "";
+                  showNotification("卡片已恢复显示", "success");
+                }
+              } else if (data.message) {
+                showNotification(data.message, "error");
+              }
+            })
+            .catch((error) => {
+              console.error("恢复显示卡片出错:", error);
+              showNotification("操作失败，请重试", "error");
+            });
+        }
+      });
+
+    // 调试信息
+    console.log("导航页面脚本已加载");
+    console.log("CSRF Token:", csrftoken);
+    console.log(
+      "隐藏按钮数量:",
+      document.querySelectorAll(".hide-card-btn").length
+    );
+    console.log(
+      "隐私切换按钮数量:",
+      document.querySelectorAll(".toggle-privacy-btn").length
+    );
+  });
+</script>
 {% endblock %}

@@ -1,801 +1,489 @@
-{% extends 'base.html' %} {% block title %} 导航管理 - JuFire Studio {% endblock
-%} {% block content %}
-<div class="container mt-4">
-  <div class="row">
-    <div class="col-12">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-compass"></i> 导航管理</h2>
-        <div>
-          <button
-            class="btn btn-outline-primary me-2"
-            data-bs-toggle="modal"
-            data-bs-target="#addCategoryModal"
-          >
-            <i class="fas fa-folder-plus"></i> 新增分类
-          </button>
-          <button
-            class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#addNavItemModal"
-          >
-            <i class="fas fa-plus"></i> 添加导航
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+{% extends 'base.html' %}
 
-  <!-- 导航统计 -->
-  <div class="row mb-4">
-    <div class="col-md-3 col-6 mb-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <i
-            class="fas fa-folder"
-            style="font-size: 2rem; color: var(--github-accent)"
-          ></i>
-          <h4 class="mt-2 mb-0">{{ categories|length }}</h4>
-          <p class="text-muted mb-0">总分类数</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 col-6 mb-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <i
-            class="fas fa-link"
-            style="font-size: 2rem; color: var(--github-success)"
-          ></i>
-          <h4 class="mt-2 mb-0">{{ nav_items|length }}</h4>
-          <p class="text-muted mb-0">总导航数</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 col-6 mb-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <i
-            class="fas fa-eye"
-            style="font-size: 2rem; color: var(--github-warning)"
-          ></i>
-          <h4 class="mt-2 mb-0">
-            {{ nav_items|selectattr('is_public')|list|length }}
-          </h4>
-          <p class="text-muted mb-0">公开导航</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 col-6 mb-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <i
-            class="fas fa-eye-slash"
-            style="font-size: 2rem; color: var(--github-danger)"
-          ></i>
-          <h4 class="mt-2 mb-0">
-            {{ nav_items|rejectattr('is_public')|list|length }}
-          </h4>
-          <p class="text-muted mb-0">私有导航</p>
-        </div>
-      </div>
-    </div>
-  </div>
+{% block title %}
+  导航管理 - JuFire Studio
+{% endblock %}
 
-  <!-- 分类列表 -->
-  {% if categories %} {% for category in categories %}
-  <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0">
-        <i class="{{ category.icon }}"></i> {{ category.name }}
-        <span class="badge bg-primary ms-2"
-          >{{ category.nav_items|length }}</span
-        >
-      </h5>
-      <div class="d-flex gap-2">
-        <button
-          class="btn btn-sm btn-outline-primary edit-category"
-          data-category-id="{{ category.id }}"
-          data-category-name="{{ category.name }}"
-          data-category-icon="{{ category.icon }}"
-          data-category-order="{{ category.order }}"
-        >
-          <i class="fas fa-edit"></i>
-        </button>
-        <button
-          class="btn btn-sm btn-outline-danger delete-category"
-          data-category-id="{{ category.id }}"
-          data-category-name="{{ category.name }}"
-        >
-          <i class="fas fa-trash-alt"></i>
-        </button>
-        <button
-          class="btn btn-sm btn-primary"
-          data-bs-toggle="modal"
-          data-bs-target="#addNavItemModal"
-          data-category-id="{{ category.id }}"
-        >
-          <i class="fas fa-plus"></i>
-        </button>
+{% block content %}
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2><i class="fas fa-compass"></i> 导航管理</h2>
+          <div>
+            <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i class="fas fa-folder-plus"></i> 新增分类</button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"><i class="fas fa-plus"></i> 添加导航</button>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="card-body">
-      {% if category.nav_items %}
-      <div class="table-responsive">
-        <table
-          class="table table-hover category-table"
-          data-category-id="{{ category.id }}"
-        >
-          <thead>
-            <tr>
-              <th>导航信息</th>
-              <th>URL</th>
-              <th>状态</th>
-              <th>创建者</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in category.nav_items|sort(attribute='order') %}
-            <tr data-nav-item-id="{{ item.id }}">
-              <td>
-                <div class="d-flex align-items-center">
-                  <div class="me-3">
-                    <i
-                      class="{{ item.icon or 'fas fa-link' }}"
-                      style="font-size: 1.5rem; color: var(--github-accent)"
-                    ></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-0">{{ item.title }}</h6>
-                    {% if item.description %}
-                    <small class="text-muted"
-                      >{{ item.description[:50] }}{% if item.description|length
-                      > 50 %}...{% endif %}</small
-                    >
-                    {% endif %}
-                  </div>
-                </div>
-              </td>
-              <td>
-                <a
-                  href="{{ item.url }}"
-                  target="_blank"
-                  class="text-decoration-none"
-                >
-                  {{ item.url[:30] }}{% if item.url|length > 30 %}...{% endif %}
-                  <i class="fas fa-external-link-alt ms-1"></i>
-                </a>
-              </td>
-              <td>
-                {% if item.is_public %}
-                <span class="badge bg-success">公开</span>
-                {% else %}
-                <span class="badge bg-warning">私有</span>
-                {% endif %}
-              </td>
-              <td>
-                {% if item.creator %}
-                <div class="d-flex align-items-center">
-                  <div class="me-2">
-                    {% if item.creator.avatar_path %}
-                    <img
-                      src="{{ url_for('user_avatar', filename=item.creator.avatar_path) }}"
-                      alt="{{ item.creator.username }}的头像"
-                      class="rounded-circle"
-                      style="width: 30px; height: 30px; object-fit: cover"
-                    />
-                    {% else %}
-                    <div
-                      style="
-                        width: 30px;
-                        height: 30px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                      "
-                    >
-                      <i
-                        class="fas fa-user-circle"
-                        style="font-size: 30px; color: var(--github-accent)"
-                      ></i>
-                    </div>
-                    {% endif %}
-                  </div>
-                  <div>
-                    {{ item.creator.username }}
-                    <span
-                      class="ms-1"
-                      style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {% if item.creator.role == 3 %}
-                                    
+
+    <!-- 导航统计 -->
+    <div class="row mb-4">
+      <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-folder" style="font-size: 2rem; color: var(--github-accent)"></i>
+            <h4 class="mt-2 mb-0">{{ categories|length }}</h4>
+            <p class="text-muted mb-0">总分类数</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-link" style="font-size: 2rem; color: var(--github-success)"></i>
+            <h4 class="mt-2 mb-0">{{ nav_items|length }}</h4>
+            <p class="text-muted mb-0">总导航数</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-eye" style="font-size: 2rem; color: var(--github-warning)"></i>
+            <h4 class="mt-2 mb-0">{{ nav_items|selectattr('is_public')|list|length }}</h4>
+            <p class="text-muted mb-0">公开导航</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-eye-slash" style="font-size: 2rem; color: var(--github-danger)"></i>
+            <h4 class="mt-2 mb-0">{{ nav_items|rejectattr('is_public')|list|length }}</h4>
+            <p class="text-muted mb-0">私有导航</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分类列表 -->
+    {% if categories %}
+      {% for category in categories %}
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="{{ category.icon }}"></i> {{ category.name }}
+              <span class="badge bg-primary ms-2">{{ category.nav_items|length }}</span>
+            </h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary edit-category" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}" data-category-icon="{{ category.icon }}" data-category-order="{{ category.order }}"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-sm btn-outline-danger delete-category" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}"><i class="fas fa-trash-alt"></i></button>
+              <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal" data-category-id="{{ category.id }}"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="card-body">
+            {% if category.nav_items %}
+              <div class="table-responsive">
+                <table class="table table-hover category-table" data-category-id="{{ category.id }}">
+                  <thead>
+                    <tr>
+                      <th>导航信息</th>
+                      <th>URL</th>
+                      <th>状态</th>
+                      <th>创建者</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in category.nav_items|sort(attribute='order') %}
+                      <tr data-nav-item-id="{{ item.id }}">
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="me-3">
+                              <i class="{{ item.icon or 'fas fa-link' }}" style="font-size: 1.5rem; color: var(--github-accent)"></i>
+                            </div>
+                            <div>
+                              <h6 class="mb-0">{{ item.title }}</h6>
+                              {% if item.description %}
+                                <small class="text-muted">{{ item.description[:50] }}{% if item.description|length > 50 %}...{% endif %}</small>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <a href="{{ item.url }}" target="_blank" class="text-decoration-none">
+                            {{ item.url[:30] }}{% if item.url|length > 30 %}...{% endif %}
+                            <i class="fas fa-external-link-alt ms-1"></i>
+                          </a>
+                        </td>
+                        <td>
+                          {% if item.is_public %}
+                            <span class="badge bg-success">公开</span>
+                          {% else %}
+                            <span class="badge bg-warning">私有</span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if item.creator %}
+                            <div class="d-flex align-items-center">
+                              <div class="me-2">
+                                {% if item.creator.avatar_path %}
+                                  <img src="{{ url_for('user_avatar', filename=item.creator.avatar_path) }}" alt="{{ item.creator.username }}的头像" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover" />
+                                {% else %}
+                                  <div style="
+                                    width: 30px;
+                                    height: 30px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                  ">
+                                    <i class="fas fa-user-circle" style="font-size: 30px; color: var(--github-accent)"></i>
+                                  </div>
+                                {% endif %}
+                              </div>
+                              <div>
+                                {{ item.creator.username }}
+                                {% set role_color %}
+                                  {% if item.creator.role == 3 %}
                                     var(--bs-danger)
-
                                   {% elif item.creator.role == 2 %}
-                                    
                                     var(--bs-warning)
-
                                   {% elif item.creator.role == 1 %}
-                                    
                                     var(--bs-success)
-
                                   {% else %}
-                                    
                                     var(--bs-secondary)
+                                  {% endif %}
+                                {% endset %}
+                                <span class="ms-1" style="
+                                  display: inline-block; 
+                                  width: 8px; 
+                                  height: 8px; 
+                                  border-radius: 50%;
+                                  background-color: {{ role_color }};
+                                  vertical-align: middle; 
+                                  position: relative; 
+                                  top: -1px;
+                                "></span>
+                              </div>
+                            </div>
+                          {% else %}
+                            未知
+                          {% endif %}
+                        </td>
+                        <td>
+                          <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-primary edit-nav-item" data-item-id="{{ item.id }}" data-item-title="{{ item.title }}" data-item-url="{{ item.url }}" data-item-description="{{ item.description or '' }}" data-item-icon="{{ item.icon or '' }}" data-item-category-id="{{ item.category_id }}" data-item-is-public="{{ item.is_public|lower }}" data-item-order="{{ item.order }}"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger delete-nav-item" data-item-id="{{ item.id }}" data-item-title="{{ item.title }}"><i class="fas fa-trash-alt"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary toggle-visibility" data-item-id="{{ item.id }}" data-is-public="{{ item.is_public|lower }}">
+                              {% if item.is_public %}
+                                <i class="fas fa-eye-slash"></i>
+                              {% else %}
+                                <i class="fas fa-eye"></i>
+                              {% endif %}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="text-center py-4">
+                <i class="fas fa-inbox fa-3x text-gray-300 mb-3"></i>
+                <p class="text-muted">该分类下暂无导航项</p>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal" data-category-id="{{ category.id }}">
+                  <i class="fas fa-plus me-1"></i>
+                  添加第一个导航项
+                </button>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="card">
+        <div class="card-body text-center py-5">
+          <i class="fas fa-folder-open fa-3x text-gray-300 mb-3"></i>
+          <h5 class="text-gray-600">暂无导航分类</h5>
+          <p class="text-muted">请先创建一个导航分类</p>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            <i class="fas fa-folder-plus me-1"></i>
+            创建第一个分类
+          </button>
+        </div>
+      </div>
+    {% endif %}
+  </div>
 
-                                  {% endif %}; vertical-align: middle; position: relative; top: -1px;"
-                    >
-                    </span>
+  <!-- 添加分类模态框 -->
+  <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCategoryModalLabel"><i class="fas fa-folder-plus"></i> 添加导航分类</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addCategoryForm">
+            <div class="mb-3">
+              <label for="categoryName" class="form-label">分类名称 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="categoryName" required />
+            </div>
+            <div class="mb-3">
+              <label for="categoryIcon" class="form-label">图标</label>
+              <input type="text" class="form-control" id="categoryIcon" value="fas fa-link" placeholder="例如: fas fa-link" />
+              <div class="form-text">Font Awesome 图标类名</div>
+            </div>
+            <div class="mb-3">
+              <label for="categoryOrder" class="form-label">排序</label>
+              <input type="number" class="form-control" id="categoryOrder" value="0" min="0" />
+              <div class="form-text">数字越小排序越靠前</div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="saveCategoryBtn"><i class="fas fa-save"></i> 保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑分类模态框 -->
+  <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editCategoryModalLabel"><i class="fas fa-edit"></i> 编辑导航分类</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editCategoryForm">
+            <input type="hidden" id="editCategoryId" />
+            <div class="mb-3">
+              <label for="editCategoryName" class="form-label">分类名称 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="editCategoryName" required />
+            </div>
+            <div class="mb-3">
+              <label for="editCategoryIcon" class="form-label">图标</label>
+              <input type="text" class="form-control" id="editCategoryIcon" placeholder="例如: fas fa-link" />
+              <div class="form-text">Font Awesome 图标类名</div>
+            </div>
+            <div class="mb-3">
+              <label for="editCategoryOrder" class="form-label">排序</label>
+              <input type="number" class="form-control" id="editCategoryOrder" min="0" />
+              <div class="form-text">数字越小排序越靠前</div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="updateCategoryBtn"><i class="fas fa-save"></i> 更新</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除分类确认模态框 -->
+  <div class="modal fade" id="deleteCategoryConfirmModal" tabindex="-1" aria-labelledby="deleteCategoryConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteCategoryConfirmModalLabel">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            确认删除
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        </div>
+        <div class="modal-body">
+          <p id="deleteCategoryConfirmMessage">确定要删除分类吗？</p>
+          <input type="hidden" id="deleteCategoryId" />
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            此操作将同时删除该分类下的所有导航项，且不可撤销。
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteCategoryBtn">
+            <i class="fas fa-trash-alt me-1"></i>
+            删除
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加导航项模态框 -->
+  <div class="modal fade" id="addNavItemModal" tabindex="-1" aria-labelledby="addNavItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addNavItemModalLabel"><i class="fas fa-plus"></i> 添加导航项</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addNavItemForm">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="navItemTitle" class="form-label">标题 <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="navItemTitle" required />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="navItemUrl" class="form-label">URL <span class="text-danger">*</span></label>
+                  <input type="url" class="form-control" id="navItemUrl" required />
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="navItemDescription" class="form-label">描述</label>
+              <textarea class="form-control" id="navItemDescription" rows="3" placeholder="简要描述这个导航项的用途..."></textarea>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="navItemIcon" class="form-label">图标</label>
+                  <input type="text" class="form-control" id="navItemIcon" value="fas fa-link" placeholder="例如: fas fa-link" />
+                  <div class="form-text">Font Awesome 图标类名</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="navItemCategory" class="form-label">分类 <span class="text-danger">*</span></label>
+                  <select class="form-select" id="navItemCategory" required>
+                    <option value="">请选择分类</option>
+                    {% for category in categories %}
+                      <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="navItemOrder" class="form-label">排序</label>
+                  <input type="number" class="form-control" id="navItemOrder" value="0" min="0" />
+                  <div class="form-text">数字越小排序越靠前</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <div class="form-check form-switch mt-4">
+                    <input class="form-check-input" type="checkbox" id="navItemIsPublic" checked />
+                    <label class="form-check-label" for="navItemIsPublic">公开显示</label>
+                    <div class="form-text">是否在前台显示此导航项</div>
                   </div>
                 </div>
-                {% else %} 未知 {% endif %}
-              </td>
-              <td>
-                <div class="btn-group" role="group">
-                  <button
-                    class="btn btn-sm btn-outline-primary edit-nav-item"
-                    data-item-id="{{ item.id }}"
-                    data-item-title="{{ item.title }}"
-                    data-item-url="{{ item.url }}"
-                    data-item-description="{{ item.description or '' }}"
-                    data-item-icon="{{ item.icon or '' }}"
-                    data-item-category-id="{{ item.category_id }}"
-                    data-item-is-public="{{ item.is_public|lower }}"
-                    data-item-order="{{ item.order }}"
-                  >
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm btn-outline-danger delete-nav-item"
-                    data-item-id="{{ item.id }}"
-                    data-item-title="{{ item.title }}"
-                  >
-                    <i class="fas fa-trash-alt"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm btn-outline-secondary toggle-visibility"
-                    data-item-id="{{ item.id }}"
-                    data-is-public="{{ item.is_public|lower }}"
-                  >
-                    {% if item.is_public %}
-                    <i class="fas fa-eye-slash"></i>
-                    {% else %}
-                    <i class="fas fa-eye"></i>
-                    {% endif %}
-                  </button>
-                </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <div class="text-center py-4">
-        <i class="fas fa-inbox fa-3x text-gray-300 mb-3"></i>
-        <p class="text-muted">该分类下暂无导航项</p>
-        <button
-          class="btn btn-primary"
-          data-bs-toggle="modal"
-          data-bs-target="#addNavItemModal"
-          data-category-id="{{ category.id }}"
-        >
-          <i class="fas fa-plus me-1"></i>
-          添加第一个导航项
-        </button>
-      </div>
-      {% endif %}
-    </div>
-  </div>
-  {% endfor %} {% else %}
-  <div class="card">
-    <div class="card-body text-center py-5">
-      <i class="fas fa-folder-open fa-3x text-gray-300 mb-3"></i>
-      <h5 class="text-gray-600">暂无导航分类</h5>
-      <p class="text-muted">请先创建一个导航分类</p>
-      <button
-        class="btn btn-primary"
-        data-bs-toggle="modal"
-        data-bs-target="#addCategoryModal"
-      >
-        <i class="fas fa-folder-plus me-1"></i>
-        创建第一个分类
-      </button>
-    </div>
-  </div>
-  {% endif %}
-</div>
-
-<!-- 添加分类模态框 -->
-<div
-  class="modal fade"
-  id="addCategoryModal"
-  tabindex="-1"
-  aria-labelledby="addCategoryModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addCategoryModalLabel">
-          <i class="fas fa-folder-plus"></i> 添加导航分类
-        </h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-          style="background-color: var(--github-accent)"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <form id="addCategoryForm">
-          <div class="mb-3">
-            <label for="categoryName" class="form-label"
-              >分类名称 <span class="text-danger">*</span></label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="categoryName"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="categoryIcon" class="form-label">图标</label>
-            <input
-              type="text"
-              class="form-control"
-              id="categoryIcon"
-              value="fas fa-link"
-              placeholder="例如: fas fa-link"
-            />
-            <div class="form-text">Font Awesome 图标类名</div>
-          </div>
-          <div class="mb-3">
-            <label for="categoryOrder" class="form-label">排序</label>
-            <input
-              type="number"
-              class="form-control"
-              id="categoryOrder"
-              value="0"
-              min="0"
-            />
-            <div class="form-text">数字越小排序越靠前</div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          取消
-        </button>
-        <button type="button" class="btn btn-primary" id="saveCategoryBtn">
-          <i class="fas fa-save"></i> 保存
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 编辑分类模态框 -->
-<div
-  class="modal fade"
-  id="editCategoryModal"
-  tabindex="-1"
-  aria-labelledby="editCategoryModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editCategoryModalLabel">
-          <i class="fas fa-edit"></i> 编辑导航分类
-        </h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-          style="background-color: var(--github-accent)"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <form id="editCategoryForm">
-          <input type="hidden" id="editCategoryId" />
-          <div class="mb-3">
-            <label for="editCategoryName" class="form-label"
-              >分类名称 <span class="text-danger">*</span></label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="editCategoryName"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="editCategoryIcon" class="form-label">图标</label>
-            <input
-              type="text"
-              class="form-control"
-              id="editCategoryIcon"
-              placeholder="例如: fas fa-link"
-            />
-            <div class="form-text">Font Awesome 图标类名</div>
-          </div>
-          <div class="mb-3">
-            <label for="editCategoryOrder" class="form-label">排序</label>
-            <input
-              type="number"
-              class="form-control"
-              id="editCategoryOrder"
-              min="0"
-            />
-            <div class="form-text">数字越小排序越靠前</div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          取消
-        </button>
-        <button type="button" class="btn btn-primary" id="updateCategoryBtn">
-          <i class="fas fa-save"></i> 更新
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 删除分类确认模态框 -->
-<div
-  class="modal fade"
-  id="deleteCategoryConfirmModal"
-  tabindex="-1"
-  aria-labelledby="deleteCategoryConfirmModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteCategoryConfirmModalLabel">
-          <i class="fas fa-exclamation-triangle me-2"></i>
-          确认删除
-        </h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-          style="background-color: var(--github-accent)"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <p id="deleteCategoryConfirmMessage">确定要删除分类吗？</p>
-        <input type="hidden" id="deleteCategoryId" />
-        <div class="alert alert-warning">
-          <i class="fas fa-exclamation-triangle me-2"></i>
-          此操作将同时删除该分类下的所有导航项，且不可撤销。
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="saveNavItemBtn"><i class="fas fa-save"></i> 保存</button>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          取消
-        </button>
-        <button
-          type="button"
-          class="btn btn-danger"
-          id="confirmDeleteCategoryBtn"
-        >
-          <i class="fas fa-trash-alt me-1"></i>
-          删除
-        </button>
-      </div>
     </div>
   </div>
-</div>
 
-<!-- 添加导航项模态框 -->
-<div
-  class="modal fade"
-  id="addNavItemModal"
-  tabindex="-1"
-  aria-labelledby="addNavItemModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addNavItemModalLabel">
-          <i class="fas fa-plus"></i> 添加导航项
-        </h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-          style="background-color: var(--github-accent)"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <form id="addNavItemForm">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="navItemTitle" class="form-label"
-                  >标题 <span class="text-danger">*</span></label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="navItemTitle"
-                  required
-                />
+  <!-- 编辑导航项模态框 -->
+  <div class="modal fade" id="editNavItemModal" tabindex="-1" aria-labelledby="editNavItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editNavItemModalLabel"><i class="fas fa-edit"></i> 编辑导航项</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editNavItemForm">
+            <input type="hidden" id="editNavItemId" />
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="editNavItemTitle" class="form-label">标题 <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="editNavItemTitle" required />
+                </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="navItemUrl" class="form-label"
-                  >URL <span class="text-danger">*</span></label
-                >
-                <input
-                  type="url"
-                  class="form-control"
-                  id="navItemUrl"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="navItemDescription" class="form-label">描述</label>
-            <textarea
-              class="form-control"
-              id="navItemDescription"
-              rows="3"
-              placeholder="简要描述这个导航项的用途..."
-            ></textarea>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="navItemIcon" class="form-label">图标</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="navItemIcon"
-                  value="fas fa-link"
-                  placeholder="例如: fas fa-link"
-                />
-                <div class="form-text">Font Awesome 图标类名</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="navItemCategory" class="form-label"
-                  >分类 <span class="text-danger">*</span></label
-                >
-                <select class="form-select" id="navItemCategory" required>
-                  <option value="">请选择分类</option>
-                  {% for category in categories %}
-                  <option value="{{ category.id }}">{{ category.name }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="navItemOrder" class="form-label">排序</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  id="navItemOrder"
-                  value="0"
-                  min="0"
-                />
-                <div class="form-text">数字越小排序越靠前</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <div class="form-check form-switch mt-4">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="navItemIsPublic"
-                    checked
-                  />
-                  <label class="form-check-label" for="navItemIsPublic"
-                    >公开显示</label
-                  >
-                  <div class="form-text">是否在前台显示此导航项</div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="editNavItemUrl" class="form-label">URL <span class="text-danger">*</span></label>
+                  <input type="url" class="form-control" id="editNavItemUrl" required />
                 </div>
               </div>
             </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          取消
-        </button>
-        <button type="button" class="btn btn-primary" id="saveNavItemBtn">
-          <i class="fas fa-save"></i> 保存
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 编辑导航项模态框 -->
-<div
-  class="modal fade"
-  id="editNavItemModal"
-  tabindex="-1"
-  aria-labelledby="editNavItemModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editNavItemModalLabel">
-          <i class="fas fa-edit"></i> 编辑导航项
-        </h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-          style="background-color: var(--github-accent)"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <form id="editNavItemForm">
-          <input type="hidden" id="editNavItemId" />
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="editNavItemTitle" class="form-label"
-                  >标题 <span class="text-danger">*</span></label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="editNavItemTitle"
-                  required
-                />
-              </div>
+            <div class="mb-3">
+              <label for="editNavItemDescription" class="form-label">描述</label>
+              <textarea class="form-control" id="editNavItemDescription" rows="3"></textarea>
             </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="editNavItemUrl" class="form-label"
-                  >URL <span class="text-danger">*</span></label
-                >
-                <input
-                  type="url"
-                  class="form-control"
-                  id="editNavItemUrl"
-                  required
-                />
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="editNavItemIcon" class="form-label">图标</label>
+                  <input type="text" class="form-control" id="editNavItemIcon" placeholder="例如: fas fa-link" />
+                  <div class="form-text">Font Awesome 图标类名</div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="editNavItemDescription" class="form-label">描述</label>
-            <textarea
-              class="form-control"
-              id="editNavItemDescription"
-              rows="3"
-            ></textarea>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="editNavItemIcon" class="form-label">图标</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="editNavItemIcon"
-                  placeholder="例如: fas fa-link"
-                />
-                <div class="form-text">Font Awesome 图标类名</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="editNavItemCategory" class="form-label"
-                  >分类 <span class="text-danger">*</span></label
-                >
-                <select class="form-select" id="editNavItemCategory" required>
-                  {% for category in categories %}
-                  <option value="{{ category.id }}">{{ category.name }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="editNavItemOrder" class="form-label">排序</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  id="editNavItemOrder"
-                  min="0"
-                />
-                <div class="form-text">数字越小排序越靠前</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <div class="form-check form-switch mt-4">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="editNavItemIsPublic"
-                  />
-                  <label class="form-check-label" for="editNavItemIsPublic"
-                    >公开显示</label
-                  >
-                  <div class="form-text">是否在前台显示此导航项</div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="editNavItemCategory" class="form-label">分类 <span class="text-danger">*</span></label>
+                  <select class="form-select" id="editNavItemCategory" required>
+                    {% for category in categories %}
+                      <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                  </select>
                 </div>
               </div>
             </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          取消
-        </button>
-        <button type="button" class="btn btn-primary" id="updateNavItemBtn">
-          <i class="fas fa-save"></i> 更新
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 删除导航项确认模态框 -->
-<div
-  class="modal fade"
-  id="deleteNavItemConfirmModal"
-  tabindex="-1"
-  aria-labelledby="deleteNavItemConfirmModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteNavItemConfirmModalLabel">
-          <i class="fas fa-exclamation-triangle"></i> 确认删除
-        </h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-          style="background-color: var(--github-accent)"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <p id="deleteNavItemConfirmMessage">确定要删除导航项吗？</p>
-        <input type="hidden" id="deleteNavItemId" />
-        <div class="alert alert-warning">
-          <i class="fas fa-exclamation-triangle"></i> 此操作不可撤销。
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="editNavItemOrder" class="form-label">排序</label>
+                  <input type="number" class="form-control" id="editNavItemOrder" min="0" />
+                  <div class="form-text">数字越小排序越靠前</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <div class="form-check form-switch mt-4">
+                    <input class="form-check-input" type="checkbox" id="editNavItemIsPublic" />
+                    <label class="form-check-label" for="editNavItemIsPublic">公开显示</label>
+                    <div class="form-text">是否在前台显示此导航项</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="updateNavItemBtn"><i class="fas fa-save"></i> 更新</button>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          取消
-        </button>
-        <button
-          type="button"
-          class="btn btn-danger"
-          id="confirmDeleteNavItemBtn"
-        >
-          <i class="fas fa-trash-alt"></i> 删除
-        </button>
+    </div>
+  </div>
+
+  <!-- 删除导航项确认模态框 -->
+  <div class="modal fade" id="deleteNavItemConfirmModal" tabindex="-1" aria-labelledby="deleteNavItemConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteNavItemConfirmModalLabel"><i class="fas fa-exclamation-triangle"></i> 确认删除</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        </div>
+        <div class="modal-body">
+          <p id="deleteNavItemConfirmMessage">确定要删除导航项吗？</p>
+          <input type="hidden" id="deleteNavItemId" />
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> 此操作不可撤销。
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteNavItemBtn"><i class="fas fa-trash-alt"></i> 删除</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
-{% endblock %} {% block extra_js %}
-<!-- 引用外部JavaScript文件 -->
-<script src="{{ url_for('static', filename='js/admin-navigation.js') }}"></script>
+{% endblock %}
+
+{% block extra_js %}
+  <!-- 引用外部JavaScript文件 -->
+  <script src="{{ url_for('static', filename='js/admin-navigation.js') }}"></script>
 {% endblock %}

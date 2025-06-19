@@ -20,6 +20,7 @@ import re
 import uuid
 from PIL import Image
 import io
+import secrets
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "your-secret-key-here"
@@ -34,6 +35,13 @@ os.makedirs(app.config["USER_AVATAR_FOLDER"], exist_ok=True)
 
 db = SQLAlchemy(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+
+# 为每个请求生成 CSRF token
+@app.before_request
+def csrf_protect():
+    if "_csrf_token" not in session:
+        session["_csrf_token"] = secrets.token_hex(16)
 
 
 # 添加自定义过滤器
@@ -448,14 +456,21 @@ def navigation():
 @require_role(ROLE_MEMBER)
 def hide_nav_item(nav_item_id):
     user_id = session["user_id"]
-    
+
+    # 验证 CSRF token
+    csrf_token = request.headers.get("X-CSRFToken")
+    if not csrf_token or csrf_token != session.get("_csrf_token"):
+        return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
+
     # 检查是否已经隐藏
-    existing = HiddenNavItem.query.filter_by(user_id=user_id, nav_item_id=nav_item_id).first()
+    existing = HiddenNavItem.query.filter_by(
+        user_id=user_id, nav_item_id=nav_item_id
+    ).first()
     if not existing:
         hidden_item = HiddenNavItem(user_id=user_id, nav_item_id=nav_item_id)
         db.session.add(hidden_item)
         db.session.commit()
-    
+
     return jsonify({"success": True})
 
 
@@ -463,12 +478,19 @@ def hide_nav_item(nav_item_id):
 @require_role(ROLE_MEMBER)
 def unhide_nav_item(nav_item_id):
     user_id = session["user_id"]
-    
-    hidden_item = HiddenNavItem.query.filter_by(user_id=user_id, nav_item_id=nav_item_id).first()
+
+    # 验证 CSRF token
+    csrf_token = request.headers.get("X-CSRFToken")
+    if not csrf_token or csrf_token != session.get("_csrf_token"):
+        return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
+
+    hidden_item = HiddenNavItem.query.filter_by(
+        user_id=user_id, nav_item_id=nav_item_id
+    ).first()
     if hidden_item:
         db.session.delete(hidden_item)
         db.session.commit()
-    
+
     return jsonify({"success": True})
 
 
@@ -476,17 +498,23 @@ def unhide_nav_item(nav_item_id):
 @require_role(ROLE_MEMBER)
 def toggle_nav_item_privacy(nav_item_id):
     user_id = session["user_id"]
+
+    # 验证 CSRF token
+    csrf_token = request.headers.get("X-CSRFToken")
+    if not csrf_token or csrf_token != session.get("_csrf_token"):
+        return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
+
     data = request.json
-    
+
     nav_item = NavItem.query.get_or_404(nav_item_id)
-    
+
     # 只有创建者可以修改隐私状态
     if nav_item.created_by != user_id:
         return jsonify({"success": False, "message": "您没有权限修改此导航项"}), 403
-    
+
     nav_item.is_public = data.get("is_public", not nav_item.is_public)
     db.session.commit()
-    
+
     return jsonify({"success": True, "is_public": nav_item.is_public})
 
 
@@ -494,17 +522,18 @@ def toggle_nav_item_privacy(nav_item_id):
 @require_role(ROLE_MEMBER)
 def get_hidden_nav_items():
     user_id = session["user_id"]
-    
-    hidden_items_query = db.session.query(NavItem).join(
-        HiddenNavItem, NavItem.id == HiddenNavItem.nav_item_id
-    ).filter(HiddenNavItem.user_id == user_id)
-    
-    hidden_items = [{
-        "id": item.id,
-        "title": item.title,
-        "category_id": item.category_id
-    } for item in hidden_items_query.all()]
-    
+
+    hidden_items_query = (
+        db.session.query(NavItem)
+        .join(HiddenNavItem, NavItem.id == HiddenNavItem.nav_item_id)
+        .filter(HiddenNavItem.user_id == user_id)
+    )
+
+    hidden_items = [
+        {"id": item.id, "title": item.title, "category_id": item.category_id}
+        for item in hidden_items_query.all()
+    ]
+
     return jsonify({"success": True, "hidden_items": hidden_items})
 
 

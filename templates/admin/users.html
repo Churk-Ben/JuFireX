@@ -324,7 +324,7 @@
                     const user = data.user;
                     const avatarHtml = user.avatar_path ?
                         `<img src="{{ url_for('user_avatar', filename='') }}${user.avatar_path}" alt="${user.username}的头像" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--github-accent);">` :
-                        `<i class="fas fa-user-circle" style="font-size: 4rem; color: var(--github-accent);"></i>`;
+                        `<i class="fas fa-user-circle" style="font-size: 4rem; color: var(--github-accent)"></i>`;
 
                     const content = `
                 <div class="card mb-4 border-0">

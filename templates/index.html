@@ -1,5 +1,12 @@
-{% extends "base.html" %} {% block title %}{{ studio_info.name if studio_info
-else 'JuFire Studio' }} - 首页{% endblock %} {% block content %}
+{% extends "base.html" %}
+
+{% block title %}
+{% if studio_info %} {{ studio_info.name }} {% else %} JuFire Studio
+{% endif %} - 首页
+{% endblock %}
+
+
+{% block content %}
 <!-- Hero Section -->
 <section class="hero-section">
   <div class="container">

@@ -1,643 +1,457 @@
-{% extends "base.html" %} {% block title %}项目管理 - JuFire Studio{% endblock
-%} {% block content %}
-<div class="container mt-4">
-  <div class="row">
-    <div class="col-12">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-project-diagram"></i> 项目管理</h2>
-        <div>
-          <button
-            class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#addProjectModal"
-          >
-            <i class="fas fa-plus"></i> 添加项目
-          </button>
+{% extends 'base.html' %} {% block title %}
+  项目管理 - JuFire Studio
+{% endblock %} {% block content %}
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2><i class="fas fa-project-diagram"></i> 项目管理</h2>
+          <div>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal"><i class="fas fa-plus"></i> 添加项目</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 项目统计 -->
-  <div class="row mb-4">
-    <div class="col-md-3 col-6 mb-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <i
-            class="fas fa-folder"
-            style="font-size: 2rem; color: var(--github-accent)"
-          ></i>
-          <h4 class="mt-2 mb-0">{{ projects|length }}</h4>
-          <p class="text-muted mb-0">总项目数</p>
+    <!-- 项目统计 -->
+    <div class="row mb-4">
+      <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-folder" style="font-size: 2rem; color: var(--github-accent)"></i>
+            <h4 class="mt-2 mb-0">{{ projects|length }}</h4>
+            <p class="text-muted mb-0">总项目数</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-star" style="font-size: 2rem; color: #ffd700"></i>
+            <h4 class="mt-2 mb-0">{{ projects|selectattr('is_featured')|list|length }}</h4>
+            <p class="text-muted mb-0">精选项目</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-code-branch" style="font-size: 2rem; color: var(--github-success)"></i>
+            <h4 class="mt-2 mb-0">{{ projects|selectattr('github_url')|list|length }}</h4>
+            <p class="text-muted mb-0">开源项目</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="fas fa-external-link-alt" style="font-size: 2rem; color: var(--github-danger)"></i>
+            <h4 class="mt-2 mb-0">{{ projects|selectattr('demo_url')|list|length }}</h4>
+            <p class="text-muted mb-0">在线演示</p>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-md-3 col-6 mb-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <i class="fas fa-star" style="font-size: 2rem; color: #ffd700"></i>
-          <h4 class="mt-2 mb-0">
-            {{ projects|selectattr('is_featured')|list|length }}
-          </h4>
-          <p class="text-muted mb-0">精选项目</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 col-6 mb-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <i
-            class="fas fa-code-branch"
-            style="font-size: 2rem; color: var(--github-success)"
-          ></i>
-          <h4 class="mt-2 mb-0">
-            {{ projects|selectattr('github_url')|list|length }}
-          </h4>
-          <p class="text-muted mb-0">开源项目</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 col-6 mb-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <i
-            class="fas fa-external-link-alt"
-            style="font-size: 2rem; color: var(--github-danger)"
-          ></i>
-          <h4 class="mt-2 mb-0">
-            {{ projects|selectattr('demo_url')|list|length }}
-          </h4>
-          <p class="text-muted mb-0">在线演示</p>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- 项目列表 -->
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0"><i class="fas fa-list"></i> 项目列表</h5>
-      <div class="input-group" style="width: 300px">
-        <input
-          type="text"
-          class="form-control"
-          id="searchInput"
-          placeholder="搜索项目..."
-        />
-        <button class="btn btn-outline-primary" type="button">
-          <i class="fas fa-search"></i>
-        </button>
+    <!-- 项目列表 -->
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-list"></i> 项目列表</h5>
+        <div class="input-group" style="width: 300px">
+          <input type="text" class="form-control" id="searchInput" placeholder="搜索项目..." />
+          <button class="btn btn-outline-primary" type="button"><i class="fas fa-search"></i></button>
+        </div>
       </div>
-    </div>
-    <div class="card-body">
-      {% if projects %}
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>项目名称</th>
-              <th>作者</th>
-              <th>创建时间</th>
-              <th>状态</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for project in projects %} {% set project_featured_js = 'true' if
-            project.is_featured else 'false' %}
-            <tr data-project-id="{{ project.id }}">
-              <td>
-                <div class="d-flex align-items-center">
-                  {% if project.image_url %}
-                  <img
-                    src="{{ project.image_url }}"
-                    alt="{{ project.title }}"
-                    class="rounded me-3"
-                    style="width: 40px; height: 40px; object-fit: cover"
-                  />
-                  {% else %}
-                  <div
-                    class="rounded me-3 d-flex align-items-center justify-content-center"
-                    style="
+      <div class="card-body">
+        {% if projects %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>项目名称</th>
+                  <th>作者</th>
+                  <th>创建时间</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for project in projects %}
+                  {% set project_featured_js %}
+                    {% if project.is_featured %}
+                      'true'
+                    {% else %}
+                      'false'
+                    {% endif %}
+                  {% endset %}
+
+                  <tr data-project-id="{{ project.id }}">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        {% if project.image_url %}
+                          <img src="{{ project.image_url }}" alt="{{ project.title }}" class="rounded me-3" style="width: 40px; height: 40px; object-fit: cover" />
+                        {% else %}
+                          <div class="rounded me-3 d-flex align-items-center justify-content-center" style="
                       width: 40px;
                       height: 40px;
                       background-color: var(--github-bg);
-                    "
-                  >
-                    <i class="fas fa-code text-muted"></i>
-                  </div>
-                  {% endif %}
-                  <div>
-                    <h6 class="mb-0">{{ project.title }}</h6>
-                    <small class="text-muted">
-                      {{ project.description[:50] }}{% if
-                      project.description|length > 50 %}...{% endif %}
-                    </small>
-                  </div>
-                </div>
-              </td>
-              <td>
-                {% if project.author %}
-                <div class="d-flex align-items-center">
-                  <div class="me-2">
-                    {% if project.author.avatar_path %}
-                    <img
-                      src="{{ url_for('user_avatar', filename=project.author.avatar_path) }}"
-                      alt="{{ project.author.username }}的头像"
-                      class="rounded-circle"
-                      style="width: 30px; height: 30px; object-fit: cover"
-                    />
-                    {% else %}
-                    <div
-                      style="
+                    ">
+                            <i class="fas fa-code text-muted"></i>
+                          </div>
+                        {% endif %}
+                        <div>
+                          <h6 class="mb-0">{{ project.title }}</h6>
+                          <small class="text-muted">{{ project.description[:50] }}{% if project.description|length > 50 %}...{% endif %}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      {% if project.author %}
+                        <div class="d-flex align-items-center">
+                          <div class="me-2">
+                            {% if project.author.avatar_path %}
+                              <img src="{{ url_for('user_avatar', filename=project.author.avatar_path) }}" alt="{{ project.author.username }}的头像" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover" />
+                            {% else %}
+                              <div style="
                         width: 30px;
                         height: 30px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                      "
-                    >
-                      <i
-                        class="fas fa-user-circle"
-                        style="font-size: 30px; color: var(--github-accent)"
-                      ></i>
-                    </div>
-                    {% endif %}
-                  </div>
-                  <div>
-                    {{ project.author.username }}
-                    <span
-                      class="ms-1"
-                      style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {% if project.author.role == 3 %}var(--bs-danger){% elif project.author.role == 2 %}var(--bs-warning){% elif project.author.role == 1 %}var(--bs-success){% else %}var(--bs-secondary){% endif %}; vertical-align: middle; position: relative; top: -1px;"
-                    ></span>
-                  </div>
-                </div>
-                {% else %} 未知 {% endif %}
-              </td>
-              <td>{{ project.created_at.strftime('%Y-%m-%d') }}</td>
-              <td>
-                {% if project.is_featured %}
-                <span class="status-badge status-featured">
-                  <i class="fas fa-star"></i> 精选
-                </span>
-                {% else %}
-                <span
-                  class="status-badge"
-                  style="
+                      ">
+                                <i class="fas fa-user-circle" style="font-size: 30px; color: var(--github-accent)"></i>
+                              </div>
+                            {% endif %}
+                          </div>
+                          <div>
+                            {{ project.author.username }}
+                            <span class="ms-1"
+                              style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {% if project.author.role == 3 %}
+                                
+                                var(--bs-danger)
+
+                              {% elif project.author.role == 2 %}
+                                
+                                var(--bs-warning)
+
+                              {% elif project.author.role == 1 %}
+                                
+                                var(--bs-success)
+
+                              {% else %}
+                                
+                                var(--bs-secondary)
+
+                              {% endif %}; vertical-align: middle; position: relative; top: -1px;">
+
+                            </span>
+                          </div>
+                        </div>
+                      {% else %}
+                        未知
+                      {% endif %}
+                    </td>
+                    <td>{{ project.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                      {% if project.is_featured %}
+                        <span class="status-badge status-featured"><i class="fas fa-star"></i> 精选</span>
+                      {% else %}
+                        <span class="status-badge" style="
                     background-color: rgba(0, 0, 0, 0.2);
                     color: var(--github-text);
                     border: 1px solid var(--github-border);
-                  "
-                  >普通</span
-                >
-                {% endif %}
-              </td>
-              <td>
-                <div class="btn-group btn-group-sm" role="group">
-                  {% if project.github_url %}
-                  <a
-                    href="{{ project.github_url }}"
-                    class="btn btn-outline-light"
-                    target="_blank"
-                    title="查看源码"
-                  >
-                    <i class="fab fa-github"></i>
-                  </a>
-                  {% endif %} {% if project.demo_url %}
-                  <a
-                    href="{{ project.demo_url }}"
-                    class="btn btn-outline-primary"
-                    target="_blank"
-                    title="查看演示"
-                  >
-                    <i class="fas fa-external-link-alt"></i>
-                  </a>
-                  {% endif %}
-                  <button
-                    class="btn btn-outline-warning"
-                    onclick="toggleFeatured({{ project.id }}, {{ project_featured_js }})"
-                    title="切换精选状态"
-                  >
-                    <i class="fas fa-star"></i>
-                  </button>
-                  <button
-                    class="btn btn-outline-info"
-                    onclick="editProject({{ project.id }})"
-                    title="编辑项目"
-                  >
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-outline-danger"
-                    onclick="deleteProject({{ project.id }})"
-                    title="删除项目"
-                  >
-                    <i class="fas fa-trash"></i>
-                  </button>
+                  ">普通</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="btn-group btn-group-sm" role="group">
+                        {% if project.github_url %}
+                          <a href="{{ project.github_url }}" class="btn btn-outline-light" target="_blank" title="查看源码"><i class="fab fa-github"></i></a>
+                        {% endif %} {% if project.demo_url %}
+                          <a href="{{ project.demo_url }}" class="btn btn-outline-primary" target="_blank" title="查看演示"><i class="fas fa-external-link-alt"></i></a>
+                        {% endif %}
+                        <button class="btn btn-outline-warning" onclick="toggleFeatured({{ project.id }}, {{ project_featured_js }})" title="切换精选状态"><i class="fas fa-star"></i></button>
+                        <button class="btn btn-outline-info" onclick="editProject({{ project.id }})" title="编辑项目"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-outline-danger" onclick="deleteProject({{ project.id }})" title="删除项目"><i class="fas fa-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-folder-open" style="font-size: 4rem; color: var(--github-text-secondary)"></i>
+            <h4 class="mt-3 text-muted">暂无项目</h4>
+            <p class="text-muted">还没有任何项目，点击上方按钮添加第一个项目吧！</p>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal"><i class="fas fa-plus"></i> 添加第一个项目</button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加项目模态框 -->
+  <div class="modal fade" id="addProjectModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-plus"></i> 添加新项目</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        </div>
+        <form id="addProjectForm">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="projectTitle" class="form-label">项目标题 *</label>
+                  <input type="text" class="form-control" id="projectTitle" required />
                 </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="projectImage" class="form-label">项目图片链接</label>
+                  <input type="url" class="form-control" id="projectImage" placeholder="https://..." />
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="projectDescription" class="form-label">项目描述 *</label>
+              <textarea class="form-control" id="projectDescription" rows="4" required placeholder="详细描述项目的功能和特点..."></textarea>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="projectGithub" class="form-label">GitHub 链接</label>
+                  <input type="url" class="form-control" id="projectGithub" placeholder="https://github.com/..." />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="projectDemo" class="form-label">演示链接</label>
+                  <input type="url" class="form-control" id="projectDemo" placeholder="https://..." />
+                </div>
+              </div>
+            </div>
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="projectFeatured" />
+              <label class="form-check-label" for="projectFeatured">设为精选项目（将在首页展示）</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 创建项目</button>
+          </div>
+        </form>
       </div>
-      {% else %}
-      <div class="text-center py-5">
-        <i
-          class="fas fa-folder-open"
-          style="font-size: 4rem; color: var(--github-text-secondary)"
-        ></i>
-        <h4 class="mt-3 text-muted">暂无项目</h4>
-        <p class="text-muted">还没有任何项目，点击上方按钮添加第一个项目吧！</p>
-        <button
-          class="btn btn-primary"
-          data-bs-toggle="modal"
-          data-bs-target="#addProjectModal"
-        >
-          <i class="fas fa-plus"></i> 添加第一个项目
-        </button>
-      </div>
-      {% endif %}
     </div>
   </div>
-</div>
 
-<!-- 添加项目模态框 -->
-<div class="modal fade" id="addProjectModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-plus"></i> 添加新项目</h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-          style="background-color: var(--github-accent)"
-        ></button>
+  <!-- 编辑项目模态框 -->
+  <div class="modal fade" id="editProjectModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-edit"></i> 编辑项目</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        </div>
+        <form id="editProjectForm">
+          <input type="hidden" id="editProjectId" />
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="editProjectTitle" class="form-label">项目标题 *</label>
+                  <input type="text" class="form-control" id="editProjectTitle" required />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="editProjectImage" class="form-label">项目图片链接</label>
+                  <input type="url" class="form-control" id="editProjectImage" placeholder="https://..." />
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="editProjectDescription" class="form-label">项目描述 *</label>
+              <textarea class="form-control" id="editProjectDescription" rows="4" required placeholder="详细描述项目的功能和特点..."></textarea>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="editProjectGithub" class="form-label">GitHub 链接</label>
+                  <input type="url" class="form-control" id="editProjectGithub" placeholder="https://github.com/..." />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="editProjectDemo" class="form-label">演示链接</label>
+                  <input type="url" class="form-control" id="editProjectDemo" placeholder="https://..." />
+                </div>
+              </div>
+            </div>
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="editProjectFeatured" />
+              <label class="form-check-label" for="editProjectFeatured">设为精选项目（将在首页展示）</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 保存修改</button>
+          </div>
+        </form>
       </div>
-      <form id="addProjectForm">
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="projectTitle" class="form-label">项目标题 *</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="projectTitle"
-                  required
-                />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="projectImage" class="form-label"
-                  >项目图片链接</label
-                >
-                <input
-                  type="url"
-                  class="form-control"
-                  id="projectImage"
-                  placeholder="https://..."
-                />
-              </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="projectDescription" class="form-label"
-              >项目描述 *</label
-            >
-            <textarea
-              class="form-control"
-              id="projectDescription"
-              rows="4"
-              required
-              placeholder="详细描述项目的功能和特点..."
-            ></textarea>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="projectGithub" class="form-label"
-                  >GitHub 链接</label
-                >
-                <input
-                  type="url"
-                  class="form-control"
-                  id="projectGithub"
-                  placeholder="https://github.com/..."
-                />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="projectDemo" class="form-label">演示链接</label>
-                <input
-                  type="url"
-                  class="form-control"
-                  id="projectDemo"
-                  placeholder="https://..."
-                />
-              </div>
-            </div>
-          </div>
-          <div class="mb-3 form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              id="projectFeatured"
-            />
-            <label class="form-check-label" for="projectFeatured">
-              设为精选项目（将在首页展示）
-            </label>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            取消
-          </button>
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i> 创建项目
-          </button>
-        </div>
-      </form>
     </div>
   </div>
-</div>
-
-<!-- 编辑项目模态框 -->
-<div class="modal fade" id="editProjectModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-edit"></i> 编辑项目</h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          data-bs-dismiss="modal"
-          style="background-color: var(--github-accent)"
-        ></button>
-      </div>
-      <form id="editProjectForm">
-        <input type="hidden" id="editProjectId" />
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="editProjectTitle" class="form-label"
-                  >项目标题 *</label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="editProjectTitle"
-                  required
-                />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="editProjectImage" class="form-label"
-                  >项目图片链接</label
-                >
-                <input
-                  type="url"
-                  class="form-control"
-                  id="editProjectImage"
-                  placeholder="https://..."
-                />
-              </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="editProjectDescription" class="form-label"
-              >项目描述 *</label
-            >
-            <textarea
-              class="form-control"
-              id="editProjectDescription"
-              rows="4"
-              required
-              placeholder="详细描述项目的功能和特点..."
-            ></textarea>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="editProjectGithub" class="form-label"
-                  >GitHub 链接</label
-                >
-                <input
-                  type="url"
-                  class="form-control"
-                  id="editProjectGithub"
-                  placeholder="https://github.com/..."
-                />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="editProjectDemo" class="form-label">演示链接</label>
-                <input
-                  type="url"
-                  class="form-control"
-                  id="editProjectDemo"
-                  placeholder="https://..."
-                />
-              </div>
-            </div>
-          </div>
-          <div class="mb-3 form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              id="editProjectFeatured"
-            />
-            <label class="form-check-label" for="editProjectFeatured">
-              设为精选项目（将在首页展示）
-            </label>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            取消
-          </button>
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i> 保存修改
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
 {% endblock %} {% block extra_js %}
-<script>
-  // 添加项目
-  document
-    .getElementById("addProjectForm")
-    .addEventListener("submit", function (e) {
-      e.preventDefault();
-
+  <script>
+    // 添加项目
+    document.getElementById('addProjectForm').addEventListener('submit', function (e) {
+      e.preventDefault()
+    
       const formData = {
-        title: document.getElementById("projectTitle").value,
-        description: document.getElementById("projectDescription").value,
-        github_url: document.getElementById("projectGithub").value,
-        demo_url: document.getElementById("projectDemo").value,
-        image_url: document.getElementById("projectImage").value,
-        is_featured: document.getElementById("projectFeatured").checked,
-      };
-
-      fetch("/api/projects", {
-        method: "POST",
+        title: document.getElementById('projectTitle').value,
+        description: document.getElementById('projectDescription').value,
+        github_url: document.getElementById('projectGithub').value,
+        demo_url: document.getElementById('projectDemo').value,
+        image_url: document.getElementById('projectImage').value,
+        is_featured: document.getElementById('projectFeatured').checked
+      }
+    
+      fetch('/api/projects', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData)
       })
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            alert("项目创建成功！");
-            location.reload();
+            alert('项目创建成功！')
+            location.reload()
           } else {
-            alert("创建失败：" + data.message);
+            alert('创建失败：' + data.message)
           }
         })
         .catch((error) => {
-          console.error("Error:", error);
-          alert("创建失败，请重试");
-        });
-    });
-
-  // 编辑项目表单提交
-  document
-    .getElementById("editProjectForm")
-    .addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const projectId = document.getElementById("editProjectId").value;
+          console.error('Error:', error)
+          alert('创建失败，请重试')
+        })
+    })
+    
+    // 编辑项目表单提交
+    document.getElementById('editProjectForm').addEventListener('submit', function (e) {
+      e.preventDefault()
+    
+      const projectId = document.getElementById('editProjectId').value
       const formData = {
-        title: document.getElementById("editProjectTitle").value,
-        description: document.getElementById("editProjectDescription").value,
-        github_url: document.getElementById("editProjectGithub").value,
-        demo_url: document.getElementById("editProjectDemo").value,
-        image_url: document.getElementById("editProjectImage").value,
-        is_featured: document.getElementById("editProjectFeatured").checked,
-      };
-
+        title: document.getElementById('editProjectTitle').value,
+        description: document.getElementById('editProjectDescription').value,
+        github_url: document.getElementById('editProjectGithub').value,
+        demo_url: document.getElementById('editProjectDemo').value,
+        image_url: document.getElementById('editProjectImage').value,
+        is_featured: document.getElementById('editProjectFeatured').checked
+      }
+    
       fetch(`/api/projects/${projectId}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData)
       })
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            alert("项目更新成功！");
-            location.reload();
+            alert('项目更新成功！')
+            location.reload()
           } else {
-            alert("更新失败：" + data.message);
+            alert('更新失败：' + data.message)
           }
         })
         .catch((error) => {
-          console.error("Error:", error);
-          alert("更新失败，请重试");
-        });
-    });
-
-  // 切换精选状态
-  function toggleFeatured(projectId, currentStatus) {
-    if (confirm("确定要切换项目的精选状态吗？")) {
-      fetch(`/api/projects/${projectId}/featured`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ is_featured: !currentStatus }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            location.reload();
-          } else {
-            alert("操作失败：" + data.message);
-          }
+          console.error('Error:', error)
+          alert('更新失败，请重试')
         })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("操作失败，请重试");
-        });
+    })
+    
+    // 切换精选状态
+    function toggleFeatured(projectId, currentStatus) {
+      if (confirm('确定要切换项目的精选状态吗？')) {
+        fetch(`/api/projects/${projectId}/featured`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ is_featured: !currentStatus })
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              location.reload()
+            } else {
+              alert('操作失败：' + data.message)
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error)
+            alert('操作失败，请重试')
+          })
+      }
     }
-  }
-
-  // 编辑项目
-  function editProject(projectId) {
-    // 获取项目详情
-    fetch(`/api/projects/${projectId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          const project = data.project;
-
-          // 填充表单
-          document.getElementById("editProjectId").value = project.id;
-          document.getElementById("editProjectTitle").value = project.title;
-          document.getElementById("editProjectDescription").value =
-            project.description;
-          document.getElementById("editProjectGithub").value =
-            project.github_url || "";
-          document.getElementById("editProjectDemo").value =
-            project.demo_url || "";
-          document.getElementById("editProjectImage").value =
-            project.image_url || "";
-          document.getElementById("editProjectFeatured").checked =
-            project.is_featured;
-
-          // 显示模态框
-          new bootstrap.Modal(
-            document.getElementById("editProjectModal")
-          ).show();
-        } else {
-          alert("获取项目详情失败：" + data.message);
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("获取项目详情失败，请重试");
-      });
-  }
-
-  // 删除项目
-  function deleteProject(projectId) {
-    if (confirm("确定要删除这个项目吗？此操作不可恢复！")) {
-      fetch(`/api/projects/${projectId}`, {
-        method: "DELETE",
-      })
+    
+    // 编辑项目
+    function editProject(projectId) {
+      // 获取项目详情
+      fetch(`/api/projects/${projectId}`)
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            alert("项目删除成功！");
-            location.reload();
+            const project = data.project
+    
+            // 填充表单
+            document.getElementById('editProjectId').value = project.id
+            document.getElementById('editProjectTitle').value = project.title
+            document.getElementById('editProjectDescription').value = project.description
+            document.getElementById('editProjectGithub').value = project.github_url || ''
+            document.getElementById('editProjectDemo').value = project.demo_url || ''
+            document.getElementById('editProjectImage').value = project.image_url || ''
+            document.getElementById('editProjectFeatured').checked = project.is_featured
+    
+            // 显示模态框
+            new bootstrap.Modal(document.getElementById('editProjectModal')).show()
           } else {
-            alert("删除失败：" + data.message);
+            alert('获取项目详情失败：' + data.message)
           }
         })
         .catch((error) => {
-          console.error("Error:", error);
-          alert("删除失败，请重试");
-        });
+          console.error('Error:', error)
+          alert('获取项目详情失败，请重试')
+        })
     }
-  }
-</script>
+    
+    // 删除项目
+    function deleteProject(projectId) {
+      if (confirm('确定要删除这个项目吗？此操作不可恢复！')) {
+        fetch(`/api/projects/${projectId}`, {
+          method: 'DELETE'
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              alert('项目删除成功！')
+              location.reload()
+            } else {
+              alert('删除失败：' + data.message)
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error)
+            alert('删除失败，请重试')
+          })
+      }
+    }
+  </script>
 {% endblock %}
