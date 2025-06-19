@@ -339,6 +339,7 @@ def profile():
         projects=user_projects,
         role_names=ROLE_NAMES,
         role_colors=role_colors,
+        now=datetime.now(),
     )
 
 
