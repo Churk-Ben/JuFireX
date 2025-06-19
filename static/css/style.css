@@ -198,6 +198,74 @@ main {
     box-shadow: none;
 }
 
+/* 导航卡片 */
+.nav-card {
+    transition: all 0.3s ease;
+}
+
+.nav-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.nav-card .card-title {
+    font-weight: 600;
+}
+
+.nav-card .card-text {
+    font-size: 0.9rem;
+    min-height: 40px;
+}
+
+.nav-card .card-footer {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--github-border);
+}
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: var(--github-accent);
+    line-height: 1;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--github-text-secondary);
+}
+
+.btn-icon:hover {
+    color: var(--github-accent);
+}
+
+.category-title {
+    color: var(--github-text);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--github-border);
+}
+
+/* 模态框 */
+.modal-content {
+    background-color: var(--github-secondary);
+    border: 1px solid var(--github-border);
+}
+
+.modal-header,
+.modal-footer {
+    border-color: var(--github-border);
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
 .input-group:focus-within .btn-outline-primary {
     border-color: var(--github-accent);
     color: var(--github-accent);

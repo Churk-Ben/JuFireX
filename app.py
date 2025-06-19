@@ -309,8 +309,8 @@ def logout():
     return redirect(url_for("index"))
 
 
-@app.route("/profile")
-@require_role(ROLE_GUEST)
+@app.route("/profile", methods=["GET", "POST"])
+@require_role(ROLE_MEMBER)
 def profile():
     user = db.session.get(User, session["user_id"])
     current_user = user  # 确保current_user变量可用于base.html
@@ -404,41 +404,108 @@ def upload_avatar():
 
 
 @app.route("/navigation")
-@require_role(ROLE_MEMBER)
 def navigation():
-    current_user = db.session.get(User, session["user_id"])
-
-    # 获取所有导航分类
     categories = NavCategory.query.order_by(NavCategory.order).all()
 
-    # 获取当前用户隐藏的导航项ID列表
-    hidden_nav_items = HiddenNavItem.query.filter_by(user_id=current_user.id).all()
-    hidden_nav_item_ids = [item.nav_item_id for item in hidden_nav_items]
+    current_user = None
+    hidden_nav_item_ids = set()
+    if "user_id" in session:
+        current_user = db.session.get(User, session["user_id"])
+        if current_user:
+            hidden_nav_items = HiddenNavItem.query.filter_by(
+                user_id=current_user.id
+            ).all()
+            hidden_nav_item_ids = {item.nav_item_id for item in hidden_nav_items}
 
-    # 获取所有公开的导航项和当前用户创建的私有导航项
-    nav_items = NavItem.query.filter(
-        db.or_(NavItem.is_public == True, NavItem.created_by == current_user.id)
-    ).all()
+    # 获取所有公开的或由当前用户创建的导航项
+    query = NavItem.query
+    if current_user:
+        query = query.filter(
+            db.or_(NavItem.is_public == True, NavItem.created_by == current_user.id)
+        )
+    else:
+        query = query.filter(NavItem.is_public == True)
 
-    # 过滤掉用户隐藏的导航项
-    visible_nav_items = [
-        item for item in nav_items if item.id not in hidden_nav_item_ids
-    ]
+    nav_items = query.order_by(NavItem.order).all()
 
-    # 按分类组织导航项
     nav_items_by_category = {}
-    for category in categories:
-        nav_items_by_category[category.id] = [
-            item for item in visible_nav_items if item.category_id == category.id
-        ]
+    for item in nav_items:
+        if item.id not in hidden_nav_item_ids:
+            if item.category_id not in nav_items_by_category:
+                nav_items_by_category[item.category_id] = []
+            nav_items_by_category[item.category_id].append(item)
 
     return render_template(
         "navigation.html",
-        current_user=current_user,
         categories=categories,
         nav_items_by_category=nav_items_by_category,
-        hidden_items=hidden_nav_item_ids,
+        current_user=current_user,
+        hidden_nav_item_ids=hidden_nav_item_ids,
     )
+
+
+@app.route("/navigation/hide/<int:nav_item_id>", methods=["POST"])
+@require_role(ROLE_MEMBER)
+def hide_nav_item(nav_item_id):
+    user_id = session["user_id"]
+    
+    # 检查是否已经隐藏
+    existing = HiddenNavItem.query.filter_by(user_id=user_id, nav_item_id=nav_item_id).first()
+    if not existing:
+        hidden_item = HiddenNavItem(user_id=user_id, nav_item_id=nav_item_id)
+        db.session.add(hidden_item)
+        db.session.commit()
+    
+    return jsonify({"success": True})
+
+
+@app.route("/navigation/unhide/<int:nav_item_id>", methods=["POST"])
+@require_role(ROLE_MEMBER)
+def unhide_nav_item(nav_item_id):
+    user_id = session["user_id"]
+    
+    hidden_item = HiddenNavItem.query.filter_by(user_id=user_id, nav_item_id=nav_item_id).first()
+    if hidden_item:
+        db.session.delete(hidden_item)
+        db.session.commit()
+    
+    return jsonify({"success": True})
+
+
+@app.route("/navigation/toggle_privacy/<int:nav_item_id>", methods=["POST"])
+@require_role(ROLE_MEMBER)
+def toggle_nav_item_privacy(nav_item_id):
+    user_id = session["user_id"]
+    data = request.json
+    
+    nav_item = NavItem.query.get_or_404(nav_item_id)
+    
+    # 只有创建者可以修改隐私状态
+    if nav_item.created_by != user_id:
+        return jsonify({"success": False, "message": "您没有权限修改此导航项"}), 403
+    
+    nav_item.is_public = data.get("is_public", not nav_item.is_public)
+    db.session.commit()
+    
+    return jsonify({"success": True, "is_public": nav_item.is_public})
+
+
+@app.route("/navigation/hidden_items")
+@require_role(ROLE_MEMBER)
+def get_hidden_nav_items():
+    user_id = session["user_id"]
+    
+    hidden_items_query = db.session.query(NavItem).join(
+        HiddenNavItem, NavItem.id == HiddenNavItem.nav_item_id
+    ).filter(HiddenNavItem.user_id == user_id)
+    
+    hidden_items = [{
+        "id": item.id,
+        "title": item.title,
+        "category_id": item.category_id
+    } for item in hidden_items_query.all()]
+    
+    return jsonify({"success": True, "hidden_items": hidden_items})
 
 
 @app.route("/admin/projects")

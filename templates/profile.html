@@ -23,7 +23,7 @@ endblock %} {% block content %}
               {% else %}
               <i
                 class="fas fa-user-circle"
-                style="font-size: 120px; color: #ccc"
+                style="font-size: 120px; color: var(--github-accent)"
               ></i>
               {% endif %}
               <button
@@ -38,6 +38,7 @@ endblock %} {% block content %}
                   align-items: center;
                   justify-content: center;
                   padding: 0;
+                  border: 2px solid var(--github-secondary);
                 "
                 data-bs-toggle="modal"
                 data-bs-target="#avatarModal"

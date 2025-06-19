@@ -1,103 +1,253 @@
 {% extends "base.html" %} {% block title %}导航站 - JuFire Studio{% endblock %}
-{% block content %}
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const csrftoken = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute("content");
+
+    // 隐藏卡片
+    document.querySelectorAll(".hide-card-btn").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.preventDefault();
+        const cardCol = this.closest(".nav-card-col");
+        const navItemId = cardCol.dataset.navItemId;
+
+        fetch(`/navigation/hide/${navItemId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              cardCol.style.display = "none";
+            }
+          });
+      });
+    });
+
+    // 切换隐私状态
+    document.querySelectorAll(".toggle-privacy-btn").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.preventDefault();
+        const navItemId = this.closest(".nav-card-col").dataset.navItemId;
+        const isPublic = this.dataset.isPublic === "true";
+
+        fetch(`/navigation/toggle_privacy/${navItemId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+          },
+          body: JSON.stringify({ is_public: !isPublic }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              this.dataset.isPublic = data.is_public ? "true" : "false";
+              this.textContent = data.is_public ? "设为私有" : "设为公开";
+            }
+          });
+      });
+    });
+
+    // 加载隐藏的卡片
+    const manageCardsModal = document.getElementById("manageCardsModal");
+    manageCardsModal.addEventListener("show.bs.modal", function () {
+      fetch("/navigation/hidden_items")
+        .then((response) => response.json())
+        .then((data) => {
+          const list = document.getElementById("hidden-cards-list");
+          list.innerHTML = "";
+          if (data.hidden_items.length > 0) {
+            data.hidden_items.forEach((item) => {
+              const li = document.createElement("li");
+              li.className =
+                "list-group-item d-flex justify-content-between align-items-center";
+              li.innerHTML = `
+                <span>${item.title}</span>
+                <button class="btn btn-sm btn-outline-success unhide-card-btn" data-nav-item-id="${item.id}">恢复显示</button>
+              `;
+              list.appendChild(li);
+            });
+          } else {
+            list.innerHTML =
+              '<li class="list-group-item">没有隐藏的卡片。</li>';
+          }
+        });
+    });
+
+    // 恢复显示卡片
+    document
+      .getElementById("hidden-cards-list")
+      .addEventListener("click", function (e) {
+        if (e.target.classList.contains("unhide-card-btn")) {
+          const navItemId = e.target.dataset.navItemId;
+
+          fetch(`/navigation/unhide/${navItemId}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrftoken,
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                e.target.closest("li").remove();
+                const cardCol = document.querySelector(
+                  `.nav-card-col[data-nav-item-id="${navItemId}"]`
+                );
+                if (cardCol) {
+                  cardCol.style.display = "";
+                }
+              }
+            });
+        }
+      });
+  });
+</script>
+{% endblock %} {% block content %}
 <div class="container mt-4">
   <div class="row">
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-compass"></i> 工作室导航</h2>
+        {% if current_user %}
+        <button
+          class="btn btn-outline-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#manageCardsModal"
+        >
+          <i class="fas fa-th-large"></i> 卡片管理
+        </button>
+        {% endif %}
       </div>
     </div>
   </div>
 
-  <!-- 分类列表 -->
-  {% if categories %} {% for category in categories %}
-  <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0">
-        <i class="{{ category.icon }}"></i> {{ category.name }}
-        <span class="badge bg-primary ms-2"
-          >{{ nav_items_by_category.get(category.id, [])|length }}</span
-        >
-      </h5>
-    </div>
-    <div class="card-body">
-      {% if nav_items_by_category.get(category.id, []) %}
-      <div class="table-responsive">
-        <table
-          class="table table-hover category-table"
-          data-category-id="{{ category.id }}"
-        >
-          <thead>
-            <tr>
-              <th>导航信息</th>
-              <th>URL</th>
-              <th>状态</th>
-              <th>创建者</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in nav_items_by_category.get(category.id,
-            [])|sort(attribute='order') %}
-            <tr data-nav-item-id="{{ item.id }}">
-              <td>
-                <div class="d-flex align-items-center">
-                  <div class="me-3">
-                    <i
-                      class="{{ item.icon or 'fas fa-link' }}"
-                      style="font-size: 1.5rem; color: var(--github-accent)"
-                    ></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-0">{{ item.title }}</h6>
-                    {% if item.description %}
-                    <small class="text-muted"
-                      >{{ item.description[:50] }}{% if item.description|length
-                      > 50 %}...{% endif %}</small
-                    >
-                    {% endif %}
-                  </div>
-                </div>
-              </td>
-              <td>
-                <a
-                  href="{{ item.url }}"
-                  target="_blank"
-                  class="text-decoration-none"
+  {% if categories %} {% for category in categories %} {% if
+  nav_items_by_category.get(category.id) %}
+  <div class="mb-4">
+    <h4 class="category-title">
+      <i class="{{ category.icon }}"></i> {{ category.name }}
+    </h4>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {% for item in nav_items_by_category.get(category.id,
+      [])|sort(attribute='order') %}
+      <div class="col nav-card-col" data-nav-item-id="{{ item.id }}">
+        <div class="card h-100 nav-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <h5 class="card-title">{{ item.title }}</h5>
+              <div class="dropdown">
+                <button
+                  class="btn btn-sm btn-icon"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
                 >
-                  {{ item.url[:30] }}{% if item.url|length > 30 %}...{% endif %}
-                  <i class="fas fa-external-link-alt ms-1"></i>
-                </a>
-              </td>
-              <td>
-                {% if item.is_public %}
-                <span class="badge bg-success">公开</span>
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item hide-card-btn" href="#">隐藏</a>
+                  </li>
+                  {% if current_user and item.created_by == current_user.id %}
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a
+                      class="dropdown-item toggle-privacy-btn"
+                      href="#"
+                      data-is-public="{{ 'true' if item.is_public else 'false' }}"
+                      >{{ '设为私有' if item.is_public else '设为公开' }}</a
+                    >
+                  </li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+            <p class="card-text text-muted">
+              {{ item.description or '暂无描述' }}
+            </p>
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                {% if item.creator and item.creator.avatar_path %}
+                <img
+                  src="{{ url_for('user_avatar', filename=item.creator.avatar_path) }}"
+                  class="avatar-sm me-2"
+                  alt="{{ item.creator.username }}"
+                />
                 {% else %}
-                <span class="badge bg-warning">私有</span>
+                <i class="fas fa-user-circle avatar-sm me-2"></i>
                 {% endif %}
-              </td>
-              <td>
-                <small class="text-muted">
-                  <i class="fas fa-user"></i> {{ item.creator.username if
-                  item.creator else '未知' }}
-                </small>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+                <div>
+                  <small class="text-white"
+                    >{{ item.creator.username if item.creator else '未知'
+                    }}</small
+                  >
+                  <small class="text-muted d-block"
+                    >{{ item.created_at.strftime('%Y-%m-%d') }}</small
+                  >
+                </div>
+              </div>
+              <a
+                href="{{ item.url }}"
+                target="_blank"
+                class="btn btn-primary btn-sm"
+                >前往 <i class="fas fa-external-link-alt"></i
+              ></a>
+            </div>
+          </div>
+        </div>
       </div>
-      {% else %}
-      <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i> 该分类下暂无导航项
-      </div>
-      {% endif %}
+      {% endfor %}
     </div>
   </div>
-  {% endfor %} {% else %}
+  {% endif %} {% endfor %} {% else %}
   <div class="alert alert-info">
     <i class="fas fa-info-circle"></i> 暂无导航分类
   </div>
   {% endif %}
+</div>
+
+<!-- 卡片管理模态框 -->
+<div
+  class="modal fade"
+  id="manageCardsModal"
+  tabindex="-1"
+  aria-labelledby="manageCardsModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="manageCardsModalLabel">卡片管理</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>在这里管理您隐藏的导航卡片。</p>
+        <ul class="list-group" id="hidden-cards-list">
+          <!-- 隐藏的卡片将通过JS动态加载 -->
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          关闭
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
