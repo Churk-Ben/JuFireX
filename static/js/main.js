@@ -29,201 +29,29 @@ function initSocket() {
     });
 }
 
-// 显示通知
-function showNotification(message, type = 'info') {
-    const alertClass = {
-        'success': 'alert-success',
-        'error': 'alert-danger',
-        'warning': 'alert-warning',
-        'info': 'alert-info'
-    }[type] || 'alert-info';
 
-    // 创建通知元素
-    const alertElement = document.createElement('div');
-    alertElement.className = `alert ${alertClass} alert-dismissible fade show`;
-    alertElement.setAttribute('role', 'alert');
 
-    // 设置通知内容
-    alertElement.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close custom-close" aria-label="关闭"></button>
-    `;
-
-    // 确保关闭按钮在DOM中完全渲染
-    const closeButton = alertElement.querySelector('.custom-close');
-    if (closeButton) {
-        // 直接在这里绑定事件，确保绑定成功
-        closeButton.onclick = function () {
-            alertElement.classList.remove('show');
-            setTimeout(() => {
-                if (alertElement.parentNode) {
-                    alertElement.remove();
-                }
-            }, 300);
-            return false; // 阻止事件冒泡
-        };
-    }
-
-    // 添加到容器
-    const container = document.getElementById('messages');
-    if (container) {
-        container.appendChild(alertElement);
-
-        // 添加进入动画
-        setTimeout(() => {
-            alertElement.classList.add('show');
-        }, 10);
-
-        // 自动隐藏通知
-        setTimeout(() => {
-            // 添加淡出动画
-            alertElement.classList.remove('show');
-
-            // 移除元素
-            setTimeout(() => {
-                if (alertElement.parentNode) {
-                    alertElement.remove();
-                }
-            }, 300);
-        }, 5000);
-    }
-}
-
-// API 请求封装
-class API {
-    static async request(url, options = {}) {
-        const defaultOptions = {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        };
-
-        const config = { ...defaultOptions, ...options };
-
-        try {
-            const response = await fetch(url, config);
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || '请求失败');
-            }
-
-            return data;
-        } catch (error) {
-            console.error('API Error:', error);
-            throw error;
-        }
-    }
-
-    static async get(url) {
-        return this.request(url, { method: 'GET' });
-    }
-
-    static async post(url, data) {
-        return this.request(url, {
-            method: 'POST',
-            body: JSON.stringify(data)
-        });
-    }
-
-    static async put(url, data) {
-        return this.request(url, {
-            method: 'PUT',
-            body: JSON.stringify(data)
-        });
-    }
-
-    static async delete(url) {
-        return this.request(url, { method: 'DELETE' });
-    }
-}
-
-// 项目管理功能
+// 项目管理
 class ProjectManager {
-    static async createProject(formData) {
-        try {
-            const result = await API.post('/api/projects', formData);
-            showNotification(result.message, 'success');
-            return result;
-        } catch (error) {
-            showNotification(error.message, 'error');
-            throw error;
-        }
+    constructor(api) {
+        this.api = api;
     }
 
-    static async toggleFeatured(projectId) {
-        try {
-            const result = await API.put(`/api/projects/${projectId}/featured`);
-            showNotification(result.message, 'success');
-            return result;
-        } catch (error) {
-            showNotification(error.message, 'error');
-            throw error;
-        }
-    }
-
-    static async deleteProject(projectId) {
-        if (!confirm('确定要删除这个项目吗？此操作不可撤销。')) {
-            return;
-        }
-
-        try {
-            const result = await API.delete(`/api/projects/${projectId}`);
-            showNotification(result.message, 'success');
-            return result;
-        } catch (error) {
-            showNotification(error.message, 'error');
-            throw error;
-        }
+    // 创建项目
+    createProject(formData) {
+        return this.api.post('/projects/create', formData, true);
     }
 }
 
-// 用户管理功能
+// 用户管理
 class UserManager {
-    static async updateUserRole(userId, newRole) {
-        try {
-            const result = await API.put(`/api/users/${userId}/role`, { role: newRole });
-            showNotification(result.message, 'success');
-            return result;
-        } catch (error) {
-            showNotification(error.message, 'error');
-            throw error;
-        }
+    constructor(api) {
+        this.api = api;
     }
 
-    static async toggleUserStatus(userId) {
-        try {
-            const result = await API.put(`/api/users/${userId}/status`);
-            showNotification(result.message, 'success');
-            return result;
-        } catch (error) {
-            showNotification(error.message, 'error');
-            throw error;
-        }
-    }
-
-    static async getUserDetails(userId) {
-        try {
-            return await API.get(`/api/users/${userId}`);
-        } catch (error) {
-            showNotification(error.message, 'error');
-            throw error;
-        }
-    }
-
-    static async deleteUser(userId) {
-        if (!confirm('确定要删除这个用户吗？此操作不可撤销。')) {
-            return;
-        }
-
-        try {
-            const result = await API.delete(`/api/users/${userId}`);
-            showNotification(result.message, 'success');
-            return result;
-        } catch (error) {
-            showNotification(error.message, 'error');
-            throw error;
-        }
+    // 更新头像
+    updateAvatar(formData) {
+        return this.api.post('/profile/update_avatar', formData, true);
     }
 }
 
