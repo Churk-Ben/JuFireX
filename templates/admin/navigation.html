@@ -4,6 +4,11 @@
   导航管理 - JuFire Studio
 {% endblock %}
 
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin-navigation.js') }}"></script>
+{% endblock %}
+
 {% block content %}
   <div class="container mt-4">
     <div class="row">

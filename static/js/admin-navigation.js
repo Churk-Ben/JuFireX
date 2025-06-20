@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const order = document.getElementById('categoryOrder').value;
 
         if (!name) {
-            alert('分类名称不能为空');
+            showNotification('分类名称不能为空', 'warning');
             return;
         }
 
@@ -36,15 +36,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    showNotification(data.message, 'success');
                     location.reload();
                 } else {
-                    alert(data.message || '创建分类失败');
+                    showNotification(data.message || '创建分类失败', 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('创建分类时出错');
+                showNotification('创建分类时出错', 'danger');
             });
     });
 
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const order = document.getElementById('editCategoryOrder').value;
 
         if (!name) {
-            alert('分类名称不能为空');
+            showNotification('分类名称不能为空', 'warning');
             return;
         }
 
@@ -94,15 +94,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    showNotification(data.message, 'success');
                     location.reload();
                 } else {
-                    alert(data.message || '更新分类失败');
+                    showNotification(data.message || '更新分类失败', 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('更新分类时出错');
+                showNotification('更新分类时出错', 'danger');
             });
     });
 
@@ -134,15 +134,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    showNotification(data.message, 'success');
                     location.reload();
                 } else {
-                    alert(data.message || '删除分类失败');
+                    showNotification(data.message || '删除分类失败', 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('删除分类时出错');
+                showNotification('删除分类时出错', 'danger');
             });
     });
 
@@ -167,11 +167,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const order = document.getElementById('navItemOrder').value;
 
         if (!title) {
-            alert('标题不能为空');
+            showNotification('标题不能为空', 'warning');
             return;
         }
         if (!url) {
-            alert('URL不能为空');
+            showNotification('URL不能为空', 'warning');
             return;
         }
 
@@ -193,15 +193,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    showNotification(data.message, 'success');
                     location.reload();
                 } else {
-                    alert(data.message || '创建导航项失败');
+                    showNotification(data.message || '创建导航项失败', 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('创建导航项时出错');
+                showNotification('创建导航项时出错', 'danger');
             });
     });
 
@@ -245,11 +245,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const order = document.getElementById('editNavItemOrder').value;
 
         if (!title) {
-            alert('标题不能为空');
+            showNotification('标题不能为空', 'warning');
             return;
         }
         if (!url) {
-            alert('URL不能为空');
+            showNotification('URL不能为空', 'warning');
             return;
         }
 
@@ -271,15 +271,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    showNotification(data.message, 'success');
                     location.reload();
                 } else {
-                    alert(data.message || '更新导航项失败');
+                    showNotification(data.message || '更新导航项失败', 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('更新导航项时出错');
+                showNotification('更新导航项时出错', 'danger');
             });
     });
 
@@ -311,15 +311,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    showNotification(data.message, 'success');
                     location.reload();
                 } else {
-                    alert(data.message || '删除导航项失败');
+                    showNotification(data.message || '删除导航项失败', 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('删除导航项时出错');
+                showNotification('删除导航项时出错', 'danger');
             });
     });
 
@@ -341,18 +341,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
             })
                 .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert(data.message || '更新导航项状态失败');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('更新导航项状态时出错');
-                });
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    location.reload();
+                } else {
+                    showNotification(data.message || '更新导航项状态失败', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('更新导航项状态时出错', 'danger');
+            });
         });
     });
 });

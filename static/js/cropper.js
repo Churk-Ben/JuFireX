@@ -36,7 +36,7 @@ class AvatarCropper {
 
         // 检查文件类型
         if (!file.type.match('image.*')) {
-            alert('请选择图片文件！');
+            showNotification('Please select an image file.', 'warning');
             return;
         }
 
