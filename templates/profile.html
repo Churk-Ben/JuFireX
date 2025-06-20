@@ -270,75 +270,73 @@
 
 <script>
   // 头像上传和裁剪功能
-  document.addEventListener('DOMContentLoaded', function () {
-    const avatarCropper = new AvatarCropper({
-      imageInput: document.getElementById('avatarUpload'),
-      previewContainer: document.getElementById('avatarPreview'),
-      cropButton: document.getElementById('cropAvatarBtn'),
-      cancelButton: document.getElementById('cancelCropBtn'),
-      resultInput: document.getElementById('croppedAvatarData'),
-      cropperContainer: document.getElementById('cropperContainer')
-    })
+  const avatarCropper = new AvatarCropper({
+    imageInput: document.getElementById('avatarUpload'),
+    previewContainer: document.getElementById('avatarPreview'),
+    cropButton: document.getElementById('cropAvatarBtn'),
+    cancelButton: document.getElementById('cancelCropBtn'),
+    resultInput: document.getElementById('croppedAvatarData'),
+    cropperContainer: document.getElementById('cropperContainer')
+  })
 
-    // 保存头像按钮
-    document.getElementById('saveAvatarBtn').addEventListener('click', function () {
-      const croppedData = document.getElementById('croppedAvatarData').value
-      if (!croppedData) {
-        alert('请先选择并裁剪图片')
-        return
-      }
+  // 保存头像按钮
+  document.getElementById('saveAvatarBtn').addEventListener('click', function () {
+    const croppedData = document.getElementById('croppedAvatarData').value
+    if (!croppedData) {
+      alert('请先选择并裁剪图片')
+      return
+    }
 
-      // 发送到服务器
-      fetch('/api/users/avatar', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          avatar: croppedData
-        })
+    // 发送到服务器
+    fetch('/api/users/avatar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        avatar: croppedData
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            // 更新页面上的头像
-            const avatarContainer = document.getElementById('avatarContainer')
-            const oldAvatar = avatarContainer.querySelector('img, i.fas.fa-user-circle')
-            if (oldAvatar) {
-              oldAvatar.remove()
-            }
-
-            const newAvatar = document.createElement('img')
-            newAvatar.src = data.avatar_url
-            newAvatar.alt = '用户头像'
-            newAvatar.className = 'rounded-circle'
-            newAvatar.style.width = '120px'
-            newAvatar.style.height = '120px'
-            newAvatar.style.objectFit = 'cover'
-
-            const button = avatarContainer.querySelector('button')
-            avatarContainer.insertBefore(newAvatar, button)
-
-            // 关闭模态框
-            const modal = bootstrap.Modal.getInstance(document.getElementById('avatarModal'))
-            modal.hide()
-
-            // 显示成功消息
-            showNotification('头像更新成功', 'success')
-
-            // 刷新页面以更新所有头像显示
-            setTimeout(() => {
-              location.reload()
-            }, 1500)
-          } else {
-            alert('头像上传失败: ' + data.message)
-          }
-        })
-        .catch((error) => {
-          console.error('Error:', error)
-          alert('头像上传失败，请重试')
-        })
     })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // 更新页面上的头像
+          const avatarContainer = document.getElementById('avatarContainer')
+          const oldAvatar = avatarContainer.querySelector('img, i.fas.fa-user-circle')
+          if (oldAvatar) {
+            oldAvatar.remove()
+          }
+
+          const newAvatar = document.createElement('img')
+          newAvatar.src = data.avatar_url
+          newAvatar.alt = '用户头像'
+          newAvatar.className = 'rounded-circle'
+          newAvatar.style.width = '120px'
+          newAvatar.style.height = '120px'
+          newAvatar.style.objectFit = 'cover'
+
+          const button = avatarContainer.querySelector('button')
+          avatarContainer.insertBefore(newAvatar, button)
+
+          // 关闭模态框
+          const modal = bootstrap.Modal.getInstance(document.getElementById('avatarModal'))
+          modal.hide()
+
+          // 显示成功消息
+          showNotification('头像更新成功', 'success')
+
+          // 刷新页面以更新所有头像显示
+          setTimeout(() => {
+            location.reload()
+          }, 1500)
+        } else {
+          alert('头像上传失败: ' + data.message)
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error)
+        alert('头像上传失败，请重试')
+      })
   })
 </script>
 

@@ -5,6 +5,15 @@ let socket;
 
 // 初始化 Socket.IO
 function initSocket() {
+    if (typeof io === 'undefined') {
+        console.error('Socket.IO library not found.');
+        return;
+    }
+
+    if (socket && socket.connected) {
+        return;
+    }
+
     socket = io();
 
     socket.on('connect', function () {
@@ -275,9 +284,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.style.visibility = 'visible';
 
     // 初始化 Socket.IO
-    if (typeof io !== 'undefined') {
-        initSocket();
-    }
+    initSocket();
 
     // 初始化 Bootstrap tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

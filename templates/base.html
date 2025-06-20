@@ -407,11 +407,17 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-          {% for category, message in messages %}
-          showNotification('{{ message }}', '{{ category }}');
-          {% endfor %}
-      });
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for category, message in messages %}
+            // 确保 showNotification 函数在调用前已定义
+            if (typeof showNotification === 'function') {
+                showNotification('{{ message }}', '{{ category }}');
+            } else {
+                // 如果函数未定义，可以延迟执行或记录错误
+                console.error('showNotification function is not defined when trying to show flashed messages.');
+            }
+            {% endfor %}
+        });
     </script>
     {% endif %}
     {% endwith %}

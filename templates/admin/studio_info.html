@@ -81,58 +81,56 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // 实时预览功能
-      document.getElementById('studioName').addEventListener('input', function () {
-        document.getElementById('previewName').textContent = this.value
+    // 实时预览功能
+    document.getElementById('studioName').addEventListener('input', function () {
+      document.getElementById('previewName').textContent = this.value
+    })
+  
+    document.getElementById('studioDescription').addEventListener('input', function () {
+      document.getElementById('previewDescription').textContent = this.value
+    })
+  
+    document.getElementById('studioEmail').addEventListener('input', function () {
+      document.getElementById('previewEmail').textContent = this.value
+    })
+  
+    document.getElementById('studioGithub').addEventListener('input', function () {
+      const link = document.getElementById('previewGithub')
+      link.href = this.value
+      link.textContent = this.value
+    })
+  
+    // 表单提交处理
+    document.getElementById('studioInfoForm').addEventListener('submit', function (e) {
+      e.preventDefault()
+  
+      const formData = {
+        name: document.getElementById('studioName').value,
+        description: document.getElementById('studioDescription').value,
+        contact_email: document.getElementById('studioEmail').value,
+        github_url: document.getElementById('studioGithub').value,
+        logo_url: document.getElementById('studioLogo').value
+      }
+  
+      fetch('/api/studio-info', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
       })
-    
-      document.getElementById('studioDescription').addEventListener('input', function () {
-        document.getElementById('previewDescription').textContent = this.value
-      })
-    
-      document.getElementById('studioEmail').addEventListener('input', function () {
-        document.getElementById('previewEmail').textContent = this.value
-      })
-    
-      document.getElementById('studioGithub').addEventListener('input', function () {
-        const link = document.getElementById('previewGithub')
-        link.href = this.value
-        link.textContent = this.value
-      })
-    
-      // 表单提交处理
-      document.getElementById('studioInfoForm').addEventListener('submit', function (e) {
-        e.preventDefault()
-    
-        const formData = {
-          name: document.getElementById('studioName').value,
-          description: document.getElementById('studioDescription').value,
-          contact_email: document.getElementById('studioEmail').value,
-          github_url: document.getElementById('studioGithub').value,
-          logo_url: document.getElementById('studioLogo').value
-        }
-    
-        fetch('/api/studio-info', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(formData)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            showNotification('工作室信息更新成功', 'success')
+          } else {
+            showNotification('更新失败: ' + data.message, 'error')
+          }
         })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              showNotification('工作室信息更新成功', 'success')
-            } else {
-              showNotification('更新失败: ' + data.message, 'error')
-            }
-          })
-          .catch((error) => {
-            console.error('Error:', error)
-            showNotification('更新失败，请重试', 'error')
-          })
-      })
+        .catch((error) => {
+          console.error('Error:', error)
+          showNotification('更新失败，请重试', 'error')
+        })
     })
   </script>
 {% endblock %}
