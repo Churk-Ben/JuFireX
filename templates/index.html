@@ -1,68 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  {{ studio_info.name }}
-{% endblock %}
-
-{% block extra_css %}
-  <style>
-    #profile_link {
-      border: 1px solid var(--github-border);
-      border-radius: 16px;
-      height: 32px;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      margin: auto 0;
-    }
-    
-    #user_tag {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin: 0 0 0 -1px;
-    }
-    
-    #user_avatar_img {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      overflow: hidden;
-      object-fit: cover;
-      display: block;
-    }
-    
-    #user_avatar_fas {
-      font-size: 24px;
-      color: var(--github-accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    #user_dot_box {
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: -1px;
-    }
-    
-    .user_dot {
-      width: 8px;
-      height: 8px;
-      padding: 0;
-      display: inline-block !important;
-    }
-  </style>
+  JueFire Studio - 首页
 {% endblock %}
 
 {% block content %}
@@ -149,7 +88,7 @@
                           </small>
                           <div id="user_dot_box">
                             {% if project.author.role == 1 %}
-                              <span class="user_dot badge rounded-circle bg-info" title="成员"></span>
+                              <span class="user_dot badge rounded-circle bg-primary" title="成员"></span>
                             {% elif project.author.role == 2 %}
                               <span class="user_dot badge rounded-circle bg-warning" title="管理员"></span>
                             {% elif project.author.role == 3 %}
@@ -230,7 +169,7 @@
           <div class="p-3">
             <i class="fas fa-star" style="font-size: 2.5rem; color: #ffd700"></i>
             <h3 class="mt-2 mb-0">100+</h3>
-            <p class="text-muted mb-0">GitHub星标</p>
+            <p class="text-muted mb-0">GitHub 星标</p>
           </div>
         </div>
         <div class="col-md-3 col-6 mb-4">
@@ -288,23 +227,4 @@
       </div>
     </div>
   </section>
-{% endblock %}
-
-{% block extra_js %}
-  <script>
-    // SocketIO 连接
-    const socket = io()
-    
-    socket.on('connect', function () {
-      console.log('Connected to server')
-    })
-    
-    socket.on('user_connected', function (data) {
-      console.log('User connected:', data.username)
-    })
-    
-    socket.on('user_disconnected', function (data) {
-      console.log('User disconnected:', data.username)
-    })
-  </script>
 {% endblock %}

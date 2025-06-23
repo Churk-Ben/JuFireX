@@ -107,8 +107,7 @@
                                 </div>
                             </td>
                             <td>
-                                <select class="form-select form-select-sm role-select" data-user-id="{{ user.id }}" {%
-                                    if user.id==current_user.id %}disabled{% endif %}>
+                                <select class="form-select form-select-sm role-select" data-user-id="{{ user.id }}" {% if user.id==current_user.id %}disabled{% endif %}>
                                     <option value="0" {% if user.role==0 %}selected{% endif %}>游客</option>
                                     <option value="1" {% if user.role==1 %}selected{% endif %}>成员</option>
                                     <option value="2" {% if user.role==2 %}selected{% endif %}>管理员</option>

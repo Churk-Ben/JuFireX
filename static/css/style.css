@@ -551,7 +551,6 @@ main {
 .footer {
     background-color: var(--github-secondary);
     border-top: 1px solid var(--github-border);
-    margin-top: 4rem;
 }
 
 /* 响应式调整 */

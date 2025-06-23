@@ -21,77 +21,78 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
 
+    <style>
+      #profile_link {
+        border: 1px solid var(--github-border);
+        border-radius: 16px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin: auto 0;
+      }
+      
+      #user_tag {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin: 0 0 0 -1px;
+      }
+      
+      #user_avatar_img {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        overflow: hidden;
+        object-fit: cover;
+        display: block;
+      }
+      
+      #user_avatar_fas {
+        font-size: 24px;
+        color: var(--github-accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      #user_dot_box {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: -1px;
+      }
+      
+      .user_dot {
+        width: 8px;
+        height: 8px;
+        padding: 0;
+        display: inline-block !important;
+      }
+      
+      #logout_link {
+        border: 1px solid var(--github-border);
+        border-radius: 16px;
+        height: 32px;
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin: auto 0;
+      }
+    </style>
     {% block extra_css %}
-      <style>
-        #profile_link {
-          border: 1px solid var(--github-border);
-          border-radius: 16px;
-          height: 32px;
-          padding: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          margin: auto 0;
-        }
-        
-        #user_tag {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          overflow: hidden;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          margin: 0 0 0 -1px;
-        }
-        
-        #user_avatar_img {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          overflow: hidden;
-          object-fit: cover;
-          display: block;
-        }
-        
-        #user_avatar_fas {
-          font-size: 24px;
-          color: var(--github-accent);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        #user_dot_box {
-          width: 32px;
-          height: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-right: -1px;
-        }
-        
-        .user_dot {
-          width: 8px;
-          height: 8px;
-          padding: 0;
-          display: inline-block !important;
-        }
-        
-        #logout_link {
-          border: 1px solid var(--github-border);
-          border-radius: 16px;
-          height: 32px;
-          padding: 0 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          margin: auto 0;
-        }
-      </style>
+
     {% endblock %}
   </head>
 
@@ -161,9 +162,9 @@
                   <span style="padding: 0 4px 0 8px; line-height: 32px">{{ current_user.username }}</span>
                   <div id="user_dot_box">
                     {% if current_user.role == 0 %}
-                      <span class="user_dot badge rounded-circle bg-secondary" title="权限等级: 游客"></span>
+                      <span class="user_dot badge rounded-circle bg-info" title="权限等级: 游客"></span>
                     {% elif current_user.role == 1 %}
-                      <span class="user_dot badge rounded-circle bg-info" title="权限等级: 成员"></span>
+                      <span class="user_dot badge rounded-circle bg-primary" title="权限等级: 成员"></span>
                     {% elif current_user.role == 2 %}
                       <span class="user_dot badge rounded-circle bg-warning" title="权限等级: 管理员"></span>
                     {% elif current_user.role >= 3 %}
@@ -260,7 +261,22 @@
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_js %}
-
+      <script>
+        // SocketIO 连接
+        const socket = io()
+        
+        socket.on('connect', function () {
+          console.log('Connected to server')
+        })
+        
+        socket.on('user_connected', function (data) {
+          console.log('User connected:', data.username)
+        })
+        
+        socket.on('user_disconnected', function (data) {
+          console.log('User disconnected:', data.username)
+        })
+      </script>
     {% endblock %}
   </body>
 </html>

@@ -326,9 +326,9 @@ def profile():
 
     # 定义角色颜色映射
     role_colors = {
-        ROLE_GUEST: "bg-secondary",
+        ROLE_GUEST: "bg-info",
         ROLE_MEMBER: "bg-primary",
-        ROLE_ADMIN: "bg-success",
+        ROLE_ADMIN: "bg-warning",
         ROLE_SUPER_ADMIN: "bg-danger",
     }
 
@@ -396,6 +396,19 @@ def upload_avatar():
         img.save(filepath, "JPEG", quality=95)
 
         # 更新用户头像路径
+        if user.avatar_path:
+            # 删除旧头像文件
+            old_avatar_path = os.path.join(
+                app.config["USER_AVATAR_FOLDER"], user.avatar_path
+            )
+            try:
+                os.remove(old_avatar_path)
+            except FileNotFoundError:
+                pass
+            except Exception as e:
+                return jsonify(
+                    {"success": False, "message": f"删除旧头像出错: {str(e)}"}
+                )
         user.avatar_path = filename
         db.session.commit()
 
