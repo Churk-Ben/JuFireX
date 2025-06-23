@@ -1,6 +1,9 @@
-/* JuFire Studio 自定义样式 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-/* 防止页面闪烁的过渡效果 */
 html,
 body {
     transition: opacity 0.1s ease;
@@ -19,18 +22,12 @@ body {
     --github-danger: #da3633;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
 /* 全局样式 */
 body {
     min-height: 100vh;
     background-color: var(--github-bg);
     color: var(--github-text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-family: "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Helvetica", "Arial", "sans-serif";
     display: flex;
     flex-direction: column;
 }
@@ -198,6 +195,34 @@ main {
     box-shadow: none;
 }
 
+/* 修复输入组中相邻元素的边框重叠问题 */
+.input-group:focus-within .form-control:focus {
+    box-shadow: none;
+}
+
+.input-group:focus-within .form-control:focus+.btn-outline-primary {
+    border-left-color: var(--github-accent);
+}
+
+.form-select {
+    background-color: var(--github-bg);
+    border: 1px solid var(--github-border);
+    color: var(--github-text);
+}
+
+.form-select:focus {
+    border-color: var(--github-accent);
+    box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+}
+
+.form-select:disabled {
+    background-color: var(--github-bg);
+    border: 1px solid var(--github-border);
+    color: var(--github-text);
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
 /* 导航卡片 */
 .nav-card {
     transition: all 0.3s ease;
@@ -272,33 +297,6 @@ main {
     box-shadow: none;
 }
 
-/* 修复输入组中相邻元素的边框重叠问题 */
-.input-group:focus-within .form-control:focus {
-    box-shadow: none;
-}
-
-.input-group:focus-within .form-control:focus+.btn-outline-primary {
-    border-left-color: var(--github-accent);
-}
-
-.form-select {
-    background-color: var(--github-bg);
-    border: 1px solid var(--github-border);
-    color: var(--github-text);
-}
-
-.form-select:focus {
-    border-color: var(--github-accent);
-    box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
-}
-
-.form-select:disabled {
-    background-color: var(--github-bg);
-    border: 1px solid var(--github-border);
-    color: var(--github-text);
-    opacity: 0.8;
-    cursor: not-allowed;
-}
 
 /* 表格 */
 .table {
