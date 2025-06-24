@@ -86,35 +86,43 @@ python app.py
 JuFireStudio/
 ├── app.py                 # 主应用文件
 ├── requirements.txt       # 依赖包列表
-├── README.md             # 项目说明
-├── studio.db             # SQLite 数据库（运行后生成）
-├── static/               # 静态文件
-│   ├── css/
-│   │   └── style.css     # 自定义样式
-│   └── js/
-│       └── main.js       # 前端脚本
-└── templates/            # 模板文件
-    ├── base.html         # 基础模板
-    ├── index.html        # 主页
-    ├── login.html        # 登录页
-    ├── register.html     # 注册页
-    ├── profile.html      # 个人主页
-    ├── navigation.html   # 导航页
-    └── admin/            # 管理页面
-        ├── projects.html # 项目管理
-        └── users.html    # 用户管理
+├── README.md              # 项目说明
+├── studio.db              # SQLite 数据库（运行后生成）
+├── user_data/             # 用户上传数据
+├── static/                # 静态文件
+│   ├── css/               # 样式目录
+│   │   └── style.css      # 自定义样式
+│   └── js/                # 脚本目录
+│       ├── main.js        # 全局主脚本
+│       ├── profile.js     # 个人主页脚本
+│       ├── admin-navigation.js # 后台导航管理脚本
+│       └── ...            # 其他页面脚本
+└── templates/             # 模板文件
+    ├── base.html          # 基础模板
+    ├── index.html         # 主页
+    ├── login.html         # 登录页
+    ├── register.html      # 注册页
+    ├── profile.html       # 个人主页
+    ├── navigation.html    # 前台导航页
+    └── admin/             # 管理页面
+        ├── projects.html  # 项目管理
+        ├── users.html     # 用户管理
+        ├── navigation.html # 导航管理
+        └── studio_info.html # 工作室信息管理
 ```
 
 ## 用户权限说明
 
 | 功能 | 游客 | 成员 | 管理员 | 超级管理员 |
-|------|------|------|--------|------------|
+|:---|:---:|:---:|:---:|:---:|
 | 浏览主页 | ✅ | ✅ | ✅ | ✅ |
 | 用户注册 | ✅ | ✅ | ✅ | ✅ |
 | 个人主页 | ✅ | ✅ | ✅ | ✅ |
 | 导航页面 | ❌ | ✅ | ✅ | ✅ |
 | 项目管理 | ❌ | ❌ | ✅ | ✅ |
+| 导航管理 | ❌ | ❌ | ✅ | ✅ |
 | 用户管理 | ❌ | ❌ | ❌ | ✅ |
+| 工作室信息管理 | ❌ | ❌ | ❌ | ✅ |
 
 ## API 接口
 
@@ -131,20 +139,23 @@ JuFireStudio/
 - `GET /api/users/<id>` - 获取用户详情
 - `DELETE /api/users/<id>` - 删除用户
 
+### 导航链接相关
+
+- `GET /api/navigation` - 获取所有导航链接
+- `POST /api/navigation` - 创建导航链接
+- `PUT /api/navigation/<id>` - 更新导航链接
+- `DELETE /api/navigation/<id>` - 删除导航链接
+
+### 工作室信息相关
+
+- `GET /api/studio_info` - 获取工作室信息
+- `PUT /api/studio_info` - 更新工作室信息
+
 ## 自定义配置
 
 ### 修改工作室信息
 
-在 `app.py` 中找到 `create_default_data()` 函数，修改以下内容：
-
-```python
-studio_info = StudioInfo(
-    name='你的工作室名称',
-    description='工作室描述',
-    email='contact@yourstudio.com',
-    github_url='https://github.com/yourstudio'
-)
-```
+您可以通过访问后台管理页面的 “工作室信息” 标签页来直接修改工作室的各项信息，包括名称、描述、联系邮箱和 GitHub 地址等。所作修改将实时生效。
 
 ### 修改样式主题
 

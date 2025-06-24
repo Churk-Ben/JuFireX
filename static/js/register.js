@@ -236,11 +236,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         joinCheckbox.addEventListener('change', function () {
             if (this.checked) {
-                intentionDetails.style.display = 'block';
-                intentionDetails.style.opacity = 1;
+                intentionDetails.classList.add('show');
             } else {
-                intentionDetails.style.display = 'none';
-                intentionDetails.style.opacity = 0;
+                intentionDetails.classList.remove('show');
                 // 清空输入框内容
                 document.getElementById('studio_intention').value = '';
             }
