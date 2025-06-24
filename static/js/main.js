@@ -39,7 +39,7 @@ class ProjectManager {
 
     // 创建项目
     createProject(formData) {
-        return this.api.post('/projects/create', formData, true);
+        return this.api.post('/api/projects', formData, true);
     }
 }
 

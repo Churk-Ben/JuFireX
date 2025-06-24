@@ -176,8 +176,13 @@ def require_role(min_role, owner_check=None):
                 if not owner_check(user, **kwargs):
                     flash("权限不足或操作不允许", "error")
                     # 对于API端点，返回JSON错误可能更合适
-                    if request.path.startswith('/api/'):
-                        return jsonify({"success": False, "message": "权限不足或操作不允许"}), 403
+                    if request.path.startswith("/api/"):
+                        return (
+                            jsonify(
+                                {"success": False, "message": "权限不足或操作不允许"}
+                            ),
+                            403,
+                        )
                     return redirect(url_for("index"))
 
             return f(*args, **kwargs)
@@ -187,7 +192,9 @@ def require_role(min_role, owner_check=None):
 
     return decorator
 
+
 # --- 所有权检查函数 ---
+
 
 def is_project_owner_or_admin(user, project_id):
     project = db.session.get(Project, project_id)
@@ -198,6 +205,7 @@ def is_project_owner_or_admin(user, project_id):
         return True
     # 作者可以管理自己的项目
     return project.author_id == user.id
+
 
 def can_manage_project(user, project_id):
     project = db.session.get(Project, project_id)
@@ -214,6 +222,7 @@ def can_manage_project(user, project_id):
         return project.author_id == user.id
     return False
 
+
 def can_manage_nav_item(user, item_id):
     item = db.session.get(NavItem, item_id)
     if not item:
@@ -224,11 +233,14 @@ def can_manage_nav_item(user, item_id):
         return item.creator.role < ROLE_ADMIN
     return item.created_by == user.id
 
+
 def can_manage_user(user, user_id):
     # 只有超级管理员可以管理用户
     return user.role == ROLE_SUPER_ADMIN
 
+
 # --- API 路由 ---
+
 
 # 路由
 @app.route("/")
@@ -380,7 +392,7 @@ def logout():
 
 
 @app.route("/profile", methods=["GET", "POST"])
-@require_role(ROLE_MEMBER)
+@require_role(ROLE_GUEST)
 def profile():
     user = db.session.get(User, session["user_id"])
     current_user = user  # 确保current_user变量可用于base.html
@@ -613,6 +625,27 @@ def get_hidden_nav_items():
     return jsonify({"success": True, "hidden_items": hidden_items})
 
 
+# (TODO) 申请加入工作室
+@app.route("/api/users/pending", methods=["GET"])
+@require_role(ROLE_ADMIN)
+def get_pending_users():
+    pending_users = User.query.filter_by(role=ROLE_GUEST).all()
+    return jsonify(
+        [
+            {
+                "id": u.id,
+                "username": u.username,
+                "email": u.email,
+                "created_at": u.created_at.isoformat(),
+            }
+            for u in pending_users
+        ]
+    )
+
+
+# --- 管理员面板路由 ---
+
+
 @app.route("/admin/projects")
 @require_role(ROLE_GUEST)
 def admin_projects():
@@ -657,7 +690,7 @@ def admin_navigation():
 
 
 @app.route("/api/projects", methods=["POST"])
-@require_role(ROLE_ADMIN)
+@require_role(ROLE_MEMBER)
 def create_project():
     data = request.get_json()
     project = Project(
@@ -675,23 +708,60 @@ def create_project():
 
 
 @app.route("/api/users/<int:user_id>/role", methods=["PUT"])
-@require_role(ROLE_SUPER_ADMIN)
+@require_role(ROLE_SUPER_ADMIN, owner_check=can_manage_user)
 def update_user_role(user_id):
-    data = request.get_json()
-    user = User.query.get_or_404(user_id)
-    user.role = data["role"]
+    user_to_update = db.session.get(User, user_id)
+    if not user_to_update:
+        return jsonify({"success": False, "message": "用户不存在"}), 404
+
+    data = request.json
+    new_role = data.get("role")
+
+    if new_role not in ROLE_NAMES:
+        return jsonify({"success": False, "message": "无效的角色"}), 400
+
+    # 防止将自己降级
+    if user_to_update.id == session.get("user_id") and new_role < ROLE_SUPER_ADMIN:
+        return (
+            jsonify({"success": False, "message": "不能降低自己的超级管理员权限"}),
+            403,
+        )
+
+    user_to_update.role = new_role
     db.session.commit()
-    return jsonify({"success": True, "message": "用户角色更新成功"})
+
+    return jsonify(
+        {
+            "success": True,
+            "message": "用户角色已更新",
+            "new_role_name": ROLE_NAMES[new_role],
+        }
+    )
 
 
 @app.route("/api/users/<int:user_id>/status", methods=["PUT"])
-@require_role(ROLE_SUPER_ADMIN)
+@require_role(ROLE_SUPER_ADMIN, owner_check=can_manage_user)
 def update_user_status(user_id):
-    data = request.get_json()
-    user = User.query.get_or_404(user_id)
-    user.is_active = data["is_active"]
+    user_to_update = db.session.get(User, user_id)
+    if not user_to_update:
+        return jsonify({"success": False, "message": "用户不存在"}), 404
+
+    data = request.json
+    is_active = data.get("is_active")
+
+    if is_active is None:
+        return jsonify({"success": False, "message": "缺少 is_active 参数"}), 400
+
+    # 防止禁用自己
+    if user_to_update.id == session.get("user_id") and not is_active:
+        return jsonify({"success": False, "message": "不能禁用自己的账户"}), 403
+
+    user_to_update.is_active = is_active
     db.session.commit()
-    return jsonify({"success": True, "message": "用户状态更新成功"})
+
+    return jsonify(
+        {"success": True, "message": "用户状态已更新", "is_active": is_active}
+    )
 
 
 @app.route("/api/users/<int:user_id>", methods=["GET"])
@@ -726,31 +796,30 @@ def get_user_details(user_id):
 
 
 @app.route("/api/users/<int:user_id>", methods=["DELETE"])
-@require_role(ROLE_SUPER_ADMIN)
+@require_role(ROLE_SUPER_ADMIN, owner_check=can_manage_user)
 def delete_user(user_id):
-    user = User.query.get_or_404(user_id)
+    user_to_delete = db.session.get(User, user_id)
+    if not user_to_delete:
+        return jsonify({"success": False, "message": "用户不存在"}), 404
 
-    # 防止删除当前登录的超级管理员
-    if user.id == session["user_id"]:
-        return jsonify({"success": False, "message": "不能删除当前登录的用户"})
+    # 不能删除自己
+    if user_to_delete.id == session.get("user_id"):
+        return jsonify({"success": False, "message": "不能删除自己"}), 403
 
-    # 删除用户的所有项目
-    Project.query.filter_by(author_id=user.id).delete()
+    try:
+        # 在删除用户前，处理该用户创建的内容
+        # 将项目作者设置为null
+        Project.query.filter_by(author_id=user_id).update({"author_id": None})
+        # 删除导航项和分类
+        NavItem.query.filter_by(created_by=user_id).delete()
+        NavCategory.query.filter_by(created_by=user_id).delete()
 
-    # 删除用户的所有导航项
-    HiddenNavItem.query.filter_by(user_id=user.id).delete()
-
-    # 删除用户的头像缓存
-    if user.avatar_path:
-        avatar_path = os.path.join(app.config["USER_AVATAR_FOLDER"], user.avatar_path)
-        if os.path.exists(avatar_path):
-            os.remove(avatar_path)
-
-    # 删除用户
-    db.session.delete(user)
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "用户删除成功"})
+        db.session.delete(user_to_delete)
+        db.session.commit()
+        return jsonify({"success": True, "message": "用户已删除"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": f"删除失败: {str(e)}"}), 500
 
 
 @app.route("/api/projects/<int:project_id>/featured", methods=["PUT"])
@@ -828,27 +897,27 @@ def delete_project(project_id):
         return jsonify({"success": False, "message": f"删除失败: {str(e)}"}), 500
 
 
-@app.route("/api/studio-info", methods=["PUT"])
-@require_role(ROLE_SUPER_ADMIN)
+@app.route("/api/studio-info", methods=["POST"])
+@require_role(ROLE_SUPER_ADMIN)  # 只有超级管理员可以修改工作室信息
 def update_studio_info():
-    data = request.get_json()
+    data = request.json
     studio_info = StudioInfo.query.first()
-
     if not studio_info:
-        studio_info = StudioInfo()
+        studio_info = StudioInfo(name="默认工作室名称")  # 提供一个默认名称
+        db.session.add(studio_info)
 
-    # 更新工作室信息
     studio_info.name = data.get("name", studio_info.name)
     studio_info.description = data.get("description", studio_info.description)
     studio_info.contact_email = data.get("contact_email", studio_info.contact_email)
     studio_info.github_url = data.get("github_url", studio_info.github_url)
-    studio_info.logo_url = data.get("logo_url", studio_info.logo_url)
     studio_info.updated_at = datetime.now()
 
-    db.session.add(studio_info)
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "工作室信息更新成功"})
+    try:
+        db.session.commit()
+        return jsonify({"success": True, "message": "工作室信息更新成功"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": f"更新失败: {str(e)}"}), 500
 
 
 # 导航分类API
@@ -925,15 +994,23 @@ def update_nav_category(category_id):
 
 
 @app.route("/api/nav-categories/<int:category_id>", methods=["DELETE"])
-@require_role(ROLE_SUPER_ADMIN)
+@require_role(ROLE_SUPER_ADMIN)  # 只有超级管理员可以删除分类
 def delete_nav_category(category_id):
-    category = NavCategory.query.get_or_404(category_id)
+    category = db.session.get(NavCategory, category_id)
+    if not category:
+        return jsonify({"success": False, "message": "分类不存在"}), 404
 
-    # 删除分类（关联的导航项会通过cascade自动删除）
-    db.session.delete(category)
-    db.session.commit()
+    # 检查是否有导航项属于此分类
+    if category.nav_items:
+        return jsonify({"success": False, "message": "分类下有导航项，无法删除"}), 400
 
-    return jsonify({"success": True, "message": "导航分类删除成功"})
+    try:
+        db.session.delete(category)
+        db.session.commit()
+        return jsonify({"success": True, "message": "分类已删除"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": f"删除失败: {str(e)}"}), 500
 
 
 # 导航项API
@@ -1064,23 +1141,23 @@ def update_nav_item(item_id):
 
 
 @app.route("/api/nav-items/<int:item_id>", methods=["DELETE"])
-@require_role(ROLE_MEMBER)
+@require_role(ROLE_MEMBER, owner_check=can_manage_nav_item)
 def delete_nav_item(item_id):
-    nav_item = NavItem.query.get_or_404(item_id)
-    current_user = db.session.get(User, session["user_id"])
+    nav_item = db.session.get(NavItem, item_id)
+    if not nav_item:
+        return jsonify({"success": False, "message": "导航项不存在"}), 404
 
-    # 检查权限：只有创建者或超级管理员可以删除
-    if nav_item.created_by != current_user.id and current_user.role < ROLE_SUPER_ADMIN:
-        return jsonify({"success": False, "message": "权限不足"})
+    try:
+        # 删除相关的隐藏记录
+        HiddenNavItem.query.filter_by(nav_item_id=item_id).delete()
 
-    # 删除相关的隐藏记录
-    HiddenNavItem.query.filter_by(nav_item_id=item_id).delete()
-
-    # 删除导航项
-    db.session.delete(nav_item)
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "导航项删除成功"})
+        # 删除导航项
+        db.session.delete(nav_item)
+        db.session.commit()
+        return jsonify({"success": True, "message": "导航项删除成功"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": f"删除失败: {str(e)}"}), 500
 
 
 # 隐藏/显示导航项API

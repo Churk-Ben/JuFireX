@@ -72,14 +72,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 image_url: document.getElementById('projectImage').value
             };
 
-            ProjectManager.createProject(formData)
+            const projectManager = new ProjectManager(API);
+            projectManager.createProject(formData)
                 .then(data => {
                     if (data.success) {
-                        location.reload();
+                        showNotification('项目创建成功!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showNotification(data.message || '项目创建失败', 'error');
                     }
                 })
                 .catch(error => {
-                    // ProjectManager.createProject 内部已经显示了通知
+                    showNotification('创建项目时发生错误', 'error');
                     console.error('Create project error:', error);
                 });
         });

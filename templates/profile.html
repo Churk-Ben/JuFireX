@@ -70,7 +70,7 @@
                 <button type="button" id="choose_avatar_btn" class="btn btn-sm btn-primary position-absolute rounded-circle" data-bs-toggle="modal" data-bs-target="#avatarModal"><i class="fas fa-camera"></i></button>
               </div>
               <!-- 用户信息 -->
-              <div class="d-flex flex-column justify-content-between align-items-center">
+              <div class="d-flex flex-column justify-content-between align-items-md-start">
                 <div class="mt-2 mb-2 d-flex justify-content-start align-items-center">
                   <h5 class="mb-1 me-2">{{ user.username }}</h5>
                   <span class="badge rounded-pill {{ role_colors.get(user.role, 'bg-secondary') }}">{{ role_names.get(user.role, '未知') }}</span>
