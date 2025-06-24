@@ -1,0 +1,96 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    transition: opacity 0.1s ease;
+}
+
+/* GitHub 风格变量 */
+:root {
+    --github-bg: #0d1117;
+    --github-secondary: #161b22;
+    --github-border: #30363d;
+    --github-text: #c9d1d9;
+    --github-text-secondary: #8b949e;
+    --github-accent: #58a6ff;
+    --github-primary: #0d6efd;
+    --github-success: #238636;
+    --github-warning: #f0883e;
+    --github-danger: #da3633;
+}
+
+/* 全局样式 */
+body {
+    min-height: 100vh;
+    background-color: var(--github-bg);
+    color: var(--github-text);
+    font-family: "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Helvetica", "Arial", "sans-serif";
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.category-title {
+    color: var(--github-text);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--github-border);
+}
+
+/* 页脚 */
+.footer {
+    background-color: var(--github-secondary);
+    border-top: 1px solid var(--github-border);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+    }
+
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--github-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--github-border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--github-text-secondary);
+}

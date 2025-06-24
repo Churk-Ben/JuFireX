@@ -1,0 +1,114 @@
+/* 表格 */
+.table {
+    color: var(--github-text);
+    background-color: var(--github-secondary);
+    border-radius: 6px;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead th {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-bottom-color: var(--github-border);
+    padding: 12px 16px;
+    font-weight: 600;
+}
+
+.table td,
+.table th {
+    border-top-color: var(--github-border);
+    border-bottom: 1px solid var(--github-border);
+    padding: 12px 16px;
+    vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.table-hover tbody tr:hover td {
+    color: var(--github-text);
+}
+
+.table-hover tbody tr:hover h6 {
+    color: var(--github-accent);
+}
+
+.table-hover tbody tr:hover small.text-muted {
+    color: var(--github-text-secondary) !important;
+}
+
+/* 表格内的用户和项目信息样式 */
+.table .d-flex.align-items-center {
+    padding: 8px 0;
+}
+
+.table h6 {
+    color: var(--github-accent);
+    font-weight: 600;
+}
+
+.table small.text-muted {
+    color: var(--github-text-secondary) !important;
+}
+
+/* 表格中的操作按钮 */
+.table .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 4px;
+}
+
+.table .btn-group .btn {
+    border-color: var(--github-border);
+    background-color: var(--github-secondary);
+    color: var(--github-text);
+}
+
+.table .btn-group .btn:hover {
+    background-color: var(--github-bg);
+    color: var(--github-accent);
+}
+
+/* 表格中的状态标签 */
+.table .status-badge {
+    display: inline-block;
+    padding: 0.25em 0.6em;
+    font-size: 0.75em;
+    font-weight: 500;
+    border-radius: 20px;
+    text-align: center;
+}
+
+/* 项目数量样式 */
+.table .project-count {
+    font-weight: 500;
+    color: var(--github-text-secondary);
+    transition: color 0.2s ease;
+}
+
+.table-hover tbody tr:hover .project-count {
+    color: var(--github-accent);
+}
+
+.table .status-active {
+    background-color: rgba(35, 134, 54, 0.15);
+    color: #7ee787;
+    border: 1px solid var(--github-success);
+}
+
+.table .status-inactive {
+    background-color: rgba(218, 54, 51, 0.15);
+    color: #f85149;
+    border: 1px solid var(--github-danger);
+}
+
+.table .status-featured {
+    background-color: rgba(240, 136, 62, 0.15);
+    color: #f0883e;
+    border: 1px solid var(--github-warning);
+}

@@ -1,0 +1,58 @@
+/* 表单 */
+.form-control {
+    background-color: var(--github-bg);
+    border: 1px solid var(--github-border);
+    color: var(--github-text);
+}
+
+.form-control:focus {
+    background-color: var(--github-bg);
+    border-color: var(--github-accent);
+    color: var(--github-text);
+    box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+}
+
+/* 输入组焦点样式 */
+.input-group:focus-within {
+    box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+    border-radius: 0.25rem;
+}
+
+.input-group:focus-within .form-control {
+    border-color: var(--github-accent);
+    box-shadow: none;
+}
+
+/* 修复输入组中相邻元素的边框重叠问题 */
+.input-group:focus-within .form-control:focus {
+    box-shadow: none;
+}
+
+.input-group:focus-within .form-control:focus+.btn-outline-primary {
+    border-left-color: var(--github-accent);
+}
+
+.form-select {
+    background-color: var(--github-bg);
+    border: 1px solid var(--github-border);
+    color: var(--github-text);
+}
+
+.form-select:focus {
+    border-color: var(--github-accent);
+    box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+}
+
+.form-select:disabled {
+    background-color: var(--github-bg);
+    border: 1px solid var(--github-border);
+    color: var(--github-text);
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.input-group:focus-within .btn-outline-primary {
+    border-color: var(--github-accent);
+    color: var(--github-accent);
+    box-shadow: none;
+}

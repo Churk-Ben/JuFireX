@@ -1,0 +1,6 @@
+/* 徽章 */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    border-radius: 20px;
+}
