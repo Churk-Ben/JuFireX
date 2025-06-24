@@ -14,26 +14,9 @@ function showNotification(message, type = 'info') {
     }[type] || 'alert-info';
 
     const alertElement = document.createElement('div');
-    alertElement.className = `alert ${alertClass} alert-dismissible fade show`;
+    alertElement.className = `alert ${alertClass} fade show`;
     alertElement.setAttribute('role', 'alert');
-
-    alertElement.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close custom-close" aria-label="关闭"></button>
-    `;
-
-    const closeButton = alertElement.querySelector('.custom-close');
-    if (closeButton) {
-        closeButton.onclick = function () {
-            alertElement.classList.remove('show');
-            setTimeout(() => {
-                if (alertElement.parentNode) {
-                    alertElement.remove();
-                }
-            }, 300);
-            return false;
-        };
-    }
+    alertElement.textContent = message;
 
     const container = document.getElementById('messages');
     if (container) {
@@ -43,6 +26,7 @@ function showNotification(message, type = 'info') {
             alertElement.classList.add('show');
         }, 10);
 
+        // 将超时时间从5000ms缩短到3000ms
         setTimeout(() => {
             alertElement.classList.remove('show');
             setTimeout(() => {
@@ -50,7 +34,7 @@ function showNotification(message, type = 'info') {
                     alertElement.remove();
                 }
             }, 300);
-        }, 5000);
+        }, 2000);
     }
 }
 

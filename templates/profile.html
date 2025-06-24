@@ -18,6 +18,15 @@
       border: 2px solid var(--github-secondary);
     }
     
+    #avatarPreview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background-color: #f0f0f0;
+      margin: 20px auto;
+      overflow: hidden;
+    }
+    
     .status-badge {
       display: flex;
       padding: 0.25em 0.6em;
@@ -61,16 +70,15 @@
                 <button type="button" id="choose_avatar_btn" class="btn btn-sm btn-primary position-absolute rounded-circle" data-bs-toggle="modal" data-bs-target="#avatarModal"><i class="fas fa-camera"></i></button>
               </div>
               <!-- 用户信息 -->
-              <div class="text-center text-md-start">
-                <h5 class="card-title">{{ user.username }}</h5>
-                <p class="card-text">{{ user.email }}</p>
+              <div class="d-flex flex-column justify-content-between align-items-center">
+                <div class="mt-2 mb-2 d-flex justify-content-start align-items-center">
+                  <h5 class="mb-1 me-2">{{ user.username }}</h5>
+                  <span class="badge rounded-pill {{ role_colors.get(user.role, 'bg-secondary') }}">{{ role_names.get(user.role, '未知') }}</span>
+                </div>
+                <p class="mb-4 card-text">{{ user.email }}</p>
                 <p class="card-text">
                   <small class="text-muted">注册于 {{ user.created_at|format_datetime }}</small>
                 </p>
-                <div class="d-flex align-items-center justify-content-center justify-content-md-start">
-                  <span class="me-2">权限等级:</span>
-                  <span class="badge rounded-pill {{ role_colors.get(user.role, 'bg-secondary') }}">{{ role_names.get(user.role, '未知') }}</span>
-                </div>
               </div>
             </div>
           </div>
@@ -217,46 +225,49 @@
   </div>
 
   <!-- 添加项目模态框 -->
-  {% if user.role >= 2 %}
-    <div class="modal fade" id="addProjectModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title"><i class="fas fa-plus"></i> 添加新项目</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
-          </div>
-          <form id="addProjectForm">
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="projectTitle" class="form-label">项目标题</label>
-                <input type="text" class="form-control" id="projectTitle" required />
-              </div>
-              <div class="mb-3">
-                <label for="projectDescription" class="form-label">项目描述</label>
-                <textarea class="form-control" id="projectDescription" rows="3" required></textarea>
-              </div>
-              <div class="mb-3">
-                <label for="projectGithub" class="form-label">GitHub 链接</label>
-                <input type="url" class="form-control" id="projectGithub" placeholder="https://github.com/..." />
-              </div>
-              <div class="mb-3">
-                <label for="projectDemo" class="form-label">演示链接</label>
-                <input type="url" class="form-control" id="projectDemo" placeholder="https://..." />
-              </div>
-              <div class="mb-3">
-                <label for="projectImage" class="form-label">项目图片链接</label>
-                <input type="url" class="form-control" id="projectImage" placeholder="https://..." />
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 创建项目</button>
-            </div>
-          </form>
+  <!-- 模态框模板header -->
+  <div class="modal fade" id="addProjectModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-plus"></i> 添加新项目</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+        <!-- -header- -->
+        <form id="addProjectForm">
+          <!-- 模态框内容 -->
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="projectTitle" class="form-label">项目标题</label>
+              <input type="text" class="form-control" id="projectTitle" required />
+            </div>
+            <div class="mb-3">
+              <label for="projectDescription" class="form-label">项目描述</label>
+              <textarea class="form-control" id="projectDescription" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="projectGithub" class="form-label">GitHub 链接</label>
+              <input type="url" class="form-control" id="projectGithub" placeholder="https://github.com/..." />
+            </div>
+            <div class="mb-3">
+              <label for="projectDemo" class="form-label">演示链接</label>
+              <input type="url" class="form-control" id="projectDemo" placeholder="https://..." />
+            </div>
+            <div class="mb-3">
+              <label for="projectImage" class="form-label">项目图片链接</label>
+              <input type="url" class="form-control" id="projectImage" placeholder="https://..." />
+            </div>
+          </div>
+          <!-- 模态框模板footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 创建项目</button>
+          </div>
+          <!-- -footer- -->
+        </form>
       </div>
     </div>
-  {% endif %}
+  </div>
 
   <!-- 头像上传模态框 -->
   <div class="modal fade" id="avatarModal" tabindex="-1">
@@ -264,19 +275,13 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><i class="fas fa-camera"></i> 更新头像</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+        <!-- 模态框内容 -->
         <div class="modal-body">
           <div class="row">
             <div class="col-md-12 text-center mb-3">
-              <div id="avatarPreview" style="
-                width: 120px;
-                height: 120px;
-                border-radius: 50%;
-                background-color: #f0f0f0;
-                margin: 0 auto;
-                overflow: hidden;
-              ">
+              <div id="avatarPreview">
                 {% if user.avatar_path %}
                   <img src="{{ url_for('user_avatar', filename=user.avatar_path) }}" alt="头像预览" style="width: 100%; height: 100%; object-fit: cover" />
                 {% else %}
@@ -285,23 +290,24 @@
               </div>
             </div>
           </div>
-
           <div class="mb-3">
-            <label for="avatarUpload" class="form-label">选择图片</label>
             <input class="form-control" type="file" id="avatarUpload" accept="image/*" />
-            <div class="form-text">支持JPG、PNG格式，建议使用正方形图片</div>
+            <div class="form-text">
+              <i class="fas fa-info-circle me-1"></i>
+              支持 JPG、PNG 格式，建议图片规格小于 200KB
+            </div>
           </div>
-
-          <!-- 裁剪区域 -->
           <div id="cropperContainer" style="display: none; max-height: 300px; overflow: hidden" class="mb-3"></div>
-
           <input type="hidden" id="croppedAvatarData" />
         </div>
+        <!-- 模态框footer -->
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" id="cancelCropBtn">取消</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-secondary" id="cancelCropBtn">清空</button>
           <button type="button" class="btn btn-primary" id="cropAvatarBtn">裁剪</button>
           <button type="button" class="btn btn-success" id="saveAvatarBtn"><i class="fas fa-save"></i> 保存头像</button>
         </div>
+        <!-- -footer- -->
       </div>
     </div>
   </div>
@@ -313,8 +319,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
   <!-- 引入自定义JS -->
-  <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
   <script src="{{ url_for('static', filename='js/cropper.js') }}"></script>
   <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
 {% endblock %}

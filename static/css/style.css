@@ -366,7 +366,7 @@ main {
     margin-bottom: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     opacity: 0;
-    transform: translateX(100%);
+    transform: translateX(10%);
     transition: opacity 0.3s ease, transform 0.3s ease;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -389,7 +389,7 @@ main {
     left: 0;
     height: 3px;
     width: 0%;
-    animation: progress-animation 5s linear forwards;
+    animation: progress-animation 2s linear forwards;
 }
 
 @keyframes progress-animation {
