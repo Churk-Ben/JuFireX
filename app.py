@@ -466,7 +466,7 @@ def navigation():
     )
 
 
-@app.route("/navigation/hide/<int:nav_item_id>", methods=["POST"])
+@app.route("/api/navigation/hide/<int:nav_item_id>", methods=["POST"])
 @require_role(ROLE_MEMBER)
 def hide_nav_item(nav_item_id):
     user_id = session["user_id"]
@@ -488,7 +488,7 @@ def hide_nav_item(nav_item_id):
     return jsonify({"success": True})
 
 
-@app.route("/navigation/unhide/<int:nav_item_id>", methods=["POST"])
+@app.route("/api/navigation/unhide/<int:nav_item_id>", methods=["POST"])
 @require_role(ROLE_MEMBER)
 def unhide_nav_item(nav_item_id):
     user_id = session["user_id"]
@@ -508,7 +508,7 @@ def unhide_nav_item(nav_item_id):
     return jsonify({"success": True})
 
 
-@app.route("/navigation/toggle_privacy/<int:nav_item_id>", methods=["POST"])
+@app.route("/api/navigation/toggle_privacy/<int:nav_item_id>", methods=["POST"])
 @require_role(ROLE_MEMBER)
 def toggle_nav_item_privacy(nav_item_id):
     user_id = session["user_id"]
@@ -532,7 +532,7 @@ def toggle_nav_item_privacy(nav_item_id):
     return jsonify({"success": True, "is_public": nav_item.is_public})
 
 
-@app.route("/navigation/hidden_items")
+@app.route("/api/navigation/hidden_items")
 @require_role(ROLE_MEMBER)
 def get_hidden_nav_items():
     user_id = session["user_id"]

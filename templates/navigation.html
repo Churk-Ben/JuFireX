@@ -35,10 +35,7 @@
                           <button class="btn btn-sm btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas me-1 fa-ellipsis-v"></i> 选项</button>
                           <ul class="dropdown-menu dropdown-menu-end">
                             <!-- 隐藏 -->
-                            <li>
-                              <a class="dropdown-item hide-card-btn" onclick="hideCard('{{ item.id }}'); return false;" href="javascript:void(0);">隐藏</a>
-                            </li>
-
+                            <a class="dropdown-item hide-card-btn" onclick="hideCard('{{ item.id }}'); return false;" href="javascript:void(0);">隐藏</a>
                             <!-- 设为公开/私有 -->
                             {% if current_user and item.created_by == current_user.id %}
                               <li>
@@ -47,9 +44,9 @@
                               <li>
                                 {% set is_public %}
                                   {% if item.is_public %}
-                                    {% set is_public = 'true' %}
+                                    {% set is_public = 1 %}
                                   {% else %}
-                                    {% set is_public = 'false' %}
+                                    {% set is_public = 0 %}
                                   {% endif %}
                                 {% endset %}
                                 <a class="dropdown-item toggle-privacy-btn" onclick="togglePrivacy('{{ item.id }}', {{ is_public }}, this); return false;" href="javascript:void(0);" data-is-public="{{ is_public }}">
