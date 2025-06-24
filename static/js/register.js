@@ -230,9 +230,27 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function initJoinIntentionToggle() {
+        const joinCheckbox = document.getElementById('join_intention');
+        const intentionDetails = document.getElementById('selfIntroduction');
+
+        joinCheckbox.addEventListener('change', function () {
+            if (this.checked) {
+                intentionDetails.style.display = 'block';
+                intentionDetails.style.opacity = 1;
+            } else {
+                intentionDetails.style.display = 'none';
+                intentionDetails.style.opacity = 0;
+                // 清空输入框内容
+                document.getElementById('studio_intention').value = '';
+            }
+        });
+    }
+
     initStepSwitching();
     initPasswordStrengthCheck();
     initPasswordToggle();
     initAvatarUpload();
     initFormValidation();
+    initJoinIntentionToggle();
 });
