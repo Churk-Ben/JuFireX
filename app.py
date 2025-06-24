@@ -675,6 +675,15 @@ def delete_user(user_id):
     # 删除用户的所有项目
     Project.query.filter_by(author_id=user.id).delete()
 
+    # 删除用户的所有导航项
+    HiddenNavItem.query.filter_by(user_id=user.id).delete()
+
+    # 删除用户的头像缓存
+    if user.avatar_path:
+        avatar_path = os.path.join(app.config["USER_AVATAR_FOLDER"], user.avatar_path)
+        if os.path.exists(avatar_path):
+            os.remove(avatar_path)
+
     # 删除用户
     db.session.delete(user)
     db.session.commit()

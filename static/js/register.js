@@ -1,10 +1,63 @@
 document.addEventListener('DOMContentLoaded', function () {
-    let cropper;
+    // 初始化步骤切换
+    function initStepSwitching() {
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step1Indicator = document.getElementById('step1Indicator');
+        const step2Indicator = document.getElementById('step2Indicator');
+        const nextToStep2Btn = document.getElementById('nextToStep2');
+        const backToStep1Btn = document.getElementById('backToStep1');
+        const progressBar = document.getElementById('registerProgress');
 
-    function initPasswordStrengthChecker() {
+        // 前往第二步
+        nextToStep2Btn.addEventListener('click', function () {
+            // 验证第一步表单
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const agree = document.getElementById('agree').checked;
+
+            if (!username || !email || !password || !confirmPassword) {
+                showNotification('请填写所有必填字段', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showNotification('两次输入的密码不一致', 'error');
+                return;
+            }
+
+            if (!agree) {
+                showNotification('请阅读并同意使用条款和隐私政策', 'error');
+                return;
+            }
+
+            // 切换到第二步
+            step1.classList.remove('active');
+            step2.classList.add('active');
+            step1Indicator.classList.remove('active');
+            step2Indicator.classList.add('active');
+            progressBar.style.width = '100%';
+        });
+
+        // 返回第一步
+        backToStep1Btn.addEventListener('click', function () {
+            step2.classList.remove('active');
+            step1.classList.add('active');
+            step2Indicator.classList.remove('active');
+            step1Indicator.classList.add('active');
+            progressBar.style.width = '50%';
+        });
+
+        // 初始化进度条
+        progressBar.style.width = '50%';
+    }
+
+    function initPasswordStrengthCheck() {
         const passwordInput = document.getElementById('password');
-        const strengthBar = document.getElementById('password-strength-bar');
-        const strengthText = document.getElementById('password-strength-text');
+        const strengthBar = document.getElementById('passwordStrength');
+        const strengthText = document.getElementById('passwordStrengthText');
 
         passwordInput.addEventListener('input', function () {
             const password = this.value;
@@ -51,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const previewContainer = document.getElementById('avatarPreview');
         const modalPreviewContainer = document.getElementById('modalAvatarPreview');
         const cropperContainer = document.getElementById('cropperContainer');
-        const cropBtn = document.getElementById('cropBtn');
+        const cropAvatarBtn = document.getElementById('cropAvatarBtn');
         const cancelCropBtn = document.getElementById('cancelCropBtn');
         const saveAvatarBtn = document.getElementById('saveAvatarBtn');
         const croppedAvatarData = document.getElementById('croppedAvatarData');
@@ -60,59 +113,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         previewContainer.addEventListener('click', () => avatarModal.show());
 
-        avatarUpload.addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            if (!file || !file.type.match('image.*')) {
-                showNotification('请选择有效的图片文件！', 'error');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                cropperContainer.style.display = 'block';
-                cropperContainer.innerHTML = '';
-                const img = document.createElement('img');
-                img.id = 'cropperImage';
-                img.src = e.target.result;
-                img.style.maxWidth = '100%';
-                cropperContainer.appendChild(img);
-
-                if (cropper) cropper.destroy();
-                cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1 });
-
-                cropBtn.style.display = 'inline-block';
-                saveAvatarBtn.style.display = 'none';
-            };
-            reader.readAsDataURL(file);
-        });
-
-        cropBtn.addEventListener('click', function () {
-            if (!cropper) return;
-            const canvas = cropper.getCroppedCanvas({ width: 200, height: 200 });
-            const croppedImageUrl = canvas.toDataURL('image/jpeg');
-
-            modalPreviewContainer.innerHTML = '';
-            const modalImg = document.createElement('img');
-            modalImg.src = croppedImageUrl;
-            modalImg.style.width = '100%';
-            modalImg.style.height = '100%';
-            modalImg.style.objectFit = 'cover';
-            modalPreviewContainer.appendChild(modalImg);
-
-            croppedAvatarData.value = croppedImageUrl;
-            cropperContainer.style.display = 'none';
-            cropBtn.style.display = 'none';
-            saveAvatarBtn.style.display = 'inline-block';
-            cropper.destroy();
-            cropper = null;
-        });
-
-        cancelCropBtn.addEventListener('click', function () {
-            if (cropper) {
-                cropper.destroy();
-                cropper = null;
-            }
-            cropperContainer.style.display = 'none';
+        // 使用AvatarCropper类处理头像裁剪
+        const avatarCropper = new AvatarCropper({
+            imageInput: avatarUpload,
+            previewContainer: modalPreviewContainer,
+            cropButton: cropAvatarBtn,
+            cancelButton: cancelCropBtn,
+            resultInput: croppedAvatarData,
+            cropperContainer: cropperContainer
         });
 
         saveAvatarBtn.addEventListener('click', function () {
@@ -142,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const helpText = document.getElementById('passwordHelp');
 
             if (confirmPassword === '') {
-                helpText.textContent = '';
+                helpText.textContent = '再次输入密码';
                 this.classList.remove('is-valid', 'is-invalid');
             } else if (password === confirmPassword) {
                 helpText.textContent = '密码匹配 ✓';
@@ -195,35 +203,36 @@ document.addEventListener('DOMContentLoaded', function () {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 body: formData,
             })
-            .then(response => {
-                if (response.redirected) {
-                    showNotification('注册成功！正在跳转到登录页面...', 'success');
-                    setTimeout(() => { window.location.href = response.url; }, 1500);
-                    return null;
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data) return;
-                if (data.success) {
-                    showNotification('注册成功！正在跳转到登录页面...', 'success');
-                    setTimeout(() => { window.location.href = "/login"; }, 1500);
-                } else {
+                .then(response => {
+                    if (response.redirected) {
+                        showNotification('注册成功！正在跳转到登录页面...', 'success');
+                        setTimeout(() => { window.location.href = response.url; }, 1500);
+                        return null;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return;
+                    if (data.success) {
+                        showNotification('注册成功！正在跳转到登录页面...', 'success');
+                        setTimeout(() => { window.location.href = "/login"; }, 1500);
+                    } else {
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        showNotification(data.message || '注册失败，请重试', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
-                    showNotification(data.message || '注册失败，请重试', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                submitBtn.innerHTML = originalBtnText;
-                submitBtn.disabled = false;
-                showNotification('注册时发生未知错误，请稍后重试。', 'error');
-            });
+                    showNotification('注册时发生未知错误，请稍后重试。', 'error');
+                });
         });
     }
 
-    initPasswordStrengthChecker();
+    initStepSwitching();
+    initPasswordStrengthCheck();
     initPasswordToggle();
     initAvatarUpload();
     initFormValidation();

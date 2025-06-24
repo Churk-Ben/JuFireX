@@ -1,249 +1,231 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}
-注册 - JuFire Studio
+  JueFire Studio - 注册
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    #avatarPreview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background-color: #f0f0f0;
+      margin: 20px auto;
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .step-container {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      max-height: 0;
+      overflow: hidden;
+    }
+    
+    .step-container.active {
+      display: block;
+      opacity: 1;
+      max-height: 1000px;
+      transition: opacity 0.3s ease, max-height 0.5s ease;
+    }
+    
+    .step-indicator {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: var(--github-border);
+      color: var(--github-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    .step-indicator.active {
+      background-color: var(--github-accent);
+      color: white;
+    }
+    
+    .progress {
+      height: 4px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
-<div class="container d-flex align-items-center justify-content-center"
-  style="min-height: 75vh; padding-top: 30px; padding-bottom: 30px">
-  <div class="row justify-content-center w-100">
-    <div class="col-md-10 col-lg-8">
-      <div class="card">
-        <div class="card-header text-center">
-          <h3>
-            <i class="fas fa-user-plus me-2" style="font-size: 1.75rem"></i>
-            创建账号
-          </h3>
-          <div class="mt-2 mb-0 d-flex justify-content-center">
-            <div class="progress" style="height: 4px; width: 60%;">
-              <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" id="registerProgress"></div>
+  <div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="row justify-content-center w-100">
+      <div class="col-md-8 col-lg-6">
+        <!-- 注册表单卡片 -->
+        <div class="card mb-4">
+          <!-- 标题和步骤指示器 -->
+          <div class="card-header">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <h3 class="mb-0"><i class="fas fa-user-plus"></i> 注册账号</h3>
+              <div class="d-flex">
+                <div id="step1Indicator" class="step-indicator active">
+                  <span>1</span>
+                </div>
+                <div id="step2Indicator" class="step-indicator">
+                  <span>2</span>
+                </div>
+              </div>
+            </div>
+            <div class="progress">
+              <div id="registerProgress" class="progress-bar bg-primary" role="progressbar" style="width: 50%"></div>
             </div>
           </div>
-        </div>
-        <div class="card-body">
-          <form method="POST" id="registerForm" enctype="multipart/form-data">
-            <!-- 步骤指示器 -->
-            <div class="mb-4 d-flex justify-content-between">
-              <div class="step active" id="step1Indicator">
-                <div class="step-circle">
-                  <i class="fas fa-user"></i>
-                </div>
-                <div class="step-text">账号信息</div>
-              </div>
-              <div class="step" id="step2Indicator">
-                <div class="step-circle">
-                  <i class="fas fa-lock"></i>
-                </div>
-                <div class="step-text">安全设置</div>
-              </div>
-              <div class="step" id="step3Indicator">
-                <div class="step-circle">
-                  <i class="fas fa-image"></i>
-                </div>
-                <div class="step-text">个人资料</div>
-              </div>
-            </div>
 
-            <!-- 步骤1：账号信息 -->
-            <div id="step1" class="step-content active">
-              <div class="mb-4">
-                <label for="username" class="form-label">用户名</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fas fa-user"></i></span>
-                  <input type="text" class="form-control" id="username" name="username" required
-                    pattern="[a-zA-Z0-9_]{3,20}" title="用户名只能包含字母、数字和下划线，长度3-20位" placeholder="设置您的用户名" />
-                </div>
-                <div class="form-text">
-                  <i class="fas fa-info-circle me-1"></i>用户名只能包含字母、数字和下划线，长度3-20位
-                </div>
-                <div id="usernameValidation" class="invalid-feedback"></div>
-              </div>
-
-              <div class="mb-4">
-                <label for="email" class="form-label">电子邮箱</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                  <input type="email" class="form-control" id="email" name="email" required placeholder="您的电子邮箱地址" />
-                </div>
-                <div class="form-text">
-                  <i class="fas fa-info-circle me-1"></i>我们不会向您发送垃圾邮件
-                </div>
-                <div id="emailValidation" class="invalid-feedback"></div>
-              </div>
-
-              <div class="d-flex justify-content-end mt-4">
-                <button type="button" class="btn btn-primary" id="nextToStep2">
-                  下一步<i class="fas fa-arrow-right ms-2"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- 步骤2：安全设置 -->
-            <div id="step2" class="step-content">
-              <div class="mb-4">
-                <label for="password" class="form-label">密码</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                  <input type="password" class="form-control" id="password" name="password" required minlength="6"
-                    placeholder="设置您的密码" />
-                  <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                </div>
-                <div class="form-text">
-                  <i class="fas fa-info-circle me-1"></i>密码至少6位，建议使用字母、数字和符号的组合
-                </div>
-                <div class="mt-2 password-strength-meter">
-                  <div class="progress" style="height: 5px;">
-                    <div class="progress-bar" id="passwordStrength" role="progressbar" style="width: 0%;"></div>
-                  </div>
-                  <small id="passwordStrengthText" class="form-text mt-1">密码强度: 未设置</small>
-                </div>
-              </div>
-
-              <div class="mb-4">
-                <label for="confirm_password" class="form-label">确认密码</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
-                  <input type="password" class="form-control" id="confirm_password" name="confirm_password" required
-                    placeholder="再次输入密码" />
-                </div>
-                <div id="passwordHelp" class="form-text"></div>
-              </div>
-
-              <div class="d-flex justify-content-between mt-4">
-                <button type="button" class="btn btn-outline-primary" id="backToStep1">
-                  <i class="fas fa-arrow-left me-2"></i>上一步
-                </button>
-                <button type="button" class="btn btn-primary" id="nextToStep3">
-                  下一步<i class="fas fa-arrow-right ms-2"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- 步骤3：个人资料 -->
-            <div id="step3" class="step-content">
-              <div class="mb-4 text-center">
-                <label for="avatar" class="form-label d-block">选择头像</label>
-                <div class="d-flex justify-content-center mb-3">
-                  <div id="avatarPreview" style="
-                      width: 120px;
-                      height: 120px;
-                      border-radius: 50%;
-                      background-color: var(--github-secondary);
-                      border: 2px solid var(--github-border);
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      overflow: hidden;
-                      cursor: pointer;
-                      transition: all 0.2s ease;
-                    " onclick="document.getElementById('avatar').click();">
-                    <i class="fas fa-user-circle" style="font-size: 100px; color: var(--github-border)"></i>
-                  </div>
-                </div>
+          <!-- 表单内容 -->
+          <form id="registerForm" method="POST" enctype="multipart/form-data">
+            <!-- 第一步：基本信息 -->
+            <div id="step1" class="step-container active">
+              <div class="card-body">
+                <!-- 用户名 -->
                 <div class="mb-3">
+                  <label for="username" class="form-label">用户名</label>
+                  <input type="text" class="form-control" id="username" name="username" required />
+                </div>
+
+                <!-- 邮箱 -->
+                <div class="mb-3">
+                  <label for="email" class="form-label">邮箱</label>
+                  <input type="email" class="form-control" id="email" name="email" required />
+                </div>
+
+                <!-- 密码 -->
+                <div class="mb-3">
+                  <label for="password" class="form-label">密码</label>
                   <div class="input-group">
-                    <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*"
-                      style="display: none;" />
-                    <button type="button" class="btn btn-outline-primary mx-auto rounded"
-                      onclick="document.getElementById('avatar').click();">
-                      <i class="fas fa-upload me-2"></i>上传头像
-                    </button>
+                    <input type="password" class="form-control" id="password" name="password" required />
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword"><i class="fas fa-eye"></i></button>
                   </div>
-                  <div class="form-text text-center mt-2">
-                    <i class="fas fa-info-circle me-1"></i>支持JPG、PNG格式，建议使用正方形图片
+                  <div class="mt-2">
+                    <div class="progress" style="height: 5px;">
+                      <div id="passwordStrength" class="progress-bar" role="progressbar"></div>
+                    </div>
+                    <small id="passwordStrengthText" class="form-text">密码强度: 未设置</small>
                   </div>
+                </div>
+
+                <!-- 确认密码 -->
+                <div class="mb-3">
+                  <label for="confirm_password" class="form-label">确认密码</label>
+                  <input type="password" class="form-control" id="confirm_password" name="confirm_password" required />
+                  <small id="passwordHelp" class="form-text"></small>
+                </div>
+
+                <!-- 同意条款 -->
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" id="agree" name="agree" required />
+                  <label class="form-check-label" for="agree">
+                    我已阅读并同意 <a href="#" class="text-decoration-none">使用条款</a> 和
+                    <a href="#" class="text-decoration-none">隐私政策</a>
+                  </label>
                 </div>
               </div>
 
-              <!-- 裁剪容器将移至模态框 -->
+              <div class="card-footer d-flex justify-content-between">
+                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
+                  <i class="fas fa-arrow-left"></i>
+                  返回登录
+                </a>
+                <button type="button" id="nextToStep2" class="btn btn-primary">下一步 <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
 
-              <div class="mb-4 form-check">
-                <input type="checkbox" class="form-check-input" id="agree" required />
-                <label class="form-check-label" for="agree">
-                  我已阅读并同意遵守<a href="#" class="text-decoration-none">使用条款</a>和<a href="#"
-                    class="text-decoration-none">隐私政策</a>
-                </label>
+            <!-- 第二步：个人资料 -->
+            <div id="step2" class="step-container">
+              <div class="card-body">
+                <!-- 头像上传 -->
+                <div class="text-center mb-4">
+                  <h5 class="mb-3">设置头像（可选）</h5>
+                  <div id="avatarPreview">
+                    <i class="fas fa-user" style="font-size: 4rem; color: #ccc;"></i>
+                  </div>
+                  <p class="text-muted small">点击头像进行设置</p>
+                </div>
+
+                <!-- 工作室成员意向 -->
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" id="join_intention" name="join_intention" />
+                  <label class="form-check-label" for="join_intention">我有意向成为工作室的成员</label>
+                </div>
+
+                <input type="hidden" id="croppedAvatarData" name="croppedAvatarData" />
               </div>
 
-              <div class="d-flex justify-content-between mt-4">
-                <button type="button" class="btn btn-outline-primary" id="backToStep2">
-                  <i class="fas fa-arrow-left me-2"></i>上一步
+              <div class="card-footer d-flex justify-content-between">
+                <button type="button" id="backToStep1" class="btn btn-outline-secondary">
+                  <i class="fas fa-arrow-left"></i>
+                  上一步
                 </button>
-                <button type="submit" class="btn btn-success">
-                  <i class="fas fa-user-plus me-2"></i>完成注册
-                </button>
+                <button type="submit" class="btn btn-success"><i class="fas fa-check-circle"></i> 完成注册</button>
               </div>
             </div>
           </form>
         </div>
-        <div class="card-footer text-center">
-          <p class="mb-0">
-            已有账号？
-            <a href="{{ url_for('login') }}" class="text-decoration-none">立即登录</a>
-          </p>
-        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- 头像裁剪容器 -->
-<input type="hidden" id="croppedAvatarData" name="croppedAvatarData" />
-
-<!-- 头像上传模态框 -->
-<div class="modal fade" id="avatarModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-camera"></i> 上传头像</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-          style="background-color: var(--github-accent)"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-12 text-center mb-3">
-            <div id="modalAvatarPreview" style="
-                width: 120px;
-                height: 120px;
-                border-radius: 50%;
-                background-color: #f0f0f0;
-                margin: 0 auto;
-                overflow: hidden;
-              ">
-              <i class="fas fa-user" style="font-size: 4rem; color: #ccc; line-height: 120px"></i>
+  <!-- 头像上传模态框 -->
+  <div class="modal fade" id="avatarModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-camera"></i> 设置头像</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <!-- 模态框内容 -->
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12 text-center mb-3">
+              <div id="modalAvatarPreview" style="width: 120px; height: 120px; border-radius: 50%; background-color: #f0f0f0; margin: 0 auto; overflow: hidden;">
+                <i class="fas fa-user" style="font-size: 4rem; color: #ccc; line-height: 120px"></i>
+              </div>
             </div>
           </div>
+          <div class="mb-3">
+            <input class="form-control" type="file" id="avatarUpload" name="avatar" accept="image/*" />
+            <div class="form-text">
+              <i class="fas fa-info-circle me-1"></i>
+              支持 JPG、PNG 格式，建议图片规格小于 200KB
+            </div>
+          </div>
+          <div id="cropperContainer" style="display: none; max-height: 300px; overflow: hidden" class="mb-3"></div>
+          <input type="hidden" id="croppedAvatarData" name="croppedAvatarData" />
         </div>
-
-        <div class="mb-3">
-          <label for="avatarUpload" class="form-label">选择图片</label>
-          <input class="form-control" type="file" id="avatarUpload" accept="image/*" />
-          <div class="form-text">支持JPG、PNG格式，建议使用正方形图片</div>
+        <!-- 模态框footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-secondary" id="cancelCropBtn">清空</button>
+          <button type="button" class="btn btn-primary" id="cropAvatarBtn">裁剪</button>
+          <button type="button" class="btn btn-success" id="saveAvatarBtn"><i class="fas fa-save"></i> 保存头像</button>
         </div>
-
-        <!-- 裁剪区域 -->
-        <div id="cropperContainer" style="display: none; max-height: 300px; overflow: hidden" class="mb-3"></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="cancelCropBtn" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary" id="cropBtn">裁剪</button>
-        <button type="button" class="btn btn-success" id="saveAvatarBtn"><i class="fas fa-save"></i> 保存头像</button>
       </div>
     </div>
   </div>
-</div>
-
 {% endblock %}
 
 {% block extra_js %}
-<!-- 引入Cropper.js库 -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <!-- 引入Cropper.js库 -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
-<!-- 引入自定义JS -->
-<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
-<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+  <!-- 引入注册页面JS -->
+  <script src="{{ url_for('static', filename='js/cropper.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/register.js') }}"></script>
 {% endblock %}
