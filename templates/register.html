@@ -6,6 +6,12 @@
 
 {% block extra_css %}
   <style>
+    main {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
     #avatarPreview {
       width: 120px;
       height: 120px;
@@ -20,42 +26,34 @@
     }
     
     .step-container {
-      display: none;
+      display: flex;
+      flex-direction: column;
       opacity: 0;
-      transition: opacity 0.3s ease;
       max-height: 0;
+      transition: opacity 0.3s ease;
       overflow: hidden;
     }
     
     .step-container.active {
-      display: block;
+      display: flex;
+      flex-direction: column;
       opacity: 1;
-      max-height: 1000px;
-      transition: opacity 0.3s ease, max-height 0.5s ease;
+      max-height: 80vh;
+      transition: opacity 0.3s ease;
+      height: 100%;
     }
     
     .step-indicator {
-      width: 30px;
-      height: 30px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background-color: var(--github-border);
-      color: var(--github-text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       margin-right: 10px;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      transition: background-color 0.3s ease;
     }
     
     .step-indicator.active {
-      background-color: var(--github-accent);
-      color: white;
-    }
-    
-    .progress {
-      height: 4px;
-      margin-top: 10px;
-      margin-bottom: 20px;
+      background-color: var(--github-primary);
     }
     
     .progress-bar {
@@ -65,34 +63,37 @@
 {% endblock %}
 
 {% block content %}
-  <div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+  <div class="container d-flex align-items-center justify-content-center">
     <div class="row justify-content-center w-100">
-      <div class="col-md-8 col-lg-6">
+      <div class="col-md-6 col-lg-4">
         <!-- 注册表单卡片 -->
-        <div class="card mb-4">
+
+        <div class="card" style="min-height: 70vh; display: flex; flex-direction: column;">
           <!-- 标题和步骤指示器 -->
-          <div class="card-header">
+          <div class="card-header text-center">
             <div class="d-flex align-items-center justify-content-between mb-2">
               <h3 class="mb-0"><i class="fas fa-user-plus"></i> 注册账号</h3>
               <div class="d-flex">
                 <div id="step1Indicator" class="step-indicator active">
-                  <span>1</span>
+                  <span></span>
                 </div>
                 <div id="step2Indicator" class="step-indicator">
-                  <span>2</span>
+                  <span></span>
                 </div>
               </div>
             </div>
-            <div class="progress">
-              <div id="registerProgress" class="progress-bar bg-primary" role="progressbar" style="width: 50%"></div>
+            <div style="display: none;">
+              <div id="registerProgress" role="progressbar"></div>
             </div>
           </div>
 
           <!-- 表单内容 -->
-          <form id="registerForm" method="POST" enctype="multipart/form-data">
+
+          <form id="registerForm" method="POST" enctype="multipart/form-data" style="flex: 1; display: flex; flex-direction: column;">
             <!-- 第一步：基本信息 -->
-            <div id="step1" class="step-container active">
-              <div class="card-body">
+
+            <div id="step1" class="step-container active" style="flex: 1; display: flex; flex-direction: column;">
+              <div class="card-body" style="flex: 1; overflow-y: auto;">
                 <!-- 用户名 -->
                 <div class="mb-3">
                   <label for="username" class="form-label">用户名</label>
@@ -113,7 +114,7 @@
                     <button class="btn btn-outline-secondary" type="button" id="togglePassword"><i class="fas fa-eye"></i></button>
                   </div>
                   <div class="mt-2">
-                    <div class="progress" style="height: 5px;">
+                    <div class="progress" style="height: 4px; background-color: var(--github-border);">
                       <div id="passwordStrength" class="progress-bar" role="progressbar"></div>
                     </div>
                     <small id="passwordStrengthText" class="form-text">密码强度: 未设置</small>
@@ -147,8 +148,8 @@
             </div>
 
             <!-- 第二步：个人资料 -->
-            <div id="step2" class="step-container">
-              <div class="card-body">
+            <div id="step2" class="step-container" style="flex: 1; display: flex; flex-direction: column;">
+              <div class="card-body" style="flex: 1; overflow-y: auto;">
                 <!-- 头像上传 -->
                 <div class="text-center mb-4">
                   <h5 class="mb-3">设置头像（可选）</h5>
@@ -167,7 +168,7 @@
                 <input type="hidden" id="croppedAvatarData" name="croppedAvatarData" />
               </div>
 
-              <div class="card-footer d-flex justify-content-between">
+              <div class="card-footer d-flex justify-content-between" style="position: absolute; bottom: 0; left: 0; right: 0;">
                 <button type="button" id="backToStep1" class="btn btn-outline-secondary">
                   <i class="fas fa-arrow-left"></i>
                   上一步

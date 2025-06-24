@@ -150,15 +150,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const helpText = document.getElementById('passwordHelp');
 
             if (confirmPassword === '') {
-                helpText.textContent = '再次输入密码';
+                helpText.textContent = '';
+                helpText.className = 'form-text text-muted';
                 this.classList.remove('is-valid', 'is-invalid');
             } else if (password === confirmPassword) {
-                helpText.textContent = '密码匹配 ✓';
                 helpText.className = 'form-text text-success';
                 this.classList.add('is-valid');
                 this.classList.remove('is-invalid');
             } else {
-                helpText.textContent = '密码不匹配 ✗';
                 helpText.className = 'form-text text-danger';
                 this.classList.add('is-invalid');
                 this.classList.remove('is-valid');

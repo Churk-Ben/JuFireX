@@ -4,8 +4,18 @@
   JueFire Studio - 登录
 {% endblock %}
 
+{% block extra_css %}
+  <style>
+    main {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
-  <div class="container d-flex align-items-center justify-content-center" style="height: 80vh;">
+  <div class="container d-flex align-items-center justify-content-center">
     <div class="row justify-content-center w-100">
       <div class="col-md-6 col-lg-4">
         <div class="card">
@@ -27,7 +37,7 @@
                 <input type="password" class="form-control" id="password" name="password" required />
               </div>
 
-              <div class="d-grid">
+              <div class="d-grid mt-4">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> 登录</button>
               </div>
             </form>

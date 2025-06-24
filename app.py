@@ -219,7 +219,12 @@ def login():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if "user_id" in session:
-        return redirect(url_for("index"))
+        # 检查用户是否存在，如果不存在则清除session
+        user = db.session.get(User, session["user_id"])
+        if not user:
+            session.clear()
+        else:
+            return redirect(url_for("index"))
 
     if request.method == "POST":
         username = request.form.get("username")
