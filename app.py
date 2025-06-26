@@ -1,3 +1,11 @@
+import base64
+import io
+import os
+import secrets
+import uuid
+from datetime import datetime
+
+from PIL import Image
 from flask import (
     Flask,
     render_template,
@@ -12,15 +20,6 @@ from flask import (
 from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-from datetime import datetime
-import os
-import base64
-import re
-import uuid
-from PIL import Image
-import io
-import secrets
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "your-secret-key-here"
@@ -861,8 +860,8 @@ def update_project(project_id):
 
     # 检查权限：只有项目作者或超级管理员可以更新
     if (
-        project.author_id != session["user_id"]
-        and session.get("role", 0) < ROLE_SUPER_ADMIN
+            project.author_id != session["user_id"]
+            and session.get("role", 0) < ROLE_SUPER_ADMIN
     ):
         return jsonify({"success": False, "message": "权限不足"})
 
@@ -1255,4 +1254,4 @@ if __name__ == "__main__":
 
             db.session.commit()
 
-    socketio.run(app, debug=True, host="0.0.0.0", port=5000)
+    socketio.run(app, debug=True, host="0.0.0.0", port=5000, allow_unsafe_werkzeug=True)
