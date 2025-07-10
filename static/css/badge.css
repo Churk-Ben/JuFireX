@@ -4,3 +4,25 @@
     padding: 0.35em 0.65em;
     border-radius: 20px;
 }
+
+.status-badge {
+    display: flex;
+    padding: 0.25em 0.6em;
+    font-size: 0.75em;
+    font-weight: 500;
+    border-radius: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+.status-featured {
+    background-color: rgba(240, 136, 62, 0.15);
+    color: var(--github-warning);
+    border: 1px solid var(--github-warning);
+}
+
+.status-normal {
+    background-color: rgba(159, 159, 159, 0.15);
+    color: var(--github-text);
+    border: 1px solid var(--github-text);
+}

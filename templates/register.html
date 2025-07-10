@@ -4,6 +4,13 @@
   JueFire Studio - 注册
 {% endblock %}
 
+{% block required_css %}
+  <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
+{% endblock %}
+
 {% block extra_css %}
   <style>
     main {

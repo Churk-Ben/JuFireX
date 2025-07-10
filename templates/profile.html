@@ -4,6 +4,13 @@
   个人主页 - {{ user.username }}
 {% endblock %}
 
+{% block required_css %}
+  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
+{% endblock %}
+
 {% block extra_css %}
   <style>
     #choose_avatar_btn {
@@ -25,28 +32,6 @@
       background-color: #f0f0f0;
       margin: 20px auto;
       overflow: hidden;
-    }
-    
-    .status-badge {
-      display: flex;
-      padding: 0.25em 0.6em;
-      font-size: 0.75em;
-      font-weight: 500;
-      border-radius: 20px;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .status-featured {
-      background-color: rgba(240, 136, 62, 0.15);
-      color: #f0883e;
-      border: 1px solid var(--github-warning);
-    }
-    
-    .status-normal {
-      background-color: rgba(0, 0, 0, 0.2);
-      color: var(--github-text);
-      border: 1px solid var(--github-border);
     }
   </style>
 {% endblock %}

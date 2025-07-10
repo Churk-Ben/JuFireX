@@ -4,6 +4,11 @@
   JueFire Studio - 首页
 {% endblock %}
 
+{% block required_css %}
+  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+{% endblock %}
+
 {% block content %}
   <!-- 海报栏 -->
   <section class="hero-section">

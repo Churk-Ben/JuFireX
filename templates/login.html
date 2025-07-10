@@ -4,6 +4,12 @@
   JueFire Studio - 登录
 {% endblock %}
 
+{% block required_css %}
+  <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+{% endblock %}
+
 {% block extra_css %}
   <style>
     main {
