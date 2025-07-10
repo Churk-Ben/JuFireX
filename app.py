@@ -646,7 +646,7 @@ def get_pending_users():
 
 
 @app.route("/admin/projects")
-@require_role(ROLE_GUEST)
+@require_role(ROLE_ADMIN)
 def admin_projects():
     current_user = db.session.get(User, session["user_id"])
     projects = Project.query.order_by(Project.created_at.desc()).all()
@@ -664,7 +664,7 @@ def admin_users():
 
 
 @app.route("/admin/studio-info")
-@require_role(ROLE_SUPER_ADMIN)
+@require_role(ROLE_ADMIN)
 def admin_studio_info():
     current_user = db.session.get(User, session["user_id"])
     studio_info = StudioInfo.query.first()
@@ -674,7 +674,7 @@ def admin_studio_info():
 
 
 @app.route("/admin/navigation")
-@require_role(ROLE_SUPER_ADMIN)
+@require_role(ROLE_ADMIN)
 def admin_navigation():
     current_user = db.session.get(User, session["user_id"])
     categories = NavCategory.query.order_by(NavCategory.order).all()
