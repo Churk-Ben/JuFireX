@@ -56,3 +56,10 @@
     color: var(--github-accent);
     box-shadow: none;
 }
+
+/* 输入组左侧暗色主题修正 */
+.input-group-text.bg-dark {
+    background-color: var(--github-bg);
+    border-color: var(--github-border);
+    color: var(--github-text);
+}

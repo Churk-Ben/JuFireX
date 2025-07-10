@@ -626,7 +626,7 @@ def get_hidden_nav_items():
 
 # (TODO) 申请加入工作室
 @app.route("/api/users/pending", methods=["GET"])
-@require_role(ROLE_ADMIN)
+@require_role(ROLE_SUPER_ADMIN)
 def get_pending_users():
     pending_users = User.query.filter_by(role=ROLE_GUEST).all()
     return jsonify(
@@ -860,8 +860,8 @@ def update_project(project_id):
 
     # 检查权限：只有项目作者或超级管理员可以更新
     if (
-            project.author_id != session["user_id"]
-            and session.get("role", 0) < ROLE_SUPER_ADMIN
+        project.author_id != session["user_id"]
+        and session.get("role", 0) < ROLE_SUPER_ADMIN
     ):
         return jsonify({"success": False, "message": "权限不足"})
 
@@ -896,8 +896,8 @@ def delete_project(project_id):
         return jsonify({"success": False, "message": f"删除失败: {str(e)}"}), 500
 
 
-@app.route("/api/studio-info", methods=["POST"])
-@require_role(ROLE_SUPER_ADMIN)  # 只有超级管理员可以修改工作室信息
+@app.route("/api/studio-info", methods=["PUT"])
+@require_role(ROLE_ADMIN)
 def update_studio_info():
     data = request.json
     studio_info = StudioInfo.query.first()
