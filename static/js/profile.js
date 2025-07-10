@@ -1,4 +1,33 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // 自定义文件上传按钮
+    const customAvatarUploadBtn = document.getElementById('customAvatarUploadBtn');
+    const avatarUploadInput = document.getElementById('avatarUpload');
+    const avatarFileName = document.getElementById('avatarFileName');
+
+    if (customAvatarUploadBtn) {
+        customAvatarUploadBtn.addEventListener('click', () => {
+            avatarUploadInput.click();
+        });
+    }
+
+    if (avatarFileName) {
+        avatarFileName.addEventListener('click', () => {
+            avatarUploadInput.click();
+        });
+    }
+
+    if (avatarUploadInput) {
+        avatarUploadInput.addEventListener('change', () => {
+            if (avatarUploadInput.files.length > 0) {
+                avatarFileName.textContent = avatarUploadInput.files[0].name;
+                avatarFileName.classList.remove('text-muted');
+            } else {
+                avatarFileName.textContent = '未选择文件';
+                avatarFileName.classList.add('text-muted');
+            }
+        });
+    }
+
     // 初始化头像上传和裁剪功能
     const avatarCropper = new AvatarCropper({
         imageInput: document.getElementById('avatarUpload'),

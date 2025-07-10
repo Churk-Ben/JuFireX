@@ -238,7 +238,14 @@
             </div>
           </div>
           <div class="mb-3">
-            <input class="form-control" type="file" id="avatarUpload" name="avatar" accept="image/*" />
+            <div class="input-group">
+              <span id="avatarFileName" class="form-control text-muted">未选择文件</span>
+              <input type="file" id="avatarUpload" accept="image/*" style="display: none" />
+              <button class="btn btn-outline-primary" type="button" id="customAvatarUploadBtn">
+                <i class="fas fa-folder-open"></i>
+                选择头像
+              </button>
+            </div>
             <div class="form-text">
               <i class="fas fa-info-circle me-1"></i>
               支持 JPG、PNG 格式，建议图片规格小于 200KB

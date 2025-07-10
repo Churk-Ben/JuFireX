@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  工作室信息管理 - JuFire Studio
+  工作室信息 - JuFire Studio
 {% endblock %}
 
 {% block required_css %}
@@ -17,7 +17,7 @@
       <h2><i class="fas fa-building"></i> 工作室信息</h2>
     </div>
 
-    <div class="row">
+    <div class="row mb-4">
       <!-- 左侧表单 -->
       <div class="col-lg-6">
         <div class="card h-100">
@@ -94,7 +94,7 @@
                 {% if studio_info.logo_url %}
                   <img src="{{ studio_info.logo_url }}" alt="工作室Logo" class="preview-logo" />
                 {% else %}
-                  <i class="fas fa-building preview-icon"></i>
+                  <i class="fas fa-fire preview-icon"></i>
                 {% endif %}
               </div>
               <h3 id="previewName" class="mb-2">{{ studio_info.name }}</h3>
@@ -116,7 +116,9 @@
       </div>
     </div>
   </div>
+{% endblock %}
 
+{% block extra_css %}
   <style>
     .preview-logo-container {
       width: 150px;
@@ -143,13 +145,13 @@
     }
     
     .contact-item {
-      transition: all 0.3s ease;
-      border: 1px solid rgba(0, 0, 0, 0.05);
+      transition: all 0.5s ease;
+      background-color: var(--github-bg);
+      border: 1px solid var(--github-border);
     }
     
     .contact-item:hover {
-      background-color: rgba(0, 0, 0, 0.03);
-      transform: translateY(-2px);
+      background: rgba(0, 0, 0, 0.05);
     }
     
     .contact-icon {
@@ -159,7 +161,7 @@
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      background-color: var(--bs-light);
+      background-color: var(--github-bg);
       color: var(--github-accent);
       font-size: 1.2rem;
     }
