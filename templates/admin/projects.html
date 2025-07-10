@@ -1,13 +1,40 @@
-{% extends 'base.html' %} {% block title %}
+{% extends 'base.html' %}
+
+{% block title %}
   项目管理 - JuFire Studio
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block required_css %}
+  <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/table.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .project-img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      background-color: var(--github-bg);
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
   <div class="container mt-4">
     <div class="row">
       <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h2><i class="fas fa-project-diagram"></i> 项目管理</h2>
           <div>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal"><i class="fas fa-plus"></i> 添加项目</button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+              <i class="fas fa-plus"></i>
+              添加项目
+            </button>
           </div>
         </div>
       </div>
@@ -69,124 +96,81 @@
               <thead>
                 <tr>
                   <th>项目名称</th>
-                  <th>作者</th>
                   <th>创建时间</th>
                   <th>状态</th>
+                  <th>作者</th>
                   <th>操作</th>
                 </tr>
               </thead>
               <tbody>
                 {% for project in projects %}
-                  {% set project_featured_js %}
-                    {% if project.is_featured %}
-                      'true'
-                    {% else %}
-                      'false'
-                    {% endif %}
-                  {% endset %}
-
                   <tr data-project-id="{{ project.id }}">
+                    <!-- 项目名称 -->
                     <td>
                       <div class="d-flex align-items-center">
                         {% if project.image_url %}
-                          <img src="{{ project.image_url }}" alt="{{ project.title }}" class="rounded me-3" style="width: 40px; height: 40px; object-fit: cover" />
+                          <img class="rounded me-3 project-img" src="{{ project.image_url }}" alt="{{ project.title }}" />
                         {% else %}
-                          <div class="rounded me-3 d-flex align-items-center justify-content-center" style="
-                      width: 40px;
-                      height: 40px;
-                      background-color: var(--github-bg);
-                    ">
+                          <div class="rounded me-3 project-img d-flex align-items-center justify-content-center">
                             <i class="fas fa-code text-muted"></i>
                           </div>
                         {% endif %}
                         <div>
                           <h6 class="mb-0">{{ project.title }}</h6>
-                          <small class="text-muted">{{ project.description[:50] }}{% if project.description|length > 50 %}...{% endif %}</small>
+                          <small class="text-muted">{{ project.description[:40] }} {% if project.description|length > 50 %}...{% endif %}</small>
                         </div>
                       </div>
                     </td>
+                    <!-- 创建时间 -->
+                    <td>{{ project.created_at.strftime('%Y-%m-%d') }}</td>
+                    <!-- 状态 -->
+                    <td>
+                      {% if project.is_featured %}
+                        <span class="status-badge status-featured"><i class="fas fa-star me-1"></i> 精选</span>
+                      {% else %}
+                        <span class="status-badge status-normal"><i class="fas fa-circle me-1"></i> 普通</span>
+                      {% endif %}
+                    </td>
+                    <!-- 作者 -->
                     <td>
                       {% if project.author %}
                         <div class="d-flex align-items-center">
-                          <div class="me-2">
-                            {% if project.author.avatar_path %}
-                              <img src="{{ url_for('user_avatar', filename=project.author.avatar_path) }}" alt="{{ project.author.username }}的头像" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover" />
-                            {% else %}
-                              <div style="
-                        width: 30px;
-                        height: 30px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                      ">
-                                <i class="fas fa-user-circle" style="font-size: 30px; color: var(--github-accent)"></i>
-                              </div>
-                            {% endif %}
-                          </div>
-                          <div>
-                            {{ project.author.username }}
-                            <span class="ms-1"
-                              style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {% if project.author.role == 3 %}
-                                
-                                
-                                
-                                var(--bs-danger)
-
-
-
-                              {% elif project.author.role == 2 %}
-                                
-                                
-                                
-                                var(--bs-warning)
-
-
-
-                              {% elif project.author.role == 1 %}
-                                
-                                
-                                
-                                var(--bs-success)
-
-
-
+                          <a class="nav-link" id="profile_link" href="{{ url_for('profile') }}">
+                            <div id="user_tag">
+                              {% if project.author.avatar_path %}
+                                <img id="user_avatar_img" src="{{ url_for('user_avatar', filename=project.author.avatar_path) }}" />
                               {% else %}
-                                
-                                
-                                
-                                var(--bs-secondary)
-
-
-
-                              {% endif %}; vertical-align: middle; position: relative; top: -1px;">
-
-                            </span>
-                          </div>
+                                <i id="user_avatar_fas" class="fas fa-user-circle"></i>
+                              {% endif %}
+                            </div>
+                            <span style="padding: 0 4px 0 8px; line-height: 32px">{{ project.author.username }}</span>
+                            <div id="user_dot_box">
+                              {% if project.author.role == 0 %}
+                                <span class="user_dot badge rounded-circle bg-info" title="权限等级: 游客"></span>
+                              {% elif project.author.role == 1 %}
+                                <span class="user_dot badge rounded-circle bg-primary" title="权限等级: 成员"></span>
+                              {% elif project.author.role == 2 %}
+                                <span class="user_dot badge rounded-circle bg-warning" title="权限等级: 管理员"></span>
+                              {% elif project.author.role >= 3 %}
+                                <span class="user_dot badge rounded-circle bg-danger" title="权限等级: 超级管理员"></span>
+                              {% endif %}
+                            </div>
+                          </a>
                         </div>
                       {% else %}
                         未知
                       {% endif %}
                     </td>
-                    <td>{{ project.created_at.strftime('%Y-%m-%d') }}</td>
-                    <td>
-                      {% if project.is_featured %}
-                        <span class="status-badge status-featured"><i class="fas fa-star"></i> 精选</span>
-                      {% else %}
-                        <span class="status-badge" style="
-                    background-color: rgba(0, 0, 0, 0.2);
-                    color: var(--github-text);
-                    border: 1px solid var(--github-border);
-                  ">普通</span>
-                      {% endif %}
-                    </td>
+                    <!-- 操作 -->
                     <td>
                       <div class="btn-group btn-group-sm" role="group">
                         {% if project.github_url %}
                           <a href="{{ project.github_url }}" class="btn btn-outline-light" target="_blank" title="查看源码"><i class="fab fa-github"></i></a>
-                        {% endif %} {% if project.demo_url %}
+                        {% endif %}
+                        {% if project.demo_url %}
                           <a href="{{ project.demo_url }}" class="btn btn-outline-primary" target="_blank" title="查看演示"><i class="fas fa-external-link-alt"></i></a>
                         {% endif %}
-                        <button class="btn btn-outline-warning" onclick="toggleFeatured({{ project.id }}, {{ project_featured_js }})" title="切换精选状态"><i class="fas fa-star"></i></button>
+                        <button class="btn btn-outline-warning" onclick="toggleFeatured({{ project.id }}, {{ project.is_featured }})" title="切换精选状态"><i class="fas fa-star"></i></button>
                         <button class="btn btn-outline-info" onclick="editProject({{ project.id }})" title="编辑项目"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-outline-danger" onclick="deleteProject({{ project.id }})" title="删除项目"><i class="fas fa-trash"></i></button>
                       </div>
@@ -208,119 +192,13 @@
     </div>
   </div>
 
-  <!-- 添加项目模态框 -->
-  <div class="modal fade" id="addProjectModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-plus"></i> 添加新项目</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
-        </div>
-        <form id="addProjectForm">
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="projectTitle" class="form-label">项目标题 *</label>
-                  <input type="text" class="form-control" id="projectTitle" required />
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="projectImage" class="form-label">项目图片链接</label>
-                  <input type="url" class="form-control" id="projectImage" placeholder="https://..." />
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="projectDescription" class="form-label">项目描述 *</label>
-              <textarea class="form-control" id="projectDescription" rows="4" required placeholder="详细描述项目的功能和特点..."></textarea>
-            </div>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="projectGithub" class="form-label">GitHub 链接</label>
-                  <input type="url" class="form-control" id="projectGithub" placeholder="https://github.com/..." />
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="projectDemo" class="form-label">演示链接</label>
-                  <input type="url" class="form-control" id="projectDemo" placeholder="https://..." />
-                </div>
-              </div>
-            </div>
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="projectFeatured" />
-              <label class="form-check-label" for="projectFeatured">设为精选项目（将在首页展示）</label>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 创建项目</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+  <!-- 引入模态框 -->
+  {% include 'modals/addProjectAdminModal.html' %}
+  {% include 'modals/editProjectModal.html' %}
+  <!-- - -->
+{% endblock %}
 
-  <!-- 编辑项目模态框 -->
-  <div class="modal fade" id="editProjectModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-edit"></i> 编辑项目</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
-        </div>
-        <form id="editProjectForm">
-          <input type="hidden" id="editProjectId" />
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="editProjectTitle" class="form-label">项目标题 *</label>
-                  <input type="text" class="form-control" id="editProjectTitle" required />
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="editProjectImage" class="form-label">项目图片链接</label>
-                  <input type="url" class="form-control" id="editProjectImage" placeholder="https://..." />
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="editProjectDescription" class="form-label">项目描述 *</label>
-              <textarea class="form-control" id="editProjectDescription" rows="4" required placeholder="详细描述项目的功能和特点..."></textarea>
-            </div>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="editProjectGithub" class="form-label">GitHub 链接</label>
-                  <input type="url" class="form-control" id="editProjectGithub" placeholder="https://github.com/..." />
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="editProjectDemo" class="form-label">演示链接</label>
-                  <input type="url" class="form-control" id="editProjectDemo" placeholder="https://..." />
-                </div>
-              </div>
-            </div>
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="editProjectFeatured" />
-              <label class="form-check-label" for="editProjectFeatured">设为精选项目（将在首页展示）</label>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 保存修改</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-{% endblock %} {% block extra_js %}
+{% block extra_js %}
   <script>
     // 添加项目
     document.getElementById('addProjectForm').addEventListener('submit', function (e) {

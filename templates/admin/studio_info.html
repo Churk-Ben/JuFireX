@@ -11,6 +11,56 @@
   <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
 {% endblock %}
 
+{% block extra_css %}
+  <style>
+    .preview-logo-container {
+      width: 150px;
+      height: 150px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      overflow: hidden;
+      background-color: var(--github-bg);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .preview-logo {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .preview-icon {
+      font-size: 5rem;
+      color: var(--github-accent);
+    }
+    
+    .contact-item {
+      transition: all 0.5s ease;
+      background-color: var(--github-bg);
+      border: 1px solid var(--github-border);
+    }
+    
+    .contact-item:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    
+    .contact-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: var(--github-bg);
+      color: var(--github-text);
+      font-size: 1.2rem;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -116,56 +166,6 @@
       </div>
     </div>
   </div>
-{% endblock %}
-
-{% block extra_css %}
-  <style>
-    .preview-logo-container {
-      width: 150px;
-      height: 150px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      overflow: hidden;
-      background-color: var(--bs-light);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .preview-logo {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-    
-    .preview-icon {
-      font-size: 5rem;
-      color: var(--github-accent);
-    }
-    
-    .contact-item {
-      transition: all 0.5s ease;
-      background-color: var(--github-bg);
-      border: 1px solid var(--github-border);
-    }
-    
-    .contact-item:hover {
-      background: rgba(0, 0, 0, 0.05);
-    }
-    
-    .contact-icon {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background-color: var(--github-bg);
-      color: var(--github-accent);
-      font-size: 1.2rem;
-    }
-  </style>
 {% endblock %}
 
 {% block extra_js %}

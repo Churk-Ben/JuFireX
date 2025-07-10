@@ -134,27 +134,9 @@
     {% endif %}
   </div>
 
-  <!-- TODO:重写并统一所有模态框 -->
-  <!-- 卡片管理模态框 -->
-  <div class="modal fade" id="manageCardsModal" tabindex="-1" aria-labelledby="manageCardsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="manageCardsModalLabel">导航项管理</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>在这里管理您隐藏的导航项卡片。</p>
-          <ul class="list-group" id="hidden-cards-list">
-            <!-- 隐藏的卡片将通过JS动态加载 -->
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- 引入模态框 -->
+  {% include 'modals/manageCardsModal.html' %}
+  <!-- - -->
 {% endblock %}
 
 {% block extra_js %}

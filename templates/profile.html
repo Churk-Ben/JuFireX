@@ -210,100 +210,10 @@
     </div>
   </div>
 
-  <!-- 添加项目模态框 -->
-  <!-- 模态框模板header -->
-  <div class="modal fade" id="addProjectModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-plus"></i> 添加新项目</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <!-- -header- -->
-        <form id="addProjectForm">
-          <!-- 模态框内容 -->
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="projectTitle" class="form-label">项目标题</label>
-              <input type="text" class="form-control" id="projectTitle" required />
-            </div>
-            <div class="mb-3">
-              <label for="projectDescription" class="form-label">项目描述</label>
-              <textarea class="form-control" id="projectDescription" rows="3" required></textarea>
-            </div>
-            <div class="mb-3">
-              <label for="projectGithub" class="form-label">GitHub 链接</label>
-              <input type="url" class="form-control" id="projectGithub" placeholder="https://github.com/..." />
-            </div>
-            <div class="mb-3">
-              <label for="projectDemo" class="form-label">演示链接</label>
-              <input type="url" class="form-control" id="projectDemo" placeholder="https://..." />
-            </div>
-            <div class="mb-3">
-              <label for="projectImage" class="form-label">项目图片链接</label>
-              <input type="url" class="form-control" id="projectImage" placeholder="https://..." />
-            </div>
-          </div>
-          <!-- 模态框模板footer -->
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 创建项目</button>
-          </div>
-          <!-- -footer- -->
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- 头像上传模态框 -->
-  <div class="modal fade" id="avatarModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-camera"></i> 更新头像</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <!-- 模态框内容 -->
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-12 text-center mb-3">
-              <div id="avatarPreview">
-                {% if user.avatar_path %}
-                  <img src="{{ url_for('user_avatar', filename=user.avatar_path) }}" alt="头像预览" style="width: 100%; height: 100%; object-fit: cover" />
-                {% else %}
-                  <i class="fas fa-user" style="font-size: 4rem; color: #ccc; line-height: 120px"></i>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="input-group">
-              <span id="avatarFileName" class="form-control text-muted">未选择文件</span>
-              <input type="file" id="avatarUpload" accept="image/*" style="display: none" />
-              <button class="btn btn-outline-primary" type="button" id="customAvatarUploadBtn">
-                <i class="fas fa-folder-open"></i>
-                选择头像
-              </button>
-            </div>
-            <div class="form-text">
-              <i class="fas fa-info-circle me-1"></i>
-              支持 JPG、PNG 格式，建议图片规格小于 200KB
-            </div>
-          </div>
-          <div id="cropperContainer" style="display: none; max-height: 300px; overflow: hidden" class="mb-3"></div>
-          <input type="hidden" id="croppedAvatarData" />
-        </div>
-        <!-- 模态框footer -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-          <button type="button" class="btn btn-secondary" id="cancelCropBtn">清空</button>
-          <button type="button" class="btn btn-primary" id="cropAvatarBtn">裁剪</button>
-          <button type="button" class="btn btn-success" id="saveAvatarBtn"><i class="fas fa-save"></i> 保存头像</button>
-        </div>
-        <!-- -footer- -->
-      </div>
-    </div>
-  </div>
+  <!-- 引入模态框 -->
+  {% include 'modals/addProjectProfileModal.html' %}
+  {% include 'modals/avatarProfileModal.html' %}
+  <!-- - -->
 {% endblock %}
 
 {% block extra_js %}

@@ -1,0 +1,56 @@
+<!-- 编辑项目模态框 -->
+<div class="modal fade" id="editProjectModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-edit"></i> 编辑项目</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+      </div>
+      <form id="editProjectForm">
+        <input type="hidden" id="editProjectId" />
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="editProjectTitle" class="form-label">项目标题 *</label>
+                <input type="text" class="form-control" id="editProjectTitle" required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="editProjectImage" class="form-label">项目图片链接</label>
+                <input type="url" class="form-control" id="editProjectImage" placeholder="https://..." />
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="editProjectDescription" class="form-label">项目描述 *</label>
+            <textarea class="form-control" id="editProjectDescription" rows="4" required placeholder="详细描述项目的功能和特点..."></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="editProjectGithub" class="form-label">GitHub 链接</label>
+                <input type="url" class="form-control" id="editProjectGithub" placeholder="https://github.com/..." />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="editProjectDemo" class="form-label">演示链接</label>
+                <input type="url" class="form-control" id="editProjectDemo" placeholder="https://..." />
+              </div>
+            </div>
+          </div>
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="editProjectFeatured" />
+            <label class="form-check-label" for="editProjectFeatured">设为精选项目（将在首页展示）</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 保存修改</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

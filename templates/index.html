@@ -9,6 +9,22 @@
   <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
 {% endblock %}
 
+{% block extra_css %}
+  <style>
+    .hero-section {
+      display: flex;
+      align-items: center;
+      height: 50vh;
+      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      background-size: cover;
+    }
+    
+    .project-section {
+      min-height: 100vh;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
   <!-- 海报栏 -->
   <section class="hero-section">
@@ -44,7 +60,7 @@
   </section>
 
   <!-- 项目展示 -->
-  <section class="py-5">
+  <section class="project-section py-5">
     <div class="container">
       <div class="row mb-5">
         <div class="col-12 text-center">
