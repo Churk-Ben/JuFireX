@@ -1,1 +1,25 @@
 https://web.chatboxai.app/
+
+<!-- 基础模态框模板 -->
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-labelledby="{{ modal_id }}Label" aria-hidden="true">
+  <div class="modal-dialog {{ modal_size_class|default('') }}">
+    <div class="modal-content">
+      <div class="modal-header">
+        {% block modal_title %}
+          <h5 class="modal-title" id="{{ modal_id }}Label">{{ modal_title|default('Modal title') }}</h5>
+        {% endblock %}
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {% block modal_body %}
+          <!-- 模态框内容将在此处填充 -->
+        {% endblock %}
+      </div>
+      <div class="modal-footer">
+        {% block modal_footer %}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>

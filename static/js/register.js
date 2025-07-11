@@ -109,9 +109,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const saveAvatarBtn = document.getElementById('saveAvatarBtn');
         const croppedAvatarData = document.getElementById('croppedAvatarData');
         const avatarUpload = document.getElementById('avatarUpload');
+        const customAvatarUploadBtn = document.getElementById('customAvatarUploadBtn');
         const avatarModal = new bootstrap.Modal(document.getElementById('avatarModal'));
 
         previewContainer.addEventListener('click', () => avatarModal.show());
+        customAvatarUploadBtn.addEventListener('click', () => avatarUpload.click());
 
         // 使用AvatarCropper类处理头像裁剪
         const avatarCropper = new AvatarCropper({
