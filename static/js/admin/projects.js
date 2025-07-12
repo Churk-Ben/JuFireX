@@ -1,59 +1,109 @@
 // 添加项目
-document.getElementById('addProjectForm').addEventListener('submit', function (e) {
-    e.preventDefault()
+document.addEventListener('DOMContentLoaded', function () {
+    // 搜索功能
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('.table tbody tr');
 
-    const formData = {
-        title: document.getElementById('projectTitle').value,
-        description: document.getElementById('projectDescription').value,
-        github_url: document.getElementById('projectGithub').value,
-        demo_url: document.getElementById('projectDemo').value,
-        image_url: document.getElementById('projectImage').value,
-        is_featured: document.getElementById('projectFeatured').checked
-    }
+        rows.forEach(row => {
+            const title = row.querySelector('h6').textContent.toLowerCase();
+            const description = row.querySelector('small').textContent.toLowerCase();
 
-    API.post('/api/projects', formData)
-        .then((data) => {
-            if (data.success) {
-                showNotification('项目创建成功！', 'success');
-                location.reload()
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                row.style.display = '';
             } else {
-                showNotification('创建失败：' + data.message, 'error');
+                row.style.display = 'none';
             }
-        })
-        .catch((error) => {
-            console.error('Error:', error)
-            showNotification('创建失败，请重试', 'error');
-        })
-})
+        });
+    });
 
-// 编辑项目表单提交
-document.getElementById('editProjectForm').addEventListener('submit', function (e) {
-    e.preventDefault()
+    // 绑定切换精选状态按钮
+    document.querySelectorAll('[onclick*="toggleFeatured"]').forEach(button => {
+        const projectId = button.getAttribute('onclick').match(/toggleFeatured\((\d+)/)[1];
+        const isFeatured = button.getAttribute('onclick').includes('true');
+        
+        button.removeAttribute('onclick');
+        button.addEventListener('click', function() {
+            toggleFeatured(projectId, isFeatured);
+        });
+    });
 
-    const projectId = document.getElementById('editProjectId').value
-    const formData = {
-        title: document.getElementById('editProjectTitle').value,
-        description: document.getElementById('editProjectDescription').value,
-        github_url: document.getElementById('editProjectGithub').value,
-        demo_url: document.getElementById('editProjectDemo').value,
-        image_url: document.getElementById('editProjectImage').value,
-        is_featured: document.getElementById('editProjectFeatured').checked
-    }
+    // 绑定编辑项目按钮
+    document.querySelectorAll('[onclick*="editProject"]').forEach(button => {
+        const projectId = button.getAttribute('onclick').match(/editProject\((\d+)/)[1];
+        
+        button.removeAttribute('onclick');
+        button.addEventListener('click', function() {
+            editProject(projectId);
+        });
+    });
 
-    API.put(`/api/projects/${projectId}`, formData)
-        .then((data) => {
-            if (data.success) {
-                showNotification('项目更新成功！', 'success');
-                location.reload()
-            } else {
-                showNotification('更新失败：' + data.message, 'error');
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error)
-            showNotification('更新失败，请重试', 'error');
-        })
-})
+    // 绑定删除项目按钮
+    document.querySelectorAll('[onclick*="deleteProject"]').forEach(button => {
+        const projectId = button.getAttribute('onclick').match(/deleteProject\((\d+)/)[1];
+        
+        button.removeAttribute('onclick');
+        button.addEventListener('click', function() {
+            deleteProject(projectId);
+        });
+    });
+
+    document.getElementById('addProjectForm').addEventListener('submit', function (e) {
+        e.preventDefault()
+
+        const formData = {
+            title: document.getElementById('projectTitle').value,
+            description: document.getElementById('projectDescription').value,
+            github_url: document.getElementById('projectGithub').value,
+            demo_url: document.getElementById('projectDemo').value,
+            image_url: document.getElementById('projectImage').value,
+            is_featured: document.getElementById('projectFeatured').checked
+        }
+
+        API.post('/api/projects', formData)
+            .then((data) => {
+                if (data.success) {
+                    showNotification('项目创建成功！', 'success');
+                    location.reload()
+                } else {
+                    showNotification('创建失败：' + data.message, 'error');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error)
+                showNotification('创建失败，请重试', 'error');
+            })
+    });
+
+    // 编辑项目表单提交
+    document.getElementById('editProjectForm').addEventListener('submit', function (e) {
+        e.preventDefault()
+
+        const projectId = document.getElementById('editProjectId').value
+        const formData = {
+            title: document.getElementById('editProjectTitle').value,
+            description: document.getElementById('editProjectDescription').value,
+            github_url: document.getElementById('editProjectGithub').value,
+            demo_url: document.getElementById('editProjectDemo').value,
+            image_url: document.getElementById('editProjectImage').value,
+            is_featured: document.getElementById('editProjectFeatured').checked
+        }
+
+        API.put(`/api/projects/${projectId}`, formData)
+            .then((data) => {
+                if (data.success) {
+                    showNotification('项目更新成功！', 'success');
+                    location.reload()
+                } else {
+                    showNotification('更新失败：' + data.message, 'error');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error)
+                showNotification('更新失败，请重试', 'error');
+            })
+    });
+});
 
 // 切换精选状态
 function toggleFeatured(projectId, currentStatus) {

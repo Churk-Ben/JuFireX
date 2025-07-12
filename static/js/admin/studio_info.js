@@ -1,4 +1,13 @@
 // 实时预览功能
+document.addEventListener('DOMContentLoaded', function() {
+    // 处理logo URL为"None"的情况
+    const logoInput = document.getElementById('studioLogo');
+    if (logoInput.value === 'None') {
+        logoInput.value = '';
+    }
+});
+
+// 实时预览功能
 document.getElementById('studioName').addEventListener('input', function () {
     document.getElementById('previewName').textContent = this.value
 })

@@ -1,36 +1,70 @@
 // 搜索功能
-document.getElementById('searchInput').addEventListener('input', function () {
-    const searchTerm = this.value.toLowerCase();
-    const rows = document.querySelectorAll('#usersTable tbody tr');
+document.addEventListener('DOMContentLoaded', function () {
+    // 搜索功能
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#usersTable tbody tr');
 
-    rows.forEach(row => {
-        const username = row.querySelector('h6').textContent.toLowerCase();
-        const email = row.querySelector('small').textContent.toLowerCase();
+        rows.forEach(row => {
+            const username = row.querySelector('h6').textContent.toLowerCase();
+            const email = row.querySelector('small').textContent.toLowerCase();
 
-        if (username.includes(searchTerm) || email.includes(searchTerm)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-});
-
-// 角色变更
-document.querySelectorAll('.role-select').forEach(select => {
-    select.addEventListener('change', function () {
-        const userId = this.dataset.userId;
-        const newRole = this.value;
-
-        if (confirm('确定要修改用户角色吗？')) {
-            updateUserRole(userId, newRole);
-        } else {
-            // 恢复原值
-            this.selectedIndex = this.dataset.originalIndex || 0;
-        }
+            if (username.includes(searchTerm) || email.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
     });
 
-    // 保存原始选中索引
-    select.dataset.originalIndex = select.selectedIndex;
+    // 角色变更
+    document.querySelectorAll('.role-select').forEach(select => {
+        select.addEventListener('change', function () {
+            const userId = this.dataset.userId;
+            const newRole = this.value;
+
+            if (confirm('确定要修改用户角色吗？')) {
+                updateUserRole(userId, newRole);
+            } else {
+                // 恢复原值
+                this.selectedIndex = this.dataset.originalIndex || 0;
+            }
+        });
+
+        // 保存原始选中索引
+        select.dataset.originalIndex = select.selectedIndex;
+    });
+
+    // 绑定用户状态切换按钮
+    document.querySelectorAll('[onclick*="toggleUserStatus"]').forEach(button => {
+        const userId = button.getAttribute('onclick').match(/toggleUserStatus\((\d+)/)[1];
+        const isActive = button.getAttribute('onclick').includes('true');
+        
+        button.removeAttribute('onclick');
+        button.addEventListener('click', function() {
+            toggleUserStatus(userId, isActive);
+        });
+    });
+
+    // 绑定查看用户详情按钮
+    document.querySelectorAll('[onclick*="viewUserDetails"]').forEach(button => {
+        const userId = button.getAttribute('onclick').match(/viewUserDetails\((\d+)/)[1];
+        
+        button.removeAttribute('onclick');
+        button.addEventListener('click', function() {
+            viewUserDetails(userId);
+        });
+    });
+
+    // 绑定删除用户按钮
+    document.querySelectorAll('[onclick*="deleteUser"]').forEach(button => {
+        const userId = button.getAttribute('onclick').match(/deleteUser\((\d+)/)[1];
+        
+        button.removeAttribute('onclick');
+        button.addEventListener('click', function() {
+            deleteUser(userId);
+        });
+    });
 });
 
 // 更新用户角色
