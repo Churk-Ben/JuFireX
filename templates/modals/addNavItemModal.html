@@ -1,26 +1,21 @@
 <!-- 添加导航项模态框 -->
-<div class="modal fade" id="addNavItemModal" tabindex="-1" aria-labelledby="addNavItemModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+<div class="modal fade" id="addNavItemModal" tabindex="-1">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addNavItemModalLabel"><i class="fas fa-plus"></i> 添加导航项</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        <h5 class="modal-title"><i class="fas fa-add"></i> 添加导航</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+      <!-- 模态框主体 -->
       <div class="modal-body">
         <form id="addNavItemForm">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="navItemTitle" class="form-label">标题 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="navItemTitle" required />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="navItemUrl" class="form-label">URL <span class="text-danger">*</span></label>
-                <input type="url" class="form-control" id="navItemUrl" required />
-              </div>
-            </div>
+          <div class="mb-3">
+            <label for="navItemTitle" class="form-label">标题 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="navItemTitle" required />
+          </div>
+          <div class="mb-3">
+            <label for="navItemUrl" class="form-label">URL <span class="text-danger">*</span></label>
+            <input type="url" class="form-control" id="navItemUrl" required />
           </div>
           <div class="mb-3">
             <label for="navItemDescription" class="form-label">描述</label>
@@ -68,7 +63,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary" id="saveNavItemBtn"><i class="fas fa-save"></i> 保存</button>
+        <button type="button" class="btn btn-success" id="saveNavItemBtn"><i class="fas fa-save"></i> 保存</button>
       </div>
     </div>
   </div>

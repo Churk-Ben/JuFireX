@@ -3,9 +3,10 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="editCategoryModalLabel"><i class="fas fa-edit"></i> 编辑导航分类</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        <h5 class="modal-title"><i class="fas fa-edit"></i> 编辑导航分类</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+      <!-- 模态框主体 -->
       <div class="modal-body">
         <form id="editCategoryForm">
           <input type="hidden" id="editCategoryId" />
@@ -25,9 +26,10 @@
           </div>
         </form>
       </div>
+      <!-- 模态框底部 -->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary" id="updateCategoryBtn"><i class="fas fa-save"></i> 更新</button>
+        <button type="button" class="btn btn-success" id="updateCategoryBtn"><i class="fas fa-save"></i> 更新</button>
       </div>
     </div>
   </div>

@@ -43,6 +43,18 @@
     border: 1px solid var(--github-accent);
 }
 
+.status-public {
+    background-color: rgba(88, 229, 118, 0.15);
+    color: var(--github-success);
+    border: 1px solid var(--github-success);
+}
+
+.status-private {
+    background-color: rgba(240, 136, 62, 0.15);
+    color: var(--github-warning);
+    border: 1px solid var(--github-warning);
+}
+
 .role-badge {
     display: flex;
     justify-content: center;

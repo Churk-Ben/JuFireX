@@ -16,7 +16,7 @@
 {% block extra_css %}
   <style>
     #link-icon {
-      font-size: 1.5rem;
+      font-size: 1.5em;
       color: var(--github-accent);
     }
   </style>
@@ -134,9 +134,9 @@
                         <!-- 状态 -->
                         <td>
                           {% if item.is_public %}
-                            <span class="badge bg-success">公开</span>
+                            <span class="status-badge status-public">公开</span>
                           {% else %}
-                            <span class="badge bg-warning">私有</span>
+                            <span class="status-badge status-private">私有</span>
                           {% endif %}
                         </td>
                         <!-- 创建者 -->

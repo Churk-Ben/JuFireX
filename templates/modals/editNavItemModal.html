@@ -1,27 +1,22 @@
 <!-- 编辑导航项模态框 -->
 <div class="modal fade" id="editNavItemModal" tabindex="-1" aria-labelledby="editNavItemModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="editNavItemModalLabel"><i class="fas fa-edit"></i> 编辑导航项</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        <h5 class="modal-title"><i class="fas fa-edit"></i> 编辑导航</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+      <!-- 模态框主体 -->
       <div class="modal-body">
         <form id="editNavItemForm">
           <input type="hidden" id="editNavItemId" />
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="editNavItemTitle" class="form-label">标题 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="editNavItemTitle" required />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="editNavItemUrl" class="form-label">URL <span class="text-danger">*</span></label>
-                <input type="url" class="form-control" id="editNavItemUrl" required />
-              </div>
-            </div>
+          <div class="mb-3">
+            <label for="editNavItemTitle" class="form-label">标题 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="editNavItemTitle" required />
+          </div>
+          <div class="mb-3">
+            <label for="editNavItemUrl" class="form-label">URL <span class="text-danger">*</span></label>
+            <input type="url" class="form-control" id="editNavItemUrl" required />
           </div>
           <div class="mb-3">
             <label for="editNavItemDescription" class="form-label">描述</label>
@@ -68,7 +63,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary" id="updateNavItemBtn"><i class="fas fa-save"></i> 更新</button>
+        <button type="button" class="btn btn-success" id="updateNavItemBtn"><i class="fas fa-save"></i> 更新</button>
       </div>
     </div>
   </div>

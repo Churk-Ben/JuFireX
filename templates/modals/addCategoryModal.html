@@ -1,11 +1,12 @@
 <!-- 添加分类模态框 -->
-<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addCategoryModalLabel"><i class="fas fa-folder-plus"></i> 添加导航分类</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        <h5 class="modal-title"><i class="fas fa-folder-plus"></i> 添加分类</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+      <!-- 模态框主体 -->
       <div class="modal-body">
         <form id="addCategoryForm">
           <div class="mb-3">
@@ -24,9 +25,10 @@
           </div>
         </form>
       </div>
+      <!-- 模态框底部 -->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary" id="saveCategoryBtn"><i class="fas fa-save"></i> 保存</button>
+        <button type="button" class="btn btn-success" id="saveCategoryBtn"><i class="fas fa-save"></i> 保存</button>
       </div>
     </div>
   </div>
