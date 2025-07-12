@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ project.title }} - 文档列表
+{% endblock %}
+
+{% block required_css %}
+  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .doc-item {
+      border-left: 3px solid var(--github-accent);
+      transition: all 0.2s ease;
+    }
+    
+    .doc-item:hover {
+      border-left-color: var(--github-success);
+      background-color: var(--github-hover);
+    }
+    
+    .doc-item .doc-icon {
+      color: var(--github-accent);
+      font-size: 1.5rem;
+      margin-right: 1rem;
+    }
+    
+    .doc-item:hover .doc-icon {
+      color: var(--github-success);
+    }
+    
+    .doc-date {
+      font-size: 0.8rem;
+      color: var(--github-text-secondary);
+    }
+    
+    .back-button {
+      margin-right: 1rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex align-items-center">
+          <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary back-button"><i class="fas fa-arrow-left"></i> 返回个人主页</a>
+          <h2 class="mb-0">{{ project.title }} - 文档列表</h2>
+        </div>
+        <p class="text-muted mt-2">{{ project.description }}</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-book"></i> 文档列表</h5>
+            {% if current_user.id == project.author_id %}
+              <div>
+                <a href="#" class="btn btn-sm btn-primary" onclick="alert('上传功能尚未实现')"><i class="fas fa-upload"></i> 上传文档</a>
+                <a href="#" class="btn btn-sm btn-success" onclick="alert('新建功能尚未实现')"><i class="fas fa-plus"></i> 新建文档</a>
+              </div>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            {% if md_files %}
+              <div class="list-group">
+                {% for file in md_files %}
+                  <a href="{{ url_for('project_doc_view', project_id=project.id, filename=file.path) }}" class="list-group-item list-group-item-action doc-item d-flex align-items-center">
+                    <i class="fas fa-file-alt doc-icon"></i>
+                    <div>
+                      <div class="fw-bold">{{ file.name }}</div>
+                      <div class="doc-date">最后修改: {{ file.modified.strftime('%Y-%m-%d %H:%M') }}</div>
+                    </div>
+                  </a>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-center py-5">
+                <i class="fas fa-folder-open" style="font-size: 3rem; color: var(--github-text-secondary);"></i>
+                <h5 class="mt-3 text-muted">暂无文档</h5>
+                <p class="text-muted">该项目还没有任何文档</p>
+                {% if current_user.id == project.author_id %}
+                  <button class="btn btn-primary" onclick="alert('上传功能尚未实现')"><i class="fas fa-upload"></i> 上传第一个文档</button>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

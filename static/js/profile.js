@@ -1,3 +1,34 @@
+// 开通项目文档空间函数
+function openDocs(projectId) {
+    // 获取CSRF Token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // 发送请求开通文档空间
+    fetch(`/api/projects/${projectId}/open-docs`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('文档空间开通成功！', 'success');
+                // 1.5秒后刷新页面
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showNotification(data.message || '开通文档空间失败', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('开通文档空间时发生错误，请重试', 'error');
+        });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // 自定义文件上传按钮
     const customAvatarUploadBtn = document.getElementById('customAvatarUploadBtn');

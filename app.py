@@ -405,6 +405,15 @@ def profile():
         ROLE_SUPER_ADMIN: "bg-danger",
     }
 
+    # 检查每个项目的文档空间是否已开通
+    for project in user_projects:
+        # 根据项目创建日期和ID生成文档文件夹路径
+        folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
+        project_docs_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "projects", folder_name
+        )
+        project.docs_opened = os.path.exists(project_docs_path)
+
     return render_template(
         "profile.html",
         user=user,
@@ -703,7 +712,149 @@ def create_project():
     )
     db.session.add(project)
     db.session.commit()
-    return jsonify({"success": True, "message": "项目创建成功"})
+    return jsonify(
+        {"success": True, "message": "项目创建成功", "project_id": project.id}
+    )
+
+
+# 项目文档相关路由和API
+
+
+# 开通项目文档空间API
+@app.route("/api/projects/<int:project_id>/open-docs", methods=["POST"])
+@require_role(ROLE_MEMBER)
+def open_project_docs(project_id):
+    # 验证 CSRF token
+    csrf_token = request.headers.get("X-CSRFToken")
+    if not csrf_token or csrf_token != session.get("_csrf_token"):
+        return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
+
+    # 获取项目信息
+    project = Project.query.get_or_404(project_id)
+
+    # 验证当前用户是否为项目所有者
+    if project.author_id != session["user_id"]:
+        return (
+            jsonify({"success": False, "message": "只有项目创建者可以开通文档空间"}),
+            403,
+        )
+
+    # 生成文档文件夹路径
+    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
+    projects_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "projects")
+    project_docs_path = os.path.join(projects_dir, folder_name)
+
+    # 检查文件夹是否已存在
+    if os.path.exists(project_docs_path):
+        return jsonify({"success": False, "message": "该项目的文档空间已存在"}), 400
+
+    try:
+        # 确保projects目录存在
+        os.makedirs(projects_dir, exist_ok=True)
+        # 创建项目文档目录
+        os.makedirs(project_docs_path)
+
+        # 创建默认的readme.md文件
+        readme_content = f"# {project.title} 文档\n\n欢迎使用 {project.title} 项目文档！\n\n## 项目简介\n\n{project.description}\n\n## 文档说明\n\n这是项目的文档空间，您可以在这里添加和管理项目相关的文档。"
+        readme_path = os.path.join(project_docs_path, "readme.md")
+        with open(readme_path, "w", encoding="utf-8") as f:
+            f.write(readme_content)
+
+        return jsonify({"success": True, "message": "文档空间开通成功"})
+    except Exception as e:
+        return (
+            jsonify({"success": False, "message": f"创建文档空间失败: {str(e)}"}),
+            500,
+        )
+
+
+# 项目文档列表页面
+@app.route("/projects/<int:project_id>/docs")
+@require_role(ROLE_GUEST)
+def project_docs(project_id):
+    # 获取项目信息
+    project = Project.query.get_or_404(project_id)
+    current_user = db.session.get(User, session["user_id"])
+
+    # 生成文档文件夹路径
+    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
+    project_docs_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "projects", folder_name
+    )
+
+    # 检查文档空间是否存在
+    if not os.path.exists(project_docs_path):
+        flash("该项目尚未开通文档空间", "error")
+        return redirect(url_for("profile"))
+
+    # 获取所有.md文件
+    md_files = []
+    for file in os.listdir(project_docs_path):
+        if file.endswith(".md"):
+            file_path = os.path.join(project_docs_path, file)
+            # 获取文件修改时间
+            mod_time = datetime.fromtimestamp(os.path.getmtime(file_path))
+            md_files.append({"name": file, "path": file, "modified": mod_time})
+
+    # 按修改时间排序，最新的在前
+    md_files.sort(key=lambda x: x["modified"], reverse=True)
+
+    return render_template(
+        "project_docs_list.html",
+        project=project,
+        md_files=md_files,
+        current_user=current_user,
+    )
+
+
+# 查看单个文档
+@app.route("/projects/<int:project_id>/docs/<path:filename>")
+@require_role(ROLE_GUEST)
+def project_doc_view(project_id, filename):
+    # 获取项目信息
+    project = Project.query.get_or_404(project_id)
+    current_user = db.session.get(User, session["user_id"])
+
+    # 生成文档文件夹路径
+    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
+    project_docs_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "projects", folder_name
+    )
+
+    # 检查文档空间是否存在
+    if not os.path.exists(project_docs_path):
+        flash("该项目尚未开通文档空间", "error")
+        return redirect(url_for("profile"))
+
+    # 构建文件完整路径
+    file_path = os.path.join(project_docs_path, filename)
+
+    # 检查文件是否存在
+    if not os.path.exists(file_path) or not os.path.isfile(file_path):
+        flash(f"文件 {filename} 不存在", "error")
+        return redirect(url_for("project_docs", project_id=project_id))
+
+    try:
+        # 读取文件内容
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # 使用mistune解析Markdown
+        import mistune
+
+        html_content = mistune.html(content)
+
+        return render_template(
+            "project_doc_view.html",
+            project=project,
+            filename=filename,
+            content=content,
+            html_content=html_content,
+            current_user=current_user,
+        )
+    except Exception as e:
+        flash(f"读取文件失败: {str(e)}", "error")
+        return redirect(url_for("project_docs", project_id=project_id))
 
 
 @app.route("/api/users/<int:user_id>/role", methods=["PUT"])
