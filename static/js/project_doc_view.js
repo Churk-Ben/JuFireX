@@ -1,7 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // 获取CSRF令牌
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
     // 获取当前文档信息
     const projectId = document.getElementById('edit_project_id')?.value;
     const filename = document.getElementById('edit_filename')?.value;
@@ -40,42 +37,31 @@ document.addEventListener('DOMContentLoaded', function () {
             const docContent = editDocContent.value;
 
             if (!docTitle || !docContent) {
-                alert('请填写文档标题和内容');
+                showNotification('请填写文档标题和内容', 'warning');
                 return;
             }
 
-            // 发送更新请求
-            fetch(`/api/projects/${projectId}/docs/${filename}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({
-                    docTitle: docTitle,
-                    docContent: docContent
-                })
-            })
-                .then(response => response.json())
+            const data = {
+                docTitle: docTitle,
+                docContent: docContent
+            };
+
+            API.put(`/api/projects/${projectId}/docs/${filename}`, data)
                 .then(data => {
                     if (data.success) {
-                        // 更新成功，刷新页面或重定向
-                        alert(data.message);
+                        showNotification(data.message, 'success');
                         if (data.filename !== filename) {
-                            // 如果文件名已更改，重定向到新的URL
-                            window.location.href = `/projects/${projectId}/docs/${data.filename}`;
+                            setTimeout(() => window.location.href = `/projects/${projectId}/docs/${data.filename}`, 1500);
                         } else {
-                            // 否则刷新当前页面
-                            window.location.reload();
+                            setTimeout(() => window.location.reload(), 1500);
                         }
                     } else {
-                        // 更新失败，显示错误信息
-                        alert(data.message);
+                        showNotification(data.message, 'error');
                     }
                 })
                 .catch(error => {
                     console.error('更新文档时出错:', error);
-                    alert('更新文档时出错，请稍后重试');
+                    showNotification('更新文档时出错，请稍后重试', 'error');
                 });
         });
     }
@@ -86,27 +72,18 @@ document.addEventListener('DOMContentLoaded', function () {
     if (deleteDocBtn) {
         deleteDocBtn.addEventListener('click', function () {
             if (confirm(`确定要删除文档 ${filename} 吗？此操作不可恢复！`)) {
-                // 发送删除请求
-                fetch(`/api/projects/${projectId}/docs/${filename}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRFToken': csrfToken
-                    }
-                })
-                    .then(response => response.json())
+                API.delete(`/api/projects/${projectId}/docs/${filename}`)
                     .then(data => {
                         if (data.success) {
-                            // 删除成功，返回文档列表页面
-                            alert(data.message);
-                            window.location.href = `/projects/${projectId}/docs`;
+                            showNotification(data.message, 'success');
+                            setTimeout(() => window.location.href = `/projects/${projectId}/docs`, 1500);
                         } else {
-                            // 删除失败，显示错误信息
-                            alert(data.message);
+                            showNotification(data.message, 'error');
                         }
                     })
                     .catch(error => {
                         console.error('删除文档时出错:', error);
-                        alert('删除文档时出错，请稍后重试');
+                        showNotification('删除文档时出错，请稍后重试', 'error');
                     });
             }
         });

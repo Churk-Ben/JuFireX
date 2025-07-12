@@ -6,7 +6,10 @@
 
 {% block required_css %}
   <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/table.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block extra_css %}
@@ -14,6 +17,7 @@
     .doc-item {
       border-left: 3px solid var(--github-accent);
       transition: all 0.2s ease;
+      color: var(--github-text);
     }
     
     .doc-item:hover {
@@ -70,7 +74,7 @@
             {% if md_files %}
               <div class="list-group">
                 {% for file in md_files %}
-                  <a href="{{ url_for('project_doc_view', project_id=project.id, filename=file.path) }}" class="list-group-item list-group-item-action doc-item d-flex align-items-center">
+                  <a href="{{ url_for('project_doc_view', project_id=project.id, filename=file.path) }}" class="list-group-item list-group-item-action doc-item d-flex align-items-center bg-dark">
                     <i class="fas fa-file-alt doc-icon"></i>
                     <div>
                       <div class="fw-bold">{{ file.name }}</div>

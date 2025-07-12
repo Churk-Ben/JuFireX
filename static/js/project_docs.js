@@ -1,9 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // 获取CSRF令牌
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
     // 上传文档功能
-    const uploadDocForm = document.getElementById('uploadDocForm');
     const uploadDocBtn = document.getElementById('uploadDocBtn');
 
     if (uploadDocBtn) {
@@ -13,37 +9,34 @@ document.addEventListener('DOMContentLoaded', function () {
             const docName = document.getElementById('docName').value;
 
             if (!docFile || !docName) {
-                alert('请选择文件并填写文档名称');
+                showNotification('请选择文件并填写文档名称', 'warning');
                 return;
             }
 
-            // 创建FormData对象
             const formData = new FormData();
             formData.append('docFile', docFile);
             formData.append('docName', docName);
 
-            // 发送上传请求
+            // 使用fetch上传文件，因为API类目前不支持FormData
             fetch(`/api/projects/${projectId}/docs/upload`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': csrfToken
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
                 },
                 body: formData
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // 上传成功，刷新页面
-                        alert(data.message);
-                        window.location.reload();
+                        showNotification(data.message, 'success');
+                        setTimeout(() => window.location.reload(), 1500);
                     } else {
-                        // 上传失败，显示错误信息
-                        alert(data.message);
+                        showNotification(data.message, 'error');
                     }
                 })
                 .catch(error => {
                     console.error('上传文档时出错:', error);
-                    alert('上传文档时出错，请稍后重试');
+                    showNotification('上传文档时出错，请稍后重试', 'error');
                 });
         });
     }
@@ -59,36 +52,27 @@ document.addEventListener('DOMContentLoaded', function () {
             const docContent = document.getElementById('docContent').value;
 
             if (!docTitle || !docContent) {
-                alert('请填写文档标题和内容');
+                showNotification('请填写文档标题和内容', 'warning');
                 return;
             }
 
-            // 发送创建请求
-            fetch(`/api/projects/${projectId}/docs/create`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({
-                    docTitle: docTitle,
-                    docContent: docContent
-                })
-            })
-                .then(response => response.json())
+            const data = {
+                docTitle: docTitle,
+                docContent: docContent
+            };
+
+            API.post(`/api/projects/${projectId}/docs/create`, data)
                 .then(data => {
                     if (data.success) {
-                        // 创建成功，刷新页面
-                        alert(data.message);
-                        window.location.reload();
+                        showNotification(data.message, 'success');
+                        setTimeout(() => window.location.reload(), 1500);
                     } else {
-                        // 创建失败，显示错误信息
-                        alert(data.message);
+                        showNotification(data.message, 'error');
                     }
                 })
                 .catch(error => {
                     console.error('创建文档时出错:', error);
-                    alert('创建文档时出错，请稍后重试');
+                    showNotification('创建文档时出错，请稍后重试', 'error');
                 });
         });
     }
