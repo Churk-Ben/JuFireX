@@ -22,18 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        fetch('/api/nav-categories', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: name,
-                icon: icon,
-                order: parseInt(order) || 0
-            })
-        })
-            .then(response => response.json())
+        API.post('/api/nav-categories', { name, icon, order: parseInt(order) || 0 })
             .then(data => {
                 if (data.success) {
                     showNotification(data.message, 'success');
@@ -80,18 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        fetch(`/api/nav-categories/${categoryId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: name,
-                icon: icon,
-                order: parseInt(order) || 0
-            })
-        })
-            .then(response => response.json())
+        API.put(`/api/nav-categories/${categoryId}`, { name, icon, order: parseInt(order) || 0 })
             .then(data => {
                 if (data.success) {
                     showNotification(data.message, 'success');
@@ -125,13 +103,7 @@ document.addEventListener('DOMContentLoaded', function () {
     confirmDeleteCategoryBtn.addEventListener('click', function () {
         const categoryId = document.getElementById('deleteCategoryId').value;
 
-        fetch(`/api/nav-categories/${categoryId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(response => response.json())
+        API.delete(`/api/nav-categories/${categoryId}`)
             .then(data => {
                 if (data.success) {
                     showNotification(data.message, 'success');
@@ -175,22 +147,12 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        fetch('/api/nav-items', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                title: title,
-                url: url,
-                description: description,
-                icon: icon,
-                category_id: parseInt(categoryId),
-                is_public: isPublic,
-                order: parseInt(order) || 0
-            })
+        API.post('/api/nav-items', {
+            title, url, description, icon,
+            category_id: parseInt(categoryId),
+            is_public: isPublic,
+            order: parseInt(order) || 0
         })
-            .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     showNotification(data.message, 'success');
@@ -253,22 +215,12 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        fetch(`/api/nav-items/${itemId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                title: title,
-                url: url,
-                description: description,
-                icon: icon,
-                category_id: parseInt(categoryId),
-                is_public: isPublic,
-                order: parseInt(order) || 0
-            })
+        API.put(`/api/nav-items/${itemId}`, {
+            title, url, description, icon,
+            category_id: parseInt(categoryId),
+            is_public: isPublic,
+            order: parseInt(order) || 0
         })
-            .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     showNotification(data.message, 'success');
@@ -302,13 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
     confirmDeleteNavItemBtn.addEventListener('click', function () {
         const itemId = document.getElementById('deleteNavItemId').value;
 
-        fetch(`/api/nav-items/${itemId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(response => response.json())
+        API.delete(`/api/nav-items/${itemId}`)
             .then(data => {
                 if (data.success) {
                     showNotification(data.message, 'success');
@@ -331,28 +277,19 @@ document.addEventListener('DOMContentLoaded', function () {
             const itemId = this.getAttribute('data-item-id');
             const isPublic = this.getAttribute('data-is-public') === 'true';
 
-            fetch(`/api/nav-items/${itemId}/visibility`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    is_public: !isPublic
+            API.put(`/api/nav-items/${itemId}/visibility`, { is_public: !isPublic })
+                .then(data => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        location.reload();
+                    } else {
+                        showNotification(data.message || '更新导航项状态失败', 'danger');
+                    }
                 })
-            })
-                .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    location.reload();
-                } else {
-                    showNotification(data.message || '更新导航项状态失败', 'danger');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('更新导航项状态时出错', 'danger');
-            });
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('更新导航项状态时出错', 'danger');
+                });
         });
     });
 });

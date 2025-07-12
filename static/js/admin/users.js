@@ -35,26 +35,19 @@ document.querySelectorAll('.role-select').forEach(select => {
 
 // 更新用户角色
 function updateUserRole(userId, role) {
-    fetch(`/api/users/${userId}/role`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ role: parseInt(role) })
-    })
-        .then(response => response.json())
+    API.put(`/api/users/${userId}/role`, { role: parseInt(role) })
         .then(data => {
             if (data.success) {
-                alert('用户角色更新成功！');
+                showNotification('用户角色更新成功！', 'success');
                 location.reload();
             } else {
-                alert('更新失败：' + data.message);
+                showNotification('更新失败：' + data.message, 'error');
                 location.reload();
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('更新失败，请重试');
+            showNotification('更新失败，请重试', 'error');
             location.reload();
         });
 }
@@ -63,38 +56,30 @@ function updateUserRole(userId, role) {
 function toggleUserStatus(userId, currentStatus) {
     const action = currentStatus ? '禁用' : '启用';
     if (confirm(`确定要${action}这个用户吗？`)) {
-        fetch(`/api/users/${userId}/status`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ is_active: !currentStatus })
-        })
-            .then(response => response.json())
+        API.put(`/api/users/${userId}/status`, { is_active: !currentStatus })
             .then(data => {
                 if (data.success) {
-                    alert(`用户${action}成功！`);
+                    showNotification(`用户${action}成功！`, 'success');
                     location.reload();
                 } else {
-                    alert(`${action}失败：` + data.message);
+                    showNotification(`${action}失败：` + data.message, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert(`${action}失败，请重试`);
+                showNotification(`${action}失败，请重试`, 'error');
             });
     }
 }
 
 // 查看用户详情
 function viewUserDetails(userId) {
-    fetch(`/api/users/${userId}`)
-        .then(response => response.json())
+    API.get(`/api/users/${userId}`)
         .then(data => {
             if (data.success) {
                 const user = data.user;
                 const avatarHtml = user.avatar_path ?
-                    `<img src="{{ url_for('user_avatar', filename='') }}${user.avatar_path}" alt="${user.username}的头像" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--github-accent);">` :
+                    `<img src="/uploads/avatars/${user.avatar_path}" alt="${user.username}的头像" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--github-accent);">` :
                     `<i class="fas fa-user-circle" style="font-size: 4rem; color: var(--github-accent)"></i>`;
 
                 const content = `
@@ -153,33 +138,30 @@ function viewUserDetails(userId) {
                 document.getElementById('userDetailsContent').innerHTML = content;
                 new bootstrap.Modal(document.getElementById('userDetailsModal')).show();
             } else {
-                alert('获取用户详情失败：' + data.message);
+                showNotification('获取用户详情失败：' + data.message, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('获取用户详情失败，请重试');
+            showNotification('获取用户详情失败，请重试', 'error');
         });
 }
 
 // 删除用户
 function deleteUser(userId) {
     if (confirm('确定要删除这个用户吗？此操作不可恢复！\n\n注意：删除用户将同时删除其所有项目。')) {
-        fetch(`/api/users/${userId}`, {
-            method: 'DELETE'
-        })
-            .then(response => response.json())
+        API.delete(`/api/users/${userId}`)
             .then(data => {
                 if (data.success) {
-                    alert('用户删除成功！');
+                    showNotification('用户删除成功！', 'success');
                     location.reload();
                 } else {
-                    alert('删除失败：' + data.message);
+                    showNotification('删除失败：' + data.message, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('删除失败，请重试');
+                showNotification('删除失败，请重试', 'error');
             });
     }
 }

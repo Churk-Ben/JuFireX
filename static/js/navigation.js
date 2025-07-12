@@ -5,15 +5,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const cardId = this.dataset.cardId;
             const cardElement = this.closest('.navigation-card');
 
-            fetch('/api/navigation/hide/' + cardId, {
-                method: 'POST',
+            API.post('/api/navigation/hide/' + cardId, { nav_item_id: cardId }, {
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: JSON.stringify({ nav_item_id: cardId })
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                }
             })
-                .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         cardElement.style.display = 'none';
@@ -30,14 +26,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('restore-cards-btn')?.addEventListener('click', function () {
-        api.restoreAllNavigationCards().then(data => {
+        API.post('/api/navigation/restore-all', {}, {
+            headers: {
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+            }
+        }).then(data => {
             if (data.success) {
                 showNotification('所有卡片已恢复', 'success');
-                // 刷新页面以显示恢复的卡片
                 location.reload();
             } else {
                 showNotification(data.message || '操作失败', 'error');
             }
+        }).catch(error => {
+            showNotification('请求失败', 'error');
+            console.error('Error:', error);
         });
     });
 
@@ -47,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const cardId = this.dataset.cardId;
             const isPrivate = this.checked;
 
-            api.toggleNavigationCardPrivacy(cardId, isPrivate, {
+            API.post('/api/navigation/toggle_privacy/' + cardId, { is_public: isPrivate }, {
                 headers: {
                     'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
                 }
@@ -56,9 +58,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     showNotification('隐私状态已更新', 'success');
                 } else {
                     showNotification(data.message || '操作失败', 'error');
-                    // 如果更新失败，恢复切换按钮的状态
                     this.checked = !isPrivate;
                 }
+            }).catch(error => {
+                showNotification('请求失败', 'error');
+                console.error('Error:', error);
+                this.checked = !isPrivate;
             });
         });
     });
@@ -67,21 +72,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // 隐藏卡片函数
 function hideCard(navItemId) {
-    fetch('/api/navigation/hide/' + navItemId, {
-        method: 'POST',
+    API.post('/api/navigation/hide/' + navItemId, { nav_item_id: navItemId }, {
         headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ nav_item_id: navItemId })
+        }
     })
-        .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // 隐藏卡片
                 document.querySelector(`.nav-card-col[data-nav-item-id="${navItemId}"]`).style.display = 'none';
                 showNotification('卡片已隐藏', 'success');
-                // 添加到隐藏卡片列表
                 const hiddenCard = document.querySelector(`.nav-card-col[data-nav-item-id="${navItemId}"]`).cloneNode(true);
                 hiddenCard.style.display = 'block';
                 document.getElementById('hidden-cards-list').appendChild(hiddenCard);
@@ -97,21 +96,16 @@ function hideCard(navItemId) {
 
 // 切换隐私状态函数
 function togglePrivacy(navItemId, isPublic, element) {
-    fetch('/api/navigation/toggle_privacy/' + navItemId, {
-        method: 'POST',
+    API.post('/api/navigation/toggle_privacy/' + navItemId, {
+        nav_item_id: navItemId,
+        is_public: !isPublic
+    }, {
         headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({
-            nav_item_id: navItemId,
-            is_public: !isPublic
-        })
+        }
     })
-        .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // 更新按钮文本和状态
                 if (isPublic) {
                     element.textContent = '设为公开';
                     element.dataset.isPublic = '0';
@@ -119,9 +113,13 @@ function togglePrivacy(navItemId, isPublic, element) {
                     element.textContent = '设为私有';
                     element.dataset.isPublic = '1';
                 }
+                showNotification('隐私状态已更新', 'success');
             } else {
-                alert(data.message || '操作失败');
+                showNotification(data.message || '操作失败', 'error');
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            showNotification('请求失败', 'error');
+            console.error('Error:', error);
+        });
 }

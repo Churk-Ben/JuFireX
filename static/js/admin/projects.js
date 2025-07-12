@@ -11,25 +11,18 @@ document.getElementById('addProjectForm').addEventListener('submit', function (e
         is_featured: document.getElementById('projectFeatured').checked
     }
 
-    fetch('/api/projects', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-    })
-        .then((response) => response.json())
+    API.post('/api/projects', formData)
         .then((data) => {
             if (data.success) {
-                alert('项目创建成功！')
+                showNotification('项目创建成功！', 'success');
                 location.reload()
             } else {
-                alert('创建失败：' + data.message)
+                showNotification('创建失败：' + data.message, 'error');
             }
         })
         .catch((error) => {
             console.error('Error:', error)
-            alert('创建失败，请重试')
+            showNotification('创建失败，请重试', 'error');
         })
 })
 
@@ -47,49 +40,36 @@ document.getElementById('editProjectForm').addEventListener('submit', function (
         is_featured: document.getElementById('editProjectFeatured').checked
     }
 
-    fetch(`/api/projects/${projectId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-    })
-        .then((response) => response.json())
+    API.put(`/api/projects/${projectId}`, formData)
         .then((data) => {
             if (data.success) {
-                alert('项目更新成功！')
+                showNotification('项目更新成功！', 'success');
                 location.reload()
             } else {
-                alert('更新失败：' + data.message)
+                showNotification('更新失败：' + data.message, 'error');
             }
         })
         .catch((error) => {
             console.error('Error:', error)
-            alert('更新失败，请重试')
+            showNotification('更新失败，请重试', 'error');
         })
 })
 
 // 切换精选状态
 function toggleFeatured(projectId, currentStatus) {
     if (confirm('确定要切换项目的精选状态吗？')) {
-        fetch(`/api/projects/${projectId}/featured`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ is_featured: !currentStatus })
-        })
-            .then((response) => response.json())
+        API.put(`/api/projects/${projectId}/featured`, { is_featured: !currentStatus })
             .then((data) => {
                 if (data.success) {
+                    showNotification('精选状态已更新', 'success');
                     location.reload()
                 } else {
-                    alert('操作失败：' + data.message)
+                    showNotification('操作失败：' + data.message, 'error');
                 }
             })
             .catch((error) => {
                 console.error('Error:', error)
-                alert('操作失败，请重试')
+                showNotification('操作失败，请重试', 'error');
             })
     }
 }
@@ -97,8 +77,7 @@ function toggleFeatured(projectId, currentStatus) {
 // 编辑项目
 function editProject(projectId) {
     // 获取项目详情
-    fetch(`/api/projects/${projectId}`)
-        .then((response) => response.json())
+    API.get(`/api/projects/${projectId}`)
         .then((data) => {
             if (data.success) {
                 const project = data.project
@@ -115,33 +94,30 @@ function editProject(projectId) {
                 // 显示模态框
                 new bootstrap.Modal(document.getElementById('editProjectModal')).show()
             } else {
-                alert('获取项目详情失败：' + data.message)
+                showNotification('获取项目详情失败：' + data.message, 'error');
             }
         })
         .catch((error) => {
             console.error('Error:', error)
-            alert('获取项目详情失败，请重试')
+            showNotification('获取项目详情失败，请重试', 'error');
         })
 }
 
 // 删除项目
 function deleteProject(projectId) {
     if (confirm('确定要删除这个项目吗？此操作不可恢复！')) {
-        fetch(`/api/projects/${projectId}`, {
-            method: 'DELETE'
-        })
-            .then((response) => response.json())
+        API.delete(`/api/projects/${projectId}`)
             .then((data) => {
                 if (data.success) {
-                    alert('项目删除成功！')
+                    showNotification('项目删除成功！', 'success');
                     location.reload()
                 } else {
-                    alert('删除失败：' + data.message)
+                    showNotification('删除失败：' + data.message, 'error');
                 }
             })
             .catch((error) => {
                 console.error('Error:', error)
-                alert('删除失败，请重试')
+                showNotification('删除失败，请重试', 'error');
             })
     }
 }

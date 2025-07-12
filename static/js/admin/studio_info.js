@@ -101,14 +101,7 @@ document.getElementById('studioInfoForm').addEventListener('submit', function (e
         logo_url: document.getElementById('studioLogo').value
     }
 
-    fetch('/api/studio-info', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-    })
-        .then((response) => response.json())
+    API.put('/api/studio-info', formData)
         .then((data) => {
             if (data.success) {
                 showNotification('工作室信息更新成功', 'success')

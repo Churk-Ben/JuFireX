@@ -199,21 +199,12 @@ document.addEventListener('DOMContentLoaded', function () {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>处理中...';
             submitBtn.disabled = true;
 
-            fetch('/register', {
+            API.request('/register', {
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 body: formData,
             })
-                .then(response => {
-                    if (response.redirected) {
-                        showNotification('注册成功！正在跳转到登录页面...', 'success');
-                        setTimeout(() => { window.location.href = response.url; }, 1500);
-                        return null;
-                    }
-                    return response.json();
-                })
                 .then(data => {
-                    if (!data) return;
                     if (data.success) {
                         showNotification('注册成功！正在跳转到登录页面...', 'success');
                         setTimeout(() => { window.location.href = "/login"; }, 1500);
@@ -224,10 +215,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    submitBtn.innerHTML = originalBtnText;
-                    submitBtn.disabled = false;
-                    showNotification('注册时发生未知错误，请稍后重试。', 'error');
+                    // Check if it's a redirect
+                    if (error instanceof Response && error.redirected) {
+                        showNotification('注册成功！正在跳转到登录页面...', 'success');
+                        setTimeout(() => { window.location.href = error.url; }, 1500);
+                    } else {
+                        console.error('Error:', error);
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        showNotification('注册时发生未知错误，请稍后重试。', 'error');
+                    }
                 });
         });
     }
