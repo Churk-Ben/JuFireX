@@ -1,0 +1,34 @@
+{% extends 'modals/_modal_base.html' %}
+
+{% block modal_id %}
+  uploadDocModal
+{% endblock %}
+
+{% block modal_title %}
+  <i class="fas fa-upload"></i> 上传文档
+{% endblock %}
+
+{% block modal_size %}
+  modal-lg
+{% endblock %}
+
+{% block modal_body %}
+  <form id="uploadDocForm" enctype="multipart/form-data">
+    <input type="hidden" id="project_id" name="project_id" value="{{ project.id }}" />
+    <div class="mb-3">
+      <label for="docFile" class="form-label">选择Markdown文件</label>
+      <input type="file" class="form-control" id="docFile" name="docFile" accept=".md,.markdown" required />
+      <div class="form-text">请选择Markdown格式的文档文件（.md或.markdown）</div>
+    </div>
+    <div class="mb-3">
+      <label for="docName" class="form-label">文档名称</label>
+      <input type="text" class="form-control" id="docName" name="docName" placeholder="文档名称（不含扩展名）" required />
+      <div class="form-text">文档名称将作为文件名保存，不要包含特殊字符</div>
+    </div>
+  </form>
+{% endblock %}
+
+{% block modal_footer %}
+  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+  <button type="button" class="btn btn-primary" id="uploadDocBtn">上传</button>
+{% endblock %}

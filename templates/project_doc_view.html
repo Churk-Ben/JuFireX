@@ -147,15 +147,33 @@
             <h5 class="mb-0"><i class="fas fa-file-alt"></i> 文档内容</h5>
             {% if current_user.id == project.author_id %}
               <div>
-                <a href="#" class="btn btn-sm btn-primary" onclick="alert('编辑功能尚未实现')"><i class="fas fa-edit"></i> 编辑文档</a>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editDocModal"><i class="fas fa-edit"></i> 编辑文档</button>
+                <button class="btn btn-sm btn-danger" id="deleteDocBtn"><i class="fas fa-trash"></i> 删除文档</button>
               </div>
             {% endif %}
           </div>
           <div class="card-body">
             <div class="markdown-body">{{ html_content|safe }}</div>
+            <!-- 存储原始Markdown内容，用于编辑 -->
+            <script id="original-content" type="text/plain" style="display: none;">
+              {
+                {
+                  content
+                }
+              }
+            </script>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  {% if current_user.id == project.author_id %}
+    <!-- 引入编辑文档模态框 -->
+    {% include 'modals/editDocModal.html' %}
+  {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{{ url_for('static', filename='js/project_doc_view.js') }}"></script>
 {% endblock %}
