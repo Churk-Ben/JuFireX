@@ -28,6 +28,21 @@
       font-size: 40px;
       color: var(--github-accent);
     }
+    
+    /* 项目数量样式 */
+    .table .project-count {
+      font-weight: 500;
+      color: var(--github-text-secondary);
+      transition: color 0.2s ease;
+    }
+    
+    .table-hover tbody tr:hover .project-count {
+      color: var(--github-accent);
+    }
+    
+    .user_dot_inline {
+      display: inline-block;
+    }
   </style>
 {% endblock %}
 
@@ -107,6 +122,7 @@
               <tbody>
                 {% for user in users %}
                   <tr data-user-id="{{ user.id }}">
+                    <!-- 用户信息 -->
                     <td>
                       <div class="d-flex align-items-center">
                         <div class="me-3">
@@ -121,76 +137,101 @@
                         <div>
                           <h6 class="mb-0">
                             {{ user.username }}
-                            <span class="ms-1"
-                              style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: {% if user.role == 3 %}
-                                
-                                var(--bs-danger)
-
-                              {% elif user.role == 2 %}
-                                
-                                var(--bs-warning)
-
+                            <div class="user_dot_inline ms-2">
+                              {% if user.role == 0 %}
+                                <span class="user_dot rounded-circle bg-info" title="权限等级: 游客"></span>
                               {% elif user.role == 1 %}
-                                
-                                var(--bs-info)
-
-                              {% else %}
-                                
-                                var(--bs-secondary)
-
-                              {% endif %}; vertical-align: middle; position: relative; top: -1px;">
-
-                            </span>
+                                <span class="user_dot rounded-circle bg-primary" title="权限等级: 成员"></span>
+                              {% elif user.role == 2 %}
+                                <span class="user_dot rounded-circle bg-warning" title="权限等级: 管理员"></span>
+                              {% elif user.role >= 3 %}
+                                <span class="user_dot rounded-circle bg-danger" title="权限等级: 超级管理员"></span>
+                              {% endif %}
+                            </div>
                           </h6>
                           <small class="text-muted">{{ user.email }}</small>
                         </div>
                       </div>
                     </td>
+                    <!-- 角色 -->
                     <td>
-                      <!-- 这里是身份更改selector -->
-                    </td>
-                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
-                    <td>
-                      {% if user.is_active %}
-                        <span class="status-badge status-active">活跃</span>
+                      {% if user.id == current_user.id %}
+                        <select class="form-select form-select-sm role-select" data-user-id="{{ user.id }}" disabled>
+                          {% if user.role == 0 %}
+                            <option value="0" selected>游客</option>
+                          {% else %}
+                            <option value="0">游客</option>
+                          {% endif %}
+                          {% if user.role == 1 %}
+                            <option value="1" selected>成员</option>
+                          {% else %}
+                            <option value="1">成员</option>
+                          {% endif %}
+                          {% if user.role == 2 %}
+                            <option value="2" selected>管理员</option>
+                          {% else %}
+                            <option value="2">管理员</option>
+                          {% endif %}
+                          {% if user.role == 3 %}
+                            <option value="3" selected>超级管理员</option>
+                          {% else %}
+                            <option value="3">超级管理员</option>
+                          {% endif %}
+                        </select>
                       {% else %}
-                        <span class="status-badge status-inactive">封禁</span>
+                        <select class="form-select form-select-sm role-select" data-user-id="{{ user.id }}">
+                          {% if user.role == 0 %}
+                            <option value="0" selected>游客</option>
+                          {% else %}
+                            <option value="0">游客</option>
+                          {% endif %}
+                          {% if user.role == 1 %}
+                            <option value="1" selected>成员</option>
+                          {% else %}
+                            <option value="1">成员</option>
+                          {% endif %}
+                          {% if user.role == 2 %}
+                            <option value="2" selected>管理员</option>
+                          {% else %}
+                            <option value="2">管理员</option>
+                          {% endif %}
+                          {% if user.role == 3 %}
+                            <option value="3" selected>超级管理员</option>
+                          {% else %}
+                            <option value="3">超级管理员</option>
+                          {% endif %}
+                        </select>
                       {% endif %}
                     </td>
+                    <!-- 注册时间 -->
+                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                    <!-- 状态 -->
+                    <td>
+                      {% if user.is_active %}
+                        <span class="status-badge status-active"><i class="fas fa-check me-1"></i> 活跃</span>
+                      {% else %}
+                        <span class="status-badge status-inactive"><i class="fas fa-ban me-1"></i> 封禁</span>
+                      {% endif %}
+                    </td>
+                    <!-- 项目数 -->
                     <td class="text-center project-count" title="用户项目数量">{{ user.projects|length }}</td>
+                    <!-- 操作 -->
                     <td>
                       <div class="btn-group btn-group-sm" role="group">
                         {% if user.id != current_user.id %}
-                          <button class="btn btn-outline-warning"
-                            onclick="toggleUserStatus({{ user.id }}, {{ user.is_active }})"
-                            title="{% if user.is_active %}
-                              
-                              封禁用户
-
-                            {% else %}
-                              
-                              解封用户
-
-                            {% endif %}">
-                            <i class="fas fa-{% if user.is_active %}
-                                
-                                ban
-
-                              {% else %}
-                                
-                                check
-
-                              {% endif %}">
-
-                            </i>
-                          </button>
+                          {% if user.is_active %}
+                            <button class="btn btn-outline-warning" onclick="toggleUserStatus({{ user.id }}, {{ user.is_active }})" title="封禁用户"><i class="fas fa-ban"></i></button>
+                          {% else %}
+                            <button class="btn btn-outline-warning" onclick="toggleUserStatus({{ user.id }}, {{ user.is_active }})" title="解封用户"><i class="fas fa-check"></i></button>
+                          {% endif %}
                           <button class="btn btn-outline-info" onclick="viewUserDetails({{ user.id }})" title="查看详情"><i class="fas fa-eye"></i></button>
                           <button class="btn btn-outline-danger" onclick="deleteUser({{ user.id }})" title="删除用户"><i class="fas fa-trash"></i></button>
                         {% else %}
-                          <span class="status-badge" style="background-color: rgba(88, 166, 255, 0.15); color: var(--github-accent); border: 1px solid var(--github-accent);">当前用户</span>
+                          <span class="status-badge status-current"><i class="fas fa-user me-1"></i> 当前用户</span>
                         {% endif %}
                       </div>
                     </td>
+                    <!-- - -->
                   </tr>
                 {% endfor %}
               </tbody>
@@ -254,5 +295,5 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{{ url_for('static', filename='js/admin-users.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin/users.js') }}"></script>
 {% endblock %}

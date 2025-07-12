@@ -57,9 +57,15 @@
     box-shadow: none;
 }
 
-/* 输入组左侧暗色主题修正 */
+/* 输入组左侧修正 */
 .input-group-text.bg-dark {
-    background-color: var(--github-bg);
     border-color: var(--github-border);
     color: var(--github-text);
+}
+
+.input-group span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 42px;
 }

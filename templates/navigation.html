@@ -94,13 +94,13 @@
                             </small>
                             <div id="user_dot_box">
                               {% if item.creator.role == 1 %}
-                                <span class="user_dot badge rounded-circle bg-primary" title="成员"></span>
+                                <span class="user_dot rounded-circle bg-primary" title="成员"></span>
                               {% elif item.creator.role == 2 %}
-                                <span class="user_dot badge rounded-circle bg-warning" title="管理员"></span>
+                                <span class="user_dot rounded-circle bg-warning" title="管理员"></span>
                               {% elif item.creator.role == 3 %}
-                                <span class="user_dot badge rounded-circle bg-danger" title="超级管理员"></span>
+                                <span class="user_dot rounded-circle bg-danger" title="超级管理员"></span>
                               {% else %}
-                                <span class="user_dot badge rounded-circle bg-secondary" title="未知"></span>
+                                <span class="user_dot rounded-circle bg-secondary" title="未知"></span>
                               {% endif %}
                             </div>
                           </a>

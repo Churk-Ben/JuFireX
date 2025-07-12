@@ -87,14 +87,11 @@
       {% for category in categories %}
         <div class="card mb-4">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-              <i class="{{ category.icon }}"></i> {{ category.name }}
-              <span class="badge bg-primary ms-2">{{ category.nav_items|length }}</span>
-            </h5>
+            <h5 class="mb-0"><i class="{{ category.icon }}"></i> {{ category.name }}</h5>
             <div class="d-flex gap-2">
               <button class="btn btn-sm btn-outline-primary edit-category" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}" data-category-icon="{{ category.icon }}" data-category-order="{{ category.order }}"><i class="fas fa-edit"></i></button>
               <button class="btn btn-sm btn-outline-danger delete-category" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}"><i class="fas fa-trash-alt"></i></button>
-              <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal" data-category-id="{{ category.id }}"><i class="fas fa-plus"></i></button>
+              <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal" data-category-id="{{ category.id }}"><i class="fas fa-plus"></i></button>
             </div>
           </div>
           <div class="card-body">
@@ -157,13 +154,13 @@
                                 <span style="padding: 0 4px 0 8px; line-height: 32px">{{ item.creator.username }}</span>
                                 <div id="user_dot_box">
                                   {% if item.creator.role == 0 %}
-                                    <span class="user_dot badge rounded-circle bg-info" title="权限等级: 游客"></span>
+                                    <span class="user_dot rounded-circle bg-info" title="权限等级: 游客"></span>
                                   {% elif item.creator.role == 1 %}
-                                    <span class="user_dot badge rounded-circle bg-primary" title="权限等级: 成员"></span>
+                                    <span class="user_dot rounded-circle bg-primary" title="权限等级: 成员"></span>
                                   {% elif item.creator.role == 2 %}
-                                    <span class="user_dot badge rounded-circle bg-warning" title="权限等级: 管理员"></span>
+                                    <span class="user_dot rounded-circle bg-warning" title="权限等级: 管理员"></span>
                                   {% elif item.creator.role >= 3 %}
-                                    <span class="user_dot badge rounded-circle bg-danger" title="权限等级: 超级管理员"></span>
+                                    <span class="user_dot rounded-circle bg-danger" title="权限等级: 超级管理员"></span>
                                   {% endif %}
                                 </div>
                               </a>
@@ -233,5 +230,5 @@
 {% block extra_js %}
   <!-- 引用外部JavaScript文件 -->
   <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/admin-navigation.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin/navigation.js') }}"></script>
 {% endblock %}

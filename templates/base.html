@@ -169,13 +169,13 @@
                   <span style="padding: 0 4px 0 8px; line-height: 32px">{{ current_user.username }}</span>
                   <div id="user_dot_box">
                     {% if current_user.role == 0 %}
-                      <span class="user_dot badge rounded-circle bg-info" title="权限等级: 游客"></span>
+                      <span class="user_dot rounded-circle bg-info" title="权限等级: 游客"></span>
                     {% elif current_user.role == 1 %}
-                      <span class="user_dot badge rounded-circle bg-primary" title="权限等级: 成员"></span>
+                      <span class="user_dot rounded-circle bg-primary" title="权限等级: 成员"></span>
                     {% elif current_user.role == 2 %}
-                      <span class="user_dot badge rounded-circle bg-warning" title="权限等级: 管理员"></span>
+                      <span class="user_dot rounded-circle bg-warning" title="权限等级: 管理员"></span>
                     {% elif current_user.role >= 3 %}
-                      <span class="user_dot badge rounded-circle bg-danger" title="权限等级: 超级管理员"></span>
+                      <span class="user_dot rounded-circle bg-danger" title="权限等级: 超级管理员"></span>
                     {% endif %}
                   </div>
                 </a>

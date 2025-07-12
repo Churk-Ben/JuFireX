@@ -10,8 +10,8 @@
     opacity: 0;
     transform: translateX(10%);
     transition: opacity 0.3s ease, transform 0.3s ease;
-    backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     background-color: rgba(13, 17, 23, 0.85);
     display: flex;
     align-items: center;

@@ -59,7 +59,17 @@
               <div class="d-flex flex-column justify-content-between align-items-md-start">
                 <div class="mt-2 mb-2 d-flex justify-content-start align-items-center">
                   <h5 class="mb-1 me-2">{{ user.username }}</h5>
-                  <span class="badge rounded-pill {{ role_colors.get(user.role, 'bg-secondary') }}">{{ role_names.get(user.role, '未知') }}</span>
+                  {% if user.role == 0 %}
+                    <span class="role-badge role-guest">游客</span>
+                  {% elif user.role == 1 %}
+                    <span class="role-badge role-member">成员</span>
+                  {% elif user.role == 2 %}
+                    <span class="role-badge role-admin">管理员</span>
+                  {% elif user.role == 3 %}
+                    <span class="role-badge role-superadmin">超级管理员</span>
+                  {% else %}
+                    <span class="role-badge role-unknown">未知</span>
+                  {% endif %}
                 </div>
                 <p class="mb-4 card-text">{{ user.email }}</p>
                 <p class="card-text">
