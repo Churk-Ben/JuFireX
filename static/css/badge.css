@@ -44,7 +44,7 @@
 }
 
 .status-public {
-    background-color: rgba(88, 229, 118, 0.15);
+    background-color: rgba(12, 86, 28, 0.15);
     color: var(--github-success);
     border: 1px solid var(--github-success);
 }
