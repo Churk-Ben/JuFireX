@@ -17,36 +17,29 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // 绑定切换精选状态按钮
-    document.querySelectorAll('[onclick*="toggleFeatured"]').forEach(button => {
-        const projectId = button.getAttribute('onclick').match(/toggleFeatured\((\d+)/)[1];
-        const isFeatured = button.getAttribute('onclick').includes('true');
-        
-        button.removeAttribute('onclick');
-        button.addEventListener('click', function() {
-            toggleFeatured(projectId, isFeatured);
-        });
-    });
+    // 项目操作事件委托
+    const projectsTable = document.querySelector('.table');
+    if (projectsTable) {
+        projectsTable.addEventListener('click', function (event) {
+            const button = event.target.closest('button');
+            if (!button) return;
 
-    // 绑定编辑项目按钮
-    document.querySelectorAll('[onclick*="editProject"]').forEach(button => {
-        const projectId = button.getAttribute('onclick').match(/editProject\((\d+)/)[1];
-        
-        button.removeAttribute('onclick');
-        button.addEventListener('click', function() {
-            editProject(projectId);
-        });
-    });
+            const projectId = button.dataset.projectId;
 
-    // 绑定删除项目按钮
-    document.querySelectorAll('[onclick*="deleteProject"]').forEach(button => {
-        const projectId = button.getAttribute('onclick').match(/deleteProject\((\d+)/)[1];
-        
-        button.removeAttribute('onclick');
-        button.addEventListener('click', function() {
-            deleteProject(projectId);
+            if (button.classList.contains('toggle-featured')) {
+                const isFeatured = button.dataset.isFeatured === 'True';
+                toggleFeatured(projectId, isFeatured);
+            }
+
+            if (button.classList.contains('edit-project')) {
+                editProject(projectId);
+            }
+
+            if (button.classList.contains('delete-project')) {
+                deleteProject(projectId);
+            }
         });
-    });
+    }
 
     document.getElementById('addProjectForm').addEventListener('submit', function (e) {
         e.preventDefault()

@@ -166,7 +166,17 @@
                               </a>
                             </div>
                           {% else %}
-                            未知
+                            <div class="d-flex align-items-center">
+                              <a class="nav-link" id="profile_link" href="{{ url_for('profile') }}">
+                                <div id="user_tag">
+                                  <i id="user_avatar_fas" class="fas fa-user-circle"></i>
+                                </div>
+                                <span style="padding: 0 4px 0 8px; line-height: 32px">未知</span>
+                                <div id="user_dot_box">
+                                  <span class="user_dot rounded-circle bg-secondary" title="权限等级: 未知"></span>
+                                </div>
+                              </a>
+                            </div>
                           {% endif %}
                         </td>
                         <!-- 操作 -->

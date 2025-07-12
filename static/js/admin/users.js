@@ -35,36 +35,29 @@ document.addEventListener('DOMContentLoaded', function () {
         select.dataset.originalIndex = select.selectedIndex;
     });
 
-    // 绑定用户状态切换按钮
-    document.querySelectorAll('[onclick*="toggleUserStatus"]').forEach(button => {
-        const userId = button.getAttribute('onclick').match(/toggleUserStatus\((\d+)/)[1];
-        const isActive = button.getAttribute('onclick').includes('true');
-        
-        button.removeAttribute('onclick');
-        button.addEventListener('click', function() {
-            toggleUserStatus(userId, isActive);
-        });
-    });
+    // 用户操作事件委托
+    const usersTable = document.getElementById('usersTable');
+    if (usersTable) {
+        usersTable.addEventListener('click', function (event) {
+            const button = event.target.closest('button');
+            if (!button) return;
 
-    // 绑定查看用户详情按钮
-    document.querySelectorAll('[onclick*="viewUserDetails"]').forEach(button => {
-        const userId = button.getAttribute('onclick').match(/viewUserDetails\((\d+)/)[1];
-        
-        button.removeAttribute('onclick');
-        button.addEventListener('click', function() {
-            viewUserDetails(userId);
-        });
-    });
+            const userId = button.dataset.userId;
 
-    // 绑定删除用户按钮
-    document.querySelectorAll('[onclick*="deleteUser"]').forEach(button => {
-        const userId = button.getAttribute('onclick').match(/deleteUser\((\d+)/)[1];
-        
-        button.removeAttribute('onclick');
-        button.addEventListener('click', function() {
-            deleteUser(userId);
+            if (button.classList.contains('toggle-user-status')) {
+                const isActive = button.dataset.isActive === 'True';
+                toggleUserStatus(userId, isActive);
+            }
+
+            if (button.classList.contains('view-user-details')) {
+                viewUserDetails(userId);
+            }
+
+            if (button.classList.contains('delete-user')) {
+                deleteUser(userId);
+            }
         });
-    });
+    }
 });
 
 // 更新用户角色
