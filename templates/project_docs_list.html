@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  {{ project.title }} - 文档列表
+  文档列表 - {{ project.title }}
 {% endblock %}
 
 {% block required_css %}
@@ -10,29 +10,16 @@
   <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/table.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block extra_css %}
   <style>
-    .doc-item {
-      border-left: 3px solid var(--github-accent);
-      transition: all 0.2s ease;
-      color: var(--github-text);
-    }
-    
-    .doc-item:hover {
-      border-left-color: var(--github-success);
-      background-color: var(--github-hover);
-    }
-    
-    .doc-item .doc-icon {
+    .doc-icon {
       color: var(--github-accent);
       font-size: 1.5rem;
       margin-right: 1rem;
-    }
-    
-    .doc-item:hover .doc-icon {
-      color: var(--github-success);
+      transition: all 0.3s ease;
     }
     
     .doc-date {
@@ -40,8 +27,32 @@
       color: var(--github-text-secondary);
     }
     
-    .back-button {
-      margin-right: 1rem;
+    .doc-img {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+    
+    .status-badge.status-markdown {
+      background-color: rgba(88, 166, 255, 0.15);
+      color: var(--github-accent);
+      border: 1px solid var(--github-accent);
+    }
+    
+    .empty-docs {
+      padding: 3rem 0;
+      text-align: center;
+    }
+    
+    .empty-docs i {
+      font-size: 4rem;
+      color: var(--github-text-secondary);
+      margin-bottom: 1rem;
+      opacity: 0.7;
     }
   </style>
 {% endblock %}
@@ -50,11 +61,10 @@
   <div class="container mt-4">
     <div class="row mb-4">
       <div class="col-12">
-        <div class="d-flex align-items-center">
-          <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary back-button"><i class="fas fa-arrow-left"></i> 返回个人主页</a>
-          <h2 class="mb-0">{{ project.title }} - 文档列表</h2>
+        <div class="d-flex align-items-center mb-4">
+          <h2><i class="fas fa-book"></i> 文档列表 - {{ project.title }}</h2>
         </div>
-        <p class="text-muted mt-2">{{ project.description }}</p>
+        <p class="text-muted mb-2">{{ project.description }}</p>
       </div>
     </div>
 
@@ -65,27 +75,62 @@
             <h5 class="mb-0"><i class="fas fa-book"></i> 文档列表</h5>
             {% if current_user.id == project.author_id %}
               <div>
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#uploadDocModal"><i class="fas fa-upload"></i> 上传文档</button>
-                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#createDocModal"><i class="fas fa-plus"></i> 新建文档</button>
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#uploadDocModal"><i class="fas fa-upload"></i> 上传文档</button>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createDocModal"><i class="fas fa-plus"></i> 新建文档</button>
               </div>
             {% endif %}
           </div>
           <div class="card-body">
             {% if md_files %}
-              <div class="list-group">
-                {% for file in md_files %}
-                  <a href="{{ url_for('project_doc_view', project_id=project.id, filename=file.path) }}" class="list-group-item list-group-item-action doc-item d-flex align-items-center bg-dark">
-                    <i class="fas fa-file-alt doc-icon"></i>
-                    <div>
-                      <div class="fw-bold">{{ file.name }}</div>
-                      <div class="doc-date">最后修改: {{ file.modified.strftime('%Y-%m-%d %H:%M') }}</div>
-                    </div>
-                  </a>
-                {% endfor %}
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>文档名称</th>
+                      <th>修改时间</th>
+                      <th>类型</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for file in md_files %}
+                      <tr>
+                        <!-- 文档名称 -->
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="doc-img me-3">
+                              <i class="fas fa-file-alt doc-icon"></i>
+                            </div>
+                            <div>
+                              <h6 class="mb-0">{{ file.name }}</h6>
+                              <small class="text-muted">{{ file.path }}</small>
+                            </div>
+                          </div>
+                        </td>
+                        <!-- 修改时间 -->
+                        <td>{{ file.modified.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <!-- 类型 -->
+                        <td>
+                          <span class="status-badge status-markdown">Markdown</span>
+                        </td>
+                        <!-- 操作 -->
+                        <td>
+                          <div class="btn-group btn-group-sm" role="group">
+                            <a href="{{ url_for('project_doc_view', project_id=project.id, filename=file.path) }}" class="btn btn-outline-primary" title="查看文档"><i class="fas fa-eye"></i></a>
+                            {% if current_user.id == project.author_id %}
+                              <button class="btn btn-outline-info edit-doc" data-doc-path="{{ file.path }}" title="编辑文档"><i class="fas fa-edit"></i></button>
+                              <button class="btn btn-outline-danger delete-doc" data-doc-path="{{ file.path }}" title="删除文档"><i class="fas fa-trash"></i></button>
+                            {% endif %}
+                          </div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
               </div>
             {% else %}
-              <div class="text-center py-5">
-                <i class="fas fa-folder-open" style="font-size: 3rem; color: var(--github-text-secondary);"></i>
+              <div class="empty-docs">
+                <i class="fas fa-folder-open"></i>
                 <h5 class="mt-3 text-muted">暂无文档</h5>
                 <p class="text-muted">该项目还没有任何文档</p>
                 {% if current_user.id == project.author_id %}
