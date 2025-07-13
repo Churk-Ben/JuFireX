@@ -985,6 +985,37 @@ def create_project_doc(project_id):
         return jsonify({"success": False, "message": f"创建文档失败: {str(e)}"}), 500
 
 
+# 获取原始文档内容API
+@app.route("/api/projects/<int:project_id>/docs/<path:filename>/raw", methods=["GET"])
+@require_role(ROLE_MEMBER)
+def get_project_doc_raw(project_id, filename):
+    project = db.session.get(Project, project_id)
+    if not project:
+        return jsonify({'success': False, 'message': '项目不存在'}), 404
+
+    # 权限检查：只有项目作者或管理员可以获取
+    user = db.session.get(User, session.get('user_id'))
+    if not user or (user.id != project.author_id and user.role < ROLE_ADMIN):
+        return jsonify({'success': False, 'message': '权限不足'}), 403
+
+    # 生成文档文件夹路径
+    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
+    project_docs_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "projects", folder_name
+    )
+    doc_path = os.path.join(project_docs_path, filename)
+
+    if not os.path.exists(doc_path) or not os.path.isfile(doc_path):
+        return jsonify({'success': False, 'message': '文档不存在'}), 404
+
+    try:
+        with open(doc_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return jsonify({'success': True, 'content': content})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'读取文件时出错: {e}'}), 500
+
+
 # 更新文档API
 @app.route("/api/projects/<int:project_id>/docs/<path:filename>", methods=["PUT"])
 @require_role(ROLE_MEMBER)
