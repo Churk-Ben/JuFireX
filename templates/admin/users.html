@@ -1,299 +1,304 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  用户管理 - JuFire Studio
+用户管理 - JuFire Studio
 {% endblock %}
 
 {% block required_css %}
-  <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/table.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/table.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block extra_css %}
-  <style>
-    .user-avatar {
-      width: 40px;
-      height: 40px;
-      object-fit: cover;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .user-avatar i {
-      font-size: 40px;
-      color: var(--github-accent);
-    }
-    
-    /* 项目数量样式 */
-    .table .project-count {
-      font-weight: 500;
-      color: var(--github-text-secondary);
-      transition: color 0.2s ease;
-    }
-    
-    .table-hover tbody tr:hover .project-count {
-      color: var(--github-accent);
-    }
-    
-    .user_dot_inline {
-      display: inline-block;
-    }
-  </style>
+<style>
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .user-avatar i {
+    font-size: 40px;
+    color: var(--github-accent);
+  }
+
+  /* 项目数量样式 */
+  .table .project-count {
+    font-weight: 500;
+    color: var(--github-text-secondary);
+    transition: color 0.2s ease;
+  }
+
+  .table-hover tbody tr:hover .project-count {
+    color: var(--github-accent);
+  }
+
+  .user_dot_inline {
+    display: inline-block;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-  <div class="container mt-4">
-    <div class="row">
-      <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2><i class="fas fa-users-cog"></i> 用户管理</h2>
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-users-cog"></i> 用户管理</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- 用户统计 -->
+  <div class="row mb-4">
+    <div class="col-md-3 col-6 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="fas fa-users" style="font-size: 2rem; color: var(--github-accent);"></i>
+          <h4 class="mt-2 mb-0">{{ users|length }}</h4>
+          <p class="text-muted mb-0">总用户数</p>
         </div>
       </div>
     </div>
-
-    <!-- 用户统计 -->
-    <div class="row mb-4">
-      <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-users" style="font-size: 2rem; color: var(--github-accent);"></i>
-            <h4 class="mt-2 mb-0">{{ users|length }}</h4>
-            <p class="text-muted mb-0">总用户数</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-crown" style="font-size: 2rem; color: #ffd700;"></i>
-            <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 3)|list|length }}</h4>
-            <p class="text-muted mb-0">超级管理员</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-user-cog" style="font-size: 2rem; color: var(--github-warning);"></i>
-            <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 2)|list|length }}</h4>
-            <p class="text-muted mb-0">管理员</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-users" style="font-size: 2rem; color: var(--github-success);"></i>
-            <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 1)|list|length }}</h4>
-            <p class="text-muted mb-0">成员</p>
-          </div>
+    <div class="col-md-3 col-6 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="fas fa-crown" style="font-size: 2rem; color: #ffd700;"></i>
+          <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 3)|list|length }}</h4>
+          <p class="text-muted mb-0">超级管理员</p>
         </div>
       </div>
     </div>
-
-    <!-- 用户列表 -->
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-list"></i> 用户列表</h5>
-        <div class="input-group" style="width: 300px;">
-          <input type="text" class="form-control" id="searchInput" placeholder="搜索用户..." />
-          <button class="btn btn-outline-primary" type="button" id="searchButton"><i class="fas fa-search"></i></button>
+    <div class="col-md-3 col-6 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="fas fa-user-cog" style="font-size: 2rem; color: var(--github-warning);"></i>
+          <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 2)|list|length }}</h4>
+          <p class="text-muted mb-0">管理员</p>
         </div>
       </div>
-      <div class="card-body">
-        {% if users %}
-          <div class="table-responsive">
-            <table class="table table-hover" id="usersTable">
-              <thead>
-                <tr>
-                  <th>用户信息</th>
-                  <th>角色</th>
-                  <th>注册时间</th>
-                  <th>状态</th>
-                  <th>项目数</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for user in users %}
-                  <tr data-user-id="{{ user.id }}">
-                    <!-- 用户信息 -->
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <div class="me-3">
-                          {% if user.avatar_path %}
-                            <img src="{{ url_for('user_avatar', filename=user.avatar_path) }}" alt="{{ user.username }}的头像" class="rounded-circle user-avatar" />
-                          {% else %}
-                            <div class="user-avatar">
-                              <i class="fas fa-user-circle"></i>
-                            </div>
-                          {% endif %}
-                        </div>
-                        <div>
-                          <h6 class="mb-0">
-                            {{ user.username }}
-                            <div class="user_dot_inline ms-2">
-                              {% if user.role == 0 %}
-                                <span class="user_dot rounded-circle bg-info" title="权限等级: 游客"></span>
-                              {% elif user.role == 1 %}
-                                <span class="user_dot rounded-circle bg-primary" title="权限等级: 成员"></span>
-                              {% elif user.role == 2 %}
-                                <span class="user_dot rounded-circle bg-warning" title="权限等级: 管理员"></span>
-                              {% elif user.role >= 3 %}
-                                <span class="user_dot rounded-circle bg-danger" title="权限等级: 超级管理员"></span>
-                              {% endif %}
-                            </div>
-                          </h6>
-                          <small class="text-muted">{{ user.email }}</small>
-                        </div>
-                      </div>
-                    </td>
-                    <!-- 角色 -->
-                    <td>
-                      {% if user.id == current_user.id %}
-                        <select class="form-select form-select-sm role-select" data-user-id="{{ user.id }}" disabled>
-                          {% if user.role == 0 %}
-                            <option value="0" selected>游客</option>
-                          {% else %}
-                            <option value="0">游客</option>
-                          {% endif %}
-                          {% if user.role == 1 %}
-                            <option value="1" selected>成员</option>
-                          {% else %}
-                            <option value="1">成员</option>
-                          {% endif %}
-                          {% if user.role == 2 %}
-                            <option value="2" selected>管理员</option>
-                          {% else %}
-                            <option value="2">管理员</option>
-                          {% endif %}
-                          {% if user.role == 3 %}
-                            <option value="3" selected>超级管理员</option>
-                          {% else %}
-                            <option value="3">超级管理员</option>
-                          {% endif %}
-                        </select>
-                      {% else %}
-                        <select class="form-select form-select-sm role-select" data-user-id="{{ user.id }}">
-                          {% if user.role == 0 %}
-                            <option value="0" selected>游客</option>
-                          {% else %}
-                            <option value="0">游客</option>
-                          {% endif %}
-                          {% if user.role == 1 %}
-                            <option value="1" selected>成员</option>
-                          {% else %}
-                            <option value="1">成员</option>
-                          {% endif %}
-                          {% if user.role == 2 %}
-                            <option value="2" selected>管理员</option>
-                          {% else %}
-                            <option value="2">管理员</option>
-                          {% endif %}
-                          {% if user.role == 3 %}
-                            <option value="3" selected>超级管理员</option>
-                          {% else %}
-                            <option value="3">超级管理员</option>
-                          {% endif %}
-                        </select>
-                      {% endif %}
-                    </td>
-                    <!-- 注册时间 -->
-                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
-                    <!-- 状态 -->
-                    <td>
-                      {% if user.is_active %}
-                        <span class="status-badge status-active">活跃</span>
-                      {% else %}
-                        <span class="status-badge status-inactive">封禁</span>
-                      {% endif %}
-                    </td>
-                    <!-- 项目数 -->
-                    <td class="text-center project-count" title="用户项目数量">{{ user.projects|length }}</td>
-                    <!-- 操作 -->
-                    <td>
-                      <div class="btn-group btn-group-sm" role="group">
-                        {% if user.id != current_user.id %}
-                          {% if user.is_active %}
-                            <button class="btn btn-outline-warning toggle-user-status" data-user-id="{{ user.id }}" data-is-active="{{ user.is_active }}" title="封禁用户"><i class="fas fa-ban"></i></button>
-                          {% else %}
-                            <button class="btn btn-outline-warning toggle-user-status" data-user-id="{{ user.id }}" data-is-active="{{ user.is_active }}" title="解封用户"><i class="fas fa-check"></i></button>
-                          {% endif %}
-                          <button class="btn btn-outline-info view-user-details" data-user-id="{{ user.id }}" title="查看详情"><i class="fas fa-eye"></i></button>
-                          <button class="btn btn-outline-danger delete-user" data-user-id="{{ user.id }}" title="删除用户"><i class="fas fa-trash"></i></button>
-                        {% else %}
-                          <span class="status-badge status-current"><i class="fas fa-user me-1"></i> 当前用户</span>
-                        {% endif %}
-                      </div>
-                    </td>
-                    <!-- - -->
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        {% else %}
-          <div class="text-center py-5">
-            <i class="fas fa-users" style="font-size: 4rem; color: var(--github-text-secondary);"></i>
-            <h4 class="mt-3 text-muted">暂无用户</h4>
-            <p class="text-muted">系统中还没有注册用户</p>
-          </div>
-        {% endif %}
-      </div>
     </div>
-
-    <!-- 权限说明 -->
-    <div class="card mt-4">
-      <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-info-circle"></i> 权限说明</h5>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <h6><i class="fas fa-user text-secondary"></i> 游客 (权限级别: 0)</h6>
-            <ul class="small text-muted">
-              <li>可以查看公开内容</li>
-              <li>可以访问个人主页</li>
-              <li>无法使用高级功能</li>
-            </ul>
-
-            <h6><i class="fas fa-users text-info"></i> 成员 (权限级别: 1)</h6>
-            <ul class="small text-muted">
-              <li>拥有游客的所有权限</li>
-              <li>可以使用导航页功能</li>
-              <li>可以查看更多内部资源</li>
-            </ul>
-          </div>
-          <div class="col-md-6">
-            <h6><i class="fas fa-user-cog text-warning"></i> 管理员 (权限级别: 2)</h6>
-            <ul class="small text-muted">
-              <li>拥有成员的所有权限</li>
-              <li>可以管理工作室项目</li>
-              <li>可以创建、编辑、删除项目</li>
-            </ul>
-
-            <h6><i class="fas fa-crown text-danger"></i> 超级管理员 (权限级别: 3)</h6>
-            <ul class="small text-muted">
-              <li>拥有管理员的所有权限</li>
-              <li>可以管理所有用户</li>
-              <li>可以修改用户权限和状态</li>
-            </ul>
-          </div>
+    <div class="col-md-3 col-6 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="fas fa-users" style="font-size: 2rem; color: var(--github-success);"></i>
+          <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 1)|list|length }}</h4>
+          <p class="text-muted mb-0">成员</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 引入模态框 -->
-  {% include 'modals/userDetailModal.html' %}
-  <!-- - -->
+  <!-- 用户列表 -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0"><i class="fas fa-list"></i> 用户列表</h5>
+      <div class="input-group" style="width: 300px;">
+        <input type="text" class="form-control" id="searchInput" placeholder="搜索用户..." />
+        <button class="btn btn-outline-primary" type="button" id="searchButton"><i class="fas fa-search"></i></button>
+      </div>
+    </div>
+    <div class="card-body">
+      {% if users %}
+      <div class="table-responsive">
+        <table class="table table-hover" id="usersTable">
+          <thead>
+            <tr>
+              <th>用户信息</th>
+              <th>角色</th>
+              <th>注册时间</th>
+              <th>状态</th>
+              <th>项目数</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr data-user-id="{{ user.id }}">
+              <!-- 用户信息 -->
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="me-3">
+                    {% if user.avatar_path %}
+                    <img src="{{ url_for('user_avatar', filename=user.avatar_path) }}" alt="{{ user.username }}的头像"
+                      class="rounded-circle user-avatar" />
+                    {% else %}
+                    <div class="user-avatar">
+                      <i class="fas fa-user-circle"></i>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <h6 class="mb-0">
+                      {{ user.username }}
+                      <div class="user_dot_inline ms-2">
+                        {% if user.role == 0 %}
+                        <span class="user_dot rounded-circle bg-info" title="权限等级: 游客"></span>
+                        {% elif user.role == 1 %}
+                        <span class="user_dot rounded-circle bg-primary" title="权限等级: 成员"></span>
+                        {% elif user.role == 2 %}
+                        <span class="user_dot rounded-circle bg-warning" title="权限等级: 管理员"></span>
+                        {% elif user.role >= 3 %}
+                        <span class="user_dot rounded-circle bg-danger" title="权限等级: 超级管理员"></span>
+                        {% endif %}
+                      </div>
+                    </h6>
+                    <small class="text-muted">{{ user.email }}</small>
+                  </div>
+                </div>
+              </td>
+              <!-- 角色 -->
+              <td>
+                {% if user.id == current_user.id %}
+                <select class="form-select form-select-sm role-select" data-user-id="{{ user.id }}" disabled>
+                  {% if user.role == 0 %}
+                  <option value="0" selected>游客</option>
+                  {% else %}
+                  <option value="0">游客</option>
+                  {% endif %}
+                  {% if user.role == 1 %}
+                  <option value="1" selected>成员</option>
+                  {% else %}
+                  <option value="1">成员</option>
+                  {% endif %}
+                  {% if user.role == 2 %}
+                  <option value="2" selected>管理员</option>
+                  {% else %}
+                  <option value="2">管理员</option>
+                  {% endif %}
+                  {% if user.role == 3 %}
+                  <option value="3" selected>超级管理员</option>
+                  {% else %}
+                  <option value="3">超级管理员</option>
+                  {% endif %}
+                </select>
+                {% else %}
+                <select class="form-select form-select-sm role-select" data-user-id="{{ user.id }}">
+                  {% if user.role == 0 %}
+                  <option value="0" selected>游客</option>
+                  {% else %}
+                  <option value="0">游客</option>
+                  {% endif %}
+                  {% if user.role == 1 %}
+                  <option value="1" selected>成员</option>
+                  {% else %}
+                  <option value="1">成员</option>
+                  {% endif %}
+                  {% if user.role == 2 %}
+                  <option value="2" selected>管理员</option>
+                  {% else %}
+                  <option value="2">管理员</option>
+                  {% endif %}
+                  {% if user.role == 3 %}
+                  <option value="3" selected>超级管理员</option>
+                  {% else %}
+                  <option value="3">超级管理员</option>
+                  {% endif %}
+                </select>
+                {% endif %}
+              </td>
+              <!-- 注册时间 -->
+              <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+              <!-- 状态 -->
+              <td>
+                {% if user.is_active %}
+                <span class="status-badge status-active">活跃</span>
+                {% else %}
+                <span class="status-badge status-inactive">封禁</span>
+                {% endif %}
+              </td>
+              <!-- 项目数 -->
+              <td class="text-center project-count" title="用户项目数量">{{ user.projects|length }}</td>
+              <!-- 操作 -->
+              <td>
+                <div class="btn-group btn-group-sm" role="group">
+                  {% if user.id != current_user.id %}
+                  {% if user.is_active %}
+                  <button class="btn btn-outline-warning toggle-user-status" data-user-id="{{ user.id }}"
+                    data-is-active="{{ user.is_active }}" title="封禁用户"><i class="fas fa-ban"></i></button>
+                  {% else %}
+                  <button class="btn btn-outline-warning toggle-user-status" data-user-id="{{ user.id }}"
+                    data-is-active="{{ user.is_active }}" title="解封用户"><i class="fas fa-check"></i></button>
+                  {% endif %}
+                  <button class="btn btn-outline-info view-user-details" data-user-id="{{ user.id }}" title="查看详情"><i
+                      class="fas fa-eye"></i></button>
+                  <button class="btn btn-outline-danger delete-user" data-user-id="{{ user.id }}" title="删除用户"><i
+                      class="fas fa-trash"></i></button>
+                  {% else %}
+                  <span class="status-badge status-current"><i class="fas fa-user me-1"></i> 当前用户</span>
+                  {% endif %}
+                </div>
+              </td>
+              <!-- - -->
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+        <i class="fas fa-users" style="font-size: 4rem; color: var(--github-text-secondary);"></i>
+        <h4 class="mt-3 text-muted">暂无用户</h4>
+        <p class="text-muted">系统中还没有注册用户</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- 权限说明 -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="mb-0"><i class="fas fa-info-circle"></i> 权限说明</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <h6><i class="fas fa-user text-secondary"></i> 游客 (权限级别: 0)</h6>
+          <ul class="small text-muted">
+            <li>可以查看公开内容</li>
+            <li>可以访问个人主页</li>
+            <li>无法使用高级功能</li>
+          </ul>
+
+          <h6><i class="fas fa-users text-info"></i> 成员 (权限级别: 1)</h6>
+          <ul class="small text-muted">
+            <li>拥有游客的所有权限</li>
+            <li>可以使用导航页功能</li>
+            <li>可以查看更多内部资源</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <h6><i class="fas fa-user-cog text-warning"></i> 管理员 (权限级别: 2)</h6>
+          <ul class="small text-muted">
+            <li>拥有成员的所有权限</li>
+            <li>可以管理工作室项目</li>
+            <li>可以创建、编辑、删除项目</li>
+          </ul>
+
+          <h6><i class="fas fa-crown text-danger"></i> 超级管理员 (权限级别: 3)</h6>
+          <ul class="small text-muted">
+            <li>拥有管理员的所有权限</li>
+            <li>可以管理所有用户</li>
+            <li>可以修改用户权限和状态</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 引入模态框 -->
+{% include 'modals/userDetailModal.html' %}
+<!-- - -->
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{{ url_for('static', filename='js/admin/users.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin/users.js') }}"></script>
 {% endblock %}

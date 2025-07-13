@@ -12,9 +12,10 @@
           <div class="col-md-12 text-center mb-3">
             <div id="avatarPreview">
               {% if user.avatar_path %}
-                <img src="{{ url_for('user_avatar', filename=user.avatar_path) }}" alt="头像预览" style="width: 100%; height: 100%; object-fit: cover" />
+              <img src="{{ url_for('user_avatar', filename=user.avatar_path) }}" alt="头像预览"
+                style="width: 100%; height: 100%; object-fit: cover" />
               {% else %}
-                <i class="fas fa-user" style="font-size: 4rem; color: #ccc; line-height: 120px"></i>
+              <i class="fas fa-user" style="font-size: 4rem; color: #ccc; line-height: 120px"></i>
               {% endif %}
             </div>
           </div>

@@ -1,265 +1,271 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  JueFire Studio - 首页
+JueFire Studio - 首页
 {% endblock %}
 
 {% block required_css %}
-  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block extra_css %}
-  <style>
-    .hero-section {
-      display: flex;
-      align-items: center;
-      height: 50vh;
-      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-      background-size: cover;
-    }
-    
-    .project-section {
-      min-height: 100vh;
-    }
-  </style>
+<style>
+  .hero-section {
+    display: flex;
+    align-items: center;
+    height: 50vh;
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    background-size: cover;
+  }
+
+  .project-section {
+    min-height: 100vh;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-  <!-- 海报栏 -->
-  <section class="hero-section">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-6">
-          <h1 class="display-4 fw-bold mb-4">{{ studio_info.name }}</h1>
-          <p class="lead mb-4">{{ studio_info.description }}</p>
+<!-- 海报栏 -->
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="display-4 fw-bold mb-4">{{ studio_info.name }}</h1>
+        <p class="lead mb-4">{{ studio_info.description }}</p>
 
-          <div class="d-flex gap-3">
-            {% if not current_user %}
-              <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i> 加入我们</a>
-              <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
-                <i class="fas fa-sign-in-alt"></i>
-                登录
-              </a>
-            {% else %}
-              <a href="{{ url_for('profile') }}" class="btn btn-primary btn-lg"><i class="fas fa-user"></i> 个人主页</a>
-              <a href="{{ url_for('navigation') }}" class="btn btn-outline-light btn-lg">
-                <i class="fas fa-compass"></i>
-                导航
-              </a>
-            {% endif %}
-          </div>
+        <div class="d-flex gap-3">
+          {% if not current_user %}
+          <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i>
+            加入我们</a>
+          <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+            <i class="fas fa-sign-in-alt"></i>
+            登录
+          </a>
+          {% else %}
+          <a href="{{ url_for('profile') }}" class="btn btn-primary btn-lg"><i class="fas fa-user"></i> 个人主页</a>
+          <a href="{{ url_for('navigation') }}" class="btn btn-outline-light btn-lg">
+            <i class="fas fa-compass"></i>
+            导航
+          </a>
+          {% endif %}
         </div>
-        <div class="col-lg-6 text-center">
-          <div class="p-5">
-            <i class="fas fa-fire" style="font-size: 8rem; color: var(--github-accent)"></i>
-          </div>
+      </div>
+      <div class="col-lg-6 text-center">
+        <div class="p-5">
+          <i class="fas fa-fire" style="font-size: 8rem; color: var(--github-accent)"></i>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- 项目展示 -->
-  <section class="project-section py-5">
-    <div class="container">
-      <div class="row mb-5">
-        <div class="col-12 text-center">
-          <h2 class="h1 mb-3">精选项目</h2>
-          <p class="lead text-muted">展示我们最新和最受欢迎的项目</p>
+<!-- 项目展示 -->
+<section class="project-section py-5">
+  <div class="container">
+    <div class="row mb-5">
+      <div class="col-12 text-center">
+        <h2 class="h1 mb-3">精选项目</h2>
+        <p class="lead text-muted">展示我们最新和最受欢迎的项目</p>
+      </div>
+    </div>
+
+    {% if projects %}
+    <div class="row g-4">
+      {% for project in projects %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card project-card h-100">
+          <!-- 项目题图 -->
+          {% if project.image_url %}
+          <img src="{{ project.image_url }}" class="card-img-top" style="height: 200px; object-fit: cover" />
+          {% else %}
+          <div class="card-img-top d-flex align-items-center justify-content-center"
+            style="height: 200px; background-color: var(--github-bg)">
+            <i class="fas fa-code" style="font-size: 3rem; color: var(--github-text-secondary)"></i>
+          </div>
+          {% endif %}
+          <!-- 项目内容 -->
+          <div class="card-body d-flex flex-column">
+            <!-- 项目标题和描述 -->
+            <h5 class="card-title">{{ project.title }}</h5>
+            <p class="card-text flex-grow-1">
+              {{ project.description[:100] }}
+              {% if project.description|length >= 100 %}...{% endif %}
+            </p>
+
+            <div class="mt-auto">
+              <div class="d-flex justify-content-between align-items-center">
+                <!-- 项目作者 -->
+                <div class="d-flex align-items-center">
+                  <a class="nav-link" id="profile_link" href="#">
+                    <!-- TODO:查看他人主页 -->
+                    <div id="user_tag" class="me-1">
+                      {% if project.author and project.author.avatar_path %}
+                      <img id="user_avatar_img"
+                        src="{{ url_for('user_avatar', filename=project.author.avatar_path) }}" />
+                      {% else %}
+                      <i id="user_avatar_fas" class="fas fa-user-circle"></i>
+                      {% endif %}
+                    </div>
+                    <small class="text-muted">
+                      {% if project.author %}
+                      {{ project.author.username }}
+                      {% else %}
+                      未知
+                      {% endif %}
+                    </small>
+                    <div id="user_dot_box">
+                      {% if project.author.role == 1 %}
+                      <span class="user_dot rounded-circle bg-primary" title="成员"></span>
+                      {% elif project.author.role == 2 %}
+                      <span class="user_dot rounded-circle bg-warning" title="管理员"></span>
+                      {% elif project.author.role == 3 %}
+                      <span class="user_dot rounded-circle bg-danger" title="超级管理员"></span>
+                      {% else %}
+                      <span class="user_dot rounded-circle bg-secondary" title="未知"></span>
+                      {% endif %}
+                    </div>
+                  </a>
+                </div>
+                <!-- 项目创建时间 -->
+                <small class="text-muted">{{ project.created_at.strftime('%Y-%m-%d') }}</small>
+              </div>
+              <div class="d-flex justify-content-between">
+                <div class="mt-3 d-flex gap-2">
+                  <!-- 仓库按钮 -->
+                  {% if project.github_url %}
+                  <a href="{{ project.github_url }}" class="btn btn-sm btn-outline-light" target="_blank"><i
+                      class="fab fa-github"></i> 仓库</a>
+                  {% else %}
+                  <button class="btn btn-sm btn-outline-secondary" disabled><i class="fas fa-lock"></i> 闭源</button>
+                  {% endif %}
+
+                  <!-- 演示按钮 -->
+                  {% if project.demo_url %}
+                  <a href="{{ project.demo_url }}" class="btn btn-sm btn-outline-primary" target="_blank"><i
+                      class="fas fa-external-link-alt"></i> 演示</a>
+                  {% else %}
+                  <button class="btn btn-sm btn-outline-secondary" disabled>
+                    <i class="fas fa-eye-slash"></i>
+                    无演示
+                  </button>
+                  {% endif %}
+                  <!-- - -->
+                </div>
+                <div class="mt-3 d-flex">
+                  {% if project.docs_opened %}
+                  <a href="{{ url_for('open_project_docs', project_id=project.id) }}" class="btn btn-sm btn-success"><i
+                      class="fas fa-book"></i> 文档空间</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+      {% endfor %}
+    </div>
+    <!-- 无项目 -->
+    {% else %}
+    <div class="row">
+      <div class="col-12 text-center">
+        <div class="py-5">
+          <i class="fas fa-folder-open" style="font-size: 4rem; color: var(--github-text-secondary)"></i>
+          <h3 class="mt-3 text-muted">暂无项目</h3>
+          <p class="text-muted">工作室项目正在筹备中，敬请期待！</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
 
-      {% if projects %}
+<!-- 统计信息 -->
+<section class="py-5" style="background-color: var(--github-secondary)">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-md-3 col-6 mb-4">
+        <div class="p-3">
+          <i class="fas fa-code" style="font-size: 2.5rem; color: var(--github-accent)"></i>
+          {% if projects %}
+          <h3 class="mt-2 mb-0">{{ projects|length }}</h3>
+          {% else %}
+          <h3 class="mt-2 mb-0">0</h3>
+          {% endif %}
+          <p class="text-muted mb-0">项目数量</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-4">
+        <div class="p-3">
+          <i class="fas fa-users" style="font-size: 2.5rem; color: var(--github-success)"></i>
+          {% if users %}
+          <h3 class="mt-2 mb-0">{{ users|length }}</h3>
+          {% else %}
+          <h3 class="mt-2 mb-0">5+</h3>
+          {% endif %}
+          <p class="text-muted mb-0">团队成员</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-4">
+        <div class="p-3">
+          <i class="fas fa-star" style="font-size: 2.5rem; color: #ffd700"></i>
+          <h3 class="mt-2 mb-0">100+</h3>
+          <p class="text-muted mb-0">GitHub 星标</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-4">
+        <div class="p-3">
+          <i class="fas fa-download" style="font-size: 2.5rem; color: var(--github-danger)"></i>
+          <h3 class="mt-2 mb-0">1000+</h3>
+          <p class="text-muted mb-0">下载次数</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 联系信息 -->
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <h2 class="mb-4">联系我们</h2>
+        <p class="lead mb-4">有任何问题或合作意向，欢迎随时联系我们</p>
+
         <div class="row g-4">
-          {% for project in projects %}
-            <div class="col-md-6 col-lg-4">
-              <div class="card project-card h-100">
-                <!-- 项目题图 -->
-                {% if project.image_url %}
-                  <img src="{{ project.image_url }}" class="card-img-top" style="height: 200px; object-fit: cover" />
-                {% else %}
-                  <div class="card-img-top d-flex align-items-center justify-content-center" style="height: 200px; background-color: var(--github-bg)">
-                    <i class="fas fa-code" style="font-size: 3rem; color: var(--github-text-secondary)"></i>
-                  </div>
-                {% endif %}
-                <!-- 项目内容 -->
-                <div class="card-body d-flex flex-column">
-                  <!-- 项目标题和描述 -->
-                  <h5 class="card-title">{{ project.title }}</h5>
-                  <p class="card-text flex-grow-1">
-                    {{ project.description[:100] }}
-                    {% if project.description|length >= 100 %}...{% endif %}
-                  </p>
-
-                  <div class="mt-auto">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <!-- 项目作者 -->
-                      <div class="d-flex align-items-center">
-                        <a class="nav-link" id="profile_link" href="#">
-                          <!-- TODO:查看他人主页 -->
-                          <div id="user_tag" class="me-1">
-                            {% if project.author and project.author.avatar_path %}
-                              <img id="user_avatar_img" src="{{ url_for('user_avatar', filename=project.author.avatar_path) }}" />
-                            {% else %}
-                              <i id="user_avatar_fas" class="fas fa-user-circle"></i>
-                            {% endif %}
-                          </div>
-                          <small class="text-muted">
-                            {% if project.author %}
-                              {{ project.author.username }}
-                            {% else %}
-                              未知
-                            {% endif %}
-                          </small>
-                          <div id="user_dot_box">
-                            {% if project.author.role == 1 %}
-                              <span class="user_dot rounded-circle bg-primary" title="成员"></span>
-                            {% elif project.author.role == 2 %}
-                              <span class="user_dot rounded-circle bg-warning" title="管理员"></span>
-                            {% elif project.author.role == 3 %}
-                              <span class="user_dot rounded-circle bg-danger" title="超级管理员"></span>
-                            {% else %}
-                              <span class="user_dot rounded-circle bg-secondary" title="未知"></span>
-                            {% endif %}
-                          </div>
-                        </a>
-                      </div>
-                      <!-- 项目创建时间 -->
-                      <small class="text-muted">{{ project.created_at.strftime('%Y-%m-%d') }}</small>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                      <div class="mt-3 d-flex gap-2">
-                        <!-- 仓库按钮 -->
-                        {% if project.github_url %}
-                          <a href="{{ project.github_url }}" class="btn btn-sm btn-outline-light" target="_blank"><i class="fab fa-github"></i> 仓库</a>
-                        {% else %}
-                          <button class="btn btn-sm btn-outline-secondary" disabled><i class="fas fa-lock"></i> 闭源</button>
-                        {% endif %}
-
-                        <!-- 演示按钮 -->
-                        {% if project.demo_url %}
-                          <a href="{{ project.demo_url }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fas fa-external-link-alt"></i> 演示</a>
-                        {% else %}
-                          <button class="btn btn-sm btn-outline-secondary" disabled>
-                            <i class="fas fa-eye-slash"></i>
-                            无演示
-                          </button>
-                        {% endif %}
-                        <!-- - -->
-                      </div>
-                      <div class="mt-3 d-flex">
-                        {% if project.docs_opened %}
-                          <a href="{{ url_for('project_docs', project_id=project.id) }}" class="btn btn-sm btn-success"><i class="fas fa-book"></i> 文档空间</a>
-                        {% endif %}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body">
+                <i class="fas fa-envelope" style="font-size: 2rem; color: var(--github-accent)"></i>
+                <h5 class="mt-3">邮箱联系</h5>
+                <p class="text-muted">
+                  {% if studio_info and studio_info.contact_email %}
+                  {{ studio_info.contact_email }}
+                  {% else %}
+                  contact@jufire.studio
+                  {% endif %}
+                </p>
               </div>
             </div>
-          {% endfor %}
-        </div>
-        <!-- 无项目 -->
-      {% else %}
-        <div class="row">
-          <div class="col-12 text-center">
-            <div class="py-5">
-              <i class="fas fa-folder-open" style="font-size: 4rem; color: var(--github-text-secondary)"></i>
-              <h3 class="mt-3 text-muted">暂无项目</h3>
-              <p class="text-muted">工作室项目正在筹备中，敬请期待！</p>
-            </div>
           </div>
-        </div>
-      {% endif %}
-    </div>
-  </section>
-
-  <!-- 统计信息 -->
-  <section class="py-5" style="background-color: var(--github-secondary)">
-    <div class="container">
-      <div class="row text-center">
-        <div class="col-md-3 col-6 mb-4">
-          <div class="p-3">
-            <i class="fas fa-code" style="font-size: 2.5rem; color: var(--github-accent)"></i>
-            {% if projects %}
-              <h3 class="mt-2 mb-0">{{ projects|length }}</h3>
-            {% else %}
-              <h3 class="mt-2 mb-0">0</h3>
-            {% endif %}
-            <p class="text-muted mb-0">项目数量</p>
-          </div>
-        </div>
-        <div class="col-md-3 col-6 mb-4">
-          <div class="p-3">
-            <i class="fas fa-users" style="font-size: 2.5rem; color: var(--github-success)"></i>
-            {% if users %}
-              <h3 class="mt-2 mb-0">{{ users|length }}</h3>
-            {% else %}
-              <h3 class="mt-2 mb-0">5+</h3>
-            {% endif %}
-            <p class="text-muted mb-0">团队成员</p>
-          </div>
-        </div>
-        <div class="col-md-3 col-6 mb-4">
-          <div class="p-3">
-            <i class="fas fa-star" style="font-size: 2.5rem; color: #ffd700"></i>
-            <h3 class="mt-2 mb-0">100+</h3>
-            <p class="text-muted mb-0">GitHub 星标</p>
-          </div>
-        </div>
-        <div class="col-md-3 col-6 mb-4">
-          <div class="p-3">
-            <i class="fas fa-download" style="font-size: 2.5rem; color: var(--github-danger)"></i>
-            <h3 class="mt-2 mb-0">1000+</h3>
-            <p class="text-muted mb-0">下载次数</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 联系信息 -->
-  <section class="py-5">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-8 text-center">
-          <h2 class="mb-4">联系我们</h2>
-          <p class="lead mb-4">有任何问题或合作意向，欢迎随时联系我们</p>
-
-          <div class="row g-4">
-            <div class="col-md-6">
-              <div class="card">
-                <div class="card-body">
-                  <i class="fas fa-envelope" style="font-size: 2rem; color: var(--github-accent)"></i>
-                  <h5 class="mt-3">邮箱联系</h5>
-                  <p class="text-muted">
-                    {% if studio_info and studio_info.contact_email %}
-                      {{ studio_info.contact_email }}
-                    {% else %}
-                      contact@jufire.studio
-                    {% endif %}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="card">
-                <div class="card-body">
-                  <i class="fab fa-github" style="font-size: 2rem; color: var(--github-accent)"></i>
-                  <h5 class="mt-3">GitHub</h5>
-                  <p class="text-muted">
-                    {% if studio_info and studio_info.github_url %}
-                      <a href="{{ studio_info.github_url }}" class="text-decoration-none" target="_blank">查看我们的开源项目</a>
-                    {% else %}
-                      github.com/jufirex
-                    {% endif %}
-                  </p>
-                </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body">
+                <i class="fab fa-github" style="font-size: 2rem; color: var(--github-accent)"></i>
+                <h5 class="mt-3">GitHub</h5>
+                <p class="text-muted">
+                  {% if studio_info and studio_info.github_url %}
+                  <a href="{{ studio_info.github_url }}" class="text-decoration-none" target="_blank">查看我们的开源项目</a>
+                  {% else %}
+                  github.com/jufirex
+                  {% endif %}
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 {% endblock %}

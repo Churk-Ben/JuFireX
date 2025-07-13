@@ -1,232 +1,247 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  导航管理 - JuFire Studio
+导航管理 - JuFire Studio
 {% endblock %}
 
 {% block required_css %}
-  <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/table.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/table.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block extra_css %}
-  <style>
-    #link-icon {
-      font-size: 1.5em;
-      color: var(--github-accent);
-    }
-  </style>
+<style>
+  #link-icon {
+    font-size: 1.5em;
+    color: var(--github-accent);
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-  <div class="container mt-4">
-    <div class="row">
-      <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2><i class="fas fa-compass"></i> 导航管理</h2>
-          <div>
-            <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i class="fas fa-folder-plus"></i> 新增分类</button>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"><i class="fas fa-plus"></i> 添加导航</button>
-          </div>
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-compass"></i> 导航管理</h2>
+        <div>
+          <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i
+              class="fas fa-folder-plus"></i> 新增分类</button>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"><i
+              class="fas fa-plus"></i> 添加导航</button>
         </div>
       </div>
     </div>
-
-    <!-- 导航统计 -->
-    <div class="row mb-4">
-      <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-folder" style="font-size: 2rem; color: var(--github-accent)"></i>
-            <h4 class="mt-2 mb-0">{{ categories|length }}</h4>
-            <p class="text-muted mb-0">总分类数</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-link" style="font-size: 2rem; color: var(--github-success)"></i>
-            <h4 class="mt-2 mb-0">{{ nav_items|length }}</h4>
-            <p class="text-muted mb-0">总导航数</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-eye" style="font-size: 2rem; color: var(--github-warning)"></i>
-            <h4 class="mt-2 mb-0">{{ nav_items|selectattr('is_public')|list|length }}</h4>
-            <p class="text-muted mb-0">公开导航</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-eye-slash" style="font-size: 2rem; color: var(--github-danger)"></i>
-            <h4 class="mt-2 mb-0">{{ nav_items|rejectattr('is_public')|list|length }}</h4>
-            <p class="text-muted mb-0">私有导航</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 分类列表 -->
-    {% if categories %}
-      {% for category in categories %}
-        <div class="card mb-4">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="{{ category.icon }}"></i> {{ category.name }}</h5>
-            <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-outline-primary edit-category" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}" data-category-icon="{{ category.icon }}" data-category-order="{{ category.order }}"><i class="fas fa-edit"></i></button>
-              <button class="btn btn-sm btn-outline-danger delete-category" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}"><i class="fas fa-trash-alt"></i></button>
-              <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal" data-category-id="{{ category.id }}"><i class="fas fa-plus"></i></button>
-            </div>
-          </div>
-          <div class="card-body">
-            {% if category.nav_items %}
-              <div class="table-responsive">
-                <table class="table table-hover category-table" data-category-id="{{ category.id }}">
-                  <thead>
-                    <tr>
-                      <th>导航信息</th>
-                      <th>URL</th>
-                      <th>状态</th>
-                      <th>创建者</th>
-                      <th>操作</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for item in category.nav_items|sort(attribute='order') %}
-                      <tr data-nav-item-id="{{ item.id }}">
-                        <!-- 导航信息 -->
-                        <td>
-                          <div class="d-flex align-items-center">
-                            <div class="me-3">
-                              <i class="{{ item.icon or 'fas fa-link' }}" id="link-icon"></i>
-                            </div>
-                            <div>
-                              <h6 class="mb-0">{{ item.title }}</h6>
-                              {% if item.description %}
-                                <small class="text-muted">{{ item.description[:50] }}{% if item.description|length > 50 %}...{% endif %}</small>
-                              {% endif %}
-                            </div>
-                          </div>
-                        </td>
-                        <!-- 指向 -->
-                        <td>
-                          <a href="{{ item.url }}" target="_blank" class="text-decoration-none">
-                            {{ item.url[:30] }} {% if item.url|length > 30 %}...{% endif %}
-                            <i class="fas fa-external-link-alt ms-1"></i>
-                          </a>
-                        </td>
-                        <!-- 状态 -->
-                        <td>
-                          {% if item.is_public %}
-                            <span class="status-badge status-public">公开</span>
-                          {% else %}
-                            <span class="status-badge status-private">私有</span>
-                          {% endif %}
-                        </td>
-                        <!-- 创建者 -->
-                        <td>
-                          {% if item.creator %}
-                            <div class="d-flex align-items-center">
-                              <a class="nav-link" id="profile_link" href="{{ url_for('profile') }}">
-                                <div id="user_tag">
-                                  {% if item.creator.avatar_path %}
-                                    <img id="user_avatar_img" src="{{ url_for('user_avatar', filename=item.creator.avatar_path) }}" />
-                                  {% else %}
-                                    <i id="user_avatar_fas" class="fas fa-user-circle"></i>
-                                  {% endif %}
-                                </div>
-                                <span style="padding: 0 4px 0 8px; line-height: 32px">{{ item.creator.username }}</span>
-                                <div id="user_dot_box">
-                                  {% if item.creator.role == 0 %}
-                                    <span class="user_dot rounded-circle bg-info" title="权限等级: 游客"></span>
-                                  {% elif item.creator.role == 1 %}
-                                    <span class="user_dot rounded-circle bg-primary" title="权限等级: 成员"></span>
-                                  {% elif item.creator.role == 2 %}
-                                    <span class="user_dot rounded-circle bg-warning" title="权限等级: 管理员"></span>
-                                  {% elif item.creator.role >= 3 %}
-                                    <span class="user_dot rounded-circle bg-danger" title="权限等级: 超级管理员"></span>
-                                  {% endif %}
-                                </div>
-                              </a>
-                            </div>
-                          {% else %}
-                            <div class="d-flex align-items-center">
-                              <a class="nav-link" id="profile_link" href="{{ url_for('profile') }}">
-                                <div id="user_tag">
-                                  <i id="user_avatar_fas" class="fas fa-user-circle"></i>
-                                </div>
-                                <span style="padding: 0 4px 0 8px; line-height: 32px">未知</span>
-                                <div id="user_dot_box">
-                                  <span class="user_dot rounded-circle bg-secondary" title="权限等级: 未知"></span>
-                                </div>
-                              </a>
-                            </div>
-                          {% endif %}
-                        </td>
-                        <!-- 操作 -->
-                        <td>
-                          <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-outline-primary edit-nav-item" data-item-id="{{ item.id }}" data-item-title="{{ item.title }}" data-item-url="{{ item.url }}" data-item-description="{{ item.description or '' }}" data-item-icon="{{ item.icon or '' }}" data-item-category-id="{{ item.category_id }}" data-item-is-public="{{ item.is_public|lower }}" data-item-order="{{ item.order }}"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger delete-nav-item" data-item-id="{{ item.id }}" data-item-title="{{ item.title }}"><i class="fas fa-trash-alt"></i></button>
-                            <button class="btn btn-sm btn-outline-secondary toggle-visibility" data-item-id="{{ item.id }}" data-is-public="{{ item.is_public|lower }}">
-                              {% if item.is_public %}
-                                <i class="fas fa-eye-slash"></i>
-                              {% else %}
-                                <i class="fas fa-eye"></i>
-                              {% endif %}
-                            </button>
-                          </div>
-                        </td>
-                        <!-- - -->
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            {% else %}
-              <div class="text-center py-4">
-                <i class="fas fa-inbox fa-3x text-gray-300 mb-3"></i>
-                <p class="text-muted">该分类下暂无导航项</p>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal" data-category-id="{{ category.id }}"><i class="fas fa-plus me-1"></i> 添加第一个导航项</button>
-              </div>
-            {% endif %}
-          </div>
-        </div>
-      {% endfor %}
-    {% else %}
-      <div class="card">
-        <div class="card-body text-center py-5">
-          <i class="fas fa-folder-open fa-3x text-gray-300 mb-3"></i>
-          <h5 class="text-gray-600">暂无导航分类</h5>
-          <p class="text-muted">请先创建一个导航分类</p>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i class="fas fa-folder-plus me-1"></i> 创建第一个分类</button>
-        </div>
-      </div>
-    {% endif %}
   </div>
 
-  <!-- 引入模态框 -->
-  {% include 'modals/addCategoryModal.html' %}
-  {% include 'modals/addNavItemModal.html' %}
-  {% include 'modals/editCategoryModal.html' %}
-  {% include 'modals/editNavItemModal.html' %}
-  {% include 'modals/deleteCategoryConfirmModal.html' %}
-  {% include 'modals/deleteNavItemConfirmModal.html' %}
-  <!-- - -->
+  <!-- 导航统计 -->
+  <div class="row mb-4">
+    <div class="col-md-3 col-6 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="fas fa-folder" style="font-size: 2rem; color: var(--github-accent)"></i>
+          <h4 class="mt-2 mb-0">{{ categories|length }}</h4>
+          <p class="text-muted mb-0">总分类数</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="fas fa-link" style="font-size: 2rem; color: var(--github-success)"></i>
+          <h4 class="mt-2 mb-0">{{ nav_items|length }}</h4>
+          <p class="text-muted mb-0">总导航数</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="fas fa-eye" style="font-size: 2rem; color: var(--github-warning)"></i>
+          <h4 class="mt-2 mb-0">{{ nav_items|selectattr('is_public')|list|length }}</h4>
+          <p class="text-muted mb-0">公开导航</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <i class="fas fa-eye-slash" style="font-size: 2rem; color: var(--github-danger)"></i>
+          <h4 class="mt-2 mb-0">{{ nav_items|rejectattr('is_public')|list|length }}</h4>
+          <p class="text-muted mb-0">私有导航</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分类列表 -->
+  {% if categories %}
+  {% for category in categories %}
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0"><i class="{{ category.icon }}"></i> {{ category.name }}</h5>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-primary edit-category" data-category-id="{{ category.id }}"
+          data-category-name="{{ category.name }}" data-category-icon="{{ category.icon }}"
+          data-category-order="{{ category.order }}"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-outline-danger delete-category" data-category-id="{{ category.id }}"
+          data-category-name="{{ category.name }}"><i class="fas fa-trash-alt"></i></button>
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
+          data-category-id="{{ category.id }}"><i class="fas fa-plus"></i></button>
+      </div>
+    </div>
+    <div class="card-body">
+      {% if category.nav_items %}
+      <div class="table-responsive">
+        <table class="table table-hover category-table" data-category-id="{{ category.id }}">
+          <thead>
+            <tr>
+              <th>导航信息</th>
+              <th>URL</th>
+              <th>状态</th>
+              <th>创建者</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in category.nav_items|sort(attribute='order') %}
+            <tr data-nav-item-id="{{ item.id }}">
+              <!-- 导航信息 -->
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="me-3">
+                    <i class="{{ item.icon or 'fas fa-link' }}" id="link-icon"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">{{ item.title }}</h6>
+                    {% if item.description %}
+                    <small class="text-muted">{{ item.description[:50] }}{% if item.description|length > 50 %}...{%
+                      endif %}</small>
+                    {% endif %}
+                  </div>
+                </div>
+              </td>
+              <!-- 指向 -->
+              <td>
+                <a href="{{ item.url }}" target="_blank" class="text-decoration-none">
+                  {{ item.url[:30] }} {% if item.url|length > 30 %}...{% endif %}
+                  <i class="fas fa-external-link-alt ms-1"></i>
+                </a>
+              </td>
+              <!-- 状态 -->
+              <td>
+                {% if item.is_public %}
+                <span class="status-badge status-public">公开</span>
+                {% else %}
+                <span class="status-badge status-private">私有</span>
+                {% endif %}
+              </td>
+              <!-- 创建者 -->
+              <td>
+                {% if item.creator %}
+                <div class="d-flex align-items-center">
+                  <a class="nav-link" id="profile_link" href="{{ url_for('profile') }}">
+                    <div id="user_tag">
+                      {% if item.creator.avatar_path %}
+                      <img id="user_avatar_img" src="{{ url_for('user_avatar', filename=item.creator.avatar_path) }}" />
+                      {% else %}
+                      <i id="user_avatar_fas" class="fas fa-user-circle"></i>
+                      {% endif %}
+                    </div>
+                    <span style="padding: 0 4px 0 8px; line-height: 32px">{{ item.creator.username }}</span>
+                    <div id="user_dot_box">
+                      {% if item.creator.role == 0 %}
+                      <span class="user_dot rounded-circle bg-info" title="权限等级: 游客"></span>
+                      {% elif item.creator.role == 1 %}
+                      <span class="user_dot rounded-circle bg-primary" title="权限等级: 成员"></span>
+                      {% elif item.creator.role == 2 %}
+                      <span class="user_dot rounded-circle bg-warning" title="权限等级: 管理员"></span>
+                      {% elif item.creator.role >= 3 %}
+                      <span class="user_dot rounded-circle bg-danger" title="权限等级: 超级管理员"></span>
+                      {% endif %}
+                    </div>
+                  </a>
+                </div>
+                {% else %}
+                <div class="d-flex align-items-center">
+                  <a class="nav-link" id="profile_link" href="{{ url_for('profile') }}">
+                    <div id="user_tag">
+                      <i id="user_avatar_fas" class="fas fa-user-circle"></i>
+                    </div>
+                    <span style="padding: 0 4px 0 8px; line-height: 32px">未知</span>
+                    <div id="user_dot_box">
+                      <span class="user_dot rounded-circle bg-secondary" title="权限等级: 未知"></span>
+                    </div>
+                  </a>
+                </div>
+                {% endif %}
+              </td>
+              <!-- 操作 -->
+              <td>
+                <div class="btn-group" role="group">
+                  <button class="btn btn-sm btn-outline-primary edit-nav-item" data-item-id="{{ item.id }}"
+                    data-item-title="{{ item.title }}" data-item-url="{{ item.url }}"
+                    data-item-description="{{ item.description or '' }}" data-item-icon="{{ item.icon or '' }}"
+                    data-item-category-id="{{ item.category_id }}" data-item-is-public="{{ item.is_public|lower }}"
+                    data-item-order="{{ item.order }}"><i class="fas fa-edit"></i></button>
+                  <button class="btn btn-sm btn-outline-danger delete-nav-item" data-item-id="{{ item.id }}"
+                    data-item-title="{{ item.title }}"><i class="fas fa-trash-alt"></i></button>
+                  <button class="btn btn-sm btn-outline-secondary toggle-visibility" data-item-id="{{ item.id }}"
+                    data-is-public="{{ item.is_public|lower }}">
+                    {% if item.is_public %}
+                    <i class="fas fa-eye-slash"></i>
+                    {% else %}
+                    <i class="fas fa-eye"></i>
+                    {% endif %}
+                  </button>
+                </div>
+              </td>
+              <!-- - -->
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4">
+        <i class="fas fa-inbox fa-3x text-gray-300 mb-3"></i>
+        <p class="text-muted">该分类下暂无导航项</p>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"
+          data-category-id="{{ category.id }}"><i class="fas fa-plus me-1"></i> 添加第一个导航项</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="card">
+    <div class="card-body text-center py-5">
+      <i class="fas fa-folder-open fa-3x text-gray-300 mb-3"></i>
+      <h5 class="text-gray-600">暂无导航分类</h5>
+      <p class="text-muted">请先创建一个导航分类</p>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i
+          class="fas fa-folder-plus me-1"></i> 创建第一个分类</button>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- 引入模态框 -->
+{% include 'modals/addCategoryModal.html' %}
+{% include 'modals/addNavItemModal.html' %}
+{% include 'modals/editCategoryModal.html' %}
+{% include 'modals/editNavItemModal.html' %}
+{% include 'modals/deleteCategoryConfirmModal.html' %}
+{% include 'modals/deleteNavItemConfirmModal.html' %}
+<!-- - -->
 {% endblock %}
 
 {% block extra_js %}
-  <!-- 引用外部JavaScript文件 -->
-  <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/admin/navigation.js') }}"></script>
+<!-- 引用外部JavaScript文件 -->
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin/navigation.js') }}"></script>
 {% endblock %}

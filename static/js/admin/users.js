@@ -106,7 +106,7 @@ function viewUserDetails(userId) {
             if (data.success) {
                 const user = data.user;
                 const avatarHtml = user.avatar_path ?
-                    `<img src="/uploads/avatars/${user.avatar_path}" alt="${user.username}的头像" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--github-accent);">` :
+                    `<img src="/user_data/${user.avatar_path}" alt="${user.username}的头像" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--github-accent);">` :
                     `<i class="fas fa-user-circle" style="font-size: 4rem; color: var(--github-accent)"></i>`;
 
                 const content = `

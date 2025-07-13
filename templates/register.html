@@ -1,236 +1,239 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  JueFire Studio - 注册
+JueFire Studio - 注册
 {% endblock %}
 
 {% block required_css %}
-  <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block extra_css %}
-  <style>
-    main {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    #avatarPreview {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background-color: #f0f0f0;
-      margin: 20px auto;
-      overflow: hidden;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .step-container {
-      display: flex;
-      flex-direction: column;
-      opacity: 0;
-      max-height: 0;
-      transition: opacity 0.3s ease;
-      overflow: hidden;
-    }
-    
-    .step-container.active {
-      display: flex;
-      flex-direction: column;
-      opacity: 1;
-      max-height: 80vh;
-      transition: opacity 0.3s ease;
-      height: 100%;
-    }
-    
-    .step-indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background-color: var(--github-border);
-      margin-right: 10px;
-      transition: background-color 0.3s ease;
-    }
-    
-    .step-indicator.active {
-      background-color: var(--github-primary);
-    }
-    
-    .progress-bar {
-      transition: width 0.5s ease;
-    }
-    
-    #registerForm .card-footer {
-      margin-top: auto;
-    }
-    
-    #selfIntroduction {
-      opacity: 0;
-      max-height: 0;
-      overflow: hidden;
-      transition: opacity 0.3s ease, max-height 0.3s ease;
-    }
-    
-    #selfIntroduction.show {
-      opacity: 1;
-      max-height: 200px;
-    }
-  </style>
+<style>
+  main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #avatarPreview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    margin: 20px auto;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step-container {
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    max-height: 0;
+    transition: opacity 0.3s ease;
+    overflow: hidden;
+  }
+
+  .step-container.active {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    max-height: 80vh;
+    transition: opacity 0.3s ease;
+    height: 100%;
+  }
+
+  .step-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--github-border);
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+  }
+
+  .step-indicator.active {
+    background-color: var(--github-primary);
+  }
+
+  .progress-bar {
+    transition: width 0.5s ease;
+  }
+
+  #registerForm .card-footer {
+    margin-top: auto;
+  }
+
+  #selfIntroduction {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+  }
+
+  #selfIntroduction.show {
+    opacity: 1;
+    max-height: 200px;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-  <div class="container d-flex align-items-center justify-content-center">
-    <div class="row justify-content-center w-100">
-      <div class="col-md-6 col-lg-4">
-        <!-- 注册表单卡片 -->
+<div class="container d-flex align-items-center justify-content-center">
+  <div class="row justify-content-center w-100">
+    <div class="col-md-6 col-lg-4">
+      <!-- 注册表单卡片 -->
 
-        <div class="card" style="min-height: 70vh; display: flex; flex-direction: column;">
-          <!-- 标题和步骤指示器 -->
-          <div class="card-header text-center">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <h3 class="mb-0"><i class="fas fa-user-plus"></i> 注册账号</h3>
-              <div class="d-flex">
-                <div id="step1Indicator" class="step-indicator active">
-                  <span></span>
-                </div>
-                <div id="step2Indicator" class="step-indicator">
-                  <span></span>
-                </div>
+      <div class="card" style="min-height: 70vh; display: flex; flex-direction: column;">
+        <!-- 标题和步骤指示器 -->
+        <div class="card-header text-center">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h3 class="mb-0"><i class="fas fa-user-plus"></i> 注册账号</h3>
+            <div class="d-flex">
+              <div id="step1Indicator" class="step-indicator active">
+                <span></span>
+              </div>
+              <div id="step2Indicator" class="step-indicator">
+                <span></span>
               </div>
             </div>
-            <div style="display: none;">
-              <div id="registerProgress" role="progressbar"></div>
+          </div>
+          <div style="display: none;">
+            <div id="registerProgress" role="progressbar"></div>
+          </div>
+        </div>
+
+        <!-- 表单内容 -->
+
+        <form id="registerForm" method="POST" enctype="multipart/form-data"
+          style="flex: 1; display: flex; flex-direction: column;">
+          <!-- 第一步：基本信息 -->
+
+          <div id="step1" class="step-container active" style="flex: 1; display: flex; flex-direction: column;">
+            <div class="card-body" style="overflow-y: auto;">
+              <!-- 用户名 -->
+              <div class="mb-3">
+                <label for="username" class="form-label">用户名</label>
+                <input type="text" class="form-control" id="username" name="username" required />
+              </div>
+
+              <!-- 邮箱 -->
+              <div class="mb-3">
+                <label for="email" class="form-label">邮箱</label>
+                <input type="email" class="form-control" id="email" name="email" required />
+              </div>
+
+              <!-- 密码 -->
+              <div class="mb-3">
+                <label for="password" class="form-label">密码</label>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="password" name="password" required />
+                  <button class="btn btn-outline-secondary" type="button" id="togglePassword"><i
+                      class="fas fa-eye"></i></button>
+                </div>
+                <div class="mt-2">
+                  <div class="progress" style="height: 4px; background-color: var(--github-border);">
+                    <div id="passwordStrength" class="progress-bar" role="progressbar"></div>
+                  </div>
+                  <small id="passwordStrengthText" class="form-text">密码强度: 未设置</small>
+                </div>
+              </div>
+
+              <!-- 确认密码 -->
+              <div class="mb-3">
+                <label for="confirm_password" class="form-label">确认密码</label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required />
+                <small id="passwordHelp" class="form-text"></small>
+              </div>
+
+              <!-- 同意条款 -->
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="agree" name="agree" required />
+                <label class="form-check-label" for="agree">
+                  我已阅读并同意 <a href="#" class="text-decoration-none">使用条款</a> 和
+                  <a href="#" class="text-decoration-none">隐私政策</a>
+                </label>
+              </div>
+            </div>
+
+            <div class="card-footer d-flex justify-content-between">
+              <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i>
+                返回登录
+              </a>
+              <button type="button" id="nextToStep2" class="btn btn-primary">
+                下一步
+                <i class="fas fa-arrow-right"></i>
+              </button>
             </div>
           </div>
 
-          <!-- 表单内容 -->
-
-          <form id="registerForm" method="POST" enctype="multipart/form-data" style="flex: 1; display: flex; flex-direction: column;">
-            <!-- 第一步：基本信息 -->
-
-            <div id="step1" class="step-container active" style="flex: 1; display: flex; flex-direction: column;">
-              <div class="card-body" style="overflow-y: auto;">
-                <!-- 用户名 -->
-                <div class="mb-3">
-                  <label for="username" class="form-label">用户名</label>
-                  <input type="text" class="form-control" id="username" name="username" required />
+          <!-- 第二步：个人资料 -->
+          <div id="step2" class="step-container" style="flex: 1; display: flex; flex-direction: column;">
+            <div class="card-body" style="overflow-y: auto;">
+              <!-- 头像上传 -->
+              <div class="text-center mb-4">
+                <h5 class="mb-3">设置头像（可选）</h5>
+                <div id="avatarPreview">
+                  <i class="fas fa-user" style="font-size: 4rem; color: #ccc;"></i>
                 </div>
+                <p class="text-muted small">点击头像进行设置</p>
+              </div>
 
-                <!-- 邮箱 -->
+              <!-- 工作室成员意向 -->
+              <div class="mb-2 form-check">
+                <input type="checkbox" class="form-check-input" id="join_intention" name="join_intention" />
+                <label class="form-check-label" for="join_intention">我有意向成为工作室的成员</label>
+              </div>
+
+              <!-- 当上方复选框选中时 个人简介 -->
+              <div id="selfIntroduction">
                 <div class="mb-3">
-                  <label for="email" class="form-label">邮箱</label>
-                  <input type="email" class="form-control" id="email" name="email" required />
-                </div>
-
-                <!-- 密码 -->
-                <div class="mb-3">
-                  <label for="password" class="form-label">密码</label>
-                  <div class="input-group">
-                    <input type="password" class="form-control" id="password" name="password" required />
-                    <button class="btn btn-outline-secondary" type="button" id="togglePassword"><i class="fas fa-eye"></i></button>
-                  </div>
-                  <div class="mt-2">
-                    <div class="progress" style="height: 4px; background-color: var(--github-border);">
-                      <div id="passwordStrength" class="progress-bar" role="progressbar"></div>
-                    </div>
-                    <small id="passwordStrengthText" class="form-text">密码强度: 未设置</small>
-                  </div>
-                </div>
-
-                <!-- 确认密码 -->
-                <div class="mb-3">
-                  <label for="confirm_password" class="form-label">确认密码</label>
-                  <input type="password" class="form-control" id="confirm_password" name="confirm_password" required />
-                  <small id="passwordHelp" class="form-text"></small>
-                </div>
-
-                <!-- 同意条款 -->
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" id="agree" name="agree" required />
-                  <label class="form-check-label" for="agree">
-                    我已阅读并同意 <a href="#" class="text-decoration-none">使用条款</a> 和
-                    <a href="#" class="text-decoration-none">隐私政策</a>
-                  </label>
+                  <label class="form-label text-muted" for="studio_intention"><small>介绍一下你自己</small></label>
+                  <textarea type="text" class="form-control" id="studio_intention" name="studio_intention"
+                    rows="4"></textarea>
                 </div>
               </div>
 
-              <div class="card-footer d-flex justify-content-between">
-                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
-                  <i class="fas fa-arrow-left"></i>
-                  返回登录
-                </a>
-                <button type="button" id="nextToStep2" class="btn btn-primary">
-                  下一步
-                  <i class="fas fa-arrow-right"></i>
-                </button>
-              </div>
+              <!-- 头像裁剪信息 -->
+              <input type="hidden" id="croppedAvatarData" name="croppedAvatarData" />
             </div>
 
-            <!-- 第二步：个人资料 -->
-            <div id="step2" class="step-container" style="flex: 1; display: flex; flex-direction: column;">
-              <div class="card-body" style="overflow-y: auto;">
-                <!-- 头像上传 -->
-                <div class="text-center mb-4">
-                  <h5 class="mb-3">设置头像（可选）</h5>
-                  <div id="avatarPreview">
-                    <i class="fas fa-user" style="font-size: 4rem; color: #ccc;"></i>
-                  </div>
-                  <p class="text-muted small">点击头像进行设置</p>
-                </div>
-
-                <!-- 工作室成员意向 -->
-                <div class="mb-2 form-check">
-                  <input type="checkbox" class="form-check-input" id="join_intention" name="join_intention" />
-                  <label class="form-check-label" for="join_intention">我有意向成为工作室的成员</label>
-                </div>
-
-                <!-- 当上方复选框选中时 个人简介 -->
-                <div id="selfIntroduction">
-                  <div class="mb-3">
-                    <label class="form-label text-muted" for="studio_intention"><small>介绍一下你自己</small></label>
-                    <textarea type="text" class="form-control" id="studio_intention" name="studio_intention" rows="4"></textarea>
-                  </div>
-                </div>
-
-                <!-- 头像裁剪信息 -->
-                <input type="hidden" id="croppedAvatarData" name="croppedAvatarData" />
-              </div>
-
-              <div class="card-footer d-flex justify-content-between">
-                <button type="button" id="backToStep1" class="btn btn-outline-secondary">
-                  <i class="fas fa-arrow-left"></i>
-                  上一步
-                </button>
-                <button type="submit" class="btn btn-success">
-                  <i class="fas fa-check-circle"></i>
-                  完成注册
-                </button>
-              </div>
+            <div class="card-footer d-flex justify-content-between">
+              <button type="button" id="backToStep1" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i>
+                上一步
+              </button>
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-check-circle"></i>
+                完成注册
+              </button>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- 引入模态框 -->
-  {% include 'modals/addAvatarModal.html' %}
-  <!-- - -->
+<!-- 引入模态框 -->
+{% include 'modals/addAvatarModal.html' %}
+<!-- - -->
 {% endblock %}
 
 {% block extra_js %}
-  <!-- 引入Cropper.js库 -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<!-- 引入Cropper.js库 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
-  <!-- 引入注册页面JS -->
-  <script src="{{ url_for('static', filename='js/cropper.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+<!-- 引入注册页面JS -->
+<script src="{{ url_for('static', filename='js/cropper.js') }}"></script>
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
 {% endblock %}
