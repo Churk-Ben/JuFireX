@@ -96,6 +96,7 @@ class Project(db.Model):
     image_url = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.now)
     is_featured = db.Column(db.Boolean, default=False)
+    docs_opened = db.Column(db.Boolean, default=False)
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     author = db.relationship("User", backref=db.backref("projects", lazy=True))
@@ -761,6 +762,10 @@ def open_project_docs(project_id):
         with open(readme_path, "w", encoding="utf-8") as f:
             f.write(readme_content)
 
+        # 更新项目的docs_opened字段
+        project.docs_opened = True
+        db.session.commit()
+
         return jsonify({"success": True, "message": "文档空间开通成功"})
     except Exception as e:
         return (
@@ -991,12 +996,12 @@ def create_project_doc(project_id):
 def get_project_doc_raw(project_id, filename):
     project = db.session.get(Project, project_id)
     if not project:
-        return jsonify({'success': False, 'message': '项目不存在'}), 404
+        return jsonify({"success": False, "message": "项目不存在"}), 404
 
     # 权限检查：只有项目作者或管理员可以获取
-    user = db.session.get(User, session.get('user_id'))
+    user = db.session.get(User, session.get("user_id"))
     if not user or (user.id != project.author_id and user.role < ROLE_ADMIN):
-        return jsonify({'success': False, 'message': '权限不足'}), 403
+        return jsonify({"success": False, "message": "权限不足"}), 403
 
     # 生成文档文件夹路径
     folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
@@ -1006,14 +1011,14 @@ def get_project_doc_raw(project_id, filename):
     doc_path = os.path.join(project_docs_path, filename)
 
     if not os.path.exists(doc_path) or not os.path.isfile(doc_path):
-        return jsonify({'success': False, 'message': '文档不存在'}), 404
+        return jsonify({"success": False, "message": "文档不存在"}), 404
 
     try:
-        with open(doc_path, 'r', encoding='utf-8') as f:
+        with open(doc_path, "r", encoding="utf-8") as f:
             content = f.read()
-        return jsonify({'success': True, 'content': content})
+        return jsonify({"success": True, "content": content})
     except Exception as e:
-        return jsonify({'success': False, 'message': f'读取文件时出错: {e}'}), 500
+        return jsonify({"success": False, "message": f"读取文件时出错: {e}"}), 500
 
 
 # 更新文档API

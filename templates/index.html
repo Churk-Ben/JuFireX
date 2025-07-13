@@ -37,10 +37,16 @@
           <div class="d-flex gap-3">
             {% if not current_user %}
               <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i> 加入我们</a>
-              <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg"><i class="fas fa-sign-in-alt"></i> 登录</a>
+              <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-sign-in-alt"></i>
+                登录
+              </a>
             {% else %}
               <a href="{{ url_for('profile') }}" class="btn btn-primary btn-lg"><i class="fas fa-user"></i> 个人主页</a>
-              <a href="{{ url_for('navigation') }}" class="btn btn-outline-light btn-lg"><i class="fas fa-compass"></i> 导航</a>
+              <a href="{{ url_for('navigation') }}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-compass"></i>
+                导航
+              </a>
             {% endif %}
           </div>
         </div>
@@ -121,21 +127,31 @@
                       <!-- 项目创建时间 -->
                       <small class="text-muted">{{ project.created_at.strftime('%Y-%m-%d') }}</small>
                     </div>
+                    <div class="d-flex justify-content-between">
+                      <div class="mt-3 d-flex gap-2">
+                        <!-- 仓库按钮 -->
+                        {% if project.github_url %}
+                          <a href="{{ project.github_url }}" class="btn btn-sm btn-outline-light" target="_blank"><i class="fab fa-github"></i> 仓库</a>
+                        {% else %}
+                          <button class="btn btn-sm btn-outline-secondary" disabled><i class="fas fa-lock"></i> 闭源</button>
+                        {% endif %}
 
-                    <div class="mt-3 d-flex gap-2">
-                      <!-- 仓库按钮 -->
-                      {% if project.github_url %}
-                        <a href="{{ project.github_url }}" class="btn btn-sm btn-outline-light" target="_blank"><i class="fab fa-github"></i> 仓库</a>
-                      {% else %}
-                        <button class="btn btn-sm btn-outline-secondary" disabled><i class="fas fa-lock"></i> 闭源</button>
-                      {% endif %}
-                      <!-- 演示按钮 -->
-                      {% if project.demo_url %}
-                        <a href="{{ project.demo_url }}" class="btn btn-sm btn-primary" target="_blank"><i class="fas fa-external-link-alt"></i> 演示</a>
-                      {% else %}
-                        <button class="btn btn-sm btn-outline-secondary" disabled><i class="fas fa-eye-slash"></i> 无演示</button>
-                      {% endif %}
-                      <!-- TODO:详情页 -->
+                        <!-- 演示按钮 -->
+                        {% if project.demo_url %}
+                          <a href="{{ project.demo_url }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fas fa-external-link-alt"></i> 演示</a>
+                        {% else %}
+                          <button class="btn btn-sm btn-outline-secondary" disabled>
+                            <i class="fas fa-eye-slash"></i>
+                            无演示
+                          </button>
+                        {% endif %}
+                        <!-- - -->
+                      </div>
+                      <div class="mt-3 d-flex">
+                        {% if project.docs_opened %}
+                          <a href="{{ url_for('project_docs', project_id=project.id) }}" class="btn btn-sm btn-success"><i class="fas fa-book"></i> 文档空间</a>
+                        {% endif %}
+                      </div>
                     </div>
                   </div>
                 </div>
