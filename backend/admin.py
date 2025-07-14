@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, session
 from .models import db, User, Project, StudioInfo
 from .config import ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_NAMES
@@ -141,28 +142,31 @@ def update_studio_info():
     if not validate_csrf_token():
         return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
 
-    data = request.get_json()
-    studio_info = StudioInfo.query.first()
+    try:
+        data = request.get_json()
+        studio_info = StudioInfo.query.first()
 
-    if not studio_info:
-        # 如果不存在，创建新的
-        studio_info = StudioInfo(
-            name=data.get("name", ""),
-            description=data.get("description", ""),
-            logo_url=data.get("logo_url", ""),
-            contact_email=data.get("contact_email", ""),
-            github_url=data.get("github_url", ""),
-            website_url=data.get("website_url", ""),
-        )
-        db.session.add(studio_info)
-    else:
-        # 更新现有信息
-        studio_info.name = data.get("name", studio_info.name)
-        studio_info.description = data.get("description", studio_info.description)
-        studio_info.logo_url = data.get("logo_url", studio_info.logo_url)
-        studio_info.contact_email = data.get("contact_email", studio_info.contact_email)
-        studio_info.github_url = data.get("github_url", studio_info.github_url)
-        studio_info.website_url = data.get("website_url", studio_info.website_url)
+        if not studio_info:
+            # 如果不存在，创建新的
+            studio_info = StudioInfo(
+                name=data.get("name", ""),
+                description=data.get("description", ""),
+                logo_url=data.get("logo_url", ""),
+                contact_email=data.get("contact_email", ""),
+                github_url=data.get("github_url", ""),
+            )
+            db.session.add(studio_info)
+        else:
+            # 更新现有信息
+            studio_info.name = data.get("name", studio_info.name)
+            studio_info.description = data.get("description", studio_info.description)
+            studio_info.logo_url = data.get("logo_url", studio_info.logo_url)
+            studio_info.contact_email = data.get("contact_email", studio_info.contact_email)
+            studio_info.github_url = data.get("github_url", studio_info.github_url)
+            studio_info.updated_at = datetime.now()
 
-    db.session.commit()
-    return jsonify({"success": True, "message": "工作室信息更新成功"})
+        db.session.commit()
+        return jsonify({"success": True, "message": "工作室信息更新成功"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": f"更新失败: {str(e)}"}), 500

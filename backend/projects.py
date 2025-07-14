@@ -93,11 +93,14 @@ def open_project_docs(project_id):
 
 
 @projects_bp.route("/projects/<int:project_id>/docs")
-@require_role(ROLE_GUEST)
 def project_docs(project_id):
     # 获取项目信息
     project = Project.query.get_or_404(project_id)
-    current_user = db.session.get(User, session["user_id"])
+    
+    # 检查用户是否登录
+    current_user = None
+    if "user_id" in session:
+        current_user = db.session.get(User, session["user_id"])
 
     # 生成文档文件夹路径
     folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
@@ -110,8 +113,25 @@ def project_docs(project_id):
     # 检查文档空间是否存在
     if not os.path.exists(project_docs_path):
         flash("该项目尚未开通文档空间", "error")
-        return redirect(url_for("profile"))
+        return redirect(url_for("index"))
 
+    # 如果用户未登录，尝试直接访问readme.md
+    if not current_user:
+        # 查找readme文件（不区分大小写）
+        readme_files = []
+        for file in os.listdir(project_docs_path):
+            if file.lower() in ['readme.md', 'readme.markdown']:
+                readme_files.append(file)
+        
+        if readme_files:
+            # 如果找到readme文件，直接重定向到文档查看页面
+            return redirect(url_for('projects.project_doc_view', project_id=project_id, filename=readme_files[0]))
+        else:
+            # 如果没有readme文件，提示用户登录查看文档列表
+            flash("该项目没有公开的readme文档，请登录查看完整文档列表", "info")
+            return redirect(url_for("auth.login"))
+
+    # 用户已登录，显示完整的文档列表
     # 获取所有.md文件
     md_files = []
     for file in os.listdir(project_docs_path):
@@ -133,11 +153,14 @@ def project_docs(project_id):
 
 
 @projects_bp.route("/projects/<int:project_id>/docs/<path:filename>")
-@require_role(ROLE_GUEST)
 def project_doc_view(project_id, filename):
     # 获取项目信息
     project = Project.query.get_or_404(project_id)
-    current_user = db.session.get(User, session["user_id"])
+    
+    # 检查用户是否登录
+    current_user = None
+    if "user_id" in session:
+        current_user = db.session.get(User, session["user_id"])
 
     # 生成文档文件夹路径
     folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
@@ -150,7 +173,7 @@ def project_doc_view(project_id, filename):
     # 检查文档空间是否存在
     if not os.path.exists(project_docs_path):
         flash("该项目尚未开通文档空间", "error")
-        return redirect(url_for("profile"))
+        return redirect(url_for("index"))
 
     # 构建文件完整路径
     file_path = os.path.join(project_docs_path, filename)
@@ -158,7 +181,7 @@ def project_doc_view(project_id, filename):
     # 检查文件是否存在
     if not os.path.exists(file_path) or not os.path.isfile(file_path):
         flash(f"文件 {filename} 不存在", "error")
-        return redirect(url_for("open_project_docs", project_id=project_id))
+        return redirect(url_for("projects.project_docs", project_id=project_id))
 
     try:
         # 读取文件内容
@@ -178,7 +201,7 @@ def project_doc_view(project_id, filename):
         )
     except Exception as e:
         flash(f"读取文件失败: {str(e)}", "error")
-        return redirect(url_for("open_project_docs", project_id=project_id))
+        return redirect(url_for("projects.project_docs", project_id=project_id))
 
 
 @projects_bp.route("/api/projects/<int:project_id>/docs/upload", methods=["POST"])

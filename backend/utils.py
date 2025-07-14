@@ -12,12 +12,12 @@ def require_role(min_role, owner_check=None):
         def decorated_function(*args, **kwargs):
             if "user_id" not in session:
                 flash("请先登录", "warning")
-                return redirect(url_for("login"))
+                return redirect(url_for("auth.login"))
 
             user = db.session.get(User, session["user_id"])
             if not user or not user.is_active:
                 flash("用户不存在或已被禁用", "error")
-                return redirect(url_for("login"))
+                return redirect(url_for("auth.login"))
 
             # 基本角色检查
             if user.role < min_role:

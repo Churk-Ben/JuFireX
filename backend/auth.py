@@ -36,7 +36,7 @@ def login():
             session["username"] = user.username
             session["role"] = user.role
             flash("登录成功", "success")
-            return redirect(url_for("profile"))
+            return redirect(url_for("auth.profile"))
         else:
             flash("用户名或密码错误", "error")
 
@@ -66,7 +66,7 @@ def register():
                     {"success": False, "message": "用户名已存在，请选择其他用户名"}
                 )
             flash("用户名已存在，请选择其他用户名", "error")
-            return redirect(url_for("register"))
+            return redirect(url_for("auth.register"))
 
         # 检查邮箱是否已存在
         existing_email = User.query.filter_by(email=email).first()
@@ -76,7 +76,7 @@ def register():
                     {"success": False, "message": "邮箱已被注册，请使用其他邮箱"}
                 )
             flash("邮箱已被注册，请使用其他邮箱", "error")
-            return redirect(url_for("register"))
+            return redirect(url_for("auth.register"))
 
         # 创建新用户
         new_user = User(username=username, email=email)
@@ -132,14 +132,14 @@ def register():
                 return jsonify({"success": True, "message": "注册成功，请登录"})
 
             flash("注册成功，请登录", "success")
-            return redirect(url_for("login"))
+            return redirect(url_for("auth.login"))
         except Exception as e:
             db.session.rollback()
             current_app.logger.error(f"注册用户时出错: {str(e)}")
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return jsonify({"success": False, "message": f"注册失败: {str(e)}"})
             flash(f"注册失败: {str(e)}", "error")
-            return redirect(url_for("register"))
+            return redirect(url_for("auth.register"))
 
     return render_template("register.html")
 
@@ -263,7 +263,7 @@ def upload_avatar():
             {
                 "success": True,
                 "message": "头像上传成功",
-                "avatar_url": url_for("user_avatar", filename=filename),
+                "avatar_url": url_for("auth.user_avatar", filename=filename),
             }
         )
 
