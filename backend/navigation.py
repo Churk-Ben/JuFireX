@@ -240,7 +240,7 @@ def get_nav_items():
                 "description": item.description,
                 "icon": item.icon,
                 "order": item.order,
-                "is_private": item.is_private,
+                "is_public": item.is_public,
                 "category_id": item.category_id,
                 "category_name": item.category.name,
                 "creator_id": item.creator_id,
@@ -261,7 +261,7 @@ def create_nav_item():
     description = data.get("description", "")
     icon = data.get("icon", "")
     order = data.get("order", 0)
-    is_private = data.get("is_private", False)
+    is_public = data.get("is_public", True)
     category_id = data.get("category_id")
 
     if not title or not url or not category_id:
@@ -278,9 +278,9 @@ def create_nav_item():
         description=description,
         icon=icon,
         order=order,
-        is_private=is_private,
+        is_public=is_public,
         category_id=category_id,
-        creator_id=session["user_id"],
+        created_by=session["user_id"],
     )
     db.session.add(nav_item)
     db.session.commit()
@@ -296,7 +296,7 @@ def create_nav_item():
                 "description": nav_item.description,
                 "icon": nav_item.icon,
                 "order": nav_item.order,
-                "is_private": nav_item.is_private,
+                "is_public": nav_item.is_public,
                 "category_id": nav_item.category_id,
                 "category_name": nav_item.category.name,
                 "creator_id": nav_item.creator_id,
@@ -324,8 +324,8 @@ def update_nav_item(item_id):
         nav_item.icon = data["icon"]
     if "order" in data:
         nav_item.order = data["order"]
-    if "is_private" in data:
-        nav_item.is_private = data["is_private"]
+    if "is_public" in data:
+        nav_item.is_public = data["is_public"]
     if "category_id" in data:
         # 验证分类是否存在
         category = NavCategory.query.get(data["category_id"])
@@ -361,41 +361,18 @@ def toggle_nav_item_visibility(item_id):
         return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
 
     data = request.get_json()
-    action = data.get("action")  # 'toggle_privacy' 或 'toggle_hidden'
+    is_public = data.get("is_public")
     user_id = session["user_id"]
+    
+    # 切换公开/私有状态（仅限创建者或超级管理员）
+    nav_item = NavItem.query.get_or_404(item_id)
+    user = db.session.get(User, user_id)
 
-    if action == "toggle_privacy":
-        # 切换公开/私有状态（仅限创建者或超级管理员）
-        nav_item = NavItem.query.get_or_404(item_id)
-        user = db.session.get(User, user_id)
+    if nav_item.created_by != user_id and user.role < ROLE_SUPER_ADMIN:
+        return jsonify({"success": False, "message": "只有创建者或超级管理员可以修改隐私设置"}), 403
 
-        if nav_item.creator_id != user_id and user.role < ROLE_SUPER_ADMIN:
-            return jsonify({"success": False, "message": "只有创建者或超级管理员可以修改隐私设置"}), 403
+    nav_item.is_public = is_public
+    db.session.commit()
 
-        nav_item.is_private = not nav_item.is_private
-        db.session.commit()
-
-        status = "私有" if nav_item.is_private else "公开"
-        return jsonify({"success": True, "message": f"导航项已设为{status}"})
-
-    elif action == "toggle_hidden":
-        # 切换隐藏/显示状态（个人设置）
-        hidden_item = HiddenNavItem.query.filter_by(
-            user_id=user_id, nav_item_id=item_id
-        ).first()
-
-        if hidden_item:
-            # 当前已隐藏，取消隐藏
-            db.session.delete(hidden_item)
-            message = "导航项已显示"
-        else:
-            # 当前未隐藏，添加隐藏
-            hidden_item = HiddenNavItem(user_id=user_id, nav_item_id=item_id)
-            db.session.add(hidden_item)
-            message = "导航项已隐藏"
-
-        db.session.commit()
-        return jsonify({"success": True, "message": message})
-
-    else:
-        return jsonify({"success": False, "message": "无效的操作类型"}), 400
+    status = "公开" if nav_item.is_public else "私有"
+    return jsonify({"success": True, "message": f"导航项已设为{status}"})

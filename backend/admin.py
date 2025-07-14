@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, session
-from .models import db, User, Project, StudioInfo
+from .models import db, User, Project, StudioInfo, NavCategory, NavItem
 from .config import ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_NAMES
 from .utils import require_role, can_manage_user, validate_csrf_token
 
@@ -44,7 +44,10 @@ def admin_studio_info():
 @require_role(ROLE_ADMIN)
 def admin_navigation():
     current_user = db.session.get(User, session["user_id"])
-    return render_template("admin/navigation.html", current_user=current_user)
+    # 获取所有分类和导航项
+    categories = NavCategory.query.order_by(NavCategory.order).all()
+    nav_items = NavItem.query.order_by(NavItem.order).all()
+    return render_template("admin/navigation.html", current_user=current_user, categories=categories, nav_items=nav_items)
 
 
 @admin_bp.route("/api/users/<int:user_id>/role", methods=["PUT"])
