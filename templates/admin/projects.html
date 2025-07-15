@@ -92,18 +92,18 @@
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th>项目名称</th>
-                  <th>创建时间</th>
-                  <th>状态</th>
-                  <th>作者</th>
-                  <th>操作</th>
+                  <th style="width: 20%; min-width: 15em;">项目名称</th>
+                  <th style="width: 20%; min-width: 10em;">作者</th>
+                  <th style="width: 10%; min-width: 10em;">创建时间</th>
+                  <th style="width: 10%; min-width: 6em;">状态</th>
+                  <th style="width: 10%; min-width: 6em;">操作</th>
                 </tr>
               </thead>
               <tbody>
                 {% for project in projects %}
                   <tr data-project-id="{{ project.id }}">
                     <!-- 项目名称 -->
-                    <td style="width: 25%;">
+                    <td>
                       <div class="d-flex align-items-center">
                         {% if project.image_url %}
                           <img class="rounded me-3 project-img" src="{{ project.image_url }}" alt="{{ project.title }}" />
@@ -119,7 +119,7 @@
                       </div>
                     </td>
                     <!-- 作者 -->
-                    <td style="width: 25%;">
+                    <td>
                       {% if project.author %}
                         <div class="d-flex align-items-center">
                           <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile') }}">

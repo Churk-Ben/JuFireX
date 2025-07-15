@@ -123,20 +123,20 @@ function createUserDetailsHtml(user) {
                 </div>
                 <div class="row mt-4">
                     <div class="col-md-6">
-                        <div class="card" style="background-color: rgba(88, 166, 255, 0.1); border-color: var(--github-accent);">
+                        <div class="card" style="background-color: var(-github-bg); border-color: var(--github-accent);">
                             <div class="card-body">
                                 <h6 class="card-title"><i class="fas fa-info-circle me-2"></i>基本信息</h6>
-                                <hr style="border-color: rgba(88, 166, 255, 0.3);">
+                                <hr style="border-color: var(-github-border);">
                                 <p><strong>注册时间：</strong> ${user.created_at}</p>
                                 <p><strong>活跃天数：</strong> ${user.active_days} 天</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="card" style="background-color: rgba(88, 166, 255, 0.1); border-color: var(--github-accent);">
+                        <div class="card" style="background-color: var(-github-bg); border-color: var(--github-accent);">
                             <div class="card-body">
                                 <h6 class="card-title"><i class="fas fa-chart-bar me-2"></i>统计信息</h6>
-                                <hr style="border-color: rgba(88, 166, 255, 0.3);">
+                                <hr style="border-color: var(-github-border);">
                                 <p><strong>项目数量：</strong> ${user.project_count}</p>
                                 <p><strong>精选项目：</strong> ${user.featured_project_count}</p>
                             </div>

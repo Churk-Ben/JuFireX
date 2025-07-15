@@ -96,7 +96,7 @@ def open_project_docs(project_id):
 def project_docs(project_id):
     # 获取项目信息
     project = Project.query.get_or_404(project_id)
-    
+
     # 检查用户是否登录
     current_user = None
     if "user_id" in session:
@@ -120,12 +120,18 @@ def project_docs(project_id):
         # 查找readme文件（不区分大小写）
         readme_files = []
         for file in os.listdir(project_docs_path):
-            if file.lower() in ['readme.md', 'readme.markdown']:
+            if file.lower() in ["readme.md", "readme.markdown"]:
                 readme_files.append(file)
-        
+
         if readme_files:
             # 如果找到readme文件，直接重定向到文档查看页面
-            return redirect(url_for('projects.project_doc_view', project_id=project_id, filename=readme_files[0]))
+            return redirect(
+                url_for(
+                    "projects.project_doc_view",
+                    project_id=project_id,
+                    filename=readme_files[0],
+                )
+            )
         else:
             # 如果没有readme文件，提示用户登录查看文档列表
             flash("该项目没有公开的readme文档，请登录查看完整文档列表", "info")
@@ -156,7 +162,7 @@ def project_docs(project_id):
 def project_doc_view(project_id, filename):
     # 获取项目信息
     project = Project.query.get_or_404(project_id)
-    
+
     # 检查用户是否登录
     current_user = None
     if "user_id" in session:

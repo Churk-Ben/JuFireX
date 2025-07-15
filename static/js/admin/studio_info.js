@@ -34,7 +34,7 @@ function setupEventListeners() {
 }
 
 function updateTextContent(previewId) {
-    return function() {
+    return function () {
         const previewElement = document.getElementById(previewId);
         if (previewElement) {
             previewElement.textContent = this.value;
@@ -43,7 +43,7 @@ function updateTextContent(previewId) {
 }
 
 function updateGithubLink(previewId) {
-    return function() {
+    return function () {
         const link = document.getElementById(previewId);
         if (link) {
             link.href = this.value;
@@ -129,7 +129,7 @@ function setButtonLoading(button, isLoading, loadingText) {
 }
 
 function handleApiResponse(successMessage, errorMessage) {
-    return function(data) {
+    return function (data) {
         if (data.success) {
             showNotification(successMessage, 'success');
         } else {
@@ -139,7 +139,7 @@ function handleApiResponse(successMessage, errorMessage) {
 }
 
 function handleApiError(message) {
-    return function(error) {
+    return function (error) {
         console.error('Error:', error);
         showNotification(`${message}，请重试`, 'error');
     };

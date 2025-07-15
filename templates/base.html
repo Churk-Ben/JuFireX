@@ -97,6 +97,21 @@
         overflow: hidden;
         margin: auto 0;
       }
+      
+      .navbar-account {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      @media (max-width: 768px) {
+        .navbar-account {
+          margin-top: 10px;
+        }
+      }
     </style>
     {% block extra_css %}
 
@@ -155,8 +170,8 @@
             {% endif %}
           </ul>
 
-          <ul class="navbar-nav">
-            {% if current_user %}
+          {% if current_user %}
+            <ul class="navbar-account">
               <li class="nav-item" style="display: flex; align-items: center; margin: 0 5px">
                 <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile') }}">
                   <div id="user_tag">
@@ -189,15 +204,17 @@
                   <span style="padding: 0 8px 0 0; line-height: 32px">登出</span>
                 </a>
               </li>
-            {% else %}
+            </ul>
+          {% else %}
+            <ul class="navbar-nav">
               <li class="nav-item" style="margin: 0 5px">
                 <a class="nav-link" href="{{ url_for('auth.login') }}">登录</a>
               </li>
               <li class="nav-item" style="margin: 0 5px">
                 <a class="nav-link" href="{{ url_for('auth.register') }}">注册</a>
               </li>
-            {% endif %}
-          </ul>
+            </ul>
+          {% endif %}
         </div>
       </div>
     </nav>

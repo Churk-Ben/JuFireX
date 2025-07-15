@@ -46,7 +46,6 @@ def navigation():
             query = query.filter(~NavItem.id.in_(hidden_nav_item_ids))
         nav_items = query.order_by(NavItem.order).all()
 
-
         if nav_items:
             nav_items_by_category[category.id] = nav_items
 
@@ -136,7 +135,6 @@ def toggle_nav_item_privacy(nav_item_id):
 
     status = "私有" if nav_item.is_private else "公开"
     return jsonify({"success": True, "message": f"导航项已设为{status}"})
-
 
 
 @navigation_bp.route("/api/nav-categories", methods=["GET"])
