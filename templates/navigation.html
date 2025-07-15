@@ -74,23 +74,21 @@
                         </div>
                         {% if current_user %}
                           <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i> 选项</button>
+                            <button class="btn btn-sm btn-outline-secondary border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i> 选项</button>
                             <ul class="dropdown-menu dropdown-menu-end">
                               <li>
                                 <a class="dropdown-item" href="#" onclick="hideNavItem({{ item.id }}); return false;"><i class="fas fa-eye-slash me-2"></i>隐藏</a>
                               </li>
                               {% if current_user and item.created_by == current_user.id or current_user.role >= 3 %}
                                 <li>
-                                  <a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"><i class="fas fa-edit me-2"></i>编辑</a>
+                                  <a class="dropdown-item edit-nav-item" href="#" data-bs-toggle="modal" data-bs-target="#editNavItemModal" data-item-id="{{ item.id }}"><i class="fas fa-edit me-2"></i>编辑</a>
                                 </li>
                                 <li>
-                                  <a class="dropdown-item" href="#" onclick="togglePrivacy({{ item.id }}, {{ 'true' if item.is_public else 'false' }}); return false;">
-                                    {% if item.is_public %}
-                                      <i class="fas fa-lock me-2"></i>设为私有
-                                    {% else %}
-                                      <i class="fas fa-unlock me-2"></i>设为公开
-                                    {% endif %}
-                                  </a>
+                                  {% if item.is_public %}
+                                    <a class="dropdown-item" href="#" onclick="togglePrivacy({{ item.id }}, 'true'); return false;"><i class="fas fa-lock me-2"></i>设为私有</a>
+                                  {% else %}
+                                    <a class="dropdown-item" href="#" onclick="togglePrivacy({{ item.id }}, 'false'); return false;"><i class="fas fa-unlock me-2"></i>设为公开</a>
+                                  {% endif %}
                                 </li>
                                 <li>
                                   <hr class="dropdown-divider" />
@@ -176,42 +174,9 @@
   {% include 'modals/navigationManageModal.html' %}
   {% include 'modals/addNavItemModal.html' %}
   {% include 'modals/editNavItemModal.html' %}
+  <!-- - -->
 {% endblock %}
 
 {% block extra_js %}
   <script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
-  <script>
-    // 切换隐私状态
-    function togglePrivacy(itemId, isCurrentlyPublic) {
-      const newIsPublic = !isCurrentlyPublic;
-
-      fetch(`/api/nav-items/${itemId}/visibility`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken()
-        },
-        body: JSON.stringify({ is_public: newIsPublic })
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            showNotification(newIsPublic ? '已设为公开' : '已设为私有', 'success');
-            location.reload(); // 刷新页面以更新显示
-          } else {
-            showNotification('切换失败: ' + data.message, 'error');
-          }
-        })
-        .catch(error => {
-          console.error('Error toggling privacy:', error);
-          showNotification('切换失败', 'error');
-        });
-    }
-
-    // 获取CSRF Token
-    function getCSRFToken() {
-      const token = document.querySelector('meta[name="csrf-token"]');
-      return token ? token.getAttribute('content') : '';
-    }
-  </script>
 {% endblock %}
