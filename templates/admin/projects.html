@@ -103,7 +103,7 @@
                 {% for project in projects %}
                   <tr data-project-id="{{ project.id }}">
                     <!-- 项目名称 -->
-                    <td>
+                    <td style="width: 25%;">
                       <div class="d-flex align-items-center">
                         {% if project.image_url %}
                           <img class="rounded me-3 project-img" src="{{ project.image_url }}" alt="{{ project.title }}" />
@@ -118,18 +118,8 @@
                         </div>
                       </div>
                     </td>
-                    <!-- 创建时间 -->
-                    <td>{{ project.created_at.strftime('%Y-%m-%d') }}</td>
-                    <!-- 状态 -->
-                    <td>
-                      {% if project.is_featured %}
-                        <span class="status-badge status-featured">精选</span>
-                      {% else %}
-                        <span class="status-badge status-normal">普通</span>
-                      {% endif %}
-                    </td>
                     <!-- 作者 -->
-                    <td>
+                    <td style="width: 25%;">
                       {% if project.author %}
                         <div class="d-flex align-items-center">
                           <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile') }}">
@@ -166,6 +156,16 @@
                             </div>
                           </a>
                         </div>
+                      {% endif %}
+                    </td>
+                    <!-- 创建时间 -->
+                    <td>{{ project.created_at.strftime('%Y-%m-%d') }}</td>
+                    <!-- 状态 -->
+                    <td>
+                      {% if project.is_featured %}
+                        <span class="status-badge status-featured">精选</span>
+                      {% else %}
+                        <span class="status-badge status-normal">普通</span>
                       {% endif %}
                     </td>
                     <!-- 操作 -->

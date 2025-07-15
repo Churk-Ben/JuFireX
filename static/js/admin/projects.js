@@ -80,8 +80,6 @@ function handleEditProject(e) {
 }
 
 function toggleFeatured(projectId, currentStatus) {
-    if (!confirm('确定要切换项目的精选状态吗？')) return;
-
     API.put(`/api/projects/${projectId}/featured`, { is_featured: !currentStatus })
         .then(handleApiResponse('精选状态已更新', '操作失败'))
         .catch(handleApiError('操作失败'));
@@ -112,7 +110,8 @@ function getFormData(formId) {
     const form = document.getElementById(formId);
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
-    data.is_featured = form.querySelector('[name="is_featured"]').checked;
+    const featuredCheckbox = form.querySelector('[name="is_featured"]');
+    data.is_featured = featuredCheckbox ? featuredCheckbox.checked : false;
     return data;
 }
 
@@ -127,7 +126,7 @@ function fillEditForm(project) {
 }
 
 function handleApiResponse(successMessage, errorMessage) {
-    return function(data) {
+    return function (data) {
         if (data.success) {
             showNotification(successMessage, 'success');
             setTimeout(() => location.reload(), 1000);
@@ -138,7 +137,7 @@ function handleApiResponse(successMessage, errorMessage) {
 }
 
 function handleApiError(message) {
-    return function(error) {
+    return function (error) {
         console.error('Error:', error);
         showNotification(`${message}，请重试`, 'error');
     };

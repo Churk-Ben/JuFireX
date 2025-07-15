@@ -169,11 +169,10 @@ function handleToggleVisibility(dataset) {
 
 function handleUnhideNavItem(dataset) {
     const { itemId, itemTitle } = dataset;
-    if (confirm(`确定要显示导航项 "${itemTitle}" 吗？`)) {
-        API.post(`/api/navigation/unhide/${itemId}`, {})
-            .then(handleApiResponse())
-            .catch(handleApiError('显示导航项'));
-    }
+    API.post(`/api/navigation/unhide/${itemId}`, {})
+        .then(handleApiResponse())
+        .catch(handleApiError('显示导航项'));
+
 }
 
 async function openNavItemModal(modalId, dataset) {

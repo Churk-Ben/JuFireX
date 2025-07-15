@@ -1,13 +1,14 @@
 <!-- 编辑导航项模态框 -->
-<div class="modal fade" id="editNavItemModal" tabindex="-1" aria-labelledby="editNavItemModalLabel" aria-hidden="true">
+<div class="modal fade" id="editNavItemModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="editNavItemModalLabel"><i class="fas fa-edit me-2"></i> 编辑导航项</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title"><i class="fas fa-edit me-2"></i>编辑导航项</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form id="editNavItemForm">
         <input type="hidden" id="editNavItemId" name="id" />
+        <!-- 模态框主体 -->
         <div class="modal-body">
           <div class="row">
             <!-- 基本信息 -->
@@ -63,7 +64,7 @@
             </div>
           </div>
         </div>
-
+        <!-- 模态框底部 -->
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
           <button type="button" class="btn btn-primary" id="updateNavItemBtn"><i class="fas fa-save me-1"></i>保存更改</button>

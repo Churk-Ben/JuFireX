@@ -102,10 +102,6 @@ window.restoreNavItem = function (itemId) {
 
 // 恢复所有隐藏的导航项
 window.restoreAllHiddenItems = function () {
-    if (!confirm('确定要恢复所有隐藏的导航项吗？')) {
-        return;
-    }
-
     const hiddenItemElements = document.querySelectorAll('[data-hidden-item-id]');
     const itemIds = Array.from(hiddenItemElements).map(el => el.getAttribute('data-hidden-item-id'));
 

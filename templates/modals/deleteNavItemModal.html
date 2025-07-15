@@ -1,0 +1,24 @@
+<!-- 删除导航项确认模态框 -->
+<div class="modal fade" id="deleteNavItemConfirmModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>确认删除</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <!-- 模态框主体 -->
+      <div class="modal-body">
+        <p id="deleteNavItemConfirmMessage">确定要删除导航项吗？</p>
+        <input type="hidden" id="deleteNavItemId" />
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>此操作不可撤销。
+        </div>
+      </div>
+      <!-- 模态框底部 -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteNavItemBtn"><i class="fas fa-trash-alt me-1"></i>删除</button>
+      </div>
+    </div>
+  </div>
+</div>

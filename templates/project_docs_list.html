@@ -144,16 +144,13 @@
     </div>
   </div>
 
+  <!-- 引入模态框 -->
   {% if current_user.id == project.author_id %}
-    <!-- 引入上传文档模态框 -->
+    {% include 'modals/addDocModal.html' %}
     {% include 'modals/uploadDocModal.html' %}
-
-    <!-- 引入新建文档模态框 -->
-    {% include 'modals/createDocModal.html' %}
-
-    <!-- 引入编辑文档模态框 -->
     {% include 'modals/editDocModal.html' %}
   {% endif %}
+  <!-- - -->
 {% endblock %}
 
 {% block extra_js %}

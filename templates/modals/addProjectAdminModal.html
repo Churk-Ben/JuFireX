@@ -1,55 +1,46 @@
 <!-- 添加项目模态框 -->
 <div class="modal fade" id="addProjectModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-plus"></i> 添加新项目</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="background-color: var(--github-accent)"></button>
+        <h5 class="modal-title"><i class="fas fa-plus me-2"></i>添加新项目</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form id="addProjectForm">
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="projectTitle" class="form-label">项目标题 *</label>
-                <input type="text" class="form-control" id="projectTitle" required />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="projectImage" class="form-label">项目图片链接</label>
-                <input type="url" class="form-control" id="projectImage" placeholder="https://..." />
-              </div>
-            </div>
+      <!-- 模态框主体 -->
+      <div class="modal-body">
+        <form id="addProjectForm">
+          <div class="mb-3">
+            <label for="projectTitle" class="form-label">项目标题 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="projectTitle" name="title" required />
           </div>
           <div class="mb-3">
-            <label for="projectDescription" class="form-label">项目描述 *</label>
-            <textarea class="form-control" id="projectDescription" rows="4" required placeholder="详细描述项目的功能和特点..."></textarea>
+            <label for="projectDescription" class="form-label">项目描述 <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="projectDescription" name="description" rows="4" required></textarea>
           </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="projectGithub" class="form-label">GitHub 链接</label>
-                <input type="url" class="form-control" id="projectGithub" placeholder="https://github.com/..." />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="projectDemo" class="form-label">演示链接</label>
-                <input type="url" class="form-control" id="projectDemo" placeholder="https://..." />
-              </div>
-            </div>
+          <div class="mb-3">
+            <label for="projectGithub" class="form-label">GitHub 链接</label>
+            <input type="url" class="form-control" id="projectGithub" name="github_url" placeholder="https://github.com/..." />
+          </div>
+          <div class="mb-3">
+            <label for="projectDemo" class="form-label">演示链接</label>
+            <input type="url" class="form-control" id="projectDemo" name="demo_url" placeholder="https://..." />
+          </div>
+          <div class="mb-3">
+            <label for="projectImage" class="form-label">项目图片链接</label>
+            <input type="url" class="form-control" id="projectImage" name="image_url" placeholder="https://..." />
           </div>
           <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="projectFeatured" />
-            <label class="form-check-label" for="projectFeatured">设为精选项目（将在首页展示）</label>
+            <input type="checkbox" class="form-check-input" id="projectFeatured" name="is_featured" />
+            <label class="form-check-label" for="projectFeatured">设为精选项目</label>
+            <small class="text-muted">勾选后将在首页展示</small>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 创建项目</button>
-        </div>
-      </form>
+        </form>
+      </div>
+      <!-- 模态框底部 -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="submit" class="btn btn-success" form="addProjectForm"><i class="fas fa-save me-1"></i>创建</button>
+      </div>
     </div>
   </div>
 </div>

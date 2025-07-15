@@ -105,7 +105,7 @@
                     {% for item in category.nav_items|sort(attribute='order') %}
                       <tr data-nav-item-id="{{ item.id }}">
                         <!-- 导航信息 -->
-                        <td>
+                        <td style="width: 25%;">
                           <div class="d-flex align-items-center">
                             <div class="me-3">
                               <i class="{{ item.icon or 'fas fa-link' }}" id="link-icon"></i>
@@ -119,22 +119,14 @@
                           </div>
                         </td>
                         <!-- 指向 -->
-                        <td>
+                        <td style="width: 25%;">
                           <a href="{{ item.url }}" target="_blank" class="text-decoration-none">
                             {{ item.url[:30] }} {% if item.url|length > 30 %}...{% endif %}
                             <i class="fas fa-external-link-alt ms-1"></i>
                           </a>
                         </td>
-                        <!-- 状态 -->
-                        <td>
-                          {% if item.is_public %}
-                            <span class="status-badge status-public">公开</span>
-                          {% else %}
-                            <span class="status-badge status-private">私有</span>
-                          {% endif %}
-                        </td>
                         <!-- 创建者 -->
-                        <td>
+                        <td style="width: 25%;">
                           {% if item.creator %}
                             <div class="d-flex align-items-center">
                               <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile') }}">
@@ -171,6 +163,14 @@
                                 </div>
                               </a>
                             </div>
+                          {% endif %}
+                        </td>
+                        <!-- 状态 -->
+                        <td>
+                          {% if item.is_public %}
+                            <span class="status-badge status-public">公开</span>
+                          {% else %}
+                            <span class="status-badge status-private">私有</span>
                           {% endif %}
                         </td>
                         <!-- 操作 -->
@@ -220,8 +220,8 @@
   {% include 'modals/addNavItemModal.html' %}
   {% include 'modals/editCategoryModal.html' %}
   {% include 'modals/editNavItemModal.html' %}
-  {% include 'modals/deleteCategoryConfirmModal.html' %}
-  {% include 'modals/deleteNavItemConfirmModal.html' %}
+  {% include 'modals/deleteCategoryModal.html' %}
+  {% include 'modals/deleteNavItemModal.html' %}
   <!-- - -->
 {% endblock %}
 
