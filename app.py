@@ -7,7 +7,15 @@ from werkzeug.security import generate_password_hash
 
 # 导入配置和模块
 from backend.config import Config, ROLE_SUPER_ADMIN, ROLE_GUEST
-from backend.models import db, User, Project, StudioInfo, NavCategory
+from backend.models import (
+    db,
+    User,
+    Project,
+    StudioInfo,
+    NavCategory,
+    NavItem,
+    HiddenNavItem,
+)
 from backend.utils import require_role, generate_csrf_token
 from backend.auth import auth_bp
 from backend.projects import projects_bp
@@ -118,7 +126,6 @@ def init_database():
                 logo_url="/static/images/logo.png",
                 contact_email="contact@jufirestudio.com",
                 github_url="https://github.com/jufirestudio",
-                website_url="https://jufirestudio.com",
             )
             db.session.add(studio_info)
             print("创建默认工作室信息")
@@ -131,12 +138,77 @@ def init_database():
             {"name": "其他资源", "order": 4},
         ]
 
+        created_categories = {}
         for cat_data in default_categories:
             existing_cat = NavCategory.query.filter_by(name=cat_data["name"]).first()
             if not existing_cat:
-                category = NavCategory(name=cat_data["name"], order=cat_data["order"])
+                category = NavCategory(
+                    name=cat_data["name"],
+                    order=cat_data["order"],
+                    created_by=admin_user.id,
+                )
                 db.session.add(category)
+                db.session.flush()  # 获取ID
+                created_categories[cat_data["name"]] = category
                 print(f"创建默认导航分类: {cat_data['name']}")
+            else:
+                created_categories[cat_data["name"]] = existing_cat
+
+        # 创建默认导航项（如果不存在）
+        default_nav_items = [
+            {
+                "title": "GitHub",
+                "url": "https://github.com",
+                "description": "全球最大的代码托管平台",
+                "icon": "fab fa-github",
+                "category": "开发工具",
+                "order": 1,
+            },
+            {
+                "title": "Stack Overflow",
+                "url": "https://stackoverflow.com",
+                "description": "程序员问答社区",
+                "icon": "fab fa-stack-overflow",
+                "category": "学习资源",
+                "order": 1,
+            },
+            {
+                "title": "MDN Web Docs",
+                "url": "https://developer.mozilla.org",
+                "description": "Web开发权威文档",
+                "icon": "fas fa-book",
+                "category": "学习资源",
+                "order": 2,
+            },
+            {
+                "title": "Figma",
+                "url": "https://figma.com",
+                "description": "在线UI设计工具",
+                "icon": "fab fa-figma",
+                "category": "设计工具",
+                "order": 1,
+            },
+        ]
+
+        for item_data in default_nav_items:
+            category = created_categories.get(item_data["category"])
+            if category:
+                existing_item = NavItem.query.filter_by(
+                    title=item_data["title"]
+                ).first()
+                if not existing_item:
+                    nav_item = NavItem(
+                        title=item_data["title"],
+                        url=item_data["url"],
+                        description=item_data["description"],
+                        icon=item_data["icon"],
+                        category_id=category.id,
+                        order=item_data["order"],
+                        is_public=True,
+                        created_by=admin_user.id,
+                    )
+                    db.session.add(nav_item)
+                    print(f"创建默认导航项: {item_data['title']}")
 
         # 提交所有更改
         db.session.commit()

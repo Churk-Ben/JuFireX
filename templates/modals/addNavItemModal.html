@@ -1,70 +1,87 @@
 <!-- 添加导航项模态框 -->
-<div class="modal fade" id="addNavItemModal" tabindex="-1">
-  <div class="modal-dialog">
+<div class="modal fade" id="addNavItemModal" tabindex="-1" aria-labelledby="addNavItemModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-add"></i> 添加导航</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="addNavItemModalLabel"><i class="fas fa-plus me-2"></i> 添加导航项</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <!-- 模态框主体 -->
-      <div class="modal-body">
-        <form id="addNavItemForm">
-          <div class="mb-3">
-            <label for="navItemTitle" class="form-label">标题 <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="navItemTitle" required />
-          </div>
-          <div class="mb-3">
-            <label for="navItemUrl" class="form-label">URL <span class="text-danger">*</span></label>
-            <input type="url" class="form-control" id="navItemUrl" required />
-          </div>
-          <div class="mb-3">
-            <label for="navItemDescription" class="form-label">描述</label>
-            <textarea class="form-control" id="navItemDescription" rows="3" placeholder="简要描述这个导航项的用途..."></textarea>
-          </div>
+      <form id="addNavItemForm">
+        <div class="modal-body">
           <div class="row">
-            <div class="col-md-6">
+            <!-- 基本信息 -->
+            <div class="col-md-8">
               <div class="mb-3">
-                <label for="navItemIcon" class="form-label">图标</label>
-                <input type="text" class="form-control" id="navItemIcon" value="fas fa-link" placeholder="例如: fas fa-link" />
-                <div class="form-text">Font Awesome 图标类名</div>
+                <label for="navItemTitle" class="form-label">标题 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="navItemTitle" name="title" required placeholder="请输入导航项标题" />
+                <div class="form-text">导航项的显示名称</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="navItemUrl" class="form-label">链接地址 <span class="text-danger">*</span></label>
+                <input type="url" class="form-control" id="navItemUrl" name="url" required placeholder="https://example.com" />
+                <div class="form-text">完整的URL地址，包含协议（http://或https://）</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="navItemDescription" class="form-label">描述</label>
+                <textarea class="form-control" id="navItemDescription" name="description" rows="3" placeholder="请输入导航项描述（可选）"></textarea>
+                <div class="form-text">简短描述这个导航项的用途</div>
               </div>
             </div>
-            <div class="col-md-6">
+
+            <!-- 设置选项 -->
+            <div class="col-md-4">
               <div class="mb-3">
                 <label for="navItemCategory" class="form-label">分类 <span class="text-danger">*</span></label>
-                <select class="form-select" id="navItemCategory" required>
+                <select class="form-select" id="navItemCategory" name="category_id" required>
                   <option value="">请选择分类</option>
-                  {% for category in categories %}
-                    <option value="{{ category.id }}">{{ category.name }}</option>
-                  {% endfor %}
+                  <!-- 分类选项将通过JS动态加载 -->
                 </select>
               </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
+
+              <div class="mb-3">
+                <label for="navItemIcon" class="form-label">图标</label>
+                <input type="text" class="form-control" id="navItemIcon" name="icon" placeholder="fas fa-link" />
+                <div class="form-text">FontAwesome图标类名</div>
+              </div>
+
               <div class="mb-3">
                 <label for="navItemOrder" class="form-label">排序</label>
-                <input type="number" class="form-control" id="navItemOrder" value="0" min="0" />
+                <input type="number" class="form-control" id="navItemOrder" name="order" value="0" min="0" />
                 <div class="form-text">数字越小排序越靠前</div>
               </div>
-            </div>
-            <div class="col-md-6">
+
               <div class="mb-3">
-                <div class="form-check form-switch mt-4">
-                  <input class="form-check-input" type="checkbox" id="navItemIsPublic" checked />
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="navItemIsPublic" name="is_public" checked />
                   <label class="form-check-label" for="navItemIsPublic">公开显示</label>
-                  <div class="form-text">是否在前台显示此导航项</div>
                 </div>
+                <div class="form-text">取消勾选则仅自己可见</div>
               </div>
             </div>
           </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-success" id="saveNavItemBtn"><i class="fas fa-save"></i> 保存</button>
-      </div>
+
+          <!-- 预览区域 -->
+          <div class="mt-4">
+            <h6 class="mb-3">预览效果</h6>
+            <div class="border rounded p-3 bg-light">
+              <div id="navItemPreview">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-link me-2 text-primary" id="previewIcon"></i>
+                  <h6 class="mb-0 fw-bold" id="previewTitle">导航项标题</h6>
+                </div>
+                <p class="text-muted small mb-0" id="previewDescription">导航项描述</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>保存</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
