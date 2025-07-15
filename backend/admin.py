@@ -47,7 +47,12 @@ def admin_navigation():
     # 获取所有分类和导航项
     categories = NavCategory.query.order_by(NavCategory.order).all()
     nav_items = NavItem.query.order_by(NavItem.order).all()
-    return render_template("admin/navigation.html", current_user=current_user, categories=categories, nav_items=nav_items)
+    return render_template(
+        "admin/navigation.html",
+        current_user=current_user,
+        categories=categories,
+        nav_items=nav_items,
+    )
 
 
 @admin_bp.route("/api/users/<int:user_id>/role", methods=["PUT"])
@@ -164,7 +169,9 @@ def update_studio_info():
             studio_info.name = data.get("name", studio_info.name)
             studio_info.description = data.get("description", studio_info.description)
             studio_info.logo_url = data.get("logo_url", studio_info.logo_url)
-            studio_info.contact_email = data.get("contact_email", studio_info.contact_email)
+            studio_info.contact_email = data.get(
+                "contact_email", studio_info.contact_email
+            )
             studio_info.github_url = data.get("github_url", studio_info.github_url)
             studio_info.updated_at = datetime.now()
 

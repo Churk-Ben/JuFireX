@@ -23,10 +23,13 @@ def navigation():
     nav_items_by_category = {}
     for category in categories:
         # 获取该分类下的所有导航项（排除隐藏的）
-        nav_items = NavItem.query.filter_by(category_id=category.id).filter(
-            ~NavItem.id.in_(hidden_nav_items) if hidden_nav_items else True
-        ).order_by(NavItem.order).all()
-        
+        nav_items = (
+            NavItem.query.filter_by(category_id=category.id)
+            .filter(~NavItem.id.in_(hidden_nav_items) if hidden_nav_items else True)
+            .order_by(NavItem.order)
+            .all()
+        )
+
         if nav_items:
             nav_items_by_category[category.id] = nav_items
 
@@ -85,7 +88,9 @@ def unhide_nav_item(nav_item_id):
     return jsonify({"success": True, "message": "导航项已显示"})
 
 
-@navigation_bp.route("/api/navigation/toggle_privacy/<int:nav_item_id>", methods=["POST"])
+@navigation_bp.route(
+    "/api/navigation/toggle_privacy/<int:nav_item_id>", methods=["POST"]
+)
 @require_role(ROLE_MEMBER, owner_check=can_manage_nav_item)
 def toggle_nav_item_privacy(nav_item_id):
     # 验证 CSRF token
@@ -188,7 +193,9 @@ def update_nav_category(category_id):
     if name:
         # 检查名称是否已存在（排除当前分类）
         existing = (
-            NavCategory.query.filter_by(name=name).filter(NavCategory.id != category_id).first()
+            NavCategory.query.filter_by(name=name)
+            .filter(NavCategory.id != category_id)
+            .first()
         )
         if existing:
             return jsonify({"success": False, "message": "分类名称已存在"}), 400
@@ -226,7 +233,11 @@ def delete_nav_category(category_id):
 def get_nav_items():
     category_id = request.args.get("category_id", type=int)
     if category_id:
-        nav_items = NavItem.query.filter_by(category_id=category_id).order_by(NavItem.order).all()
+        nav_items = (
+            NavItem.query.filter_by(category_id=category_id)
+            .order_by(NavItem.order)
+            .all()
+        )
     else:
         nav_items = NavItem.query.order_by(NavItem.order).all()
 
@@ -363,13 +374,18 @@ def toggle_nav_item_visibility(item_id):
     data = request.get_json()
     is_public = data.get("is_public")
     user_id = session["user_id"]
-    
+
     # 切换公开/私有状态（仅限创建者或超级管理员）
     nav_item = NavItem.query.get_or_404(item_id)
     user = db.session.get(User, user_id)
 
     if nav_item.created_by != user_id and user.role < ROLE_SUPER_ADMIN:
-        return jsonify({"success": False, "message": "只有创建者或超级管理员可以修改隐私设置"}), 403
+        return (
+            jsonify(
+                {"success": False, "message": "只有创建者或超级管理员可以修改隐私设置"}
+            ),
+            403,
+        )
 
     nav_item.is_public = is_public
     db.session.commit()

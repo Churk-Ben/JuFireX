@@ -14,12 +14,13 @@ ROLE_NAMES = {
     ROLE_SUPER_ADMIN: "超级管理员",
 }
 
+
 # Flask配置
 class Config:
     SECRET_KEY = "your-secret-key-here"
     SQLALCHEMY_DATABASE_URI = "sqlite:///studio.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
+
     @staticmethod
     def get_user_avatar_folder():
         return os.path.join(
