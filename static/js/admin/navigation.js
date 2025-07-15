@@ -1,5 +1,8 @@
 // 管理导航分类和导航项的JavaScript文件
 
+// 全局变量
+let categories = [];
+
 document.addEventListener('DOMContentLoaded', function () {
     // 获取DOM元素
     const categoryAccordion = document.getElementById('categoryAccordion');
@@ -10,6 +13,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const saveNavItemBtn = document.getElementById('saveNavItemBtn');
     const updateNavItemBtn = document.getElementById('updateNavItemBtn');
     const confirmDeleteNavItemBtn = document.getElementById('confirmDeleteNavItemBtn');
+
+    // 初始化时加载分类数据
+    loadCategories();
 
     // 添加分类
     saveCategoryBtn.addEventListener('click', function () {
@@ -122,8 +128,21 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('[data-bs-target="#addNavItemModal"]').forEach(button => {
         button.addEventListener('click', function () {
             const categoryId = this.getAttribute('data-category-id');
-            if (categoryId) {
-                document.getElementById('navItemCategory').value = categoryId;
+            // 确保分类数据已加载
+            if (!categories || categories.length === 0) {
+                loadCategories().then(() => {
+                    if (categoryId) {
+                        document.getElementById('navItemCategory').value = categoryId;
+                    }
+                }).catch(error => {
+                    console.error('Error loading categories for add modal:', error);
+                    showNotification('加载分类数据失败', 'danger');
+                });
+            } else {
+                populateCategorySelects();
+                if (categoryId) {
+                    document.getElementById('navItemCategory').value = categoryId;
+                }
             }
         });
     });
@@ -146,6 +165,10 @@ document.addEventListener('DOMContentLoaded', function () {
             showNotification('URL不能为空', 'warning');
             return;
         }
+        if (!categoryId) {
+            showNotification('请选择分类', 'warning');
+            return;
+        }
 
         API.post('/api/nav-items', {
             title, url, description, icon,
@@ -156,6 +179,9 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.success) {
                     showNotification(data.message, 'success');
+                    // 关闭模态框
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addNavItemModal'));
+                    if (modal) modal.hide();
                     location.reload();
                 } else {
                     showNotification(data.message || '创建导航项失败', 'danger');
@@ -181,17 +207,32 @@ document.addEventListener('DOMContentLoaded', function () {
             const categoryId = this.getAttribute('data-item-category-id');
             const order = this.getAttribute('data-item-order');
 
-            document.getElementById('editNavItemId').value = itemId;
-            document.getElementById('editNavItemTitle').value = title;
-            document.getElementById('editNavItemUrl').value = url;
-            document.getElementById('editNavItemDescription').value = description;
-            document.getElementById('editNavItemIcon').value = icon;
-            document.getElementById('editNavItemIsPublic').checked = isPublic;
-            document.getElementById('editNavItemCategory').value = categoryId;
-            document.getElementById('editNavItemOrder').value = order;
+            const populateForm = () => {
+                document.getElementById('editNavItemId').value = itemId;
+                document.getElementById('editNavItemTitle').value = title;
+                document.getElementById('editNavItemUrl').value = url;
+                document.getElementById('editNavItemDescription').value = description;
+                document.getElementById('editNavItemIcon').value = icon;
+                document.getElementById('editNavItemIsPublic').checked = isPublic;
+                document.getElementById('editNavItemCategory').value = categoryId;
+                document.getElementById('editNavItemOrder').value = order;
 
-            const modal = new bootstrap.Modal(document.getElementById('editNavItemModal'));
-            modal.show();
+                const modal = new bootstrap.Modal(document.getElementById('editNavItemModal'));
+                modal.show();
+            };
+
+            // 确保分类数据已加载
+            if (!categories || categories.length === 0) {
+                loadCategories().then(() => {
+                    populateForm();
+                }).catch(error => {
+                    console.error('Error loading categories for edit modal:', error);
+                    showNotification('加载分类数据失败', 'danger');
+                });
+            } else {
+                populateCategorySelects();
+                populateForm();
+            }
         });
     });
 
@@ -214,6 +255,10 @@ document.addEventListener('DOMContentLoaded', function () {
             showNotification('URL不能为空', 'warning');
             return;
         }
+        if (!categoryId) {
+            showNotification('请选择分类', 'warning');
+            return;
+        }
 
         API.put(`/api/nav-items/${itemId}`, {
             title, url, description, icon,
@@ -224,6 +269,9 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.success) {
                     showNotification(data.message, 'success');
+                    // 关闭模态框
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editNavItemModal'));
+                    if (modal) modal.hide();
                     location.reload();
                 } else {
                     showNotification(data.message || '更新导航项失败', 'danger');
@@ -292,4 +340,74 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     });
+
+    // 取消隐藏导航项
+    document.querySelectorAll('.unhide-nav-item').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const itemId = this.getAttribute('data-item-id');
+            const itemTitle = this.getAttribute('data-item-title');
+
+            if (confirm(`确定要显示导航项 "${itemTitle}" 吗？`)) {
+                API.post(`/api/navigation/unhide/${itemId}`, {})
+                    .then(data => {
+                        if (data.success) {
+                            showNotification(data.message, 'success');
+                            location.reload();
+                        } else {
+                            showNotification(data.message || '显示导航项失败', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('显示导航项时出错', 'danger');
+                    });
+            }
+        });
+    });
 });
+
+// 获取CSRF Token
+function getCSRFToken() {
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    return csrfMeta ? csrfMeta.getAttribute('content') : '';
+}
+
+// 加载分类数据
+function loadCategories() {
+    return fetch('/api/nav-categories', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                categories = data.categories;
+                populateCategorySelects();
+                return data.categories;
+            } else {
+                throw new Error('Failed to load categories');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading categories:', error);
+            throw error;
+        });
+}
+
+// 填充分类选择框
+function populateCategorySelects() {
+    const selects = document.querySelectorAll('#navItemCategory, #editNavItemCategory');
+    selects.forEach(select => {
+        select.innerHTML = '<option value="">请选择分类</option>';
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.name;
+            select.appendChild(option);
+        });
+    });
+}

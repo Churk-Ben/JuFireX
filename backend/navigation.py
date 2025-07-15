@@ -254,7 +254,7 @@ def get_nav_items():
                 "is_public": item.is_public,
                 "category_id": item.category_id,
                 "category_name": item.category.name,
-                "creator_id": item.creator_id,
+                "creator_id": item.created_by,
                 "creator_name": item.creator.username if item.creator else None,
                 "created_at": item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             }
@@ -310,12 +310,41 @@ def create_nav_item():
                 "is_public": nav_item.is_public,
                 "category_id": nav_item.category_id,
                 "category_name": nav_item.category.name,
-                "creator_id": nav_item.creator_id,
+                "creator_id": nav_item.created_by,
                 "creator_name": nav_item.creator.username,
                 "created_at": nav_item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             },
         }
     )
+
+
+@navigation_bp.route("/api/nav-items/<int:item_id>", methods=["GET"])
+@require_role(ROLE_MEMBER)
+def get_nav_item(item_id):
+    nav_item = NavItem.query.get_or_404(item_id)
+    user_id = session["user_id"]
+    user = db.session.get(User, user_id)
+
+    # 检查权限：只有创建者或超级管理员可以查看详情
+    if nav_item.created_by != user_id and user.role < ROLE_SUPER_ADMIN:
+        return jsonify({"success": False, "message": "权限不足"}), 403
+
+    item_data = {
+        "id": nav_item.id,
+        "title": nav_item.title,
+        "url": nav_item.url,
+        "description": nav_item.description,
+        "icon": nav_item.icon,
+        "order": nav_item.order,
+        "is_public": nav_item.is_public,
+        "category_id": nav_item.category_id,
+        "category_name": nav_item.category.name,
+        "creator_id": nav_item.created_by,
+        "creator_name": nav_item.creator.username if nav_item.creator else None,
+        "created_at": nav_item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+    return jsonify({"success": True, "item": item_data})
 
 
 @navigation_bp.route("/api/nav-items/<int:item_id>", methods=["PUT"])

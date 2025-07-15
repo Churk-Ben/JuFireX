@@ -88,10 +88,28 @@ function setupModalEventListeners() {
         });
     }
 
+    // 添加导航项保存按钮
+    const saveNavItemBtn = document.getElementById('saveNavItemBtn');
+    if (saveNavItemBtn) {
+        saveNavItemBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            submitAddForm();
+        });
+    }
+
     // 编辑导航项表单提交
     const editForm = document.getElementById('editNavItemForm');
     if (editForm) {
         editForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            submitEditForm();
+        });
+    }
+
+    // 编辑导航项更新按钮
+    const updateNavItemBtn = document.getElementById('updateNavItemBtn');
+    if (updateNavItemBtn) {
+        updateNavItemBtn.addEventListener('click', function (e) {
             e.preventDefault();
             submitEditForm();
         });
@@ -102,6 +120,14 @@ function setupModalEventListeners() {
     if (restoreAllBtn) {
         restoreAllBtn.addEventListener('click', function () {
             restoreAllHiddenItems();
+        });
+    }
+
+    // 导航管理模态框显示时加载隐藏项
+    const navigationManageModal = document.getElementById('navigationManageModal');
+    if (navigationManageModal) {
+        navigationManageModal.addEventListener('shown.bs.modal', function () {
+            loadHiddenItems();
         });
     }
 }
@@ -161,9 +187,15 @@ function setupFormPreview(formId, previewIds) {
     }
 }
 
+// 获取CSRF Token
+function getCSRFToken() {
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    return csrfMeta ? csrfMeta.getAttribute('content') : '';
+}
+
 // 加载分类数据
 function loadCategories() {
-    fetch('/api/nav-categories', {
+    return fetch('/api/nav-categories', {
         method: 'GET',
         headers: {
             'X-CSRFToken': getCSRFToken()
@@ -174,18 +206,22 @@ function loadCategories() {
             if (data.success) {
                 categories = data.categories;
                 populateCategorySelects();
+                return data.categories;
+            } else {
+                throw new Error('Failed to load categories');
             }
         })
         .catch(error => {
             console.error('Error loading categories:', error);
+            throw error;
         });
 }
 
 // 填充分类选择框
 function populateCategorySelects() {
-    const selects = document.querySelectorAll('.category-select');
+    const selects = document.querySelectorAll('#navItemCategory, #editNavItemCategory');
     selects.forEach(select => {
-        select.innerHTML = '<option value="">选择分类</option>';
+        select.innerHTML = '<option value="">请选择分类</option>';
         categories.forEach(category => {
             const option = document.createElement('option');
             option.value = category.id;
@@ -198,23 +234,48 @@ function populateCategorySelects() {
 // 打开管理模态框
 function openManageModal() {
     loadHiddenItems();
-    const modal = new bootstrap.Modal(document.getElementById('manageNavModal'));
+    const modal = new bootstrap.Modal(document.getElementById('navigationManageModal'));
     modal.show();
 }
 
 // 打开添加模态框
 function openAddModal() {
     resetForm('addNavItemForm');
-    const modal = new bootstrap.Modal(document.getElementById('addNavItemModal'));
-    modal.show();
+    // 确保分类数据已加载
+    if (!categories || categories.length === 0) {
+        loadCategories().then(() => {
+            const modal = new bootstrap.Modal(document.getElementById('addNavItemModal'));
+            modal.show();
+        }).catch(error => {
+            console.error('Error loading categories for add modal:', error);
+            showNotification('加载分类数据失败', 'error');
+        });
+    } else {
+        populateCategorySelects();
+        const modal = new bootstrap.Modal(document.getElementById('addNavItemModal'));
+        modal.show();
+    }
 }
 
 // 打开编辑模态框
 function openEditModal(itemId) {
     currentEditingItemId = itemId;
-    loadItemData(itemId);
-    const modal = new bootstrap.Modal(document.getElementById('editNavItemModal'));
-    modal.show();
+    // 确保分类数据已加载
+    if (!categories || categories.length === 0) {
+        loadCategories().then(() => {
+            loadItemData(itemId);
+            const modal = new bootstrap.Modal(document.getElementById('editNavItemModal'));
+            modal.show();
+        }).catch(error => {
+            console.error('Error loading categories for edit modal:', error);
+            showNotification('加载分类数据失败', 'error');
+        });
+    } else {
+        populateCategorySelects();
+        loadItemData(itemId);
+        const modal = new bootstrap.Modal(document.getElementById('editNavItemModal'));
+        modal.show();
+    }
 }
 
 // 加载导航项数据
@@ -257,12 +318,33 @@ function submitAddForm() {
     const form = document.getElementById('addNavItemForm');
     const formData = new FormData(form);
 
+    // 将FormData转换为JSON对象
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+
+    // 处理复选框值
+    const isPublicCheckbox = form.querySelector('[name="is_public"]');
+    if (isPublicCheckbox) {
+        data.is_public = isPublicCheckbox.checked;
+    }
+
+    // 处理数字字段
+    if (data.order) {
+        data.order = parseInt(data.order);
+    }
+    if (data.category_id) {
+        data.category_id = parseInt(data.category_id);
+    }
+
     fetch('/api/nav-items', {
         method: 'POST',
         headers: {
+            'Content-Type': 'application/json',
             'X-CSRFToken': getCSRFToken()
         },
-        body: formData
+        body: JSON.stringify(data)
     })
         .then(response => response.json())
         .then(data => {
@@ -284,13 +366,37 @@ function submitAddForm() {
 function submitEditForm() {
     const form = document.getElementById('editNavItemForm');
     const formData = new FormData(form);
+    const itemId = document.getElementById('editNavItemId').value;
 
-    fetch(`/api/nav-items/${currentEditingItemId}`, {
+    // 将FormData转换为JSON对象
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        if (key !== 'id') { // 排除隐藏的id字段
+            data[key] = value;
+        }
+    }
+
+    // 处理复选框值
+    const isPublicCheckbox = form.querySelector('[name="is_public"]');
+    if (isPublicCheckbox) {
+        data.is_public = isPublicCheckbox.checked;
+    }
+
+    // 处理数字字段
+    if (data.order) {
+        data.order = parseInt(data.order);
+    }
+    if (data.category_id) {
+        data.category_id = parseInt(data.category_id);
+    }
+
+    fetch(`/api/nav-items/${itemId}`, {
         method: 'PUT',
         headers: {
+            'Content-Type': 'application/json',
             'X-CSRFToken': getCSRFToken()
         },
-        body: formData
+        body: JSON.stringify(data)
     })
         .then(response => response.json())
         .then(data => {
@@ -321,7 +427,7 @@ function hideNavItem(itemId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const card = document.querySelector(`[data-item-id="${itemId}"]`).closest('.col-md-4');
+                const card = document.querySelector(`[data-nav-item-id="${itemId}"]`);
                 if (card) {
                     card.style.display = 'none';
                 }
@@ -351,7 +457,7 @@ function deleteNavItem(itemId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const card = document.querySelector(`[data-item-id="${itemId}"]`).closest('.col-md-4');
+                const card = document.querySelector(`[data-nav-item-id="${itemId}"]`);
                 if (card) {
                     card.remove();
                 }
@@ -368,8 +474,8 @@ function deleteNavItem(itemId) {
 
 // 切换导航项隐私状态
 function toggleItemPrivacy(itemId) {
-    const button = document.querySelector(`[data-item-id="${itemId}"] .toggle-privacy`);
-    const isPublic = button.getAttribute('data-is-public') === '1';
+    const button = document.querySelector(`[data-nav-item-id="${itemId}"] .toggle-privacy`);
+    const isPublic = button ? button.getAttribute('data-is-public') === '1' : false;
 
     fetch(`/api/nav-items/${itemId}/visibility`, {
         method: 'PUT',
@@ -416,13 +522,18 @@ function loadHiddenItems() {
 
 // 显示隐藏的导航项
 function displayHiddenItems(items) {
-    const container = document.getElementById('hiddenItemsList');
+    const container = document.getElementById('hidden-items-list');
     if (!container) return;
 
     container.innerHTML = '';
 
     if (items.length === 0) {
-        container.innerHTML = '<p class="text-muted">没有隐藏的导航项</p>';
+        container.innerHTML = `
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-eye mb-2" style="font-size: 2rem;"></i>
+                <p class="mb-0">暂无隐藏的导航项</p>
+            </div>
+        `;
         return;
     }
 
@@ -435,16 +546,27 @@ function displayHiddenItems(items) {
 // 创建隐藏项元素
 function createHiddenItemElement(item) {
     const div = document.createElement('div');
-    div.className = 'list-group-item d-flex justify-content-between align-items-center';
+    div.className = 'card mb-2';
     div.innerHTML = `
-        <div>
-            <i class="${item.icon || 'fas fa-link'} me-2"></i>
-            <strong>${item.title}</strong>
-            <small class="text-muted d-block">${item.description || ''}</small>
+        <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="${item.icon || 'fas fa-link'} me-2 text-primary"></i>
+                        <h6 class="mb-0 fw-bold">${item.title}</h6>
+                    </div>
+                    <p class="text-muted small mb-1">${item.description || '暂无描述'}</p>
+                    <div class="d-flex align-items-center text-muted small">
+                        <span class="me-3"><i class="fas fa-link me-1"></i>${item.url}</span>
+                        <span class="me-3"><i class="fas fa-folder me-1"></i>${item.category_name}</span>
+                        <span><i class="fas fa-clock me-1"></i>${item.hidden_at}</span>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline-success" onclick="restoreNavItem(${item.id})">
+                    <i class="fas fa-eye me-1"></i>取消隐藏
+                </button>
+            </div>
         </div>
-        <button class="btn btn-sm btn-outline-primary" onclick="restoreNavItem(${item.id})">
-            恢复
-        </button>
     `;
     return div;
 }
@@ -480,7 +602,7 @@ function restoreAllHiddenItems() {
     }
 
     // 获取所有隐藏项的ID
-    const hiddenItems = document.querySelectorAll('#hiddenItemsList .list-group-item');
+    const hiddenItems = document.querySelectorAll('#hidden-items-list .card');
     const itemIds = [];
 
     hiddenItems.forEach(item => {
@@ -624,7 +746,74 @@ function isValidUrl(string) {
     }
 }
 
+// 编辑导航项
+function editNavItem(itemId) {
+    // 获取导航项详情
+    fetch(`/api/nav-items/${itemId}`, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCSRFToken()
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const item = data.item;
+                // 填充编辑表单
+                document.getElementById('editNavItemId').value = item.id;
+                document.getElementById('editNavItemTitle').value = item.title;
+                document.getElementById('editNavItemUrl').value = item.url;
+                document.getElementById('editNavItemDescription').value = item.description || '';
+                document.getElementById('editNavItemIcon').value = item.icon || '';
+                document.getElementById('editNavItemOrder').value = item.order || 0;
+                document.getElementById('editNavItemIsPublic').checked = item.is_public;
+                document.getElementById('editNavItemCategory').value = item.category_id;
+
+                // 显示编辑模态框
+                const editModal = new bootstrap.Modal(document.getElementById('editNavItemModal'));
+                editModal.show();
+            } else {
+                showNotification('获取导航项信息失败: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching item:', error);
+            showNotification('获取导航项信息失败', 'error');
+        });
+}
+
+// 切换隐私状态
+function togglePrivacy(itemId, isCurrentlyPublic) {
+    const newIsPublic = !isCurrentlyPublic;
+
+    fetch(`/api/nav-items/${itemId}/visibility`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ is_public: newIsPublic })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(newIsPublic ? '已设为公开' : '已设为私有', 'success');
+                location.reload(); // 刷新页面以更新显示
+            } else {
+                showNotification('切换失败: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error toggling privacy:', error);
+            showNotification('切换失败', 'error');
+        });
+}
+
 // 导出函数供全局使用
 window.recordNavClick = recordNavClick;
 window.restoreNavItem = restoreNavItem;
 window.showNotification = showNotification;
+window.editNavItem = editNavItem;
+window.togglePrivacy = togglePrivacy;
+window.deleteNavItem = deleteNavItem;
+window.hideNavItem = hideNavItem;

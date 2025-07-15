@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, session
-from .models import db, User, Project, StudioInfo, NavCategory, NavItem
+from .models import db, User, Project, StudioInfo, NavCategory, NavItem, HiddenNavItem
 from .config import ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_NAMES
 from .utils import require_role, can_manage_user, validate_csrf_token
 
@@ -47,11 +47,36 @@ def admin_navigation():
     # 获取所有分类和导航项
     categories = NavCategory.query.order_by(NavCategory.order).all()
     nav_items = NavItem.query.order_by(NavItem.order).all()
+
+    # 获取当前用户隐藏的导航项
+    hidden_items = (
+        db.session.query(HiddenNavItem, NavItem)
+        .join(NavItem, HiddenNavItem.nav_item_id == NavItem.id)
+        .filter(HiddenNavItem.user_id == current_user.id)
+        .all()
+    )
+
+    hidden_nav_items = []
+    for hidden_item, nav_item in hidden_items:
+        hidden_nav_items.append(
+            {
+                "id": nav_item.id,
+                "title": nav_item.title,
+                "url": nav_item.url,
+                "description": nav_item.description,
+                "icon": nav_item.icon,
+                "category_id": nav_item.category_id,
+                "category_name": nav_item.category.name,
+                "hidden_at": hidden_item.hidden_at.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+        )
+
     return render_template(
         "admin/navigation.html",
         current_user=current_user,
         categories=categories,
         nav_items=nav_items,
+        hidden_nav_items=hidden_nav_items,
     )
 
 
