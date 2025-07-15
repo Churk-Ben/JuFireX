@@ -2,7 +2,8 @@ import secrets
 import os
 import requests
 import uuid
-from urllib.parse import urlparse
+import shutil
+from urllib.parse import urlparse, unquote
 from functools import wraps
 from flask import session, flash, redirect, url_for, request, jsonify, current_app
 from .models import db, User, Project, NavItem
@@ -105,19 +106,64 @@ def validate_csrf_token():
     return csrf_token and csrf_token == session.get("_csrf_token")
 
 
-def cache_image_from_url(image_url):
+def delete_cached_image(image_url):
+    if not image_url or not image_url.startswith('/cache/'):
+        return
+
+    try:
+        filename = os.path.basename(image_url)
+        # 尝试从两个可能的缓存目录中删除
+        for folder in ['using_cache', 'user_data']:
+            file_path = os.path.join(current_app.root_path, folder, filename)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                current_app.logger.info(f"Deleted cached image: {file_path}")
+                return
+    except Exception as e:
+        current_app.logger.error(f"Error deleting cached image {image_url}: {e}")
+
+
+def cache_image_from_url(image_url, storage_folder='using_cache'):
     if not image_url:
         return None
 
     try:
-        # 检查是否是有效的URL
-        result = urlparse(image_url)
-        if not all([result.scheme, result.netloc]):
-            return image_url  # 不是有效的URL，可能已经是本地路径
-
         # 检查是否已经是本地缓存的URL
         if image_url.startswith('/cache/'):
             return image_url
+
+        result = urlparse(image_url)
+
+        # 处理本地文件 URI (file://...)
+        if result.scheme == 'file':
+            # unquote to handle spaces and special characters in file path
+            local_path = unquote(result.path)
+            # On Windows, file:// URI path might start with a slash, e.g., /C:/Users/...
+            if os.name == 'nt' and local_path.startswith('/'):
+                local_path = local_path[1:]
+
+            if not os.path.exists(local_path):
+                current_app.logger.error(f"Local file not found: {local_path}")
+                return None
+
+            ext = os.path.splitext(local_path)[1]
+            if not ext:
+                current_app.logger.error(f"Cannot determine file type from path: {local_path}")
+                return None  # 无法确定文件类型
+
+            filename = f"{uuid.uuid4().hex}{ext}"
+            cache_dir = os.path.join(current_app.root_path, storage_folder)
+            os.makedirs(cache_dir, exist_ok=True)
+            new_file_path = os.path.join(cache_dir, filename)
+
+            shutil.copy(local_path, new_file_path)
+            current_app.logger.info(f"Copied local file from {local_path} to {new_file_path}")
+
+            return f"/cache/{filename}"
+
+        # 处理网络 URL
+        if not all([result.scheme, result.netloc]):
+            return image_url  # 不是有效的URL，可能已经是本地路径
 
         response = requests.get(image_url, stream=True, timeout=10)
         response.raise_for_status()
@@ -127,29 +173,28 @@ def cache_image_from_url(image_url):
         if content_type and 'image' in content_type:
             ext = '.' + content_type.split('/')[1].split(';')[0]
         else:
-            # 从URL中猜测扩展名
             path = urlparse(image_url).path
             ext = os.path.splitext(path)[1]
             if not ext:
-                return None  # 无法确定文件类型
+                return None
 
-        # 生成唯一文件名
         filename = f"{uuid.uuid4().hex}{ext}"
-        cache_dir = os.path.join(current_app.root_path, 'using_cache')
+        cache_dir = os.path.join(current_app.root_path, storage_folder)
         os.makedirs(cache_dir, exist_ok=True)
         file_path = os.path.join(cache_dir, filename)
 
-        # 保存图片
         with open(file_path, 'wb') as f:
             for chunk in response.iter_content(1024):
                 f.write(chunk)
 
-        # 返回可访问的URL
         return f"/cache/{filename}"
 
     except requests.exceptions.RequestException as e:
         current_app.logger.error(f"Failed to download image from {image_url}: {e}")
-        return None # 下载失败，返回None
+        return None
+    except FileNotFoundError as e:
+        current_app.logger.error(f"File operation error: {e}")
+        return None
     except Exception as e:
         current_app.logger.error(f"An error occurred while caching image: {e}")
         return None

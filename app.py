@@ -41,12 +41,19 @@ app.register_blueprint(admin_bp)
 
 
 # 添加一个路由来提供缓存图片的访问
-@app.route('/cache/<path:filename>')
+@app.route("/cache/<path:filename>")
 def cached_image(filename):
-    return send_from_directory(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'using_cache'),
-        filename
-    )
+    # 首先尝试从using_cache目录获取文件
+    cache_path = os.path.join(app.root_path, "using_cache")
+    if os.path.exists(os.path.join(cache_path, filename)):
+        return send_from_directory(cache_path, filename)
+
+    # 如果文件不在using_cache中，尝试从user_data目录获取
+    user_data_path = os.path.join(app.root_path, "user_data")
+    if os.path.exists(os.path.join(user_data_path, filename)):
+        return send_from_directory(user_data_path, filename)
+
+    return "", 404
 
 
 # 添加CSRF token到模板上下文

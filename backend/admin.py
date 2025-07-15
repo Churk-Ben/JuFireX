@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Blueprint, render_template, request, jsonify, session
+from flask import Blueprint, render_template, request, jsonify, session, current_app
 from .models import db, User, Project, StudioInfo, NavCategory, NavItem, HiddenNavItem
 from .config import (
     ROLE_GUEST,
@@ -8,7 +8,13 @@ from .config import (
     ROLE_SUPER_ADMIN,
     ROLE_NAMES,
 )
-from .utils import require_role, can_manage_user, validate_csrf_token
+from .utils import (
+    require_role,
+    can_manage_user,
+    validate_csrf_token,
+    cache_image_from_url,
+    delete_cached_image,
+)
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -199,7 +205,30 @@ def update_studio_info():
             # 更新现有信息
             studio_info.name = data.get("name", studio_info.name)
             studio_info.description = data.get("description", studio_info.description)
-            studio_info.logo_url = data.get("logo_url", studio_info.logo_url)
+            if "logo_url" in data:
+                new_logo_url = data["logo_url"]
+                old_logo_url = studio_info.logo_url
+
+                # 如果新的URL与旧的URL不同，或者新的URL为空，则处理旧图片
+                if new_logo_url != old_logo_url:
+                    if old_logo_url:
+                        delete_cached_image(old_logo_url)
+
+                    if new_logo_url:
+                        # 缓存新图片
+                        cached_url = cache_image_from_url(
+                            new_logo_url, storage_folder="user_data"
+                        )
+                        if cached_url:
+                            studio_info.logo_url = cached_url
+                        else:
+                            current_app.logger.warning(
+                                f"Failed to cache logo from {new_logo_url}"
+                            )
+                            # 缓存失败，可以选择不更新URL
+                    else:
+                        # 如果新的URL为空，则清空数据库中的值
+                        studio_info.logo_url = None
             studio_info.contact_email = data.get(
                 "contact_email", studio_info.contact_email
             )

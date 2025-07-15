@@ -16,7 +16,13 @@ from flask import (
 from werkzeug.utils import secure_filename
 from .models import db, Project, User
 from .config import ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_GUEST
-from .utils import require_role, can_manage_project, validate_csrf_token, cache_image_from_url
+from .utils import (
+    require_role,
+    can_manage_project,
+    validate_csrf_token,
+    cache_image_from_url,
+    delete_cached_image,
+)
 
 projects_bp = Blueprint("projects", __name__)
 
@@ -25,7 +31,7 @@ projects_bp = Blueprint("projects", __name__)
 @require_role(ROLE_MEMBER)
 def create_project():
     data = request.get_json()
-    
+
     # 处理图片URL
     image_url = data.get("image_url")
     if image_url:
@@ -558,24 +564,31 @@ def update_project(project_id):
     data = request.get_json()
 
     # 处理图片URL
-    image_url = data.get("image_url")
-    if image_url and (not image_url.startswith('/cache/')):
-        cached_image_url = cache_image_from_url(image_url)
-        if not cached_image_url:
-            flash("无法缓存项目图片，请检查URL是否有效", "warning")
-            # 保留旧图片
-            image_url = project.image_url 
+    new_image_url = data.get("image_url")
+    # 检查是否需要更新图片
+    if new_image_url != project.image_url:
+        # 如果有旧图片，则删除
+        if project.image_url:
+            delete_cached_image(project.image_url)
+
+        # 如果有新图片URL，则缓存
+        if new_image_url and (not new_image_url.startswith("/cache/")):
+            cached_image_url = cache_image_from_url(new_image_url)
+            if not cached_image_url:
+                flash("无法缓存项目图片，请检查URL是否有效", "warning")
+                # 如果缓存失败，则保留旧图片
+                project.image_url = project.image_url
+            else:
+                project.image_url = cached_image_url
         else:
-            image_url = cached_image_url
-    else:
-        image_url = data.get("image_url", project.image_url)
+            # 如果新URL为空或已经是缓存URL，则直接更新
+            project.image_url = new_image_url
 
     # 更新项目信息
     project.title = data.get("title", project.title)
     project.description = data.get("description", project.description)
     project.github_url = data.get("github_url", project.github_url)
     project.demo_url = data.get("demo_url", project.demo_url)
-    project.image_url = image_url
     project.is_featured = data.get("is_featured", project.is_featured)
 
     db.session.commit()

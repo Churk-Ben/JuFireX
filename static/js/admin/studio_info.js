@@ -18,17 +18,17 @@ function handleLogoUrlNone() {
 
 function setupEventListeners() {
     const previewMap = {
-        'studioName': updateTextContent('previewName'),
-        'studioDescription': updateTextContent('previewDescription'),
-        'studioEmail': updateTextContent('previewEmail'),
-        'studioGithub': updateGithubLink('previewGithub'),
-        'studioLogo': updateLogoPreview
+        'studioName': { event: 'input', handler: updateTextContent('previewName') },
+        'studioDescription': { event: 'input', handler: updateTextContent('previewDescription') },
+        'studioEmail': { event: 'input', handler: updateTextContent('previewEmail') },
+        'studioGithub': { event: 'input', handler: updateGithubLink('previewGithub') },
+        'studioLogo': { event: 'input', handler: updateLogoPreviewOnInput }, // 实时更新前端预览
     };
 
-    for (const [elementId, handler] of Object.entries(previewMap)) {
+    for (const [elementId, { event, handler }] of Object.entries(previewMap)) {
         const element = document.getElementById(elementId);
         if (element) {
-            element.addEventListener('input', handler);
+            element.addEventListener(event, handler);
         }
     }
 }
@@ -52,7 +52,7 @@ function updateGithubLink(previewId) {
     };
 }
 
-function updateLogoPreview() {
+function updateLogoPreviewOnInput() {
     const container = document.querySelector('.preview-logo-container');
     if (!container) return;
 
@@ -70,13 +70,10 @@ function updateLogoPreview() {
             }
             container.appendChild(imgElement);
         }
+        // 仅更新src用于即时预览，不处理错误
         imgElement.src = logoUrl;
-        imgElement.onerror = () => {
-            imgElement.src = '';
-            showNotification('Logo 图片加载失败，请检查 URL', 'warning');
-        };
     } else {
-        container.innerHTML = '<i class="fas fa-building preview-icon"></i>';
+        container.innerHTML = '<i class="fas fa-fire preview-icon"></i>';
     }
 }
 
@@ -132,6 +129,8 @@ function handleApiResponse(successMessage, errorMessage) {
     return function (data) {
         if (data.success) {
             showNotification(successMessage, 'success');
+            // 更新成功后刷新页面
+            setTimeout(() => location.reload(), 1500);
         } else {
             showNotification(`${errorMessage}: ${data.message}`, 'error');
         }
