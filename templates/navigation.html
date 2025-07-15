@@ -9,6 +9,8 @@
   <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/alert.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block content %}
@@ -19,11 +21,9 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h2><i class="fas fa-compass"></i> 工作室导航</h2>
           {% if current_user %}
-            <div class="btn-group" role="group">
-              <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#navigationManageModal"><i class="fas fa-cog"></i> 管理导航</button>
-              {% if current_user.role >= 2 %}
-                <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addNavItemModal"><i class="fas fa-plus"></i> 添加导航项</button>
-              {% endif %}
+            <div>
+              <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#addNavItemModal"><i class="fas fa-plus"></i> 添加新项</button>
+              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#navigationManageModal"><i class="fas fa-cog"></i> 管理导航</button>
             </div>
           {% endif %}
         </div>
@@ -35,6 +35,7 @@
       {% for category in categories %}
         {% if nav_items_by_category.get(category.id) %}
           <div class="mb-5">
+            <!-- 分类标题 -->
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h4 class="category-title mb-0">
                 {% if category.icon %}
@@ -43,9 +44,10 @@
                   <i class="fas fa-folder"></i>
                 {% endif %}
                 {{ category.name }}
-                <span class="badge bg-secondary ms-2">{{ nav_items_by_category.get(category.id)|length }}</span>
               </h4>
             </div>
+
+            <!-- 导航项卡片 -->
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
               {% for item in nav_items_by_category.get(category.id, [])|sort(attribute='order') %}
                 <div class="col nav-card-col" data-nav-item-id="{{ item.id }}">
@@ -59,24 +61,30 @@
                           {% else %}
                             <i class="fas fa-link me-2 text-primary"></i>
                           {% endif %}
-                          <h6 class="card-title mb-0 fw-bold">{{ item.title }}</h6>
+                          <a href="{{ item.url }}" target="_blank" class="btn text-primary me-2" onclick="recordNavClick({{ item.id }})"><h6 class="card-title mb-0 fw-bold">{{ item.title }}</h6></a>
+
+                          <!-- 状态标签 -->
+                          <div>
+                            {% if item.is_public %}
+                              <span class="status-badge status-public">公开</span>
+                            {% else %}
+                              <span class="status-badge status-private">私有</span>
+                            {% endif %}
+                          </div>
                         </div>
                         {% if current_user %}
                           <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i> 选项</button>
                             <ul class="dropdown-menu dropdown-menu-end">
                               <li>
-                                <a class="dropdown-item" href="#" onclick="hideNavItem({{ item.id }}); return false;"><i class="fas fa-eye-slash me-2"></i>隐藏此项</a>
+                                <a class="dropdown-item" href="#" onclick="hideNavItem({{ item.id }}); return false;"><i class="fas fa-eye-slash me-2"></i>隐藏</a>
                               </li>
                               {% if current_user and item.created_by == current_user.id or current_user.role >= 3 %}
                                 <li>
-                                  <hr class="dropdown-divider" />
+                                  <a class="dropdown-item edit-nav-item" href="#" data-item-id="{{ item.id }}"><i class="fas fa-edit me-2"></i>编辑</a>
                                 </li>
                                 <li>
-                                  <a class="dropdown-item" href="#" onclick="editNavItem({{ item.id }}); return false;"><i class="fas fa-edit me-2"></i>编辑</a>
-                                </li>
-                                <li>
-                                  <a class="dropdown-item" href="#" onclick="togglePrivacy({{ item.id }}, {{ item.is_public|lower }}); return false;">
+                                  <a class="dropdown-item" href="#" onclick="togglePrivacy({{ item.id }}, {{ 'true' if item.is_public else 'false' }}); return false;">
                                     {% if item.is_public %}
                                       <i class="fas fa-lock me-2"></i>设为私有
                                     {% else %}
@@ -84,14 +92,12 @@
                                     {% endif %}
                                   </a>
                                 </li>
-                                {% if current_user.role >= 2 %}
-                                  <li>
-                                    <hr class="dropdown-divider" />
-                                  </li>
-                                  <li>
-                                    <a class="dropdown-item text-danger" href="#" onclick="deleteNavItem({{ item.id }}); return false;"><i class="fas fa-trash me-2"></i>删除</a>
-                                  </li>
-                                {% endif %}
+                                <li>
+                                  <hr class="dropdown-divider" />
+                                </li>
+                                <li>
+                                  <a class="dropdown-item text-danger" href="#" onclick="deleteNavItem({{ item.id }}); return false;"><i class="fas fa-trash me-2"></i>删除</a>
+                                </li>
                               {% endif %}
                             </ul>
                           </div>
@@ -102,48 +108,42 @@
                     <!-- 卡片主体 -->
                     <div class="card-body pt-2">
                       <p class="card-text text-muted small mb-3">{{ item.description or '暂无描述' }}</p>
-
-                      <!-- 状态标签 -->
-                      <div class="mb-3">
-                        {% if not item.is_public %}
-                          <span class="badge bg-warning text-dark"><i class="fas fa-lock"></i> 私有</span>
-                        {% endif %}
-                      </div>
                     </div>
 
                     <!-- 卡片底部 -->
-                    <div class="card-footer bg-light">
+                    <div class="card-footer">
+                      <!-- 导航项创建者 -->
                       <div class="d-flex justify-content-between align-items-center">
-                        <!-- 创建者信息 -->
-                        <div class="d-flex align-items-center">
-                          <div class="d-flex align-items-center me-2">
+                        <a class="nav-link" id="profile_link" href="#">
+                          <!-- TODO:查看他人主页 -->
+                          <div id="user_tag" class="me-1">
                             {% if item.creator and item.creator.avatar_path %}
-                              <img class="rounded-circle me-2" src="{{ url_for('auth.user_avatar', filename=item.creator.avatar_path) }}" width="24" height="24" alt="{{ item.creator.username }}" />
+                              <img id="user_avatar_img" src="{{ url_for('auth.user_avatar', filename=item.creator.avatar_path) }}" />
                             {% else %}
-                              <i class="fas fa-user-circle me-2 text-muted" style="font-size: 1.5rem;"></i>
+                              <i id="user_avatar_fas" class="fas fa-user-circle"></i>
                             {% endif %}
-                            <div>
-                              <small class="text-muted d-block">
-                                {% if item.creator %}
-                                  {{ item.creator.username }}
-                                  {% if item.creator.role == 1 %}
-                                    <span class="badge badge-sm bg-primary ms-1">成员</span>
-                                  {% elif item.creator.role == 2 %}
-                                    <span class="badge badge-sm bg-warning ms-1">管理员</span>
-                                  {% elif item.creator.role == 3 %}
-                                    <span class="badge badge-sm bg-danger ms-1">超管</span>
-                                  {% endif %}
-                                {% else %}
-                                  未知用户
-                                {% endif %}
-                              </small>
-                              <small class="text-muted">{{ item.created_at.strftime('%Y-%m-%d') }}</small>
-                            </div>
                           </div>
-                        </div>
-
+                          <small class="text-white">
+                            {% if item.creator %}
+                              {{ item.creator.username }}
+                            {% else %}
+                              未知
+                            {% endif %}
+                          </small>
+                          <div id="user_dot_box">
+                            {% if item.creator.role == 1 %}
+                              <span class="user_dot rounded-circle bg-primary" title="成员"></span>
+                            {% elif item.creator.role == 2 %}
+                              <span class="user_dot rounded-circle bg-warning" title="管理员"></span>
+                            {% elif item.creator.role == 3 %}
+                              <span class="user_dot rounded-circle bg-danger" title="超级管理员"></span>
+                            {% else %}
+                              <span class="user_dot rounded-circle bg-secondary" title="未知"></span>
+                            {% endif %}
+                          </div>
+                        </a>
                         <!-- 操作按钮 -->
-                        <a href="{{ item.url }}" target="_blank" class="btn btn-primary btn-sm" onclick="recordNavClick({{ item.id }})"><i class="fas fa-external-link-alt me-1"></i>访问</a>
+                        <a href="{{ item.url }}" target="_blank" class="btn btn-sm btn-outline-primary" onclick="recordNavClick({{ item.id }})"><i class="fas fa-external-link-alt me-1"></i>前往</a>
                       </div>
                     </div>
                   </div>
@@ -180,4 +180,38 @@
 
 {% block extra_js %}
   <script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
+  <script>
+    // 切换隐私状态
+    function togglePrivacy(itemId, isCurrentlyPublic) {
+      const newIsPublic = !isCurrentlyPublic;
+
+      fetch(`/api/nav-items/${itemId}/visibility`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ is_public: newIsPublic })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showNotification(newIsPublic ? '已设为公开' : '已设为私有', 'success');
+            location.reload(); // 刷新页面以更新显示
+          } else {
+            showNotification('切换失败: ' + data.message, 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error toggling privacy:', error);
+          showNotification('切换失败', 'error');
+        });
+    }
+
+    // 获取CSRF Token
+    function getCSRFToken() {
+      const token = document.querySelector('meta[name="csrf-token"]');
+      return token ? token.getAttribute('content') : '';
+    }
+  </script>
 {% endblock %}

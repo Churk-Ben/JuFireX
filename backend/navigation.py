@@ -14,21 +14,38 @@ def navigation():
     current_user = db.session.get(User, session.get("user_id"))
 
     # 获取当前用户隐藏的导航项
-    hidden_nav_items = set()
+    hidden_nav_items = []
+    hidden_nav_item_ids = []
     if current_user:
-        hidden_items = HiddenNavItem.query.filter_by(user_id=current_user.id).all()
-        hidden_nav_items = {item.nav_item_id for item in hidden_items}
+        hidden_items = (
+            db.session.query(HiddenNavItem, NavItem)
+            .join(NavItem, HiddenNavItem.nav_item_id == NavItem.id)
+            .filter(HiddenNavItem.user_id == current_user.id)
+            .all()
+        )
+        hidden_nav_items = [
+            {
+                "id": nav_item.id,
+                "title": nav_item.title,
+                "url": nav_item.url,
+                "description": nav_item.description,
+                "icon": nav_item.icon,
+                "category_id": nav_item.category_id,
+                "category_name": nav_item.category.name,
+            }
+            for _, nav_item in hidden_items
+        ]
+        hidden_nav_item_ids = [item["id"] for item in hidden_nav_items]
 
     # 获取所有导航项并按分类分组
     nav_items_by_category = {}
     for category in categories:
         # 获取该分类下的所有导航项（排除隐藏的）
-        nav_items = (
-            NavItem.query.filter_by(category_id=category.id)
-            .filter(~NavItem.id.in_(hidden_nav_items) if hidden_nav_items else True)
-            .order_by(NavItem.order)
-            .all()
-        )
+        query = NavItem.query.filter_by(category_id=category.id)
+        if hidden_nav_item_ids:
+            query = query.filter(~NavItem.id.in_(hidden_nav_item_ids))
+        nav_items = query.order_by(NavItem.order).all()
+
 
         if nav_items:
             nav_items_by_category[category.id] = nav_items
@@ -88,6 +105,22 @@ def unhide_nav_item(nav_item_id):
     return jsonify({"success": True, "message": "导航项已显示"})
 
 
+@navigation_bp.route("/api/navigation/unhide_all", methods=["POST"])
+@require_role(ROLE_MEMBER)
+def unhide_all_nav_items():
+    # 验证 CSRF token
+    if not validate_csrf_token():
+        return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
+
+    user_id = session["user_id"]
+
+    # 删除该用户所有隐藏记录
+    num_deleted = HiddenNavItem.query.filter_by(user_id=user_id).delete()
+    db.session.commit()
+
+    return jsonify({"success": True, "message": f"{num_deleted} 个导航项已恢复"})
+
+
 @navigation_bp.route(
     "/api/navigation/toggle_privacy/<int:nav_item_id>", methods=["POST"]
 )
@@ -104,31 +137,6 @@ def toggle_nav_item_privacy(nav_item_id):
     status = "私有" if nav_item.is_private else "公开"
     return jsonify({"success": True, "message": f"导航项已设为{status}"})
 
-
-@navigation_bp.route("/api/navigation/hidden_items", methods=["GET"])
-@require_role(ROLE_MEMBER)
-def get_hidden_nav_items():
-    user_id = session["user_id"]
-    hidden_items = (
-        db.session.query(HiddenNavItem, NavItem)
-        .join(NavItem, HiddenNavItem.nav_item_id == NavItem.id)
-        .filter(HiddenNavItem.user_id == user_id)
-        .all()
-    )
-
-    items_data = []
-    for hidden_item, nav_item in hidden_items:
-        items_data.append(
-            {
-                "id": nav_item.id,
-                "title": nav_item.title,
-                "url": nav_item.url,
-                "category_id": nav_item.category_id,
-                "category_name": nav_item.category.name,
-            }
-        )
-
-    return jsonify({"success": True, "items": items_data})
 
 
 @navigation_bp.route("/api/nav-categories", methods=["GET"])
