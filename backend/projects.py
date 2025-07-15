@@ -1,4 +1,5 @@
 import os
+import shutil
 import mistune
 from datetime import datetime
 from flask import (
@@ -564,6 +565,16 @@ def delete_project(project_id):
         return jsonify({"success": False, "message": "项目不存在"}), 404
 
     try:
+        # 删除项目文档空间
+        if project.docs_opened:
+            date_str = project.created_at.strftime("%Y%m%d")
+            project_folder_name = f"{date_str}-{project.id}"
+            project_path = os.path.join(
+                current_app.config["PROJECTS_FOLDER"], project_folder_name
+            )
+            if os.path.exists(project_path):
+                shutil.rmtree(project_path)
+
         db.session.delete(project)
         db.session.commit()
         return jsonify({"success": True, "message": "项目已删除"})

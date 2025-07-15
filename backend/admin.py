@@ -1,7 +1,13 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, session
 from .models import db, User, Project, StudioInfo, NavCategory, NavItem, HiddenNavItem
-from .config import ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_NAMES
+from .config import (
+    ROLE_GUEST,
+    ROLE_MEMBER,
+    ROLE_ADMIN,
+    ROLE_SUPER_ADMIN,
+    ROLE_NAMES,
+)
 from .utils import require_role, can_manage_user, validate_csrf_token
 
 admin_bp = Blueprint("admin", __name__)
@@ -91,7 +97,7 @@ def update_user_role(user_id):
     data = request.get_json()
     new_role = data.get("role")
 
-    if new_role not in [ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN]:
+    if new_role not in [ROLE_GUEST, ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN]:
         return jsonify({"success": False, "message": "无效的角色"}), 400
 
     user.role = new_role
