@@ -1,106 +1,113 @@
-// 实时预览功能
-document.addEventListener('DOMContentLoaded', function() {
-    // 处理logo URL为"None"的情况
-    const logoInput = document.getElementById('studioLogo');
-    if (logoInput.value === 'None') {
-        logoInput.value = '';
-    }
+document.addEventListener('DOMContentLoaded', function () {
+    initializeStudioInfoPage();
 });
 
-// 实时预览功能
-document.getElementById('studioName').addEventListener('input', function () {
-    document.getElementById('previewName').textContent = this.value
-})
+function initializeStudioInfoPage() {
+    handleLogoUrlNone();
+    setupEventListeners();
+    setupFormValidation();
+    setupFormSubmission();
+}
 
-document.getElementById('studioDescription').addEventListener('input', function () {
-    document.getElementById('previewDescription').textContent = this.value
-})
+function handleLogoUrlNone() {
+    const logoInput = document.getElementById('studioLogo');
+    if (logoInput && logoInput.value === 'None') {
+        logoInput.value = '';
+    }
+}
 
-document.getElementById('studioEmail').addEventListener('input', function () {
-    document.getElementById('previewEmail').textContent = this.value
-})
+function setupEventListeners() {
+    const previewMap = {
+        'studioName': updateTextContent('previewName'),
+        'studioDescription': updateTextContent('previewDescription'),
+        'studioEmail': updateTextContent('previewEmail'),
+        'studioGithub': updateGithubLink('previewGithub'),
+        'studioLogo': updateLogoPreview
+    };
 
-document.getElementById('studioGithub').addEventListener('input', function () {
-    const link = document.getElementById('previewGithub')
-    link.href = this.value
-    link.textContent = this.value
-})
+    for (const [elementId, handler] of Object.entries(previewMap)) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.addEventListener('input', handler);
+        }
+    }
+}
 
-// Logo URL 预览功能
-document.getElementById('studioLogo').addEventListener('input', function () {
-    const container = document.querySelector('.preview-logo-container')
-    const logoUrl = this.value.trim()
+function updateTextContent(previewId) {
+    return function() {
+        const previewElement = document.getElementById(previewId);
+        if (previewElement) {
+            previewElement.textContent = this.value;
+        }
+    };
+}
+
+function updateGithubLink(previewId) {
+    return function() {
+        const link = document.getElementById(previewId);
+        if (link) {
+            link.href = this.value;
+            link.textContent = this.value;
+        }
+    };
+}
+
+function updateLogoPreview() {
+    const container = document.querySelector('.preview-logo-container');
+    if (!container) return;
+
+    const logoUrl = this.value.trim();
 
     if (logoUrl) {
-        // 检查容器中是否已有图片元素
-        let imgElement = container.querySelector('img')
-
+        let imgElement = container.querySelector('img');
         if (!imgElement) {
-            // 如果没有图片元素，创建一个新的
-            imgElement = document.createElement('img')
-            imgElement.className = 'preview-logo'
-            imgElement.alt = '工作室Logo'
-
-            // 移除图标（如果存在）
-            const iconElement = container.querySelector('.preview-icon')
+            imgElement = document.createElement('img');
+            imgElement.className = 'preview-logo';
+            imgElement.alt = '工作室Logo';
+            const iconElement = container.querySelector('.preview-icon');
             if (iconElement) {
-                container.removeChild(iconElement)
+                container.removeChild(iconElement);
             }
-
-            container.appendChild(imgElement)
+            container.appendChild(imgElement);
         }
-
-        // 更新图片源
-        imgElement.src = logoUrl
-
-        // 添加错误处理
-        imgElement.onerror = function () {
-            this.src = ''
-            showNotification('Logo 图片加载失败，请检查 URL', 'warning')
-        }
+        imgElement.src = logoUrl;
+        imgElement.onerror = () => {
+            imgElement.src = '';
+            showNotification('Logo 图片加载失败，请检查 URL', 'warning');
+        };
     } else {
-        // 如果 URL 为空，恢复默认图标
-        container.innerHTML = '<i class="fas fa-building preview-icon"></i>'
+        container.innerHTML = '<i class="fas fa-building preview-icon"></i>';
     }
-})
+}
 
-    // 表单验证
-    ; (function () {
-        'use strict'
+function setupFormValidation() {
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                showNotification('请填写所有必填字段', 'warning');
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+}
 
-        // 获取所有需要验证的表单
-        const forms = document.querySelectorAll('.needs-validation')
-
-        // 循环并阻止提交
-        Array.from(forms).forEach((form) => {
-            form.addEventListener(
-                'submit',
-                (event) => {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                        showNotification('请填写所有必填字段', 'warning')
-                    }
-
-                    form.classList.add('was-validated')
-                },
-                false
-            )
-        })
-    })()
-
-// 表单提交处理
-document.getElementById('studioInfoForm').addEventListener('submit', function (e) {
-    e.preventDefault()
-
-    if (!this.checkValidity()) {
-        return
+function setupFormSubmission() {
+    const form = document.getElementById('studioInfoForm');
+    if (form) {
+        form.addEventListener('submit', handleFormSubmit);
     }
+}
 
-    const submitButton = this.querySelector('button[type="submit"]')
-    const originalText = submitButton.innerHTML
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> 保存中...'
-    submitButton.disabled = true
+function handleFormSubmit(e) {
+    e.preventDefault();
+    if (!this.checkValidity()) return;
+
+    const submitButton = this.querySelector('button[type="submit"]');
+    const originalText = submitButton.innerHTML;
+    setButtonLoading(submitButton, true, '保存中...');
 
     const formData = {
         name: document.getElementById('studioName').value,
@@ -108,22 +115,32 @@ document.getElementById('studioInfoForm').addEventListener('submit', function (e
         contact_email: document.getElementById('studioEmail').value,
         github_url: document.getElementById('studioGithub').value,
         logo_url: document.getElementById('studioLogo').value
-    }
+    };
 
     API.put('/api/studio-info', formData)
-        .then((data) => {
-            if (data.success) {
-                showNotification('工作室信息更新成功', 'success')
-            } else {
-                showNotification('更新失败: ' + data.message, 'error')
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error)
-            showNotification('更新失败，请重试', 'error')
-        })
-        .finally(() => {
-            submitButton.innerHTML = originalText
-            submitButton.disabled = false
-        })
-})
+        .then(handleApiResponse('工作室信息更新成功', '更新失败'))
+        .catch(handleApiError('更新失败'))
+        .finally(() => setButtonLoading(submitButton, false, originalText));
+}
+
+function setButtonLoading(button, isLoading, loadingText) {
+    button.disabled = isLoading;
+    button.innerHTML = isLoading ? `<i class="fas fa-spinner fa-spin me-2"></i> ${loadingText}` : loadingText;
+}
+
+function handleApiResponse(successMessage, errorMessage) {
+    return function(data) {
+        if (data.success) {
+            showNotification(successMessage, 'success');
+        } else {
+            showNotification(`${errorMessage}: ${data.message}`, 'error');
+        }
+    };
+}
+
+function handleApiError(message) {
+    return function(error) {
+        console.error('Error:', error);
+        showNotification(`${message}，请重试`, 'error');
+    };
+}
