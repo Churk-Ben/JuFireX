@@ -6,7 +6,7 @@ from flask_socketio import SocketIO, emit
 from werkzeug.security import generate_password_hash
 
 # 导入配置和模块
-from backend.config import Config, ROLE_SUPER_ADMIN, ROLE_GUEST
+from backend.config import Config, ROLE_SUPER_ADMIN, ROLE_GUEST, ROLE_MEMBER, ROLE_ADMIN
 from backend.models import (
     db,
     User,
@@ -84,6 +84,12 @@ def index():
         featured_projects=featured_projects,
         current_user=current_user,
     )
+
+
+# 错误处理
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("errors/404.html"), 404
 
 
 # SocketIO事件处理

@@ -66,7 +66,9 @@
                 {% else %}
                   <i class="fas fa-user-circle" style="font-size: 120px; color: var(--github-accent)"></i>
                 {% endif %}
-                <button type="button" id="choose_avatar_btn" class="btn btn-sm btn-primary position-absolute rounded-circle" data-bs-toggle="modal" data-bs-target="#avatarModal"><i class="fas fa-camera"></i></button>
+                {% if current_user == user %}
+                  <button type="button" id="choose_avatar_btn" class="btn btn-sm btn-primary position-absolute rounded-circle" data-bs-toggle="modal" data-bs-target="#avatarModal"><i class="fas fa-camera"></i></button>
+                {% endif %}
               </div>
               <!-- 用户信息 -->
               <div class="d-flex flex-column justify-content-between align-items-md-start">
@@ -94,46 +96,47 @@
         </div>
 
         <!-- 快速操作 -->
-        <!-- TODO:要改 -->
-        <div class="card mb-4">
-          <div class="card-header">
-            <h6 class="mb-0"><i class="fas fa-bolt"></i> 快速操作</h6>
-          </div>
-          <div class="card-body">
-            <div class="row g-2">
-              {% if user.role >= 1 %}
+        {% if current_user == user %}
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="fas fa-bolt"></i> 快速操作</h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-2">
+                {% if user.role >= 1 %}
+                  <div class="col-3">
+                    <a href="{{ url_for('navigation.navigation') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
+                      <i class="fas fa-compass"></i>
+                      导航页
+                    </a>
+                  </div>
+                {% endif %}
+                {% if user.role >= 2 %}
+                  <div class="col-3">
+                    <a href="{{ url_for('admin.admin_projects') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
+                      <i class="fas fa-project-diagram"></i>
+                      项目管理
+                    </a>
+                  </div>
+                {% endif %}
+                {% if user.role >= 3 %}
+                  <div class="col-3">
+                    <a href="{{ url_for('admin.admin_users') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
+                      <i class="fas fa-users-cog"></i>
+                      用户管理
+                    </a>
+                  </div>
+                {% endif %}
                 <div class="col-3">
-                  <a href="{{ url_for('navigation.navigation') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
-                    <i class="fas fa-compass"></i>
-                    导航页
+                  <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    退出登录
                   </a>
                 </div>
-              {% endif %}
-              {% if user.role >= 2 %}
-                <div class="col-3">
-                  <a href="{{ url_for('admin.admin_projects') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
-                    <i class="fas fa-project-diagram"></i>
-                    项目管理
-                  </a>
-                </div>
-              {% endif %}
-              {% if user.role >= 3 %}
-                <div class="col-3">
-                  <a href="{{ url_for('admin.admin_users') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
-                    <i class="fas fa-users-cog"></i>
-                    用户管理
-                  </a>
-                </div>
-              {% endif %}
-              <div class="col-3">
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
-                  <i class="fas fa-sign-out-alt"></i>
-                  退出登录
-                </a>
               </div>
             </div>
           </div>
-        </div>
+        {% endif %}
       </div>
 
       <!-- 主要内容区域 -->
@@ -179,7 +182,9 @@
         <div class="card mb-4">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="fas fa-folder"></i> 所有项目</h5>
-            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProjectModal"><i class="fas fa-plus"></i> 添加项目</button>
+            {% if current_user == user %}
+              <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProjectModal"><i class="fas fa-plus"></i> 添加项目</button>
+            {% endif %}
           </div>
           <div class="card-body">
             {% if projects %}
@@ -223,7 +228,11 @@
                             {% if project.docs_opened %}
                               <a href="{{ url_for('projects.project_docs', project_id=project.id) }}" class="btn btn-sm btn-outline-success" title="查看文档"><i class="fas fa-book"></i></a>
                             {% else %}
-                              <button onclick="openDocs({{ project.id }})" class="btn btn-sm btn-outline-primary" title="开通文档"><i class="fas fa-folder-plus"></i></button>
+                              {% if current_user == user %}
+                                <button onclick="openDocs({{ project.id }})" class="btn btn-sm btn-outline-primary" title="开通文档"><i class="fas fa-folder-plus"></i></button>
+                              {% else %}
+                                <button class="btn btn-sm btn-outline-secondary" disabled title="文档未开通" style="opacity: 0.6; pointer-events: auto"><i class="fas fa-folder"></i></button>
+                              {% endif %}
                             {% endif %}
                           </div>
                         </div>

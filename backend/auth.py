@@ -17,7 +17,7 @@ from flask import (
     current_app,
 )
 from .models import db, User
-from .config import ROLE_SUPER_ADMIN, ROLE_GUEST, ROLE_NAMES
+from .config import ROLE_SUPER_ADMIN, ROLE_GUEST, ROLE_MEMBER, ROLE_ADMIN, ROLE_NAMES
 from .utils import require_role
 
 auth_bp = Blueprint("auth", __name__)
@@ -151,20 +151,28 @@ def logout():
     return redirect(url_for("index"))
 
 
-@auth_bp.route("/profile", methods=["GET", "POST"])
+@auth_bp.route("/profile", defaults={"username": None}, methods=["GET", "POST"])
+@auth_bp.route("/profile/<username>", methods=["GET", "POST"])
 @require_role(ROLE_GUEST)
-def profile():
+def profile(username):
     from .models import Project
 
-    user = db.session.get(User, session["user_id"])
-    current_user = user  # 确保current_user变量可用于base.html
+    if username:
+        user = User.query.filter_by(username=username).first_or_404()
+    else:
+        user = db.session.get(User, session["user_id"])
+        if not user:
+            flash("请先登录", "warning")
+            return redirect(url_for("auth.login"))
+
+    current_user = db.session.get(User, session.get("user_id"))
     user_projects = Project.query.filter_by(author_id=user.id).all()
 
     # 定义角色颜色映射
     role_colors = {
         ROLE_GUEST: "bg-info",
-        1: "bg-primary",  # ROLE_MEMBER
-        2: "bg-warning",  # ROLE_ADMIN
+        ROLE_MEMBER: "bg-primary",
+        ROLE_ADMIN: "bg-warning",
         ROLE_SUPER_ADMIN: "bg-danger",
     }
 
