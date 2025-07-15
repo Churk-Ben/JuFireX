@@ -14,31 +14,10 @@ document.addEventListener('DOMContentLoaded', function () {
 function initializeNavigation() {
     // 初始化模态框预览功能
     setupPreviewUpdates();
-    // 使用事件委托来处理卡片上的所有操作
-    const navContainer = document.querySelector('.nav-cards-container'); // 假设你的导航卡片都在这个容器里
-    if (navContainer) {
-        navContainer.addEventListener('click', handleCardAction);
-    }
+
 }
 
-// 处理导航卡片上的操作
-function handleCardAction(e) {
-    const target = e.target.closest('a.btn, button.btn');
-    if (!target) return;
 
-    e.preventDefault();
-    const itemId = target.getAttribute('data-item-id');
-
-    if (target.classList.contains('hide-nav-item')) {
-        hideNavItem(itemId);
-    } else if (target.classList.contains('edit-nav-item')) {
-        openEditModal(itemId);
-    } else if (target.classList.contains('delete-nav-item')) {
-        deleteNavItem(itemId);
-    } else if (target.classList.contains('toggle-privacy')) {
-        togglePrivacy(itemId);
-    }
-}
 
 // 设置主要事件监听器
 function setupEventListeners() {
@@ -352,6 +331,7 @@ function deleteNavItem(itemId) {
                     card.remove();
                 }
                 showNotification('导航项已成功删除', 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
                 showNotification(`删除失败: ${response.message}`, 'error');
             }
@@ -391,11 +371,6 @@ function togglePrivacy(itemId) {
             if (data.success) {
                 showNotification(newIsPublic ? '已设为公开' : '已设为私有', 'success');
                 itemElement.dataset.isPublic = newIsPublic;
-                const icon = itemElement.querySelector('.privacy-icon');
-                if (icon) {
-                    icon.classList.toggle('fa-eye', newIsPublic);
-                    icon.classList.toggle('fa-eye-slash', !newIsPublic);
-                }
                 setTimeout(() => location.reload(), 1000);
             } else {
                 showNotification('切换失败: ' + data.message, 'error');
@@ -414,5 +389,6 @@ Object.assign(window, {
     togglePrivacy,
     deleteNavItem,
     hideNavItem,
-    restoreAllHiddenItems
+    restoreAllHiddenItems,
+    openEditModal
 });
