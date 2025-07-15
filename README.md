@@ -26,6 +26,7 @@
   - 创建、编辑、删除项目
   - 设置精选项目
   - 项目统计信息
+  - 项目文档管理
 - **用户管理**（超级管理员）：
   - 用户角色管理
   - 用户状态控制
@@ -84,53 +85,87 @@ python app.py
 
 ```plaintext
 JuFireStudio/
-├── app.py                 # 主应用文件
-├── requirements.txt       # 依赖包列表
-├── README.md              # 项目说明
-├── studio.db              # SQLite 数据库（运行后生成）
-├── user_data/             # 用户上传数据
-├── static/                # 静态文件
-│   ├── css/               # 样式目录
-│   │   └── style.css      # 自定义样式
-│   └── js/                # 脚本目录
-│       ├── main.js        # 全局主脚本
-│       ├── profile.js     # 个人主页脚本
-│       ├── admin-navigation.js # 后台导航管理脚本
-│       └── ...            # 其他页面脚本
-└── templates/             # 模板文件
-    ├── base.html          # 基础模板
-    ├── index.html         # 主页
-    ├── login.html         # 登录页
-    ├── register.html      # 注册页
-    ├── profile.html       # 个人主页
-    ├── navigation.html    # 前台导航页
-    └── admin/             # 管理页面
-        ├── projects.html  # 项目管理
-        ├── users.html     # 用户管理
-        ├── navigation.html # 导航管理
-        └── studio_info.html # 工作室信息管理
+├── .gitignore
+├── .idea\
+├── LICENSE
+├── README.md
+├── app.old\
+├── app.py
+├── backend\
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── auth.py
+│   ├── config.py
+│   ├── models.py
+│   ├── navigation.py
+│   ├── projects.py
+│   └── utils.py
+├── links
+├── projects\
+├── requirements.txt
+├── static\
+│   ├── css\
+│   │   ├── alert.css
+│   │   ├── badge.css
+│   │   ├── button.css
+│   │   ├── card.css
+│   │   └── ...
+│   ├── img\
+│   │   ├── close.hover.svg
+│   │   └── close.svg
+│   └── js\
+│       ├── admin\
+│       ├── cropper.js
+│       ├── register.js
+│       ├── main.js
+│       └── ...
+├── templates\
+│   ├── admin\
+│   │   ├── navigation.html
+│   │   ├── projects.html
+│   │   ├── studio_info.html
+│   │   └── users.html
+│   ├── base.html
+│   ├── errors\
+│   │   └── 404.html
+│   ├── index.html
+│   ├── login.html
+│   ├── modals\
+│   ├── navigation.html
+│   ├── profile.html
+│   ├── project_doc_view.html
+│   ├── project_docs_list.html
+│   └── register.html
+├── user_data\
+└── using_cache\
 ```
 
 ## 用户权限说明
 
-| 功能 | 游客 | 成员 | 管理员 | 超级管理员 |
-|:---|:---:|:---:|:---:|:---:|
-| 浏览主页 | ✅ | ✅ | ✅ | ✅ |
-| 用户注册 | ✅ | ✅ | ✅ | ✅ |
-| 个人主页 | ✅ | ✅ | ✅ | ✅ |
-| 导航页面 | ❌ | ✅ | ✅ | ✅ |
-| 项目管理 | ❌ | ❌ | ✅ | ✅ |
-| 导航管理 | ❌ | ❌ | ✅ | ✅ |
-| 用户管理 | ❌ | ❌ | ❌ | ✅ |
-| 工作室信息管理 | ❌ | ❌ | ❌ | ✅ |
+| 功能 | 未登录 | 游客 | 成员 | 管理员 | 超级管理员 |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| 浏览主页 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 个人主页 | ❌ | ✅ | ✅ | ✅ | ✅ |
+| 导航页面 | ❌ | ❌ | ✅ | ✅ | ✅ |
+| 项目管理 | ❌ | ❌ | ❌ | ✅ | ✅ |
+| 导航管理 | ❌ | ❌ | ❌ | ✅ | ✅ |
+| 工作室信息管理 | ❌ | ❌ | ❌ | ✅ | ✅ |
+| 用户管理 | ❌ | ❌ | ❌ | ❌ | ✅ |
+
 
 ## API 接口
 
 ### 项目相关
 
 - `POST /api/projects` - 创建项目
-- `PUT /api/projects/<id>/featured` - 切换精选状态
+- `PUT /api/projects/<id>` - 更新项目
 - `DELETE /api/projects/<id>` - 删除项目
+- `PUT /api/projects/<id>/featured` - 切换精选状态
+- `POST /api/projects/<id>/docs` - 开通文档空间
+- `GET /api/projects/<id>/docs` - 获取文档列表
+- `POST /api/projects/<id>/docs` - 上传文档
+- `PUT /api/projects/<id>/docs/<filename>` - 更新文档
+- `DELETE /api/projects/<id>/docs/<filename>` - 删除文档
 
 ### 用户相关
 
@@ -145,6 +180,9 @@ JuFireStudio/
 - `POST /api/navigation` - 创建导航链接
 - `PUT /api/navigation/<id>` - 更新导航链接
 - `DELETE /api/navigation/<id>` - 删除导航链接
+- `POST /api/navigation/categories` - 创建分类
+- `PUT /api/navigation/categories/<id>` - 更新分类
+- `DELETE /api/navigation/categories/<id>` - 删除分类
 
 ### 工作室信息相关
 
@@ -219,7 +257,7 @@ CMD ["python", "app.py"]
 
 ## 许可证
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+本项目采用 Apache License 2.0 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
 ## 联系方式
 

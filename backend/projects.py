@@ -64,7 +64,8 @@ def create_project():
 @require_role(ROLE_MEMBER)
 def manage_project(project_id):
     project = Project.query.get_or_404(project_id)
-    if project.author_id != session["user_id"]:
+    current_user = User.query.get(session["user_id"])
+    if project.author_id != session["user_id"] and current_user.role < ROLE_ADMIN:
         return jsonify({"success": False, "message": "权限不足"}), 403
 
     if request.method == "PUT":
