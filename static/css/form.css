@@ -33,7 +33,6 @@
 }
 
 .form-select {
-    width: 60%;
     background-color: var(--github-bg);
     border: 1px solid var(--github-border);
     color: var(--github-text);

@@ -43,6 +43,10 @@
     .user_dot_inline {
       display: inline-block;
     }
+    
+    .role-cell select {
+      width: 60%;
+    }
   </style>
 {% endblock %}
 
@@ -154,7 +158,7 @@
                       </div>
                     </td>
                     <!-- 角色 -->
-                    <td>
+                    <td class="role-cell">
                       {% if user.id == current_user.id %}
                         <select class="form-select form-select-sm role-select" data-user-id="{{ user.id }}" disabled>
                           {% if user.role == 0 %}
