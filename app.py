@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from werkzeug.security import generate_password_hash
@@ -38,6 +38,15 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(projects_bp)
 app.register_blueprint(navigation_bp)
 app.register_blueprint(admin_bp)
+
+
+# 添加一个路由来提供缓存图片的访问
+@app.route('/cache/<path:filename>')
+def cached_image(filename):
+    return send_from_directory(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'using_cache'),
+        filename
+    )
 
 
 # 添加CSRF token到模板上下文

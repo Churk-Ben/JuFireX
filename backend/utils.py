@@ -1,6 +1,10 @@
 import secrets
+import os
+import requests
+import uuid
+from urllib.parse import urlparse
 from functools import wraps
-from flask import session, flash, redirect, url_for, request, jsonify
+from flask import session, flash, redirect, url_for, request, jsonify, current_app
 from .models import db, User, Project, NavItem
 from .config import ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_MEMBER
 
@@ -99,3 +103,53 @@ def generate_csrf_token():
 def validate_csrf_token():
     csrf_token = request.headers.get("X-CSRFToken")
     return csrf_token and csrf_token == session.get("_csrf_token")
+
+
+def cache_image_from_url(image_url):
+    if not image_url:
+        return None
+
+    try:
+        # 检查是否是有效的URL
+        result = urlparse(image_url)
+        if not all([result.scheme, result.netloc]):
+            return image_url  # 不是有效的URL，可能已经是本地路径
+
+        # 检查是否已经是本地缓存的URL
+        if image_url.startswith('/cache/'):
+            return image_url
+
+        response = requests.get(image_url, stream=True, timeout=10)
+        response.raise_for_status()
+
+        # 获取文件扩展名
+        content_type = response.headers.get('Content-Type')
+        if content_type and 'image' in content_type:
+            ext = '.' + content_type.split('/')[1].split(';')[0]
+        else:
+            # 从URL中猜测扩展名
+            path = urlparse(image_url).path
+            ext = os.path.splitext(path)[1]
+            if not ext:
+                return None  # 无法确定文件类型
+
+        # 生成唯一文件名
+        filename = f"{uuid.uuid4().hex}{ext}"
+        cache_dir = os.path.join(current_app.root_path, 'using_cache')
+        os.makedirs(cache_dir, exist_ok=True)
+        file_path = os.path.join(cache_dir, filename)
+
+        # 保存图片
+        with open(file_path, 'wb') as f:
+            for chunk in response.iter_content(1024):
+                f.write(chunk)
+
+        # 返回可访问的URL
+        return f"/cache/{filename}"
+
+    except requests.exceptions.RequestException as e:
+        current_app.logger.error(f"Failed to download image from {image_url}: {e}")
+        return None # 下载失败，返回None
+    except Exception as e:
+        current_app.logger.error(f"An error occurred while caching image: {e}")
+        return None

@@ -3,3 +3,4 @@ flask-socketio
 Flask-SQLAlchemy
 Pillow
 mistune
+requests
