@@ -60,6 +60,39 @@ def create_project():
     )
 
 
+@projects_bp.route("/api/projects/<int:project_id>", methods=["PUT", "DELETE"])
+@require_role(ROLE_MEMBER)
+def manage_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    if project.author_id != session["user_id"]:
+        return jsonify({"success": False, "message": "权限不足"}), 403
+
+    if request.method == "PUT":
+        data = request.get_json()
+        project.title = data.get("title", project.title)
+        project.description = data.get("description", project.description)
+        project.github_url = data.get("github_url", project.github_url)
+        project.demo_url = data.get("demo_url", project.demo_url)
+        project.is_featured = data.get("is_featured", project.is_featured)
+        db.session.commit()
+        return jsonify({"success": True, "message": "项目更新成功"})
+
+    if request.method == "DELETE":
+        # 如果项目开通了文档，则删除对应的文件夹
+        if project.docs_opened:
+            folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
+            projects_dir = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "projects"
+            )
+            project_docs_path = os.path.join(projects_dir, folder_name)
+            if os.path.exists(project_docs_path):
+                shutil.rmtree(project_docs_path)
+
+        db.session.delete(project)
+        db.session.commit()
+        return jsonify({"success": True, "message": "项目删除成功"})
+
+
 @projects_bp.route("/api/projects/<int:project_id>/open-docs", methods=["POST"])
 @require_role(ROLE_MEMBER)
 def open_project_docs(project_id):

@@ -31,13 +31,37 @@ function setupEventListeners() {
     // 添加项目表单
     document.getElementById('addProjectForm')?.addEventListener('submit', handleProjectCreation);
 
-    // 使用事件委托处理开通文档空间按钮点击
+    // 使用事件委托处理按钮点击
     document.body.addEventListener('click', function (event) {
-        if (event.target.matches('.open-docs-btn')) {
-            const projectId = event.target.getAttribute('data-project-id');
+        const target = event.target.closest('button');
+        if (!target) return;
+
+        // 开通文档空间
+        if (target.matches('[onclick^="openDocs"]')) {
+            const projectId = target.getAttribute('onclick').match(/\d+/)[0];
             openDocs(projectId);
         }
+
+        // 编辑项目
+        if (target.dataset.bsTarget === '#editProjectModal') {
+            const projectId = target.dataset.projectId;
+            const title = target.dataset.projectTitle;
+            const description = target.dataset.projectDescription;
+            const githubUrl = target.dataset.projectGithubUrl;
+            const demoUrl = target.dataset.projectDemoUrl;
+            const isFeatured = target.dataset.projectIsFeatured === 'true';
+
+            document.getElementById('editProjectId').value = projectId;
+            document.getElementById('editProjectTitle').value = title;
+            document.getElementById('editProjectDescription').value = description;
+            document.getElementById('editProjectGithub').value = githubUrl;
+            document.getElementById('editProjectDemo').value = demoUrl;
+            document.getElementById('editProjectFeatured').checked = isFeatured;
+        }
     });
+
+    // 编辑项目表单
+    document.getElementById('editProjectForm')?.addEventListener('submit', handleProjectUpdate);
 }
 
 // 初始化头像上传和裁剪功能
@@ -133,8 +157,59 @@ function openDocs(projectId) {
         });
 }
 
+// 处理项目更新
+function handleProjectUpdate(e) {
+    e.preventDefault();
+
+    const projectId = document.getElementById('editProjectId').value;
+    const formData = {
+        title: document.getElementById('editProjectTitle').value,
+        description: document.getElementById('editProjectDescription').value,
+        github_url: document.getElementById('editProjectGithub').value,
+        demo_url: document.getElementById('editProjectDemo').value,
+        is_featured: document.getElementById('editProjectFeatured').checked
+    };
+
+    API.put(`/api/projects/${projectId}`, formData)
+        .then(data => {
+            if (data.success) {
+                showNotification('项目更新成功!', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showNotification(data.message || '项目更新失败', 'error');
+            }
+        })
+        .catch(error => {
+            showNotification('更新项目时发生错误', 'error');
+            console.error('Update project error:', error);
+        });
+}
+
+// 删除项目函数
+function deleteProject(projectId) {
+    if (!confirm('确定要删除这个项目吗？这个操作无法撤销。')) {
+        return;
+    }
+
+    API.delete(`/api/projects/${projectId}`)
+        .then(data => {
+            if (data.success) {
+                showNotification('项目删除成功！', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showNotification(data.message || '删除项目失败', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting project:', error);
+            showNotification('删除项目时发生错误，请重试', 'error');
+        });
+}
+
+
 // 将需要全局访问的函数暴露到 window 对象（如果HTML中直接使用了onclick）
 // 如果所有事件都通过 event listener 添加，则此步骤非必需
 Object.assign(window, {
-    openDocs
+    openDocs,
+    deleteProject
 });

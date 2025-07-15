@@ -210,6 +210,12 @@
                         <div class="d-flex justify-content-between align-items-center">
                           <small class="text-muted">{{ project.created_at.strftime('%Y-%m-%d') }}</small>
                           <div>
+                            <!-- 编辑和删除按钮 -->
+                            {% if current_user == user %}
+                              <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProjectModal" data-project-id="{{ project.id }}" data-project-title="{{ project.title }}" data-project-description="{{ project.description }}" data-project-github-url="{{ project.github_url }}" data-project-demo-url="{{ project.demo_url }}" title="编辑"><i class="fas fa-edit"></i></button>
+                              <button class="btn btn-sm btn-outline-primary" onclick="deleteProject({{ project.id }})" title="删除"><i class="fas fa-trash"></i></button>
+                            {% endif %}
+
                             <!-- 前往仓库按钮 -->
                             {% if project.github_url %}
                               <a href="{{ project.github_url }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fab fa-github"></i></a>
@@ -259,6 +265,7 @@
 
   <!-- 引入模态框 -->
   {% include 'modals/addProjectModal.html' %}
+  {% include 'modals/editProjectModal.html' %}
   {% include 'modals/editAvatarModal.html' %}
   <!-- - -->
 {% endblock %}
