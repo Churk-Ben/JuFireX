@@ -43,13 +43,17 @@ function showNotification(message, type = 'info') {
  */
 class API {
     static async request(url, options = {}) {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         const defaultOptions = {
             headers: {
-                'Content-Type': 'application/json',
                 'X-CSRFToken': csrfToken
             },
         };
+
+        // 如果不是 FormData，则添加 Content-Type
+        if (!(options.body instanceof FormData)) {
+            defaultOptions.headers['Content-Type'] = 'application/json';
+        }
 
         const config = {
             ...defaultOptions,
@@ -60,18 +64,18 @@ class API {
             },
         };
 
+        const response = await fetch(url, config);
+
+        // 如果响应不成功，抛出响应对象
+        if (!response.ok) {
+            throw response;
+        }
+
         try {
-            const response = await fetch(url, config);
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || '请求失败');
-            }
-
-            return data;
+            return await response.json();
         } catch (error) {
-            console.error('API Error:', error);
-            throw error;
+            // 如果响应不是 JSON 格式，返回原始响应
+            return response;
         }
     }
 
@@ -82,14 +86,14 @@ class API {
     static async post(url, data) {
         return this.request(url, {
             method: 'POST',
-            body: JSON.stringify(data)
+            body: data instanceof FormData ? data : JSON.stringify(data)
         });
     }
 
     static async put(url, data) {
         return this.request(url, {
             method: 'PUT',
-            body: JSON.stringify(data)
+            body: data instanceof FormData ? data : JSON.stringify(data)
         });
     }
 
