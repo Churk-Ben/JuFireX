@@ -56,7 +56,7 @@ function setupEventListeners() {
             document.getElementById('editProjectDescription').value = description;
             document.getElementById('editProjectGithub').value = githubUrl;
             document.getElementById('editProjectDemo').value = demoUrl;
-            document.getElementById('editProjectFeatured').checked = isFeatured;
+            // 移除精选状态设置，避免在编辑时覆盖精选状态
         }
     });
 
@@ -167,7 +167,7 @@ function handleProjectUpdate(e) {
         description: document.getElementById('editProjectDescription').value,
         github_url: document.getElementById('editProjectGithub').value,
         demo_url: document.getElementById('editProjectDemo').value,
-        is_featured: document.getElementById('editProjectFeatured').checked
+        // 移除is_featured字段，避免在编辑时覆盖精选状态
     };
 
     API.put(`/api/projects/${projectId}`, formData)
