@@ -174,15 +174,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            if (document.getElementById('password').value !== document.getElementById('confirm_password').value) {
+            const password = document.getElementById('password').value.trim();
+            if (!password) {
+                showNotification('密码不能为空', 'error');
+                return;
+            }
+
+            if (password !== document.getElementById('confirm_password').value.trim()) {
                 showNotification('两次输入的密码不一致！', 'error');
                 return;
             }
 
-            const formData = new FormData(this);
+            const formData = new FormData();
+            // 手动添加表单字段
+            formData.append('username', document.getElementById('username').value.trim());
+            formData.append('email', document.getElementById('email').value.trim());
+            formData.append('password', password);
+
+            // 处理头像
             const croppedAvatarDataValue = document.getElementById('croppedAvatarData').value;
             if (croppedAvatarDataValue) {
-                formData.delete('avatar');
                 const byteString = atob(croppedAvatarDataValue.split(',')[1]);
                 const mimeString = croppedAvatarDataValue.split(',')[0].split(':')[1].split(';')[0];
                 const ab = new ArrayBuffer(byteString.length);
@@ -194,38 +205,47 @@ document.addEventListener('DOMContentLoaded', function () {
                 formData.append('avatar', blob, 'avatar.jpg');
             }
 
+            // 添加其他可选字段
+            const joinIntention = document.getElementById('join_intention');
+            if (joinIntention.checked) {
+                formData.append('join_intention', 'true');
+                const studioIntention = document.getElementById('studio_intention').value.trim();
+                if (studioIntention) {
+                    formData.append('studio_intention', studioIntention);
+                }
+            }
+
             const submitBtn = document.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>处理中...';
             submitBtn.disabled = true;
 
-            API.request('/register', {
+            fetch('/register', {
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                body: formData,
+                body: formData
             })
-                .then(data => {
+            .then(response => {
+                if (response.redirected) {
+                    showNotification('注册成功！正在跳转到登录页面...', 'success');
+                    setTimeout(() => { window.location.href = response.url; }, 1500);
+                    return;
+                }
+                return response.json().then(data => {
                     if (data.success) {
                         showNotification('注册成功！正在跳转到登录页面...', 'success');
                         setTimeout(() => { window.location.href = "/login"; }, 1500);
                     } else {
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.disabled = false;
-                        showNotification(data.message || '注册失败，请重试', 'error');
-                    }
-                })
-                .catch(error => {
-                    // Check if it's a redirect
-                    if (error instanceof Response && error.redirected) {
-                        showNotification('注册成功！正在跳转到登录页面...', 'success');
-                        setTimeout(() => { window.location.href = error.url; }, 1500);
-                    } else {
-                        console.error('Error:', error);
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.disabled = false;
-                        showNotification('注册时发生未知错误，请稍后重试。', 'error');
+                        throw new Error(data.message || '注册失败，请重试');
                     }
                 });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+                showNotification(error.message || '注册时发生未知错误，请稍后重试。', 'error');
+            });
         });
     }
 
