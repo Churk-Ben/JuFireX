@@ -220,32 +220,32 @@ document.addEventListener('DOMContentLoaded', function () {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>处理中...';
             submitBtn.disabled = true;
 
-            fetch('/register', {
+            API.request('/register', {
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 body: formData
             })
-            .then(response => {
-                if (response.redirected) {
-                    showNotification('注册成功！正在跳转到登录页面...', 'success');
-                    setTimeout(() => { window.location.href = response.url; }, 1500);
-                    return;
-                }
-                return response.json().then(data => {
-                    if (data.success) {
+                .then(response => {
+                    if (response.redirected) {
+                        showNotification('注册成功！正在跳转到登录页面...', 'success');
+                        setTimeout(() => { window.location.href = response.url; }, 1500);
+                        return;
+                    }
+                    
+                    if (response.success) {
                         showNotification('注册成功！正在跳转到登录页面...', 'success');
                         setTimeout(() => { window.location.href = "/login"; }, 1500);
                     } else {
-                        throw new Error(data.message || '注册失败，请重试');
+                        throw new Error(response.message || '注册失败，请重试');
                     }
+                })
+            
+                .catch(error => {
+                    console.error('Error:', error);
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                    showNotification(error.message || '注册时发生未知错误，请稍后重试。', 'error');
                 });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                submitBtn.innerHTML = originalBtnText;
-                submitBtn.disabled = false;
-                showNotification(error.message || '注册时发生未知错误，请稍后重试。', 'error');
-            });
         });
     }
 
