@@ -1,0 +1,17 @@
+{
+  "indent": 2,
+  "max_line_length": 120,
+  "profile": "django",
+  "format_attribute_template_tags": true,
+  "preserve_blank_lines": true,
+  "preserve_leading_space": true,
+  "blank_line_after_tag": "load,extends,include",
+  "blank_line_before_tag": "block,if,for,with",
+  "line_after_elements": false,
+  "format_css": true,
+  "format_js": true,
+  "close_void_tags": true,
+  "indent_css": 2,
+  "indent_js": 2,
+  "ignore_blocks": "verbatim"
+}

@@ -5,14 +5,21 @@
 {% endblock %}
 
 {% block required_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}" />
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/error.css') }}" />
 {% endblock %}
 
 {% block content %}
   <div class="error-container">
-    <h1 class="error-code">404</h1>
-    <h2 class="error-message">抱歉，页面未找到</h2>
-    <p class="error-description">您访问的页面可能已被移除、名称已更改或暂时不可用。 请检查输入的网址是否正确，或返回首页继续浏览。</p>
-    <a href="/" class="back-button">返回首页</a>
+    <h1 class="error-code">
+      404
+    </h1>
+    <h2 class="error-message">
+      抱歉，页面未找到
+    </h2>
+    <p class="error-description">
+      您访问的页面可能已被移除、名称已更改或暂时不可用。 请检查输入的网址是否正确，或返回首页继续浏览。
+    </p>
+    <a href="/" class="back-button"> 返回首页 </a>
   </div>
 {% endblock %}

@@ -3,30 +3,58 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-upload me-2"></i>上传文档</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title">
+          <i class="fas fa-upload me-2"></i>上传文档
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal">
+        </button>
       </div>
       <!-- 模态框主体 -->
       <div class="modal-body">
         <form id="uploadDocForm" enctype="multipart/form-data">
-          <input type="hidden" id="project_id" name="project_id" value="{{ project.id }}" />
+          <input type="hidden"
+            id="project_id"
+              name="project_id"
+                 value="{{ project.id }}" />
           <div class="mb-3">
-            <label for="docFile" class="form-label">选择Markdown文件 <span class="text-danger">*</span></label>
-            <input type="file" class="form-control" id="docFile" name="docFile" accept=".md,.markdown" required />
-            <div class="form-text">请选择Markdown格式的文档文件（.md或.markdown）</div>
+            <label for="docFile" class="form-label">
+                                                              选择Markdown文件 <span class="text-danger"> * </span>
+          </label>
+          <input type="file"
+            class="form-control"
+              id="docFile"
+                name="docFile"
+                  accept=".md,.markdown"
+                 required />
+          <div class="form-text">
+            请选择Markdown格式的文档文件（.md或.markdown）
           </div>
-          <div class="mb-3">
-            <label for="docName" class="form-label">文档名称 <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="docName" name="docName" placeholder="文档名称（不含扩展名）" required />
-            <div class="form-text">文档名称将作为文件名保存，不要包含特殊字符</div>
-          </div>
-        </form>
+        </div>
+        <div class="mb-3">
+          <label for="docName" class="form-label">
+                                                      文档名称 <span class="text-danger"> * </span>
+        </label>
+        <input type="text"
+          class="form-control"
+            id="docName"
+              name="docName"
+                placeholder="文档名称（不含扩展名）"
+               required />
+        <div class="form-text">
+          文档名称将作为文件名保存，不要包含特殊字符
+        </div>
       </div>
-      <!-- 模态框底部 -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-success" id="uploadDocBtn"><i class="fas fa-upload me-1"></i>上传</button>
-      </div>
-    </div>
+    </form>
   </div>
+  <!-- 模态框底部 -->
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+      取消
+    </button>
+    <button type="button" class="btn btn-success" id="uploadDocBtn">
+      <i class="fas fa-upload me-1"></i>上传
+    </button>
+  </div>
+</div>
+</div>
 </div>

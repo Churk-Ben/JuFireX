@@ -5,9 +5,12 @@
 {% endblock %}
 
 {% block required_css %}
-  <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/form.css') }}"
+        rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/card.css') }}"
+        rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/button.css') }}"
+        rel="stylesheet" />
 {% endblock %}
 
 {% block extra_css %}
@@ -27,24 +30,40 @@
         <div class="card">
           <!-- 标题 -->
           <div class="card-header text-center">
-            <h3><i class="fas fa-sign-in-alt"></i> 登录</h3>
+            <h3>
+              <i class="fas fa-sign-in-alt"></i> 登录
+            </h3>
           </div>
 
           <!-- 登录表单 -->
           <div class="card-body">
             <form method="POST">
               <div class="mb-3">
-                <label for="username" class="form-label">用户名</label>
-                <input type="text" class="form-control" id="username" name="username" required />
+                <label for="username" class="form-label">
+                  用户名
+                </label>
+                <input type="text"
+                  class="form-control"
+                    id="username"
+                      name="username"
+                       required />
               </div>
 
               <div class="mb-3">
-                <label for="password" class="form-label">密码</label>
-                <input type="password" class="form-control" id="password" name="password" required />
+                <label for="password" class="form-label">
+                  密码
+                </label>
+                <input type="password"
+                  class="form-control"
+                    id="password"
+                      name="password"
+                       required />
               </div>
 
               <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> 登录</button>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-sign-in-alt"></i> 登录
+                </button>
               </div>
             </form>
           </div>
@@ -53,7 +72,7 @@
           <div class="card-footer text-center">
             <p class="mb-0">
               还没有账号？
-              <a href="{{ url_for('auth.register') }}" class="text-decoration-none">立即注册</a>
+              <a href="{{ url_for("auth.register") }}" class="text-decoration-none"> 立即注册 </a>
             </p>
           </div>
         </div>

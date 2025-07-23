@@ -3,8 +3,11 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-edit me-2"></i>编辑导航项</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title">
+          <i class="fas fa-edit me-2"></i>编辑导航项
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal">
+        </button>
       </div>
       <form id="editNavItemForm">
         <input type="hidden" id="editNavItemId" name="id" />
@@ -14,62 +17,123 @@
             <!-- 基本信息 -->
             <div class="col-md-8">
               <div class="mb-3">
-                <label for="editNavItemTitle" class="form-label">标题 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="editNavItemTitle" name="title" required placeholder="请输入导航项标题" />
-                <div class="form-text">导航项的显示名称</div>
-              </div>
-
-              <div class="mb-3">
-                <label for="editNavItemUrl" class="form-label">链接地址 <span class="text-danger">*</span></label>
-                <input type="url" class="form-control" id="editNavItemUrl" name="url" required placeholder="https://example.com" />
-                <div class="form-text">完整的URL地址，包含协议（http://或https://）</div>
-              </div>
-
-              <div class="mb-3">
-                <label for="editNavItemDescription" class="form-label">描述</label>
-                <textarea class="form-control" id="editNavItemDescription" name="description" rows="3" placeholder="请输入导航项描述（可选）"></textarea>
-                <div class="form-text">简短描述这个导航项的用途</div>
+                <label for="editNavItemTitle" class="form-label">
+                                                                                  标题 <span class="text-danger"> * </span>
+              </label>
+              <input type="text"
+                class="form-control"
+                  id="editNavItemTitle"
+                    name="title"
+                      required
+                     placeholder="请输入导航项标题" />
+              <div class="form-text">
+                导航项的显示名称
               </div>
             </div>
 
-            <!-- 设置选项 -->
-            <div class="col-md-4">
-              <div class="mb-3">
-                <label for="editNavItemCategory" class="form-label">分类 <span class="text-danger">*</span></label>
-                <select class="form-select" id="editNavItemCategory" name="category_id" required>
-                  <option value="">请选择分类</option>
-                  <!-- 分类选项将通过JS动态加载 -->
-                </select>
-              </div>
+            <div class="mb-3">
+              <label for="editNavItemUrl" class="form-label">
+                                                                          链接地址 <span class="text-danger"> * </span>
+            </label>
+            <input type="url"
+              class="form-control"
+                id="editNavItemUrl"
+                  name="url"
+                    required
+                   placeholder="https://example.com" />
+            <div class="form-text">
+              完整的URL地址，包含协议（http://或https://）
+            </div>
+          </div>
 
-              <div class="mb-3">
-                <label for="editNavItemIcon" class="form-label">图标</label>
-                <input type="text" class="form-control" id="editNavItemIcon" name="icon" placeholder="fas fa-link" />
-                <div class="form-text">FontAwesome图标类名</div>
-              </div>
-
-              <div class="mb-3">
-                <label for="editNavItemOrder" class="form-label">排序</label>
-                <input type="number" class="form-control" id="editNavItemOrder" name="order" value="0" min="0" />
-                <div class="form-text">数字越小排序越靠前</div>
-              </div>
-
-              <div class="mb-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="editNavItemIsPublic" name="is_public" />
-                  <label class="form-check-label" for="editNavItemIsPublic">公开显示</label>
-                </div>
-                <div class="form-text">取消勾选则仅自己可见</div>
-              </div>
+          <div class="mb-3">
+            <label for="editNavItemDescription" class="form-label">
+              描述
+            </label>
+            <textarea class="form-control"
+              id="editNavItemDescription"
+                name="description"
+                  rows="3"
+                      placeholder="请输入导航项描述（可选）"></textarea>
+            <div class="form-text">
+              简短描述这个导航项的用途
             </div>
           </div>
         </div>
-        <!-- 模态框底部 -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-          <button type="button" class="btn btn-success" id="updateNavItemBtn"><i class="fas fa-save me-1"></i>保存更改</button>
+
+        <!-- 设置选项 -->
+        <div class="col-md-4">
+          <div class="mb-3">
+            <label for="editNavItemCategory" class="form-label">
+                                                                  分类 <span class="text-danger"> * </span>
+          </label>
+          <select class="form-select"
+            id="editNavItemCategory"
+              name="category_id"
+                  required>
+            <option value="">
+              请选择分类
+            </option>
+            <!-- 分类选项将通过JS动态加载 -->
+          </select>
         </div>
-      </form>
+
+        <div class="mb-3">
+          <label for="editNavItemIcon" class="form-label">
+            图标
+          </label>
+          <input type="text"
+            class="form-control"
+              id="editNavItemIcon"
+                name="icon"
+                 placeholder="fas fa-link" />
+          <div class="form-text">
+            FontAwesome图标类名
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="editNavItemOrder" class="form-label">
+            排序
+          </label>
+          <input type="number"
+            class="form-control"
+              id="editNavItemOrder"
+                name="order"
+                  value="0"
+                 min="0" />
+          <div class="form-text">
+            数字越小排序越靠前
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <div class="form-check">
+            <input class="form-check-input"
+              type="checkbox"
+                id="editNavItemIsPublic"
+                   name="is_public" />
+            <label class="form-check-label" for="editNavItemIsPublic">
+              公开显示
+            </label>
+          </div>
+          <div class="form-text">
+            取消勾选则仅自己可见
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+  <!-- 模态框底部 -->
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+      取消
+    </button>
+    <button type="button" class="btn btn-success" id="updateNavItemBtn">
+      <i class="fas fa-save me-1"></i>保存更改
+    </button>
+  </div>
+</form>
+</div>
+</div>
 </div>
