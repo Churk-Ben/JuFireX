@@ -167,6 +167,7 @@ function handleProjectUpdate(e) {
         description: document.getElementById('editProjectDescription').value,
         github_url: document.getElementById('editProjectGithub').value,
         demo_url: document.getElementById('editProjectDemo').value,
+        image_url: document.getElementById('editProjectImage').value,
         // 移除is_featured字段，避免在编辑时覆盖精选状态
     };
 

@@ -58,6 +58,13 @@ def register():
         email = request.form.get("email")
         password = request.form.get("password")
 
+        # 检查密码是否为空
+        if not password:
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return jsonify({"success": False, "message": "密码不能为空"})
+            flash("密码不能为空", "error")
+            return redirect(url_for("auth.register"))
+
         # 检查用户名是否已存在
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
