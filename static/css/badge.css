@@ -98,3 +98,59 @@
     color: var(--github-text-secondary);
     border: 1px solid var(--github-text-secondary);
 }
+
+.file-badge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.25em 0.6em;
+    font-size: 0.75em;
+    font-weight: 500;
+    border-radius: 20px;
+    white-space: nowrap;
+    width: max-content;
+    max-width: 100%;
+    font-family: "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Helvetica", "Arial", "sans-serif";
+}
+
+.file-markdown {
+    background-color: rgba(88, 166, 255, 0.15);
+    color: var(--github-accent);
+    border: 1px solid var(--github-accent);
+}
+
+.file-folder {
+    background-color: rgba(255, 165, 0, 0.15);
+    color: #ffa500;
+    border: 1px solid #ffa500
+}
+
+.file-image {
+    background-color: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+    border: 1px solid #28a745;
+}
+
+.file-doc {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+.file-archive {
+    background-color: rgba(111, 66, 193, 0.15);
+    color: #6f42c1;
+    border: 1px solid #6f42c1;
+}
+
+.file-code {
+    background-color: rgba(255, 165, 0, 0.15);
+    color: #fd7e14;
+    border: 1px solid #fd7e14;
+}
+
+.file-unknown {
+    background-color: rgba(159, 159, 159, 0.15);
+    color: #6c757d;
+    border: 1px solid #6c757d;
+}
