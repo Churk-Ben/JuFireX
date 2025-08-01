@@ -3,6 +3,7 @@
     background-color: var(--github-bg);
     border: 1px solid var(--github-border);
     color: var(--github-text);
+    overflow: hidden;
 }
 
 .form-control:focus {

@@ -55,8 +55,11 @@
         </div>
         <div class="col-lg-6 text-center">
           <div class="p-5">
-            <i class="fas fa-fire" style="font-size: 8rem;
-                      color: var(--github-accent)"></i>
+            {% if studio_info.logo_url %}
+              <img src="{{ studio_info.logo_url }}" alt="logo" style="width: 8rem;" />
+            {% else %}
+              <i class="fas fa-fire" style="font-size: 8rem; color: var(--github-accent)"></i>
+            {% endif %}
           </div>
         </div>
       </div>

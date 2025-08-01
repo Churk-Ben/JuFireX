@@ -453,8 +453,30 @@ def project_doc_view(project_id, filename):
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        # 使用mistune解析Markdown
-        html_content = mistune.html(content)
+        # 创建自定义渲染器来处理图片路径
+        class ProjectImageRenderer(mistune.HTMLRenderer):
+            def __init__(self, project_id):
+                super().__init__()
+                self.project_id = project_id
+            
+            def image(self, alt, url, title=None):
+                # 如果是相对路径（不以http://、https://、/开头），则补全为项目图片路径
+                if not url.startswith(('http://', 'https://', '/')):
+                    url = url_for('projects.project_image', project_id=self.project_id, filename=url)
+                
+                # 构建img标签
+                img_attrs = f'src="{url}"'
+                if alt:
+                    img_attrs += f' alt="{alt}"'
+                if title:
+                    img_attrs += f' title="{title}"'
+                
+                return f'<img {img_attrs} />'
+        
+        # 使用自定义渲染器解析Markdown
+        renderer = ProjectImageRenderer(project_id)
+        markdown = mistune.Markdown(renderer=renderer)
+        html_content = markdown(content)
 
         return render_template(
             "project_doc_view.html",
