@@ -12,8 +12,8 @@ from .utils import (
     require_role,
     can_manage_user,
     validate_csrf_token,
-    cache_image_from_url,
-    delete_cached_image,
+    save_file_to_user_data,
+    delete_user_data_file,
 )
 
 admin_bp = Blueprint("admin", __name__)
@@ -215,17 +215,17 @@ def update_studio_info():
                         delete_cached_image(old_logo_url)
 
                     if new_logo_url:
-                        # 缓存新图片
-                        cached_url = cache_image_from_url(
+                        # 保存新的logo图片到用户数据目录
+                        saved_url = save_file_to_user_data(
                             new_logo_url, storage_folder="user_data"
                         )
-                        if cached_url:
-                            studio_info.logo_url = cached_url
+                        if saved_url:
+                            studio_info.logo_url = saved_url
                         else:
                             current_app.logger.warning(
-                                f"Failed to cache logo from {new_logo_url}"
+                                f"Failed to save logo from {new_logo_url}"
                             )
-                            # 缓存失败，可以选择不更新URL
+                            # 保存失败，可以选择不更新URL
                     else:
                         # 如果新的URL为空，则清空数据库中的值
                         studio_info.logo_url = None

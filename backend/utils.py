@@ -107,33 +107,32 @@ def validate_csrf_token():
     return csrf_token and csrf_token == session.get("_csrf_token")
 
 
-def delete_cached_image(image_url):
-    if not image_url or not image_url.startswith("/cache/"):
+def delete_user_data_file(file_url):
+    """删除用户数据文件"""
+    if not file_url or not file_url.startswith("/user_data/"):
         return
 
     try:
-        filename = os.path.basename(image_url)
-        # 尝试从两个可能的缓存目录中删除
-        for folder in ["using_cache", "user_data"]:
-            file_path = os.path.join(current_app.root_path, folder, filename)
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                current_app.logger.info(f"Deleted cached image: {file_path}")
-                return
+        filename = os.path.basename(file_url)
+        file_path = os.path.join(current_app.root_path, "user_data", filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            current_app.logger.info(f"Deleted user data file: {file_path}")
     except Exception as e:
-        current_app.logger.error(f"Error deleting cached image {image_url}: {e}")
+        current_app.logger.error(f"Error deleting user data file {file_url}: {e}")
 
 
-def cache_image_from_url(image_url, storage_folder="using_cache"):
-    if not image_url:
+def save_file_to_user_data(file_url, storage_folder="user_data"):
+    """将文件保存到用户数据目录"""
+    if not file_url:
         return None
 
     try:
-        # 检查是否已经是本地缓存的URL
-        if image_url.startswith("/cache/"):
-            return image_url
+        # 检查是否已经是本地用户数据URL
+        if file_url.startswith("/user_data/"):
+            return file_url
 
-        result = urlparse(image_url)
+        result = urlparse(file_url)
 
         # 处理本地文件 URI (file://...)
         if result.scheme == "file":
@@ -155,22 +154,22 @@ def cache_image_from_url(image_url, storage_folder="using_cache"):
                 return None  # 无法确定文件类型
 
             filename = f"{uuid.uuid4().hex}{ext}"
-            cache_dir = os.path.join(current_app.root_path, storage_folder)
-            os.makedirs(cache_dir, exist_ok=True)
-            new_file_path = os.path.join(cache_dir, filename)
+            user_data_dir = os.path.join(current_app.root_path, storage_folder)
+            os.makedirs(user_data_dir, exist_ok=True)
+            new_file_path = os.path.join(user_data_dir, filename)
 
             shutil.copy(local_path, new_file_path)
             current_app.logger.info(
                 f"Copied local file from {local_path} to {new_file_path}"
             )
 
-            return f"/cache/{filename}"
+            return f"/user_data/{filename}"
 
         # 处理网络 URL
         if not all([result.scheme, result.netloc]):
-            return image_url  # 不是有效的URL，可能已经是本地路径
+            return file_url  # 不是有效的URL，可能已经是本地路径
 
-        response = requests.get(image_url, stream=True, timeout=10)
+        response = requests.get(file_url, stream=True, timeout=10)
         response.raise_for_status()
 
         # 获取文件扩展名
@@ -178,37 +177,39 @@ def cache_image_from_url(image_url, storage_folder="using_cache"):
         if content_type and "image" in content_type:
             ext = "." + content_type.split("/")[1].split(";")[0]
         else:
-            path = urlparse(image_url).path
+            path = urlparse(file_url).path
             ext = os.path.splitext(path)[1]
             if not ext:
                 return None
 
         filename = f"{uuid.uuid4().hex}{ext}"
-        cache_dir = os.path.join(current_app.root_path, storage_folder)
-        os.makedirs(cache_dir, exist_ok=True)
-        file_path = os.path.join(cache_dir, filename)
+        user_data_dir = os.path.join(current_app.root_path, storage_folder)
+        os.makedirs(user_data_dir, exist_ok=True)
+        file_path = os.path.join(user_data_dir, filename)
 
         with open(file_path, "wb") as f:
             for chunk in response.iter_content(1024):
                 f.write(chunk)
 
-        return f"/cache/{filename}"
+        return f"/user_data/{filename}"
 
     except requests.exceptions.RequestException as e:
-        current_app.logger.error(f"Failed to download image from {image_url}: {e}")
+        current_app.logger.error(f"Failed to download file from {file_url}: {e}")
         return None
     except FileNotFoundError as e:
         current_app.logger.error(f"File operation error: {e}")
         return None
     except Exception as e:
-        current_app.logger.error(f"An error occurred while caching image: {e}")
+        current_app.logger.error(f"An error occurred while saving file: {e}")
         return None
 
 
 def get_project_folder_name(project_id, created_at):
-    """生成项目文件夹名称"""
-    date_str = created_at.strftime("%Y%m%d")
-    return f"{date_str}-{project_id}"
+    """生成项目文件夹名称 - 多级目录结构"""
+    year = created_at.strftime("%Y")
+    month = created_at.strftime("%m")
+    day = created_at.strftime("%d")
+    return os.path.join(year, month, day, str(project_id))
 
 
 def create_project_folder(project_id, created_at):
@@ -289,13 +290,14 @@ def get_project_files(project_path, include_hidden=False):
             item_path = os.path.join(project_path, item)
             if os.path.isfile(item_path):
                 stat = os.stat(item_path)
+                is_markdown = item.lower().endswith((".md", ".markdown"))
                 files.append(
                     {
                         "name": item,
                         "path": item,
                         "size": stat.st_size,
                         "modified_time": datetime.fromtimestamp(stat.st_mtime),
-                        "is_markdown": item.lower().endswith((".md", ".markdown")),
+                        "is_markdown": is_markdown,
                         "type": "file",
                     }
                 )

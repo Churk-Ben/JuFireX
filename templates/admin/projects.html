@@ -161,7 +161,7 @@
 
                         {% if project.image_url %}
                           <img class="rounded me-3 project-img"
-                               src="{{ project.image_url }}"
+                               src="{{ url_for('projects.project_image', project_id=project.id, filename=project.image_url) }}"
                                alt="{{ project.title }}" />
                         {% else %}
                           <div class="rounded me-3 project-img d-flex align-items-center justify-content-center">

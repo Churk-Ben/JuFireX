@@ -110,10 +110,13 @@
                       <th style="width: 25%;">
                         文档名称
                       </th>
-                      <th style="width: 35%;">
+                      <th style="width: 15%;">
+                        大小
+                      </th>
+                      <th style="width: 25%;">
                         修改时间
                       </th>
-                      <th style="width: 20%;">
+                      <th style="width: 15%;">
                         类型
                       </th>
                       <th style="width: 20%;">
@@ -143,6 +146,22 @@
                               <small class="text-muted">{{ file.path }}</small>
                             </div>
                           </div>
+                        </td>
+                        <!-- 大小 -->
+                        <td>
+                          {% if file.size is defined %}
+                            {% if file.size < 1024 %}
+                              {{ file.size }} B
+                            {% elif file.size < 1024 * 1024 %}
+                              {{ "%.1f"|format(file.size / 1024) }} KB
+                            {% elif file.size < 1024 * 1024 * 1024 %}
+                              {{ "%.1f"|format(file.size / (1024 * 1024)) }} MB
+                            {% else %}
+                              {{ "%.1f"|format(file.size / (1024 * 1024 * 1024)) }} GB
+                            {% endif %}
+                          {% else %}
+                            -
+                          {% endif %}
                         </td>
                         <!-- 修改时间 -->
                         <td>

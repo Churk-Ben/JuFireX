@@ -96,7 +96,7 @@
                 <!-- 项目题图 -->
 
                 {% if project.image_url %}
-                  <img src="{{ project.image_url }}"
+                  <img src="{{ url_for('projects.project_image', project_id=project.id, filename=project.image_url) }}"
                     class="card-img-top"
                       style="height: 200px;
                               object-fit: cover" />

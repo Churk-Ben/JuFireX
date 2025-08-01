@@ -21,8 +21,8 @@ from .utils import (
     require_role,
     can_manage_project,
     validate_csrf_token,
-    cache_image_from_url,
-    delete_cached_image,
+    save_file_to_user_data,
+    delete_user_data_file,
     create_project_folder,
     save_project_metadata,
     load_project_metadata,
@@ -39,17 +39,9 @@ projects_bp = Blueprint("projects", __name__)
 def create_project():
     data = request.get_json()
 
-    # 处理图片URL
+    # 处理图片URL - 不再使用缓存，直接保存到项目文件夹
     image_url = data.get("image_url")
-    if image_url:
-        cached_image_url = cache_image_from_url(image_url)
-        if not cached_image_url:
-            # 如果图片缓存失败，可以选择返回错误或继续执行
-            # 这里我们选择继续执行，但image_url将为None
-            flash("无法缓存项目图片，请检查URL是否有效", "warning")
-            image_url = None
-        else:
-            image_url = cached_image_url
+    # 暂时保存原始URL，稍后在项目文件夹创建后处理
 
     project = Project(
         title=data["title"],
@@ -84,20 +76,62 @@ def create_project():
             with open(readme_path, "w", encoding="utf-8") as f:
                 f.write(readme_content)
 
-            # 如果有图片URL，保存项目头图
-            if image_url and image_url.startswith("/cache/"):
-                # 从缓存复制图片到项目文件夹
-                import shutil
-
-                cache_file = image_url.replace("/cache/", "")
-                cache_path = os.path.join(
-                    current_app.root_path, "using_cache", cache_file
-                )
-                if os.path.exists(cache_path):
-                    # 获取文件扩展名
-                    _, ext = os.path.splitext(cache_file)
-                    project_image_path = os.path.join(project_path, f"index{ext}")
-                    shutil.copy2(cache_path, project_image_path)
+            # 如果有图片URL，直接下载到项目文件夹
+            if image_url:
+                try:
+                    import requests
+                    from urllib.parse import urlparse
+                    import uuid
+                    
+                    # 处理本地文件URI
+                    if image_url.startswith("file://"):
+                        from urllib.parse import unquote
+                        local_path = unquote(urlparse(image_url).path)
+                        if os.name == "nt" and local_path.startswith("/"):
+                            local_path = local_path[1:]
+                        
+                        if os.path.exists(local_path):
+                            ext = os.path.splitext(local_path)[1] or ".jpg"
+                            project_image_path = os.path.join(project_path, f"index{ext}")
+                            shutil.copy2(local_path, project_image_path)
+                            # 更新数据库中的image_url为相对路径
+                            project.image_url = f"index{ext}"
+                    
+                    # 处理网络URL
+                    elif image_url.startswith(("http://", "https://")):
+                        response = requests.get(image_url, stream=True, timeout=10)
+                        response.raise_for_status()
+                        
+                        # 获取文件扩展名
+                        content_type = response.headers.get("Content-Type")
+                        if content_type and "image" in content_type:
+                            ext = "." + content_type.split("/")[1].split(";")[0]
+                        else:
+                            ext = os.path.splitext(urlparse(image_url).path)[1] or ".jpg"
+                        
+                        project_image_path = os.path.join(project_path, f"index{ext}")
+                        with open(project_image_path, "wb") as f:
+                            for chunk in response.iter_content(1024):
+                                f.write(chunk)
+                        
+                        # 更新数据库中的image_url为相对路径
+                        project.image_url = f"index{ext}"
+                    
+                    # 处理已经是用户数据URL的情况（向后兼容）
+                    elif image_url.startswith("/user_data/"):
+                        user_data_file = image_url.replace("/user_data/", "")
+                        user_data_path = os.path.join(current_app.root_path, "user_data", user_data_file)
+                        if os.path.exists(user_data_path):
+                            ext = os.path.splitext(user_data_file)[1] or ".jpg"
+                            project_image_path = os.path.join(project_path, f"index{ext}")
+                            shutil.copy2(user_data_path, project_image_path)
+                            # 更新数据库中的image_url为相对路径
+                            project.image_url = f"index{ext}"
+                            
+                except Exception as e:
+                    current_app.logger.error(f"Failed to download project image: {e}")
+                    # 如果下载失败，清空image_url
+                    project.image_url = None
 
         # 项目文件夹创建完成
         db.session.commit()
@@ -121,6 +155,108 @@ def manage_project(project_id):
 
     if request.method == "PUT":
         data = request.get_json()
+
+        # 处理图片URL - 实现白名单机制
+        new_image_url = data.get("image_url")
+        
+        # 获取项目文件夹路径
+        project_path = get_project_folder_path(project.id, project.created_at)
+        
+        # 检查是否需要更新图片
+        if new_image_url != project.image_url:
+            # 白名单检查：如果新URL是index.*格式，则保持不变
+            if new_image_url and new_image_url.startswith("index."):
+                # index.*格式的URL放行，不做更改
+                project.image_url = new_image_url
+            elif not new_image_url:  # 如果新URL为空
+                # 清空项目头图
+                project.image_url = None
+                
+                # 删除项目文件夹中的index.*文件
+                if project_path and os.path.exists(project_path):
+                    try:
+                        import glob
+                        index_files = glob.glob(os.path.join(project_path, "index.*"))
+                        for index_file in index_files:
+                            if os.path.isfile(index_file):
+                                os.remove(index_file)
+                                current_app.logger.info(f"Deleted project image: {index_file}")
+                    except Exception as e:
+                        current_app.logger.error(f"Failed to delete index files: {e}")
+            else:
+                # 处理其他URL（网络URL、本地文件等）
+                try:
+                    import requests
+                    from urllib.parse import urlparse
+                    
+                    # 处理本地文件URI
+                    if new_image_url.startswith("file://"):
+                        from urllib.parse import unquote
+                        local_path = unquote(urlparse(new_image_url).path)
+                        if os.name == "nt" and local_path.startswith("/"):
+                            local_path = local_path[1:]
+                        
+                        if os.path.exists(local_path) and project_path:
+                            # 删除旧的index.*文件
+                            import glob
+                            old_index_files = glob.glob(os.path.join(project_path, "index.*"))
+                            for old_file in old_index_files:
+                                if os.path.isfile(old_file):
+                                    os.remove(old_file)
+                            
+                            ext = os.path.splitext(local_path)[1] or ".jpg"
+                            project_image_path = os.path.join(project_path, f"index{ext}")
+                            shutil.copy2(local_path, project_image_path)
+                            project.image_url = f"index{ext}"
+                    
+                    # 处理网络URL
+                    elif new_image_url.startswith(("http://", "https://")):
+                        if project_path:
+                            response = requests.get(new_image_url, stream=True, timeout=10)
+                            response.raise_for_status()
+                            
+                            # 删除旧的index.*文件
+                            import glob
+                            old_index_files = glob.glob(os.path.join(project_path, "index.*"))
+                            for old_file in old_index_files:
+                                if os.path.isfile(old_file):
+                                    os.remove(old_file)
+                            
+                            # 获取文件扩展名
+                            content_type = response.headers.get("Content-Type")
+                            if content_type and "image" in content_type:
+                                ext = "." + content_type.split("/")[1].split(";")[0]
+                            else:
+                                ext = os.path.splitext(urlparse(new_image_url).path)[1] or ".jpg"
+                            
+                            project_image_path = os.path.join(project_path, f"index{ext}")
+                            with open(project_image_path, "wb") as f:
+                                for chunk in response.iter_content(1024):
+                                    f.write(chunk)
+                            
+                            project.image_url = f"index{ext}"
+                    
+                    # 处理已经是用户数据URL的情况（向后兼容）
+                    elif new_image_url.startswith("/user_data/"):
+                        user_data_file = new_image_url.replace("/user_data/", "")
+                        user_data_path = os.path.join(current_app.root_path, "user_data", user_data_file)
+                        if os.path.exists(user_data_path) and project_path:
+                            # 删除旧的index.*文件
+                            import glob
+                            old_index_files = glob.glob(os.path.join(project_path, "index.*"))
+                            for old_file in old_index_files:
+                                if os.path.isfile(old_file):
+                                    os.remove(old_file)
+                            
+                            ext = os.path.splitext(user_data_file)[1] or ".jpg"
+                            project_image_path = os.path.join(project_path, f"index{ext}")
+                            shutil.copy2(user_data_path, project_image_path)
+                            project.image_url = f"index{ext}"
+                            
+                except Exception as e:
+                    current_app.logger.error(f"Failed to process project image: {e}")
+                    # 如果处理失败，保持原有的image_url不变
+                    pass
 
         # 更新数据库中的项目信息
         old_title = project.title
@@ -606,26 +742,107 @@ def update_project(project_id):
 
     data = request.get_json()
 
-    # 处理图片URL
+    # 处理图片URL - 实现白名单机制
     new_image_url = data.get("image_url")
+    
+    # 获取项目文件夹路径
+    project_path = get_project_folder_path(project.id, project.created_at)
+    
     # 检查是否需要更新图片
     if new_image_url != project.image_url:
-        # 如果有旧图片，则删除
-        if project.image_url:
-            delete_cached_image(project.image_url)
-
-        # 如果有新图片URL，则缓存
-        if new_image_url and (not new_image_url.startswith("/cache/")):
-            cached_image_url = cache_image_from_url(new_image_url)
-            if not cached_image_url:
-                flash("无法缓存项目图片，请检查URL是否有效", "warning")
-                # 如果缓存失败，则保留旧图片
-                project.image_url = project.image_url
-            else:
-                project.image_url = cached_image_url
-        else:
-            # 如果新URL为空或已经是缓存URL，则直接更新
+        # 白名单检查：如果新URL是index.*格式，则保持不变
+        if new_image_url and new_image_url.startswith("index."):
+            # index.*格式的URL放行，不做更改
             project.image_url = new_image_url
+        elif not new_image_url:  # 如果新URL为空
+            # 清空项目头图
+            project.image_url = None
+            
+            # 删除项目文件夹中的index.*文件
+            if project_path and os.path.exists(project_path):
+                try:
+                    import glob
+                    index_files = glob.glob(os.path.join(project_path, "index.*"))
+                    for index_file in index_files:
+                        if os.path.isfile(index_file):
+                            os.remove(index_file)
+                            current_app.logger.info(f"Deleted project image: {index_file}")
+                except Exception as e:
+                    current_app.logger.error(f"Failed to delete index files: {e}")
+        else:
+            # 处理其他URL（网络URL、本地文件等）
+            try:
+                import requests
+                from urllib.parse import urlparse
+                
+                # 处理本地文件URI
+                if new_image_url.startswith("file://"):
+                    from urllib.parse import unquote
+                    local_path = unquote(urlparse(new_image_url).path)
+                    if os.name == "nt" and local_path.startswith("/"):
+                        local_path = local_path[1:]
+                    
+                    if os.path.exists(local_path) and project_path:
+                        # 删除旧的index.*文件
+                        import glob
+                        old_index_files = glob.glob(os.path.join(project_path, "index.*"))
+                        for old_file in old_index_files:
+                            if os.path.isfile(old_file):
+                                os.remove(old_file)
+                        
+                        ext = os.path.splitext(local_path)[1] or ".jpg"
+                        project_image_path = os.path.join(project_path, f"index{ext}")
+                        shutil.copy2(local_path, project_image_path)
+                        project.image_url = f"index{ext}"
+                
+                # 处理网络URL
+                elif new_image_url.startswith(("http://", "https://")):
+                    if project_path:
+                        response = requests.get(new_image_url, stream=True, timeout=10)
+                        response.raise_for_status()
+                        
+                        # 删除旧的index.*文件
+                        import glob
+                        old_index_files = glob.glob(os.path.join(project_path, "index.*"))
+                        for old_file in old_index_files:
+                            if os.path.isfile(old_file):
+                                os.remove(old_file)
+                        
+                        # 获取文件扩展名
+                        content_type = response.headers.get("Content-Type")
+                        if content_type and "image" in content_type:
+                            ext = "." + content_type.split("/")[1].split(";")[0]
+                        else:
+                            ext = os.path.splitext(urlparse(new_image_url).path)[1] or ".jpg"
+                        
+                        project_image_path = os.path.join(project_path, f"index{ext}")
+                        with open(project_image_path, "wb") as f:
+                            for chunk in response.iter_content(1024):
+                                f.write(chunk)
+                        
+                        project.image_url = f"index{ext}"
+                
+                # 处理已经是用户数据URL的情况（向后兼容）
+                elif new_image_url.startswith("/user_data/"):
+                    user_data_file = new_image_url.replace("/user_data/", "")
+                    user_data_path = os.path.join(current_app.root_path, "user_data", user_data_file)
+                    if os.path.exists(user_data_path) and project_path:
+                        # 删除旧的index.*文件
+                        import glob
+                        old_index_files = glob.glob(os.path.join(project_path, "index.*"))
+                        for old_file in old_index_files:
+                            if os.path.isfile(old_file):
+                                os.remove(old_file)
+                        
+                        ext = os.path.splitext(user_data_file)[1] or ".jpg"
+                        project_image_path = os.path.join(project_path, f"index{ext}")
+                        shutil.copy2(user_data_path, project_image_path)
+                        project.image_url = f"index{ext}"
+                        
+            except Exception as e:
+                current_app.logger.error(f"Failed to process project image: {e}")
+                # 如果处理失败，保持原有的image_url不变
+                pass
 
     # 更新项目信息
     project.title = data.get("title", project.title)
@@ -662,3 +879,28 @@ def download_project_file(project_id, filename):
         return jsonify({"error": "无法下载文件夹"}), 400
 
     return send_from_directory(project_path, filename, as_attachment=True)
+
+
+@projects_bp.route("/projects/<int:project_id>/image/<path:filename>")
+def project_image(project_id, filename):
+    """提供项目图片"""
+    project = Project.query.get_or_404(project_id)
+    
+    # 获取项目文件夹路径
+    project_path = get_project_folder_path(project.id, project.created_at)
+    
+    if not os.path.exists(project_path):
+        return jsonify({"error": "项目文件夹不存在"}), 404
+    
+    # 安全检查：确保文件在项目文件夹内
+    file_path = os.path.join(project_path, filename)
+    if not os.path.commonpath([project_path, file_path]) == project_path:
+        return jsonify({"error": "非法文件路径"}), 400
+    
+    if not os.path.exists(file_path):
+        return jsonify({"error": "文件不存在"}), 404
+    
+    if os.path.isdir(file_path):
+        return jsonify({"error": "无法访问文件夹"}), 400
+    
+    return send_from_directory(project_path, filename)
