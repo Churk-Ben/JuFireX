@@ -5,16 +5,11 @@
 {% endblock %}
 
 {% block required_css %}
-  <link href="{{ url_for('static', filename='css/card.css') }}"
-        rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/button.css') }}"
-        rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/modal.css') }}"
-        rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/form.css') }}"
-        rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/badge.css') }}"
-        rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block extra_css %}
@@ -30,7 +25,7 @@
       padding: 0;
       border: 2px solid var(--github-secondary);
     }
-
+    
     #avatarPreview {
       width: 120px;
       height: 120px;
@@ -39,7 +34,7 @@
       margin: 20px auto;
       overflow: hidden;
     }
-
+    
     .square-btn {
       aspect-ratio: 1 / 1;
       display: flex;
@@ -48,7 +43,7 @@
       align-items: center;
       padding: 0.5rem;
     }
-
+    
     .square-btn .fas {
       margin-bottom: 0.25rem;
     }
@@ -65,53 +60,38 @@
           <div class="card-body">
             <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start">
               <!-- 用户头像 -->
-              <div id="avatarContainer"
-                   class="mb-3 mb-md-0 me-md-4 text-center position-relative">
-
+              <div id="avatarContainer" class="mb-3 mb-md-0 me-md-4 text-center position-relative">
                 {% if user.avatar_path %}
-                  <img src="{{ url_for('auth.user_avatar', filename=user.avatar_path) }}"
-                    class="rounded-circle"
-                      style="width: 120px;
+                  <img src="{{ url_for('auth.user_avatar', filename=user.avatar_path) }}" class="rounded-circle" style="width: 120px;
                         height: 120px;
                               object-fit: cover" />
                 {% else %}
-                  <i class="fas fa-user-circle"
-                    style="font-size: 120px;
+                  <i class="fas fa-user-circle" style="font-size: 120px;
                             color: var(--github-accent)"></i>
                 {% endif %}
 
                 {% if current_user == user %}
-                  <button type="button"
-                    id="choose_avatar_btn"
-                      class="btn btn-sm btn-primary position-absolute rounded-circle"
-                        data-bs-toggle="modal"
-                          data-bs-target="#avatarModal">
-                    <i class="fas fa-camera"></i>
-                  </button>
+                  <button type="button" id="choose_avatar_btn" class="btn btn-sm btn-primary position-absolute rounded-circle" data-bs-toggle="modal" data-bs-target="#avatarModal"><i class="fas fa-camera"></i></button>
                 {% endif %}
               </div>
               <!-- 用户信息 -->
               <div class="d-flex flex-column justify-content-between align-items-md-start">
                 <div class="mt-2 mb-2 d-flex justify-content-start align-items-center">
-                  <h5 class="mb-1 me-2">
-                    {{ user.username }}
-                  </h5>
+                  <h5 class="mb-1 me-2">{{ user.username }}</h5>
 
                   {% if user.role == 0 %}
-                    <span class="role-badge role-guest"> 游客 </span>
+                    <span class="role-badge role-guest">游客</span>
                   {% elif user.role == 1 %}
-                    <span class="role-badge role-member"> 成员 </span>
+                    <span class="role-badge role-member">成员</span>
                   {% elif user.role == 2 %}
-                    <span class="role-badge role-admin"> 管理员 </span>
+                    <span class="role-badge role-admin">管理员</span>
                   {% elif user.role == 3 %}
-                    <span class="role-badge role-superadmin"> 超级管理员 </span>
+                    <span class="role-badge role-superadmin">超级管理员</span>
                   {% else %}
-                    <span class="role-badge role-unknown"> 未知 </span>
+                    <span class="role-badge role-unknown">未知</span>
                   {% endif %}
                 </div>
-                <p class="mb-4 card-text">
-                  {{ user.email }}
-                </p>
+                <p class="mb-4 card-text">{{ user.email }}</p>
                 <p class="card-text">
                   <small class="text-muted">注册于 {{ user.created_at|format_datetime }}</small>
                 </p>
@@ -125,47 +105,40 @@
         {% if current_user == user %}
           <div class="card mb-4">
             <div class="card-header">
-              <h6 class="mb-0">
-                <i class="fas fa-bolt"></i> 快速操作
-              </h6>
+              <h6 class="mb-0"><i class="fas fa-bolt"></i> 快速操作</h6>
             </div>
             <div class="card-body">
               <div class="row g-2">
-
                 {% if user.role >= 1 %}
                   <div class="col-3">
-                    <a href="{{ url_for("navigation.navigation") }}"
-                       class="btn btn-outline-primary btn-sm w-100 square-btn">
+                    <a href="{{ url_for('navigation.navigation') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
                       <i class="fas fa-compass"></i>
-                        导航页
+                      导航页
                     </a>
                   </div>
                 {% endif %}
 
                 {% if user.role >= 2 %}
                   <div class="col-3">
-                    <a href="{{ url_for("admin.admin_projects") }}"
-                       class="btn btn-outline-primary btn-sm w-100 square-btn">
+                    <a href="{{ url_for('admin.admin_projects') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
                       <i class="fas fa-project-diagram"></i>
-                        项目管理
+                      项目管理
                     </a>
                   </div>
                 {% endif %}
 
                 {% if user.role >= 3 %}
                   <div class="col-3">
-                    <a href="{{ url_for("admin.admin_users") }}"
-                       class="btn btn-outline-primary btn-sm w-100 square-btn">
+                    <a href="{{ url_for('admin.admin_users') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
                       <i class="fas fa-users-cog"></i>
-                        用户管理
+                      用户管理
                     </a>
                   </div>
                 {% endif %}
                 <div class="col-3">
-                  <a href="{{ url_for("auth.logout") }}"
-                     class="btn btn-outline-primary btn-sm w-100 square-btn">
+                  <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-primary btn-sm w-100 square-btn">
                     <i class="fas fa-sign-out-alt"></i>
-                      退出登录
+                    退出登录
                   </a>
                 </div>
               </div>
@@ -182,15 +155,10 @@
           <div class="col-md-4">
             <div class="card text-center">
               <div class="card-body">
-                <i class="fas fa-project-diagram"
-                  style="font-size: 2rem;
+                <i class="fas fa-project-diagram" style="font-size: 2rem;
                           color: var(--github-accent)"></i>
-                <h4 class="mt-2 mb-0">
-                  {{ projects|length }}
-                </h4>
-                <p class="text-muted mb-0">
-                  项目总数
-                </p>
+                <h4 class="mt-2 mb-0">{{ projects|length }}</h4>
+                <p class="text-muted mb-0">项目总数</p>
               </div>
             </div>
           </div>
@@ -199,12 +167,8 @@
             <div class="card text-center">
               <div class="card-body">
                 <i class="fas fa-star" style="font-size: 2rem; color: #ffd700"></i>
-                <h4 class="mt-2 mb-0">
-                  {{ projects|selectattr("is_featured") |list|length }}
-                </h4>
-                <p class="text-muted mb-0">
-                  精选项目
-                </p>
+                <h4 class="mt-2 mb-0">{{ projects|selectattr('is_featured')|list|length }}</h4>
+                <p class="text-muted mb-0">精选项目</p>
               </div>
             </div>
           </div>
@@ -212,18 +176,13 @@
           <div class="col-md-4">
             <div class="card text-center">
               <div class="card-body">
-                <i class="fas fa-calendar"
-                  style="font-size: 2rem;
+                <i class="fas fa-calendar" style="font-size: 2rem;
                           color: var(--github-success)"></i>
 
                 {% with during=now - user.created_at %}
-                  <h4 class="mt-2 mb-0">
-                    {{ during.days }}
-                  </h4>
+                  <h4 class="mt-2 mb-0">{{ during.days }}</h4>
                 {% endwith %}
-                <p class="text-muted mb-0">
-                  活跃天数
-                </p>
+                <p class="text-muted mb-0">活跃天数</p>
               </div>
             </div>
           </div>
@@ -233,31 +192,21 @@
         <!-- 所有项目 -->
         <div class="card mb-4">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-              <i class="fas fa-folder"></i> 所有项目
-            </h5>
+            <h5 class="mb-0"><i class="fas fa-folder"></i> 所有项目</h5>
 
             {% if current_user == user %}
-              <button class="btn btn-primary btn-sm"
-                data-bs-toggle="modal"
-                      data-bs-target="#addProjectModal">
-                <i class="fas fa-plus"></i> 添加项目
-              </button>
+              <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProjectModal"><i class="fas fa-plus"></i> 添加项目</button>
             {% endif %}
           </div>
           <div class="card-body">
-
             {% if projects %}
               <div class="row g-3">
-
                 {% for project in projects %}
                   <div class="col-md-6">
                     <div class="card h-100">
                       <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                          <h6 class="card-title mb-0">
-                            {{ project.title }}
-                          </h6>
+                          <h6 class="card-title mb-0">{{ project.title }}</h6>
 
                           {% if project.is_featured %}
                             <span class="status-badge status-featured"><i class="fas fa-star me-1"></i> 精选</span>
@@ -275,65 +224,35 @@
                       </div>
                       <div class="card-footer">
                         <div class="d-flex justify-content-between align-items-center">
-                          <small class="text-muted">{{ project.created_at.strftime("%Y-%m-%d") }}</small>
+                          <small class="text-muted">{{ project.created_at.strftime('%Y-%m-%d') }}</small>
                           <div>
                             <!-- 编辑和删除按钮 -->
 
                             {% if current_user == user %}
-                              <button class="btn btn-sm btn-outline-primary"
-                                data-bs-toggle="modal"
-                                  data-bs-target="#editProjectModal"
-                                      data-project-id="{{ project.id }}"
-                                      data-project-title="{{ project.title }}"
-                                      data-project-description="{{ project.description }}"
-                                      data-project-github-url="{{ project.github_url }}"
-                                      data-project-demo-url="{{ project.demo_url }}"
-                                      title="编辑">
-                                <i class="fas fa-edit"></i>
-                              </button>
-                              <button class="btn btn-sm btn-outline-primary"
-                                      onclick="deleteProject({{ project.id }})"
-                                      title="删除">
-                                <i class="fas fa-trash"></i>
-                              </button>
+                              <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProjectModal" data-project-id="{{ project.id }}" data-project-title="{{ project.title }}" data-project-description="{{ project.description }}" data-project-github-url="{{ project.github_url }}" data-project-demo-url="{{ project.demo_url }}" title="编辑"><i class="fas fa-edit"></i></button>
+                              <button class="btn btn-sm btn-outline-primary" onclick="deleteProject({{ project.id }})" title="删除"><i class="fas fa-trash"></i></button>
                             {% endif %}
 
                             <!-- 前往仓库按钮 -->
 
                             {% if project.github_url %}
-                              <a href="{{ project.github_url }}"
-                                class="btn btn-sm btn-outline-primary"
-                                 target="_blank"><i class="fab fa-github"></i></a>
+                              <a href="{{ project.github_url }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fab fa-github"></i></a>
                             {% else %}
-                              <button class="btn btn-sm btn-outline-secondary"
-                                disabled
-                                  title="未设置仓库"
-                                    style="opacity: 0.6;
-                                             pointer-events: auto">
-                                <i class="fas fa-lock"></i>
-                              </button>
+                              <button class="btn btn-sm btn-outline-secondary" disabled title="未设置仓库" style="opacity: 0.6;
+                                             pointer-events: auto"><i class="fas fa-lock"></i></button>
                             {% endif %}
 
                             <!-- 项目演示按钮 -->
 
                             {% if project.demo_url %}
-                              <a href="{{ project.demo_url }}"
-                                class="btn btn-sm btn-outline-primary"
-                                 target="_blank"><i class="fas fa-external-link-alt"></i></a>
+                              <a href="{{ project.demo_url }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fas fa-external-link-alt"></i></a>
                             {% else %}
-                              <button class="btn btn-sm btn-outline-secondary"
-                                disabled
-                                  title="未设置演示"
-                                    style="opacity: 0.6;
-                                             pointer-events: auto">
-                                <i class="fas fa-eye-slash"></i>
-                              </button>
+                              <button class="btn btn-sm btn-outline-secondary" disabled title="未设置演示" style="opacity: 0.6;
+                                             pointer-events: auto"><i class="fas fa-eye-slash"></i></button>
                             {% endif %}
 
                             <!-- 文档管理按钮 -->
-                            <a href="{{ url_for('projects.project_docs', project_id=project.id) }}"
-                              class="btn btn-sm btn-outline-success"
-                               title="查看文档"><i class="fas fa-book"></i></a>
+                            <a href="{{ url_for('projects.project_docs', project_id=project.id) }}" class="btn btn-sm btn-outline-success" title="查看文档"><i class="fas fa-book"></i></a>
                           </div>
                         </div>
                       </div>
@@ -343,22 +262,13 @@
               </div>
             {% else %}
               <div class="text-center py-4">
-                <i class="fas fa-folder-open"
-                  style="font-size: 3rem;
+                <i class="fas fa-folder-open" style="font-size: 3rem;
                           color: var(--github-text-secondary)"></i>
-                <h5 class="mt-3 text-muted">
-                  暂无项目
-                </h5>
-                <p class="text-muted">
-{{ user.username }}还没有创建任何项目
-                </p>
+                <h5 class="mt-3 text-muted">暂无项目</h5>
+                <p class="text-muted">{{ user.username }}还没有创建任何项目</p>
 
                 {% if current_user == user %}
-                  <button class="btn btn-primary"
-                    data-bs-toggle="modal"
-                          data-bs-target="#addProjectModal">
-                    <i class="fas fa-plus"></i> 创建第一个项目
-                  </button>
+                  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal"><i class="fas fa-plus"></i> 创建第一个项目</button>
                 {% endif %}
               </div>
             {% endif %}
@@ -369,17 +279,16 @@
   </div>
 
   <!-- 引入模态框 -->
-{% include 'modals/addProjectModal.html' %}
-{% include 'modals/editProjectModal.html' %}
-{% include 'modals/editAvatarModal.html' %}
+  {% include 'modals/addProjectModal.html' %}
+  {% include 'modals/editProjectModal.html' %}
+  {% include 'modals/editAvatarModal.html' %}
 
   <!-- - -->
 {% endblock %}
 
 {% block extra_js %}
   <!-- 引入Cropper.js库 -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
-        rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
   <!-- 引入自定义JS -->

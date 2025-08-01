@@ -5,14 +5,10 @@
 {% endblock %}
 
 {% block required_css %}
-  <link href="{{ url_for('static', filename='css/form.css') }}"
-        rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/card.css') }}"
-        rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/button.css') }}"
-        rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/modal.css') }}"
-        rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block extra_css %}
@@ -29,28 +25,28 @@
       background-color: var(--github-bg);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-
+    
     .preview-logo {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
     }
-
+    
     .preview-icon {
       font-size: 5rem;
       color: var(--github-accent);
     }
-
+    
     .contact-item {
       transition: all 0.5s ease;
       background-color: var(--github-bg);
       border: 1px solid var(--github-border);
     }
-
+    
     .contact-item:hover {
       background: rgba(0, 0, 0, 0.05);
     }
-
+    
     .contact-icon {
       width: 40px;
       height: 40px;
@@ -68,9 +64,7 @@
 {% block content %}
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>
-        <i class="fas fa-building"></i> 工作室信息
-      </h2>
+      <h2><i class="fas fa-building"></i> 工作室信息</h2>
     </div>
 
     <div class="row mb-4">
@@ -78,89 +72,54 @@
       <div class="col-lg-6">
         <div class="card h-100">
           <div class="card-header">
-            <h5 class="mb-0 d-flex align-items-center">
-              <i class="fas fa-edit me-2"></i> 编辑工作室信息
-            </h5>
+            <h5 class="mb-0 d-flex align-items-center"><i class="fas fa-edit me-2"></i> 编辑工作室信息</h5>
           </div>
           <div class="card-body">
             <form id="studioInfoForm" class="needs-validation" novalidate>
               <div class="mb-3">
-                <label for="studioName" class="form-label fw-bold">
-                  工作室名称
-                </label>
+                <label for="studioName" class="form-label fw-bold">工作室名称</label>
                 <div class="input-group">
                   <span class="input-group-text bg-dark"><i class="fas fa-signature"></i></span>
-                  <input type="text"
-                    class="form-control"
-                      id="studioName"
-                        name="name"
-                         value="{{ studio_info.name }}"
-                         required />
+                  <input type="text" class="form-control" id="studioName" name="name" value="{{ studio_info.name }}" required />
                 </div>
               </div>
 
               <div class="mb-3">
-                <label for="studioDescription" class="form-label fw-bold">
-                  工作室描述
-                </label>
+                <label for="studioDescription" class="form-label fw-bold">工作室描述</label>
                 <div class="input-group">
                   <span class="input-group-text bg-dark"><i class="fas fa-align-left"></i></span>
-                  <textarea class="form-control"
-                    id="studioDescription"
-                      name="description"
-                            rows="3">{{ studio_info.description }}</textarea>
+                  <textarea class="form-control" id="studioDescription" name="description" rows="3">{{ studio_info.description }}</textarea>
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label for="studioEmail" class="form-label fw-bold">
-                    联系邮箱
-                  </label>
+                  <label for="studioEmail" class="form-label fw-bold">联系邮箱</label>
                   <div class="input-group">
                     <span class="input-group-text bg-dark"><i class="fas fa-envelope"></i></span>
-                    <input type="email"
-                      class="form-control"
-                        id="studioEmail"
-                          name="contact_email"
-                           value="{{ studio_info.contact_email }}" />
+                    <input type="email" class="form-control" id="studioEmail" name="contact_email" value="{{ studio_info.contact_email }}" />
                   </div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                  <label for="studioGithub" class="form-label fw-bold">
-                    GitHub 链接
-                  </label>
+                  <label for="studioGithub" class="form-label fw-bold">GitHub 链接</label>
                   <div class="input-group">
                     <span class="input-group-text bg-dark"><i class="fab fa-github"></i></span>
-                    <input type="url"
-                      class="form-control"
-                        id="studioGithub"
-                          name="github_url"
-                           value="{{ studio_info.github_url }}" />
+                    <input type="url" class="form-control" id="studioGithub" name="github_url" value="{{ studio_info.github_url }}" />
                   </div>
                 </div>
               </div>
 
               <div class="mb-3">
-                <label for="studioLogo" class="form-label fw-bold">
-                  Logo URL
-                </label>
+                <label for="studioLogo" class="form-label fw-bold">Logo URL</label>
                 <div class="input-group">
                   <span class="input-group-text bg-dark"><i class="fas fa-image"></i></span>
-                  <input type="url"
-                    class="form-control"
-                      id="studioLogo"
-                        name="logo_url"
-                         value="{{ studio_info.logo_url }}"
-                         placeholder="https://... 或 file://..." />
+                  <input type="url" class="form-control" id="studioLogo" name="logo_url" value="{{ studio_info.logo_url }}" placeholder="https://... 或 file://..." />
                 </div>
               </div>
 
               <div class="d-grid">
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save me-2"></i> 保存更改
-                </button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i> 保存更改</button>
               </div>
             </form>
           </div>
@@ -171,26 +130,19 @@
       <div class="col-lg-6 mt-4 mt-lg-0">
         <div class="card h-100">
           <div class="card-header">
-            <h5 class="mb-0 d-flex align-items-center">
-              <i class="fas fa-eye me-2"></i> 信息预览
-            </h5>
+            <h5 class="mb-0 d-flex align-items-center"><i class="fas fa-eye me-2"></i> 信息预览</h5>
           </div>
           <div class="card-body d-flex flex-column justify-content-center">
             <div class="text-center mb-4">
               <div class="preview-logo-container mb-3">
-
                 {% if studio_info.logo_url %}
                   <img src="{{ studio_info.logo_url }}" alt="工作室Logo" class="preview-logo" />
                 {% else %}
                   <i class="fas fa-fire preview-icon"></i>
                 {% endif %}
               </div>
-              <h3 id="previewName" class="mb-2">
-                {{ studio_info.name }}
-              </h3>
-              <p id="previewDescription" class="text-muted mb-4">
-                {{ studio_info.description }}
-              </p>
+              <h3 id="previewName" class="mb-2">{{ studio_info.name }}</h3>
+              <p id="previewDescription" class="text-muted mb-4">{{ studio_info.description }}</p>
             </div>
 
             <div class="contact-info">
@@ -200,10 +152,7 @@
               </div>
               <div class="d-flex align-items-center p-2 rounded contact-item">
                 <i class="fab fa-github contact-icon"></i>
-                <a id="previewGithub"
-                   href="{{ studio_info.github_url }}"
-                     target="_blank"
-                   class="ms-3 text-decoration-none">{{ studio_info.github_url }}</a>
+                <a id="previewGithub" href="{{ studio_info.github_url }}" target="_blank" class="ms-3 text-decoration-none">{{ studio_info.github_url }}</a>
               </div>
             </div>
           </div>

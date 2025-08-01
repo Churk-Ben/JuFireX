@@ -3,58 +3,30 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="fas fa-plus me-2"></i>新建文档
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal">
-        </button>
+        <h5 class="modal-title"><i class="fas fa-plus me-2"></i>新建文档</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <!-- 模态框主体 -->
       <div class="modal-body">
         <form id="createDocForm">
-          <input type="hidden"
-            id="create_project_id"
-              name="project_id"
-                 value="{{ project.id }}" />
+          <input type="hidden" id="create_project_id" name="project_id" value="{{ project.id }}" />
           <div class="mb-3">
-            <label for="docTitle" class="form-label">
-                                                              文档标题 <span class="text-danger"> * </span>
-          </label>
-          <input type="text"
-            class="form-control"
-              id="docTitle"
-                name="docTitle"
-                  placeholder="文档标题"
-                 required />
-          <div class="form-text">
-            文档标题将作为文件名保存，不要包含特殊字符
+            <label for="docTitle" class="form-label">文档标题 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="docTitle" name="docTitle" placeholder="文档标题" required />
+            <div class="form-text">文档标题将作为文件名保存，不要包含特殊字符</div>
           </div>
-        </div>
-        <div class="mb-3">
-          <label for="docContent" class="form-label">
-                                                      文档内容 <span class="text-danger"> * </span>
-        </label>
-        <textarea class="form-control"
-          id="docContent"
-            name="docContent"
-              rows="15"
-                placeholder="使用Markdown格式编写文档内容..."
-                  required></textarea>
-        <div class="form-text">
-          使用Markdown语法编写文档内容
-        </div>
+          <div class="mb-3">
+            <label for="docContent" class="form-label">文档内容 <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="docContent" name="docContent" rows="15" placeholder="使用Markdown格式编写文档内容..." required></textarea>
+            <div class="form-text">使用Markdown语法编写文档内容</div>
+          </div>
+        </form>
       </div>
-    </form>
+      <!-- 模态框底部 -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-success" id="createDocBtn"><i class="fas fa-plus me-1"></i>创建</button>
+      </div>
+    </div>
   </div>
-  <!-- 模态框底部 -->
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-      取消
-    </button>
-    <button type="button" class="btn btn-success" id="createDocBtn">
-      <i class="fas fa-plus me-1"></i>创建
-    </button>
-  </div>
-</div>
-</div>
 </div>

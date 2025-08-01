@@ -212,7 +212,7 @@ def update_studio_info():
                 # 如果新的URL与旧的URL不同，或者新的URL为空，则处理旧图片
                 if new_logo_url != old_logo_url:
                     if old_logo_url:
-                        delete_cached_image(old_logo_url)
+                        delete_user_data_file(old_logo_url)
 
                     if new_logo_url:
                         # 保存新的logo图片到用户数据目录
