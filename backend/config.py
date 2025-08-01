@@ -26,3 +26,9 @@ class Config:
         return os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "user_data"
         )
+
+    @staticmethod
+    def get_projects_folder():
+        return os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "projects"
+        )

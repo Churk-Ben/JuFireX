@@ -36,12 +36,6 @@ function setupEventListeners() {
         const target = event.target.closest('button');
         if (!target) return;
 
-        // 开通文档空间
-        if (target.matches('[onclick^="openDocs"]')) {
-            const projectId = target.getAttribute('onclick').match(/\d+/)[0];
-            openDocs(projectId);
-        }
-
         // 编辑项目
         if (target.dataset.bsTarget === '#editProjectModal') {
             const projectId = target.dataset.projectId;
@@ -140,22 +134,7 @@ function handleProjectCreation(e) {
         });
 }
 
-// 开通项目文档空间函数
-function openDocs(projectId) {
-    API.post(`/api/projects/${projectId}/open-docs`)
-        .then(data => {
-            if (data.success) {
-                showNotification('文档空间开通成功！', 'success');
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                showNotification(data.message || '开通文档空间失败', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error opening docs:', error);
-            showNotification('开通文档空间时发生错误，请重试', 'error');
-        });
-}
+
 
 // 处理项目更新
 function handleProjectUpdate(e) {
@@ -211,6 +190,5 @@ function deleteProject(projectId) {
 // 将需要全局访问的函数暴露到 window 对象（如果HTML中直接使用了onclick）
 // 如果所有事件都通过 event listener 添加，则此步骤非必需
 Object.assign(window, {
-    openDocs,
     deleteProject
 });

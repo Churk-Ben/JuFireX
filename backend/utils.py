@@ -3,6 +3,7 @@ import os
 import requests
 import uuid
 import shutil
+from datetime import datetime
 from urllib.parse import urlparse, unquote
 from functools import wraps
 from flask import session, flash, redirect, url_for, request, jsonify, current_app
@@ -107,13 +108,13 @@ def validate_csrf_token():
 
 
 def delete_cached_image(image_url):
-    if not image_url or not image_url.startswith('/cache/'):
+    if not image_url or not image_url.startswith("/cache/"):
         return
 
     try:
         filename = os.path.basename(image_url)
         # 尝试从两个可能的缓存目录中删除
-        for folder in ['using_cache', 'user_data']:
+        for folder in ["using_cache", "user_data"]:
             file_path = os.path.join(current_app.root_path, folder, filename)
             if os.path.exists(file_path):
                 os.remove(file_path)
@@ -123,23 +124,23 @@ def delete_cached_image(image_url):
         current_app.logger.error(f"Error deleting cached image {image_url}: {e}")
 
 
-def cache_image_from_url(image_url, storage_folder='using_cache'):
+def cache_image_from_url(image_url, storage_folder="using_cache"):
     if not image_url:
         return None
 
     try:
         # 检查是否已经是本地缓存的URL
-        if image_url.startswith('/cache/'):
+        if image_url.startswith("/cache/"):
             return image_url
 
         result = urlparse(image_url)
 
         # 处理本地文件 URI (file://...)
-        if result.scheme == 'file':
+        if result.scheme == "file":
             # unquote to handle spaces and special characters in file path
             local_path = unquote(result.path)
             # On Windows, file:// URI path might start with a slash, e.g., /C:/Users/...
-            if os.name == 'nt' and local_path.startswith('/'):
+            if os.name == "nt" and local_path.startswith("/"):
                 local_path = local_path[1:]
 
             if not os.path.exists(local_path):
@@ -148,7 +149,9 @@ def cache_image_from_url(image_url, storage_folder='using_cache'):
 
             ext = os.path.splitext(local_path)[1]
             if not ext:
-                current_app.logger.error(f"Cannot determine file type from path: {local_path}")
+                current_app.logger.error(
+                    f"Cannot determine file type from path: {local_path}"
+                )
                 return None  # 无法确定文件类型
 
             filename = f"{uuid.uuid4().hex}{ext}"
@@ -157,7 +160,9 @@ def cache_image_from_url(image_url, storage_folder='using_cache'):
             new_file_path = os.path.join(cache_dir, filename)
 
             shutil.copy(local_path, new_file_path)
-            current_app.logger.info(f"Copied local file from {local_path} to {new_file_path}")
+            current_app.logger.info(
+                f"Copied local file from {local_path} to {new_file_path}"
+            )
 
             return f"/cache/{filename}"
 
@@ -169,9 +174,9 @@ def cache_image_from_url(image_url, storage_folder='using_cache'):
         response.raise_for_status()
 
         # 获取文件扩展名
-        content_type = response.headers.get('Content-Type')
-        if content_type and 'image' in content_type:
-            ext = '.' + content_type.split('/')[1].split(';')[0]
+        content_type = response.headers.get("Content-Type")
+        if content_type and "image" in content_type:
+            ext = "." + content_type.split("/")[1].split(";")[0]
         else:
             path = urlparse(image_url).path
             ext = os.path.splitext(path)[1]
@@ -183,7 +188,7 @@ def cache_image_from_url(image_url, storage_folder='using_cache'):
         os.makedirs(cache_dir, exist_ok=True)
         file_path = os.path.join(cache_dir, filename)
 
-        with open(file_path, 'wb') as f:
+        with open(file_path, "wb") as f:
             for chunk in response.iter_content(1024):
                 f.write(chunk)
 
@@ -198,3 +203,109 @@ def cache_image_from_url(image_url, storage_folder='using_cache'):
     except Exception as e:
         current_app.logger.error(f"An error occurred while caching image: {e}")
         return None
+
+
+def get_project_folder_name(project_id, created_at):
+    """生成项目文件夹名称"""
+    date_str = created_at.strftime("%Y%m%d")
+    return f"{date_str}-{project_id}"
+
+
+def create_project_folder(project_id, created_at):
+    """创建项目文件夹"""
+    folder_name = get_project_folder_name(project_id, created_at)
+    project_path = os.path.join(current_app.config["PROJECTS_FOLDER"], folder_name)
+
+    try:
+        os.makedirs(project_path, exist_ok=True)
+        return project_path, folder_name
+    except Exception as e:
+        current_app.logger.error(f"Failed to create project folder: {e}")
+        return None, None
+
+
+def get_project_folder_path(project_id, created_at):
+    """获取项目文件夹路径"""
+    folder_name = get_project_folder_name(project_id, created_at)
+    return os.path.join(current_app.config["PROJECTS_FOLDER"], folder_name)
+
+
+def save_project_metadata(project_path, project_data):
+    """保存项目元数据到JSON文件"""
+    import json
+
+    metadata_path = os.path.join(project_path, "project.json")
+
+    try:
+        with open(metadata_path, "w", encoding="utf-8") as f:
+            json.dump(project_data, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Failed to save project metadata: {e}")
+        return False
+
+
+def load_project_metadata(project_path):
+    """从JSON文件加载项目元数据"""
+    import json
+
+    metadata_path = os.path.join(project_path, "project.json")
+
+    try:
+        if os.path.exists(metadata_path):
+            with open(metadata_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        return None
+    except Exception as e:
+        current_app.logger.error(f"Failed to load project metadata: {e}")
+        return None
+
+
+def delete_project_folder(project_id, created_at):
+    """删除项目文件夹"""
+    project_path = get_project_folder_path(project_id, created_at)
+
+    try:
+        if os.path.exists(project_path):
+            shutil.rmtree(project_path)
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Failed to delete project folder: {e}")
+        return False
+
+
+def get_project_files(project_path, include_hidden=False):
+    """获取项目文件夹中的所有文件"""
+    files = []
+
+    try:
+        if not os.path.exists(project_path):
+            return files
+
+        for item in os.listdir(project_path):
+            if not include_hidden and item.startswith("."):
+                continue
+
+            item_path = os.path.join(project_path, item)
+            if os.path.isfile(item_path):
+                stat = os.stat(item_path)
+                files.append(
+                    {
+                        "name": item,
+                        "path": item,
+                        "size": stat.st_size,
+                        "modified_time": datetime.fromtimestamp(stat.st_mtime),
+                        "is_markdown": item.lower().endswith((".md", ".markdown")),
+                        "type": "file",
+                    }
+                )
+            elif os.path.isdir(item_path):
+                files.append({"name": item, "path": item, "type": "directory"})
+
+        # 按类型和名称排序：目录在前，文件在后，同类型按名称排序
+        files.sort(key=lambda x: (x["type"] == "file", x["name"].lower()))
+        return files
+
+    except Exception as e:
+        current_app.logger.error(f"Failed to get project files: {e}")
+        return files

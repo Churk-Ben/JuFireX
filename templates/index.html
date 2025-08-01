@@ -194,11 +194,8 @@
                         <!-- - -->
                       </div>
                       <div class="mt-3 d-flex">
-
-                        {% if project.docs_opened %}
-                          <a href="{{ url_for('projects.project_docs', project_id=project.id) }}"
-                             class="btn btn-sm btn-success"><i class="fas fa-book"></i> 文档空间</a>
-                        {% endif %}
+                        <a href="{{ url_for('projects.project_docs', project_id=project.id) }}"
+                           class="btn btn-sm btn-success"><i class="fas fa-book"></i> 文档空间</a>
                       </div>
                     </div>
                   </div>

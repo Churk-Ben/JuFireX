@@ -35,7 +35,6 @@ class Project(db.Model):
     image_url = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.now)
     is_featured = db.Column(db.Boolean, default=False)
-    docs_opened = db.Column(db.Boolean, default=False)
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     author = db.relationship("User", backref=db.backref("projects", lazy=True))

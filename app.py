@@ -28,6 +28,8 @@ app.config.from_object(Config)
 
 # 添加用户头像文件夹配置
 app.config["USER_AVATAR_FOLDER"] = Config.get_user_avatar_folder()
+# 添加项目文件夹配置
+app.config["PROJECTS_FOLDER"] = Config.get_projects_folder()
 
 # 初始化扩展
 db.init_app(app)

@@ -12,6 +12,7 @@ from flask import (
     session,
     jsonify,
     current_app,
+    send_from_directory,
 )
 from werkzeug.utils import secure_filename
 from .models import db, Project, User
@@ -22,6 +23,12 @@ from .utils import (
     validate_csrf_token,
     cache_image_from_url,
     delete_cached_image,
+    create_project_folder,
+    save_project_metadata,
+    load_project_metadata,
+    delete_project_folder,
+    get_project_folder_path,
+    get_project_files,
 )
 
 projects_bp = Blueprint("projects", __name__)
@@ -55,6 +62,50 @@ def create_project():
     )
     db.session.add(project)
     db.session.commit()
+
+    try:
+        # 创建项目文件夹
+        project_path, folder_name = create_project_folder(
+            project.id, project.created_at
+        )
+        if project_path:
+            # 保存项目元数据
+            project_metadata = {
+                "title": project.title,
+                "description": project.description,
+                "github_url": project.github_url,
+                "demo_url": project.demo_url,
+            }
+            save_project_metadata(project_path, project_metadata)
+
+            # 创建默认的readme.md文件
+            readme_content = f"# {project.title}\n\n{project.description}\n\n## 项目简介\n\n这是 {project.title} 项目的文档空间。\n\n## GitHub 仓库\n\n{project.github_url if project.github_url else '暂未设置'}\n\n## 演示地址\n\n{project.demo_url if project.demo_url else '暂未设置'}"
+            readme_path = os.path.join(project_path, "readme.md")
+            with open(readme_path, "w", encoding="utf-8") as f:
+                f.write(readme_content)
+
+            # 如果有图片URL，保存项目头图
+            if image_url and image_url.startswith("/cache/"):
+                # 从缓存复制图片到项目文件夹
+                import shutil
+
+                cache_file = image_url.replace("/cache/", "")
+                cache_path = os.path.join(
+                    current_app.root_path, "using_cache", cache_file
+                )
+                if os.path.exists(cache_path):
+                    # 获取文件扩展名
+                    _, ext = os.path.splitext(cache_file)
+                    project_image_path = os.path.join(project_path, f"index{ext}")
+                    shutil.copy2(cache_path, project_image_path)
+
+        # 项目文件夹创建完成
+        db.session.commit()
+
+    except Exception as e:
+        current_app.logger.error(f"Failed to create project folder: {e}")
+        # 即使文件夹创建失败，项目仍然创建成功
+
     return jsonify(
         {"success": True, "message": "项目创建成功", "project_id": project.id}
     )
@@ -70,80 +121,60 @@ def manage_project(project_id):
 
     if request.method == "PUT":
         data = request.get_json()
+
+        # 更新数据库中的项目信息
+        old_title = project.title
         project.title = data.get("title", project.title)
         project.description = data.get("description", project.description)
         project.github_url = data.get("github_url", project.github_url)
         project.demo_url = data.get("demo_url", project.demo_url)
         project.is_featured = data.get("is_featured", project.is_featured)
         db.session.commit()
+
+        # 更新项目文件夹中的元数据
+        try:
+            project_path = get_project_folder_path(project.id, project.created_at)
+            if os.path.exists(project_path):
+                # 更新项目元数据
+                project_metadata = {
+                    "title": project.title,
+                    "description": project.description,
+                    "github_url": project.github_url,
+                    "demo_url": project.demo_url,
+                }
+                save_project_metadata(project_path, project_metadata)
+
+                # 如果标题发生变化，更新readme.md文件
+                if old_title != project.title:
+                    readme_path = os.path.join(project_path, "readme.md")
+                    if os.path.exists(readme_path):
+                        with open(readme_path, "r", encoding="utf-8") as f:
+                            content = f.read()
+                        # 替换标题
+                        content = content.replace(
+                            f"# {old_title}", f"# {project.title}", 1
+                        )
+                        content = content.replace(
+                            f"这是 {old_title} 项目的文档空间",
+                            f"这是 {project.title} 项目的文档空间",
+                        )
+                        with open(readme_path, "w", encoding="utf-8") as f:
+                            f.write(content)
+        except Exception as e:
+            current_app.logger.error(f"Failed to update project metadata: {e}")
+
         return jsonify({"success": True, "message": "项目更新成功"})
 
     if request.method == "DELETE":
-        # 如果项目开通了文档，则删除对应的文件夹
-        if project.docs_opened:
-            folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
-            projects_dir = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "projects"
-            )
-            project_docs_path = os.path.join(projects_dir, folder_name)
-            if os.path.exists(project_docs_path):
-                shutil.rmtree(project_docs_path)
+        # 删除项目文件夹
+        try:
+            delete_project_folder(project.id, project.created_at)
+        except Exception as e:
+            current_app.logger.error(f"Failed to delete project folder: {e}")
 
         db.session.delete(project)
         db.session.commit()
         return jsonify({"success": True, "message": "项目删除成功"})
-
-
-@projects_bp.route("/api/projects/<int:project_id>/open-docs", methods=["POST"])
-@require_role(ROLE_MEMBER)
-def open_project_docs(project_id):
-    # 验证 CSRF token
-    if not validate_csrf_token():
-        return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
-
-    # 获取项目信息
-    project = Project.query.get_or_404(project_id)
-
-    # 验证当前用户是否为项目所有者
-    if project.author_id != session["user_id"]:
-        return (
-            jsonify({"success": False, "message": "只有项目创建者可以开通文档空间"}),
-            403,
-        )
-
-    # 生成文档文件夹路径
-    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
-    projects_dir = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "projects"
-    )
-    project_docs_path = os.path.join(projects_dir, folder_name)
-
-    # 检查文件夹是否已存在
-    if os.path.exists(project_docs_path):
-        return jsonify({"success": False, "message": "该项目的文档空间已存在"}), 400
-
-    try:
-        # 确保projects目录存在
-        os.makedirs(projects_dir, exist_ok=True)
-        # 创建项目文档目录
-        os.makedirs(project_docs_path)
-
-        # 创建默认的readme.md文件
-        readme_content = f"# {project.title} 文档\n\n欢迎使用 {project.title} 项目文档！\n\n## 项目简介\n\n{project.description}\n\n## 文档说明\n\n这是项目的文档空间，您可以在这里添加和管理项目相关的文档。"
-        readme_path = os.path.join(project_docs_path, "readme.md")
-        with open(readme_path, "w", encoding="utf-8") as f:
-            f.write(readme_content)
-
-        # 更新项目的docs_opened字段
-        project.docs_opened = True
-        db.session.commit()
-
-        return jsonify({"success": True, "message": "文档空间开通成功"})
-    except Exception as e:
-        return (
-            jsonify({"success": False, "message": f"创建文档空间失败: {str(e)}"}),
-            500,
-        )
 
 
 @projects_bp.route("/projects/<int:project_id>/docs")
@@ -156,17 +187,12 @@ def project_docs(project_id):
     if "user_id" in session:
         current_user = db.session.get(User, session["user_id"])
 
-    # 生成文档文件夹路径
-    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
-    project_docs_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "projects",
-        folder_name,
-    )
+    # 获取项目文件夹路径
+    project_docs_path = get_project_folder_path(project.id, project.created_at)
 
     # 检查文档空间是否存在
     if not os.path.exists(project_docs_path):
-        flash("该项目尚未开通文档空间", "error")
+        flash("该项目文档空间不存在", "error")
         return redirect(url_for("index"))
 
     # 如果用户未登录，尝试直接访问readme.md
@@ -192,22 +218,35 @@ def project_docs(project_id):
             return redirect(url_for("auth.login"))
 
     # 用户已登录，显示完整的文档列表
-    # 获取所有.md文件
-    md_files = []
-    for file in os.listdir(project_docs_path):
-        if file.endswith(".md"):
-            file_path = os.path.join(project_docs_path, file)
-            # 获取文件修改时间
-            mod_time = datetime.fromtimestamp(os.path.getmtime(file_path))
-            md_files.append({"name": file, "path": file, "modified": mod_time})
+    # 获取项目文件夹中的所有文件
+    all_files = get_project_files(project_docs_path)
+
+    # 分离.md文件和其他文件
+    md_files = [f for f in all_files if f.get("is_markdown", False)]
+    other_files = [f for f in all_files if not f.get("is_markdown", False)]
+
+    # 为了与模板兼容，将modified_time重命名为modified，并添加relative_path字段
+    for file in md_files:
+        file["modified"] = file.get("modified_time", datetime.min)
+        file["relative_path"] = file["name"]  # 对于文档文件，相对路径就是文件名
+    for file in other_files:
+        file["modified"] = file.get("modified_time", datetime.min)
+        file["relative_path"] = file["name"]  # 对于其他文件，相对路径就是文件名
 
     # 按修改时间排序，最新的在前
-    md_files.sort(key=lambda x: x["modified"], reverse=True)
+    md_files.sort(key=lambda x: x.get("modified", datetime.min), reverse=True)
+    other_files.sort(
+        key=lambda x: (
+            x.get("modified", datetime.min) if x["type"] == "file" else datetime.min
+        ),
+        reverse=True,
+    )
 
     return render_template(
         "project_docs_list.html",
         project=project,
         md_files=md_files,
+        other_files=other_files,
         current_user=current_user,
     )
 
@@ -222,17 +261,12 @@ def project_doc_view(project_id, filename):
     if "user_id" in session:
         current_user = db.session.get(User, session["user_id"])
 
-    # 生成文档文件夹路径
-    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
-    project_docs_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "projects",
-        folder_name,
-    )
+    # 获取项目文件夹路径
+    project_docs_path = get_project_folder_path(project.id, project.created_at)
 
     # 检查文档空间是否存在
     if not os.path.exists(project_docs_path):
-        flash("该项目尚未开通文档空间", "error")
+        flash("该项目文档空间不存在", "error")
         return redirect(url_for("index"))
 
     # 构建文件完整路径
@@ -278,17 +312,12 @@ def upload_project_doc(project_id):
     if project.author_id != session["user_id"]:
         return jsonify({"success": False, "message": "只有项目创建者可以上传文档"}), 403
 
-    # 生成文档文件夹路径
-    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
-    project_docs_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "projects",
-        folder_name,
-    )
+    # 获取项目文件夹路径
+    project_docs_path = get_project_folder_path(project.id, project.created_at)
 
     # 检查文档空间是否存在
     if not os.path.exists(project_docs_path):
-        return jsonify({"success": False, "message": "该项目尚未开通文档空间"}), 400
+        return jsonify({"success": False, "message": "该项目文档空间不存在"}), 400
 
     try:
         # 获取上传的文件和文档名称
@@ -345,17 +374,12 @@ def create_project_doc(project_id):
     if project.author_id != session["user_id"]:
         return jsonify({"success": False, "message": "只有项目创建者可以创建文档"}), 403
 
-    # 生成文档文件夹路径
-    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
-    project_docs_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "projects",
-        folder_name,
-    )
+    # 获取项目文件夹路径
+    project_docs_path = get_project_folder_path(project.id, project.created_at)
 
     # 检查文档空间是否存在
     if not os.path.exists(project_docs_path):
-        return jsonify({"success": False, "message": "该项目尚未开通文档空间"}), 400
+        return jsonify({"success": False, "message": "该项目文档空间不存在"}), 400
 
     try:
         # 获取文档标题和内容
@@ -405,13 +429,8 @@ def get_project_doc_raw(project_id, filename):
     if not user or (user.id != project.author_id and user.role < ROLE_ADMIN):
         return jsonify({"success": False, "message": "权限不足"}), 403
 
-    # 生成文档文件夹路径
-    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
-    project_docs_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "projects",
-        folder_name,
-    )
+    # 获取项目文件夹路径
+    project_docs_path = get_project_folder_path(project.id, project.created_at)
     doc_path = os.path.join(project_docs_path, filename)
 
     if not os.path.exists(doc_path) or not os.path.isfile(doc_path):
@@ -441,17 +460,12 @@ def update_project_doc(project_id, filename):
     if project.author_id != session["user_id"]:
         return jsonify({"success": False, "message": "只有项目创建者可以编辑文档"}), 403
 
-    # 生成文档文件夹路径
-    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
-    project_docs_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "projects",
-        folder_name,
-    )
+    # 获取项目文件夹路径
+    project_docs_path = get_project_folder_path(project.id, project.created_at)
 
     # 检查文档空间是否存在
     if not os.path.exists(project_docs_path):
-        return jsonify({"success": False, "message": "该项目尚未开通文档空间"}), 400
+        return jsonify({"success": False, "message": "该项目文档空间不存在"}), 400
 
     # 构建文件完整路径
     file_path = os.path.join(project_docs_path, filename)
@@ -524,17 +538,12 @@ def delete_project_doc(project_id, filename):
     if project.author_id != session["user_id"]:
         return jsonify({"success": False, "message": "只有项目创建者可以删除文档"}), 403
 
-    # 生成文档文件夹路径
-    folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
-    project_docs_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "projects",
-        folder_name,
-    )
+    # 获取项目文件夹路径
+    project_docs_path = get_project_folder_path(project.id, project.created_at)
 
     # 检查文档空间是否存在
     if not os.path.exists(project_docs_path):
-        return jsonify({"success": False, "message": "该项目尚未开通文档空间"}), 400
+        return jsonify({"success": False, "message": "该项目文档空间不存在"}), 400
 
     # 构建文件完整路径
     file_path = os.path.join(project_docs_path, filename)
@@ -630,27 +639,26 @@ def update_project(project_id):
     return jsonify({"success": True, "message": "项目更新成功"})
 
 
-@projects_bp.route("/api/projects/<int:project_id>", methods=["DELETE"])
-@require_role(ROLE_MEMBER, owner_check=can_manage_project)
-def delete_project(project_id):
-    project = db.session.get(Project, project_id)
-    if not project:
-        return jsonify({"success": False, "message": "项目不存在"}), 404
+@projects_bp.route("/projects/<int:project_id>/download/<path:filename>")
+def download_project_file(project_id, filename):
+    """下载项目文件"""
+    project = Project.query.get_or_404(project_id)
 
-    try:
-        # 删除项目文档空间
-        if project.docs_opened:
-            date_str = project.created_at.strftime("%Y%m%d")
-            project_folder_name = f"{date_str}-{project.id}"
-            project_path = os.path.join(
-                current_app.config["PROJECTS_FOLDER"], project_folder_name
-            )
-            if os.path.exists(project_path):
-                shutil.rmtree(project_path)
+    # 获取项目文件夹路径
+    project_path = get_project_folder_path(project.id, project.created_at)
 
-        db.session.delete(project)
-        db.session.commit()
-        return jsonify({"success": True, "message": "项目已删除"})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"success": False, "message": f"删除失败: {str(e)}"}), 500
+    if not os.path.exists(project_path):
+        return jsonify({"error": "项目文件夹不存在"}), 404
+
+    # 安全检查：确保文件在项目文件夹内
+    file_path = os.path.join(project_path, filename)
+    if not os.path.commonpath([project_path, file_path]) == project_path:
+        return jsonify({"error": "非法文件路径"}), 400
+
+    if not os.path.exists(file_path):
+        return jsonify({"error": "文件不存在"}), 404
+
+    if os.path.isdir(file_path):
+        return jsonify({"error": "无法下载文件夹"}), 400
+
+    return send_from_directory(project_path, filename, as_attachment=True)
