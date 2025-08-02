@@ -1,0 +1,112 @@
+/* 个人主页样式 */
+
+
+/* 里程碑样式 */
+.milestones-container {
+  margin-top: 30px;
+}
+
+/* 关联账户样式 */
+.linked-accounts-container {
+  margin-top: 20px;
+}
+
+.account-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.account-item:last-child {
+  border-bottom: none;
+}
+
+.account-icon {
+  font-size: 24px;
+  margin-right: 15px;
+  width: 30px;
+  text-align: center;
+}
+
+.account-info {
+  flex: 1;
+}
+
+.account-platform {
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.account-username {
+  font-size: 14px;
+  color: #586069;
+}
+
+.account-actions {
+  margin-left: 10px;
+}
+
+/* 平台图标颜色 */
+.github-icon {
+  color: #24292e;
+}
+
+.gitlab-icon {
+  color: #fc6d26;
+}
+
+.gitee-icon {
+  color: #c71d23;
+}
+
+.other-icon {
+  color: #6c757d;
+}
+
+/* 表单样式 */
+.form-check-input:checked {
+  background-color: #4e73df;
+  border-color: #4e73df;
+}
+
+/* 图片预览样式 */
+.image-preview {
+  max-width: 100%;
+  max-height: 200px;
+  margin-top: 10px;
+  border-radius: 4px;
+  display: none;
+}
+
+/* 项目卡片样式 */
+.project-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.project-image {
+  height: 150px;
+  object-fit: cover;
+  border-top-left-radius: calc(0.25rem - 1px);
+  border-top-right-radius: calc(0.25rem - 1px);
+}
+
+.project-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.badge-featured {
+  background-color: rgba(255, 215, 0, 0.9);
+  color: #212529;
+}

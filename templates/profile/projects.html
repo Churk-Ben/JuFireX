@@ -1,0 +1,76 @@
+<!-- 项目管理模板 -->
+<div class="card shadow mb-4">
+  <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <h6 class="m-0 font-weight-bold text-primary">我的项目</h6>
+    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addProjectModal">
+      <i class="fas fa-plus fa-sm"></i> 添加项目
+    </button>
+  </div>
+  <div class="card-body">
+    {% if projects %}
+      <div class="row" id="projectsContainer">
+        {% for project in projects %}
+          <div class="col-lg-4 col-md-6 mb-4" data-project-id="{{ project.id }}">
+            <div class="card h-100 project-card">
+              <div class="project-image-container">
+                {% if project.image_url %}
+                  <img class="card-img-top project-image" src="{{ project.image_url }}" alt="{{ project.title }}">
+                {% else %}
+                  <div class="card-img-top project-image-placeholder d-flex align-items-center justify-content-center">
+                    <i class="fas fa-code fa-3x text-gray-300"></i>
+                  </div>
+                {% endif %}
+                {% if project.is_featured %}
+                  <div class="featured-badge">
+                    <i class="fas fa-star"></i> 精选
+                  </div>
+                {% endif %}
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">{{ project.title }}</h5>
+                <p class="card-text project-description">{{ project.description }}</p>
+              </div>
+              <div class="card-footer">
+                <div class="btn-group w-100">
+                  {% if project.github_url %}
+                    <a href="{{ project.github_url }}" target="_blank" class="btn btn-sm btn-outline-primary" title="查看仓库">
+                      <i class="fab fa-github"></i>
+                    </a>
+                  {% else %}
+                    <button class="btn btn-sm btn-outline-secondary disabled" title="未设置仓库">
+                      <i class="fab fa-github"></i>
+                    </button>
+                  {% endif %}
+                  
+                  {% if project.demo_url %}
+                    <a href="{{ project.demo_url }}" target="_blank" class="btn btn-sm btn-outline-success" title="查看演示">
+                      <i class="fas fa-play"></i>
+                    </a>
+                  {% else %}
+                    <button class="btn btn-sm btn-outline-secondary disabled" title="未设置演示">
+                      <i class="fas fa-play"></i>
+                    </button>
+                  {% endif %}
+                  
+                  <button class="btn btn-sm btn-outline-info edit-project-btn" data-project-id="{{ project.id }}" title="编辑项目">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  
+                  <button class="btn btn-sm btn-outline-danger delete-project-btn" data-project-id="{{ project.id }}" title="删除项目">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <i class="fas fa-folder-open fa-4x text-gray-300 mb-3"></i>
+        <p class="mb-0">暂无项目</p>
+        <p class="text-muted">点击"添加项目"按钮创建您的第一个项目</p>
+      </div>
+    {% endif %}
+  </div>
+</div>

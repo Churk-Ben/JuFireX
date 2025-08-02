@@ -1,0 +1,105 @@
+<!-- 贡献墙和里程碑模板 -->
+<div class="row">
+  <!-- 贡献墙 -->
+  <div class="col-lg-8 mb-4">
+    <div class="card shadow">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">贡献墙</h6>
+        <div class="dropdown no-arrow">
+          <a class="dropdown-toggle" href="#" role="button" id="contributionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="contributionDropdown">
+            <a class="dropdown-item" href="#" id="refreshContributionsBtn">
+              <i class="fas fa-sync fa-sm fa-fw mr-2 text-gray-400"></i>
+              刷新数据
+            </a>
+            <a class="dropdown-item" href="#" id="exportContributionsBtn">
+              <i class="fas fa-download fa-sm fa-fw mr-2 text-gray-400"></i>
+              导出数据
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="contribution-calendar-container">
+          <div id="contributionCalendar" class="contribution-calendar"></div>
+          <div class="contribution-legend d-flex justify-content-end mt-2">
+            <span class="mr-2">贡献度：</span>
+            <ul class="contribution-legend-list d-flex">
+              <li class="contribution-legend-item" data-level="0"></li>
+              <li class="contribution-legend-item" data-level="1"></li>
+              <li class="contribution-legend-item" data-level="2"></li>
+              <li class="contribution-legend-item" data-level="3"></li>
+              <li class="contribution-legend-item" data-level="4"></li>
+            </ul>
+          </div>
+        </div>
+        <div class="contribution-stats mt-3">
+          <div class="row text-center">
+            <div class="col-md-3 col-6 mb-3">
+              <div class="contribution-stat-item">
+                <h4 id="totalContributions">0</h4>
+                <span class="text-muted">总贡献</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+              <div class="contribution-stat-item">
+                <h4 id="currentStreak">0</h4>
+                <span class="text-muted">当前连续天数</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+              <div class="contribution-stat-item">
+                <h4 id="longestStreak">0</h4>
+                <span class="text-muted">最长连续天数</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+              <div class="contribution-stat-item">
+                <h4 id="activeDays">0</h4>
+                <span class="text-muted">活跃天数</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 里程碑 -->
+  <div class="col-lg-4 mb-4">
+    <div class="card shadow">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">里程碑</h6>
+      </div>
+      <div class="card-body">
+        {% if milestones %}
+          <div class="milestone-list">
+            {% for milestone in milestones %}
+              <div class="milestone-item">
+                <div class="milestone-icon">
+                  <i class="{{ milestone.icon }}"></i>
+                </div>
+                <div class="milestone-content">
+                  <h6 class="milestone-title">{{ milestone.title }}</h6>
+                  <p class="milestone-description text-muted">{{ milestone.description }}</p>
+                  <small class="milestone-date text-muted">
+                    <i class="fas fa-calendar-check mr-1"></i>
+                    {{ milestone.achieved_at.strftime('%Y-%m-%d') }}
+                  </small>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-trophy fa-3x text-gray-300 mb-3"></i>
+            <p class="mb-0">暂无里程碑</p>
+            <p class="text-muted">继续使用平台解锁更多成就</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
