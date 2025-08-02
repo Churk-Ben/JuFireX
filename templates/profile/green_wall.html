@@ -2,7 +2,7 @@
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0"><i class="fas fa-folder"></i> 贡献墙</h5>
-    <button id="showBtn" onclick="render()">渲染贡献墙</button>
+    <button id="showBtn" onclick="handleRender()">渲染贡献墙</button>
   </div>
   <div class="card-body">
     <div class="form">
@@ -11,31 +11,33 @@
       </div>
 
       <div class="input-group">
-        <label>个人访问令牌 :<input id="tokenInput" type="password" placeholder="ghp_xxxxxxxxxxxx" style="width: 200px;" /></label>
+        <label>个人访问令牌 :<input id="tokenInput" type="password" placeholder="ghp_xxx" style="width: 200px" /></label>
       </div>
     </div>
 
-    <div id="wall" class="grid" style="position: relative;"></div>
+    <div id="wall" class="grid" style="position: relative"></div>
 
     <div class="legend">
       <span>Less</span>
       <div class="legend-item">
-        <div class="legend-color" style="background-color: #ebedf0;"></div>
+        <div class="legend-color" style="background-color: rgba(40, 42, 43, 0.8)"></div>
       </div>
       <div class="legend-item">
-        <div class="legend-color" style="background-color: #9be9a8;"></div>
+        <div class="legend-color" style="background-color: rgba(56, 102, 65, 0.7)"></div>
       </div>
       <div class="legend-item">
-        <div class="legend-color" style="background-color: #40c463;"></div>
+        <div class="legend-color" style="background-color: rgba(33, 110, 57, 0.9)"></div>
       </div>
       <div class="legend-item">
-        <div class="legend-color" style="background-color: #30a14e;"></div>
+        <div class="legend-color" style="background-color: rgba(48, 161, 78, 0.8)"></div>
       </div>
       <div class="legend-item">
-        <div class="legend-color" style="background-color: #216e39;"></div>
+        <div class="legend-color" style="background-color: rgba(64, 196, 99, 0.7)"></div>
       </div>
       <span>More</span>
     </div>
   </div>
 </div>
+
+<!-- 附属脚本 -->
 <script src="{{ url_for('static', filename='js/profile/GreenWall.js') }}"></script>
