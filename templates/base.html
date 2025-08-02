@@ -269,19 +269,16 @@
     <footer class="footer py-4">
       <div class="container">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-6 copyright">
             <p class="mb-0">&copy; 2025 JueFire Studio. All rights reserved.</p>
           </div>
           <div class="col-md-6 text-end">
             {% if studio_info and studio_info.github_url %}
-              <a href="{{ studio_info.github_url }}" class="text-decoration-none me-3">
-                <i class="fab fa-github"></i>
-                GitHub
-              </a>
+              <a href="{{ studio_info.github_url }}" class="text-decoration-none me-3"><i class="fab fa-github me-2"></i>GitHub</a>
             {% else %}
-              <a href="{{ url_for('index') }}" class="text-decoration-none me-3"><i class="fab fa-github"></i> GitHub</a>
+              <a href="{{ url_for('index') }}" class="text-decoration-none me-3"><i class="fab fa-github me-2"></i>GitHub</a>
             {% endif %}
-            <a href="#" class="text-decoration-none"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="{{ url_for('index') }}" class="text-decoration-none me-3"><i class="fas fa-envelope me-2"></i>Contact</a>
           </div>
         </div>
       </div>
