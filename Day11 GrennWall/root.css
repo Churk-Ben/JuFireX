@@ -1,0 +1,13 @@
+/* GitHub 风格变量 */
+:root {
+    --github-bg: #0d1117;
+    --github-secondary: #161b22;
+    --github-border: #30363d;
+    --github-text: #c9d1d9;
+    --github-text-secondary: #8b949e;
+    --github-accent: #58a6ff;
+    --github-primary: #0d6efd;
+    --github-success: #238636;
+    --github-warning: #f0883e;
+    --github-danger: #da3633;
+}

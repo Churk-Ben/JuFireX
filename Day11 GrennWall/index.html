@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>GitHub Green Wall</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="root.css">
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h1>GitHub Contributions Green Wall</h1>
+            <button id="showBtn" onclick="render()">渲染贡献墙</button>
+        </div>
+
+        <div class="form">
+            <div class="input-group">
+                <label>Github 用户名:
+                    <input id="userInput" placeholder="Github 用户名" />
+                </label>
+
+            </div>
+
+            <div class="input-group">
+                <label>个人访问令牌 :
+                    <input id="tokenInput" type="password" placeholder="ghp_xxxxxxxxxxxx" style="width: 200px;" />
+                </label>
+            </div>
+        </div>
+
+        <div id="wall" class="grid" style="position: relative;"></div>
+
+        <div class="legend">
+            <span>Less</span>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ebedf0;"></div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #9be9a8;"></div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #40c463;"></div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #30a14e;"></div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #216e39;"></div>
+            </div>
+            <span>More</span>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
