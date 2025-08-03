@@ -142,7 +142,7 @@ def init_database():
             studio_info = StudioInfo(
                 name="JuFire Studio",
                 description="一个专注于创新和技术的工作室",
-                logo_url="/static/images/logo.png",
+                logo_url="",
                 contact_email="contact@jufirestudio.com",
                 github_url="https://github.com/jufirestudio",
             )
