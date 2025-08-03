@@ -76,6 +76,13 @@ class AvatarCropper {
                 background: true, // 显示背景网格
                 modal: true, // 显示黑色模态背景
             });
+
+            // 更新文件名显示
+            const avatarFileName = document.getElementById('avatarFileName');
+            if (avatarFileName) {
+                avatarFileName.textContent = '已加载图像';
+                avatarFileName.classList.remove('text-muted');
+            }
         };
 
         reader.readAsDataURL(file);
@@ -134,6 +141,13 @@ class AvatarCropper {
 
         // 清空文件输入
         this.imageInput.value = '';
+
+        // 重置文件名显示
+        const avatarFileName = document.getElementById('avatarFileName');
+        if (avatarFileName) {
+            avatarFileName.textContent = '未选择文件';
+            avatarFileName.classList.add('text-muted');
+        }
     }
 }
 

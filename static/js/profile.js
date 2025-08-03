@@ -10,21 +10,6 @@ function initializeProfilePage() {
 
 // 设置事件监听器
 function setupEventListeners() {
-    // 头像上传按钮
-    const customAvatarUploadBtn = document.getElementById('customAvatarUploadBtn');
-    const avatarUploadInput = document.getElementById('avatarUpload');
-    const avatarFileName = document.getElementById('avatarFileName');
-
-    if (customAvatarUploadBtn) {
-        customAvatarUploadBtn.addEventListener('click', () => avatarUploadInput.click());
-    }
-    if (avatarFileName) {
-        avatarFileName.addEventListener('click', () => avatarUploadInput.click());
-    }
-    if (avatarUploadInput) {
-        avatarUploadInput.addEventListener('change', handleAvatarFileChange);
-    }
-
     // 保存头像按钮
     document.getElementById('saveAvatarBtn')?.addEventListener('click', handleSaveAvatar);
 
@@ -60,27 +45,23 @@ function setupEventListeners() {
 
 // 初始化头像上传和裁剪功能
 function initializeAvatarUploader() {
+    const avatarUpload = document.getElementById('avatarUpload');
+    const customAvatarUploadBtn = document.getElementById('customAvatarUploadBtn');
+
+    // 点击“选择头像”按钮，触发隐藏的文件输入框
+    if (customAvatarUploadBtn) {
+        customAvatarUploadBtn.addEventListener('click', () => avatarUpload.click());
+    }
+
+    // 初始化 AvatarCropper
     new AvatarCropper({
-        imageInput: document.getElementById('avatarUpload'),
+        imageInput: avatarUpload,
         previewContainer: document.getElementById('avatarPreview'),
         cropButton: document.getElementById('cropAvatarBtn'),
         cancelButton: document.getElementById('cancelCropBtn'),
         resultInput: document.getElementById('croppedAvatarData'),
         cropperContainer: document.getElementById('cropperContainer')
     });
-}
-
-// 处理头像文件选择变化
-function handleAvatarFileChange() {
-    const avatarUploadInput = document.getElementById('avatarUpload');
-    const avatarFileName = document.getElementById('avatarFileName');
-    if (avatarUploadInput.files.length > 0) {
-        avatarFileName.textContent = avatarUploadInput.files[0].name;
-        avatarFileName.classList.remove('text-muted');
-    } else {
-        avatarFileName.textContent = '未选择文件';
-        avatarFileName.classList.add('text-muted');
-    }
 }
 
 // 处理保存头像
