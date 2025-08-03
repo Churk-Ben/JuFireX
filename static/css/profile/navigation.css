@@ -2,14 +2,15 @@
 
 .profile-nav-item {
     border: none;
+    box-sizing: border-box;
     background: transparent;
     transition: all 0.2s;
     position: relative;
     height: 4em;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 1px;
 }
 
 .profile-nav-item:not(:last-child) {
@@ -20,6 +21,8 @@
     color: var(--github-text);
     text-decoration: none;
     transition: color 0.2s;
+    font-weight: 400;
+    line-height: 1.5;
 }
 
 .profile-nav-link:hover {
@@ -55,18 +58,7 @@
     color: var(--github-accent);
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .profile-nav-link {
-        padding: 10px 12px;
-    }
-    
-    .profile-nav-icon {
-        font-size: 1em;
-        margin-right: 8px;
-    }
-    
-    .profile-nav-text {
-        font-size: 1em;
-    }
+.profile-nav-item:focus,
+.profile-nav-item.active:focus {
+    outline: none;
 }
