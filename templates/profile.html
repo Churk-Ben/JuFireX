@@ -11,6 +11,7 @@
   <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/profile/GreenWall.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/profile/navigation.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block extra_css %}
@@ -34,19 +35,6 @@
       background-color: #f0f0f0;
       margin: 20px auto;
       overflow: hidden;
-    }
-    
-    .square-btn {
-      aspect-ratio: 1 / 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 0.5rem;
-    }
-    
-    .square-btn .fas {
-      margin-bottom: 0.25rem;
     }
   </style>
 {% endblock %}
@@ -98,7 +86,7 @@
             </div>
 
             <!-- 用户邮箱 -->
-            <div class="my-2 d-flex justify-content-start align-items-center">
+            <div class="mt-3 d-flex justify-content-start align-items-center">
               <p class="card-text">
                 <i class="fas fa-envelope ms-4 me-2" style="font-size: 0.8em; color: var(--github-border);"></i>
                 <small class="text-muted">{{ user.email }}</small>
@@ -106,24 +94,59 @@
             </div>
 
             <!-- 用户注册时间 -->
-            <div class="my-2 d-flex justify-content-start align-items-center">
+            <div class="mt-2 d-flex justify-content-start align-items-center">
               <p class="card-text">
                 <i class="fas fa-calendar ms-4 me-2" style="font-size: 0.8em; color: var(--github-border);"></i>
                 <small class="text-muted">注册于 {{ user.created_at|format_datetime }}</small>
               </p>
             </div>
+          </div>
+        </div>
 
-            <!-- TODO: 前往设置的按钮 -->
-            {% if current_user == user %}
-              <div class="d-flex align-items-center mb-3 p-2 rounded bg-dark">
-                <i class="fas fa-envelope contact-icon"></i>
-                <span id="previewEmail" class="ms-3">111</span>
-              </div>
-              <div class="d-flex align-items-center mb-3 p-2 rounded bg-dark">
-                <i class="fab fa-github contact-icon"></i>
-                <span id="previewGithub" class="ms-3">222</span>
-              </div>
-            {% endif %}
+        <div class="card">
+          <div class="card-body p-0">
+            <!-- 四个按钮: 项目(projects), 贡献墙(contributions), 里程碑(achievements), 设置(settings) -->
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item profile-nav-item">
+                <a href="#Projects" class="profile-nav-link">
+                  <i class="fas fa-project-diagram profile-nav-icon"></i>
+                  <span class="profile-nav-text">项目</span>
+                </a>
+                <span class="me-2">
+                  <i class="fas fa-angle-right profile-nav-icon"></i>
+                </span>
+              </li>
+
+              <li class="list-group-item profile-nav-item">
+                <a href="#Contributions" class="profile-nav-link">
+                  <i class="fas fa-code-branch profile-nav-icon"></i>
+                  <span class="profile-nav-text">贡献墙</span>
+                </a>
+                <span class="me-2">
+                  <i class="fas fa-angle-right profile-nav-icon"></i>
+                </span>
+              </li>
+
+              <li class="list-group-item profile-nav-item active">
+                <a href="#Achievements" class="profile-nav-link">
+                  <i class="fas fa-medal profile-nav-icon"></i>
+                  <span class="profile-nav-text">里程碑</span>
+                </a>
+                <span class="me-2">
+                  <i class="fas fa-angle-right profile-nav-icon"></i>
+                </span>
+              </li>
+
+              <li class="list-group-item profile-nav-item">
+                <a href="#Settings" class="profile-nav-link">
+                  <i class="fas fa-cog profile-nav-icon"></i>
+                  <span class="profile-nav-text">设置</span>
+                </a>
+                <span class="me-2">
+                  <i class="fas fa-external-link-alt profile-nav-icon"></i>
+                </span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
