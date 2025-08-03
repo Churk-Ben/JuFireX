@@ -35,7 +35,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // 隐藏所有内容区域
   function hideAllContent() {
     contentAreas.forEach(content => {
-      if (content) content.style.display = 'none';
+      if (content) {
+        content.classList.remove('active');
+      }
     });
   }
   
@@ -43,20 +45,27 @@ document.addEventListener('DOMContentLoaded', function() {
   function showContentByHash(hash) {
     hideAllContent();
     
+    let contentToShow = null;
+    
     switch(hash) {
       case '#Projects':
-        if (projectsContent) projectsContent.style.display = 'block';
+        contentToShow = projectsContent;
         break;
       case '#Contributions':
-        if (contributionsContent) contributionsContent.style.display = 'block';
+        contentToShow = contributionsContent;
         break;
       case '#Achievements':
-        if (achievementsContent) achievementsContent.style.display = 'block';
+        contentToShow = achievementsContent;
         break;
       default:
         // 默认显示项目
-        if (projectsContent) projectsContent.style.display = 'block';
+        contentToShow = projectsContent;
         break;
+    }
+    
+    // 添加激活类触发动画
+    if (contentToShow) {
+      contentToShow.classList.add('active');
     }
   }
   

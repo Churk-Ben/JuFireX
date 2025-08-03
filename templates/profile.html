@@ -37,14 +37,22 @@
       overflow: hidden;
     }
     
-    /* 默认隐藏所有内容区域，通过JS控制显示 */
-    #profile-projects-content,
-    #profile-contributions-content,
-    #profile-achievements-content {
+    /* 内容区域样式 */
+    .profile-content {
       display: none;
     }
     
-    /* 内容区域显示由JavaScript控制 */
+    /* 激活的内容区域 */
+    .profile-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out forwards;
+    }
+    
+    /* 淡入动画 */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
   </style>
 {% endblock %}
 
