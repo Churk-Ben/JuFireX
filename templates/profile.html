@@ -36,6 +36,15 @@
       margin: 20px auto;
       overflow: hidden;
     }
+    
+    /* 默认隐藏所有内容区域，通过JS控制显示 */
+    #profile-projects-content,
+    #profile-contributions-content,
+    #profile-achievements-content {
+      display: none;
+    }
+    
+    /* 内容区域显示由JavaScript控制 */
   </style>
 {% endblock %}
 
@@ -108,7 +117,7 @@
             <!-- 四个按钮: 项目(projects), 贡献墙(contributions), 里程碑(achievements), 设置(settings) -->
             <ul class="list-group list-group-flush">
               <li class="list-group-item profile-nav-item">
-                <a href="#Projects" class="profile-nav-link">
+                <a href="#Projects" class="profile-nav-link ms-2">
                   <i class="fas fa-project-diagram profile-nav-icon"></i>
                   <span class="profile-nav-text">项目</span>
                 </a>
@@ -118,8 +127,8 @@
               </li>
 
               <li class="list-group-item profile-nav-item">
-                <a href="#Contributions" class="profile-nav-link">
-                  <i class="fas fa-code-branch profile-nav-icon"></i>
+                <a href="#Contributions" class="profile-nav-link ms-2">
+                  <i class="fas fa-chart-area profile-nav-icon"></i>
                   <span class="profile-nav-text">贡献墙</span>
                 </a>
                 <span class="me-2">
@@ -128,7 +137,7 @@
               </li>
 
               <li class="list-group-item profile-nav-item active">
-                <a href="#Achievements" class="profile-nav-link">
+                <a href="#Achievements" class="profile-nav-link ms-2">
                   <i class="fas fa-medal profile-nav-icon"></i>
                   <span class="profile-nav-text">里程碑</span>
                 </a>
@@ -138,7 +147,7 @@
               </li>
 
               <li class="list-group-item profile-nav-item">
-                <a href="#Settings" class="profile-nav-link">
+                <a href="#Settings" class="profile-nav-link ms-2">
                   <i class="fas fa-cog profile-nav-icon"></i>
                   <span class="profile-nav-text">设置</span>
                 </a>
@@ -192,13 +201,19 @@
 
         <!-- TODO: 三选一渲染 -->
         <!-- 项目 -->
-        {% include 'profile/projects.html' %}
+        <div id="profile-projects-content" class="profile-content">
+          {% include 'profile/projects.html' %}
+        </div>
 
         <!-- 贡献墙 -->
-        {% include 'profile/green_wall.html' %}
+        <div id="profile-contributions-content" class="profile-content">
+          {% include 'profile/green_wall.html' %}
+        </div>
 
         <!-- 成就墙 -->
-        {% include 'profile/achievements.html' %}
+        <div id="profile-achievements-content" class="profile-content">
+          {% include 'profile/achievements.html' %}
+        </div>
       </div>
     </div>
   </div>
@@ -218,4 +233,5 @@
 
   <!-- 引入自定义JS -->
   <script src="{{ url_for('static', filename='js/cropper.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/profile/navigation.js') }}"></script>
 {% endblock %}
