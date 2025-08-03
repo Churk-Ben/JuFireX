@@ -37,21 +37,13 @@
       overflow: hidden;
     }
     
-    /* 内容区域样式 */
     .profile-content {
       display: none;
     }
     
-    /* 激活的内容区域 */
     .profile-content.active {
       display: block;
       animation: fadeIn 0.3s ease-in-out forwards;
-    }
-    
-    /* 淡入动画 */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
     }
   </style>
 {% endblock %}
@@ -241,5 +233,6 @@
 
   <!-- 引入自定义JS -->
   <script src="{{ url_for('static', filename='js/cropper.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
   <script src="{{ url_for('static', filename='js/profile/navigation.js') }}"></script>
 {% endblock %}
