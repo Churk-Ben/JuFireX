@@ -183,17 +183,6 @@ def profile(username):
         ROLE_SUPER_ADMIN: "bg-danger",
     }
 
-    # 检查每个项目的文档空间是否已开通
-    for project in user_projects:
-        # 根据项目创建日期和ID生成文档文件夹路径
-        folder_name = f"{project.created_at.strftime('%Y%m%d')}-{project.id}"
-        project_docs_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "projects",
-            folder_name,
-        )
-        project.docs_opened = os.path.exists(project_docs_path)
-
     return render_template(
         "profile.html",
         user=user,

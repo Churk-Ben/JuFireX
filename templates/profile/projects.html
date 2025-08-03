@@ -24,7 +24,6 @@
                 </div>
                 <p class="card-text small text-muted">
                   {{ project.description[:80] }}
-
                   {% if project.description|length >= 80 %}
                     ...
                   {% endif %}
@@ -75,3 +74,6 @@
     {% endif %}
   </div>
 </div>
+
+<!-- 附属脚本 -->
+<script src="{{ url_for('static', filename='js/projects.js') }}"></script>
