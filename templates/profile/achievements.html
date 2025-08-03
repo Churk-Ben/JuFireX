@@ -1,0 +1,36 @@
+<!-- 成就墙 -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0"><i class="fas fa-folder"></i> 里程碑</h5>
+  </div>
+  <div class="card-body">
+    {% if milestones %}
+      <div class="milestone-list">
+        {% for milestone in milestones %}
+          <div class="milestone-item">
+            <div class="milestone-icon">
+              <i class="{{ milestone.icon }}"></i>
+            </div>
+            <div class="milestone-content">
+              <h6 class="milestone-title">{{ milestone.title }}</h6>
+              <p class="milestone-description text-muted">{{ milestone.description }}</p>
+              <small class="milestone-date text-muted">
+                <i class="fas fa-calendar-check mr-1"></i>
+                {{ milestone.achieved_at.strftime('%Y-%m-%d') }}
+              </small>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-4">
+        <i class="fas fa-trophy" style="font-size: 3rem; color: var(--github-text-secondary)"></i>
+        <h5 class="mt-3 text-muted">暂无里程碑</h5>
+        <p class="text-muted">继续使用平台解锁更多成就</p>
+        {% if current_user == user %}
+          <button class="btn btn-primary"><i class="fas fa-compass"></i> 探索成就</button>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
