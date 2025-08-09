@@ -28,7 +28,7 @@ from .utils import (
     get_project_folder_path,
     get_project_files,
 )
-from .services import ImageService
+from .services import ImageService, DocumentService
 
 projects_bp = Blueprint("projects", __name__)
 
@@ -340,13 +340,6 @@ def upload_project_doc(project_id):
     if project.author_id != session["user_id"]:
         return jsonify({"success": False, "message": "只有项目创建者可以上传文档"}), 403
 
-    # 获取项目文件夹路径
-    project_docs_path = get_project_folder_path(project.id, project.created_at)
-
-    # 检查文档空间是否存在
-    if not os.path.exists(project_docs_path):
-        return jsonify({"success": False, "message": "该项目文档空间不存在"}), 400
-
     try:
         # 获取上传的文件和文档名称
         doc_file = request.files.get("docFile")
@@ -362,28 +355,19 @@ def upload_project_doc(project_id):
                 400,
             )
 
-        # 清理文件名，确保安全
-        safe_doc_name = secure_filename(doc_name)
-        if not safe_doc_name:
-            return jsonify({"success": False, "message": "无效的文档名称"}), 400
-
-        # 添加.md扩展名
-        if not safe_doc_name.lower().endswith(".md"):
-            safe_doc_name += ".md"
-
-        # 检查文件是否已存在
-        file_path = os.path.join(project_docs_path, safe_doc_name)
-        if os.path.exists(file_path):
-            return jsonify({"success": False, "message": "同名文档已存在"}), 400
-
-        # 读取文件内容并保存
+        # 读取文件内容并调用服务层
         content = doc_file.read().decode("utf-8")
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(content)
+        success, result = DocumentService.upload_markdown(project, doc_name, content)
 
-        return jsonify(
-            {"success": True, "message": "文档上传成功", "filename": safe_doc_name}
-        )
+        if success:
+            return jsonify({
+                "success": True, 
+                "message": "文档上传成功", 
+                "filename": result["filename"]
+            })
+        else:
+            return jsonify({"success": False, "message": result}), 400
+
     except Exception as e:
         return jsonify({"success": False, "message": f"上传文档失败: {str(e)}"}), 500
 
@@ -402,13 +386,6 @@ def create_project_doc(project_id):
     if project.author_id != session["user_id"]:
         return jsonify({"success": False, "message": "只有项目创建者可以创建文档"}), 403
 
-    # 获取项目文件夹路径
-    project_docs_path = get_project_folder_path(project.id, project.created_at)
-
-    # 检查文档空间是否存在
-    if not os.path.exists(project_docs_path):
-        return jsonify({"success": False, "message": "该项目文档空间不存在"}), 400
-
     try:
         # 获取文档标题和内容
         data = request.json
@@ -418,27 +395,17 @@ def create_project_doc(project_id):
         if not doc_title or not doc_content:
             return jsonify({"success": False, "message": "缺少必要参数"}), 400
 
-        # 清理文件名，确保安全
-        safe_doc_name = secure_filename(doc_title)
-        if not safe_doc_name:
-            return jsonify({"success": False, "message": "无效的文档标题"}), 400
+        success, result = DocumentService.create_markdown(project, doc_title, doc_content)
 
-        # 添加.md扩展名
-        if not safe_doc_name.lower().endswith(".md"):
-            safe_doc_name += ".md"
+        if success:
+            return jsonify({
+                "success": True, 
+                "message": "文档创建成功", 
+                "filename": result["filename"]
+            })
+        else:
+            return jsonify({"success": False, "message": result}), 400
 
-        # 检查文件是否已存在
-        file_path = os.path.join(project_docs_path, safe_doc_name)
-        if os.path.exists(file_path):
-            return jsonify({"success": False, "message": "同名文档已存在"}), 400
-
-        # 保存文档内容
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(doc_content)
-
-        return jsonify(
-            {"success": True, "message": "文档创建成功", "filename": safe_doc_name}
-        )
     except Exception as e:
         return jsonify({"success": False, "message": f"创建文档失败: {str(e)}"}), 500
 
@@ -457,19 +424,12 @@ def get_project_doc_raw(project_id, filename):
     if not user or (user.id != project.author_id and user.role < ROLE_ADMIN):
         return jsonify({"success": False, "message": "权限不足"}), 403
 
-    # 获取项目文件夹路径
-    project_docs_path = get_project_folder_path(project.id, project.created_at)
-    doc_path = os.path.join(project_docs_path, filename)
+    success, result = DocumentService.read_markdown(project, filename)
 
-    if not os.path.exists(doc_path) or not os.path.isfile(doc_path):
-        return jsonify({"success": False, "message": "文档不存在"}), 404
-
-    try:
-        with open(doc_path, "r", encoding="utf-8") as f:
-            content = f.read()
-        return jsonify({"success": True, "content": content})
-    except Exception as e:
-        return jsonify({"success": False, "message": f"读取文件时出错: {e}"}), 500
+    if success:
+        return jsonify({"success": True, "content": result})
+    else:
+        return jsonify({"success": False, "message": result}), 404 if "不存在" in result else 500
 
 
 @projects_bp.route(
@@ -488,20 +448,6 @@ def update_project_doc(project_id, filename):
     if project.author_id != session["user_id"]:
         return jsonify({"success": False, "message": "只有项目创建者可以编辑文档"}), 403
 
-    # 获取项目文件夹路径
-    project_docs_path = get_project_folder_path(project.id, project.created_at)
-
-    # 检查文档空间是否存在
-    if not os.path.exists(project_docs_path):
-        return jsonify({"success": False, "message": "该项目文档空间不存在"}), 400
-
-    # 构建文件完整路径
-    file_path = os.path.join(project_docs_path, filename)
-
-    # 检查文件是否存在
-    if not os.path.exists(file_path) or not os.path.isfile(file_path):
-        return jsonify({"success": False, "message": f"文件 {filename} 不存在"}), 404
-
     try:
         # 获取更新的文档标题和内容
         data = request.json
@@ -511,41 +457,24 @@ def update_project_doc(project_id, filename):
         if not new_doc_title or not doc_content:
             return jsonify({"success": False, "message": "缺少必要参数"}), 400
 
-        # 清理文件名，确保安全
-        safe_doc_name = secure_filename(new_doc_title)
-        if not safe_doc_name:
-            return jsonify({"success": False, "message": "无效的文档标题"}), 400
+        success, result = DocumentService.update_markdown(project, filename, new_doc_title, doc_content)
 
-        # 添加.md扩展名
-        if not safe_doc_name.lower().endswith(".md"):
-            safe_doc_name += ".md"
-
-        # 检查是否需要重命名文件
-        new_file_path = os.path.join(project_docs_path, safe_doc_name)
-        rename_needed = filename != safe_doc_name
-
-        # 如果需要重命名，检查新文件名是否已存在
-        if rename_needed and os.path.exists(new_file_path):
-            return jsonify({"success": False, "message": "同名文档已存在"}), 400
-
-        # 保存文档内容
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(doc_content)
-
-        # 如果需要重命名，执行重命名操作
-        if rename_needed:
-            os.rename(file_path, new_file_path)
-            return jsonify(
-                {
+        if success:
+            if result.get("renamed"):
+                return jsonify({
                     "success": True,
                     "message": "文档更新并重命名成功",
-                    "filename": safe_doc_name,
-                }
-            )
+                    "filename": result["filename"],
+                })
+            else:
+                return jsonify({
+                    "success": True,
+                    "message": "文档更新成功",
+                    "filename": result["filename"],
+                })
+        else:
+            return jsonify({"success": False, "message": result}), 400
 
-        return jsonify(
-            {"success": True, "message": "文档更新成功", "filename": filename}
-        )
     except Exception as e:
         return jsonify({"success": False, "message": f"更新文档失败: {str(e)}"}), 500
 
@@ -566,26 +495,12 @@ def delete_project_doc(project_id, filename):
     if project.author_id != session["user_id"]:
         return jsonify({"success": False, "message": "只有项目创建者可以删除文档"}), 403
 
-    # 获取项目文件夹路径
-    project_docs_path = get_project_folder_path(project.id, project.created_at)
+    success, result = DocumentService.delete_markdown(project, filename)
 
-    # 检查文档空间是否存在
-    if not os.path.exists(project_docs_path):
-        return jsonify({"success": False, "message": "该项目文档空间不存在"}), 400
-
-    # 构建文件完整路径
-    file_path = os.path.join(project_docs_path, filename)
-
-    # 检查文件是否存在
-    if not os.path.exists(file_path) or not os.path.isfile(file_path):
-        return jsonify({"success": False, "message": f"文件 {filename} 不存在"}), 404
-
-    try:
-        # 删除文件
-        os.remove(file_path)
+    if success:
         return jsonify({"success": True, "message": "文档删除成功"})
-    except Exception as e:
-        return jsonify({"success": False, "message": f"删除文档失败: {str(e)}"}), 500
+    else:
+        return jsonify({"success": False, "message": result}), 404 if "不存在" in result else 500
 
 
 @projects_bp.route("/api/projects/<int:project_id>/featured", methods=["PUT"])
