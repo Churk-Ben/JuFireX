@@ -549,36 +549,18 @@ def update_project(project_id):
 
     data = request.get_json()
 
-    # 处理图片URL - 实现白名单机制
+    # 处理图片URL
     new_image_url = data.get("image_url")
-
-    # 获取项目文件夹路径
-    project_path = get_project_folder_path(project.id, project.created_at)
 
     # 检查是否需要更新图片
     if new_image_url != project.image_url:
-        # 白名单检查：如果新URL是index.*格式，则保持不变
-        if new_image_url and new_image_url.startswith("index."):
-            # index.*格式的URL放行，不做更改
-            project.image_url = new_image_url
-        elif not new_image_url:  # 如果新URL为空
-            # 清空项目头图
+        if not new_image_url:
+            # 清空项目头图并交由服务层清理旧文件
+            try:
+                ImageService.clear_project_image(project)
+            except Exception as e:
+                current_app.logger.error(f"Failed to clear project image: {e}")
             project.image_url = None
-
-            # 删除项目文件夹中的index.*文件
-            if project_path and os.path.exists(project_path):
-                try:
-                    import glob
-
-                    index_files = glob.glob(os.path.join(project_path, "index.*"))
-                    for index_file in index_files:
-                        if os.path.isfile(index_file):
-                            os.remove(index_file)
-                            current_app.logger.info(
-                                f"Deleted project image: {index_file}"
-                            )
-                except Exception as e:
-                    current_app.logger.error(f"Failed to delete index files: {e}")
         else:
             try:
                 new_rel = ImageService.process_project_image(project, {"image_url": new_image_url})
