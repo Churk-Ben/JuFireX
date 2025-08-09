@@ -1,5 +1,5 @@
 import os
-import shutil
+# import shutil
 import mistune
 from datetime import datetime
 from flask import (
@@ -14,7 +14,6 @@ from flask import (
     current_app,
     send_from_directory,
 )
-from werkzeug.utils import secure_filename
 from .models import db, Project, User
 from .config import ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_GUEST
 from .utils import (
@@ -267,27 +266,15 @@ def project_doc_view(project_id, filename):
     if "user_id" in session:
         current_user = db.session.get(User, session["user_id"])
 
-    # 获取项目文件夹路径
-    project_docs_path = get_project_folder_path(project.id, project.created_at)
-
-    # 检查文档空间是否存在
-    if not os.path.exists(project_docs_path):
-        flash("该项目文档空间不存在", "error")
-        return redirect(url_for("index"))
-
-    # 构建文件完整路径
-    file_path = os.path.join(project_docs_path, filename)
-
-    # 检查文件是否存在
-    if not os.path.exists(file_path) or not os.path.isfile(file_path):
-        flash(f"文件 {filename} 不存在", "error")
+    # 通过服务层读取文档内容并处理不存在情况
+    success, result = DocumentService.read_markdown(project, filename)
+    if not success:
+        flash(str(result), "error")
         return redirect(url_for("projects.project_docs", project_id=project_id))
 
-    try:
-        # 读取文件内容
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
+    content = result
 
+    try:
         # 创建自定义渲染器来处理图片路径
         class ProjectImageRenderer(mistune.HTMLRenderer):
             def __init__(self, project_id):
