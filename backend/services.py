@@ -50,6 +50,10 @@ class ImageService:
             if not project_path:
                 return None
             
+            # index.* 白名单：保持现有文件，不做任何改动
+            if image_url.startswith('index.'):
+                return image_url
+            
             # 删除旧图片
             cls._remove_old_project_images(project_path)
             
@@ -79,6 +83,18 @@ class ImageService:
         for old_file in old_images:
             if os.path.isfile(old_file):
                 os.remove(old_file)
+
+    # 新增：提供控制器调用的清理接口，避免控制器层自行处理文件
+    @classmethod
+    def clear_project_image(cls, project: Project) -> None:
+        project_path = get_project_folder_path(project.id, project.created_at)
+        if not project_path:
+            return
+        try:
+            cls._remove_old_project_images(project_path)
+        except Exception:
+            # 静默失败，控制器不因清理失败而报错
+            pass
 
     @classmethod
     def _process_data_url_image(cls, data_url: str, project_path: str) -> Optional[str]:
