@@ -1,64 +1,35 @@
 /* Profile Navigation Styles - 个人资料导航样式 */
 
 .profile-nav-item {
-    border: none;
-    box-sizing: border-box;
-    background: transparent;
-    transition: all 0.2s;
-    position: relative;
-    height: 4em;
+    padding: 1em 2em;
+
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1px;
-}
 
-.profile-nav-item:not(:last-child) {
-    border-bottom: 1px solid var(--github-border);
+    background-color: transparent;
+    color: var(--github-text);
 }
 
 .profile-nav-link {
-    color: var(--github-text);
-    text-decoration: none;
-    transition: color 0.2s;
-    font-weight: 400;
-    line-height: 1.5;
-}
+    width: 100%;
 
-.profile-nav-link:hover {
-    color: var(--github-accent);
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    color: inherit;
+    transition: all 0.3s;
 }
 
 .profile-nav-item:hover {
     background-color: rgba(88, 166, 255, 0.1);
 }
 
-.profile-nav-icon {
-    font-size: 1em;
-    text-align: center;
-    color: var(--github-text);
-    transition: color 0.2s;
-}
-
-.profile-nav-link:hover .profile-nav-icon {
+.profile-nav-link:hover {
     color: var(--github-accent);
 }
 
-.profile-nav-text {
-    font-weight: 400;
-    font-size: 1em;
-}
-
-/* 激活状态 */
-.profile-nav-item.active {
+.list-group-item.active {
     background-color: rgba(88, 166, 255, 0.2);
-}
-
-.profile-nav-item.active .profile-nav-link {
-    color: var(--github-accent);
-}
-
-.profile-nav-item:focus,
-.profile-nav-item.active:focus {
-    outline: none;
 }
