@@ -30,6 +30,7 @@ from .utils import (
     get_project_folder_path,
     get_project_files,
 )
+from .services import ImageService, ValidationService
 
 projects_bp = Blueprint("projects", __name__)
 
@@ -78,68 +79,10 @@ def create_project():
 
             # 如果有图片URL，直接下载到项目文件夹
             if image_url:
-                try:
-                    import requests
-                    from urllib.parse import urlparse
-                    import uuid
-
-                    # 处理本地文件URI
-                    if image_url.startswith("file://"):
-                        from urllib.parse import unquote
-
-                        local_path = unquote(urlparse(image_url).path)
-                        if os.name == "nt" and local_path.startswith("/"):
-                            local_path = local_path[1:]
-
-                        if os.path.exists(local_path):
-                            ext = os.path.splitext(local_path)[1] or ".jpg"
-                            project_image_path = os.path.join(
-                                project_path, f"index{ext}"
-                            )
-                            shutil.copy2(local_path, project_image_path)
-                            # 更新数据库中的image_url为相对路径
-                            project.image_url = f"index{ext}"
-
-                    # 处理网络URL
-                    elif image_url.startswith(("http://", "https://")):
-                        response = requests.get(image_url, stream=True, timeout=10)
-                        response.raise_for_status()
-
-                        # 获取文件扩展名
-                        content_type = response.headers.get("Content-Type")
-                        if content_type and "image" in content_type:
-                            ext = "." + content_type.split("/")[1].split(";")[0]
-                        else:
-                            ext = (
-                                os.path.splitext(urlparse(image_url).path)[1] or ".jpg"
-                            )
-
-                        project_image_path = os.path.join(project_path, f"index{ext}")
-                        with open(project_image_path, "wb") as f:
-                            for chunk in response.iter_content(1024):
-                                f.write(chunk)
-
-                        # 更新数据库中的image_url为相对路径
-                        project.image_url = f"index{ext}"
-
-                    # 处理已经是用户数据URL的情况（向后兼容）
-                    elif image_url.startswith("/user_data/"):
-                        user_data_file = image_url.replace("/user_data/", "")
-                        user_data_path = os.path.join(
-                            current_app.root_path, "user_data", user_data_file
-                        )
-                        if os.path.exists(user_data_path):
-                            ext = os.path.splitext(user_data_file)[1] or ".jpg"
-                            project_image_path = os.path.join(
-                                project_path, f"index{ext}"
-                            )
-                            shutil.copy2(user_data_path, project_image_path)
-                            # 更新数据库中的image_url为相对路径
-                            project.image_url = f"index{ext}"
-
-                except Exception as e:
-                    current_app.logger.error(f"Failed to download project image: {e}")
-                    # 如果下载失败，清空image_url
+                new_rel = ImageService.process_project_image(project, {"image_url": image_url})
+                if new_rel:
+                    project.image_url = new_rel
+                else:
                     project.image_url = None
 
         # 项目文件夹创建完成
@@ -196,102 +139,12 @@ def manage_project(project_id):
                     except Exception as e:
                         current_app.logger.error(f"Failed to delete index files: {e}")
             else:
-                # 处理其他URL（网络URL、本地文件等）
                 try:
-                    import requests
-                    from urllib.parse import urlparse
-
-                    # 处理本地文件URI
-                    if new_image_url.startswith("file://"):
-                        from urllib.parse import unquote
-
-                        local_path = unquote(urlparse(new_image_url).path)
-                        if os.name == "nt" and local_path.startswith("/"):
-                            local_path = local_path[1:]
-
-                        if os.path.exists(local_path) and project_path:
-                            # 删除旧的index.*文件
-                            import glob
-
-                            old_index_files = glob.glob(
-                                os.path.join(project_path, "index.*")
-                            )
-                            for old_file in old_index_files:
-                                if os.path.isfile(old_file):
-                                    os.remove(old_file)
-
-                            ext = os.path.splitext(local_path)[1] or ".jpg"
-                            project_image_path = os.path.join(
-                                project_path, f"index{ext}"
-                            )
-                            shutil.copy2(local_path, project_image_path)
-                            project.image_url = f"index{ext}"
-
-                    # 处理网络URL
-                    elif new_image_url.startswith(("http://", "https://")):
-                        if project_path:
-                            response = requests.get(
-                                new_image_url, stream=True, timeout=10
-                            )
-                            response.raise_for_status()
-
-                            # 删除旧的index.*文件
-                            import glob
-
-                            old_index_files = glob.glob(
-                                os.path.join(project_path, "index.*")
-                            )
-                            for old_file in old_index_files:
-                                if os.path.isfile(old_file):
-                                    os.remove(old_file)
-
-                            # 获取文件扩展名
-                            content_type = response.headers.get("Content-Type")
-                            if content_type and "image" in content_type:
-                                ext = "." + content_type.split("/")[1].split(";")[0]
-                            else:
-                                ext = (
-                                    os.path.splitext(urlparse(new_image_url).path)[1]
-                                    or ".jpg"
-                                )
-
-                            project_image_path = os.path.join(
-                                project_path, f"index{ext}"
-                            )
-                            with open(project_image_path, "wb") as f:
-                                for chunk in response.iter_content(1024):
-                                    f.write(chunk)
-
-                            project.image_url = f"index{ext}"
-
-                    # 处理已经是用户数据URL的情况（向后兼容）
-                    elif new_image_url.startswith("/user_data/"):
-                        user_data_file = new_image_url.replace("/user_data/", "")
-                        user_data_path = os.path.join(
-                            current_app.root_path, "user_data", user_data_file
-                        )
-                        if os.path.exists(user_data_path) and project_path:
-                            # 删除旧的index.*文件
-                            import glob
-
-                            old_index_files = glob.glob(
-                                os.path.join(project_path, "index.*")
-                            )
-                            for old_file in old_index_files:
-                                if os.path.isfile(old_file):
-                                    os.remove(old_file)
-
-                            ext = os.path.splitext(user_data_file)[1] or ".jpg"
-                            project_image_path = os.path.join(
-                                project_path, f"index{ext}"
-                            )
-                            shutil.copy2(user_data_path, project_image_path)
-                            project.image_url = f"index{ext}"
-
+                    new_rel = ImageService.process_project_image(project, {"image_url": new_image_url})
+                    if new_rel:
+                        project.image_url = new_rel
                 except Exception as e:
                     current_app.logger.error(f"Failed to process project image: {e}")
-                    # 如果处理失败，保持原有的image_url不变
-                    pass
 
         # 更新数据库中的项目信息
         old_title = project.title
@@ -830,94 +683,12 @@ def update_project(project_id):
                 except Exception as e:
                     current_app.logger.error(f"Failed to delete index files: {e}")
         else:
-            # 处理其他URL（网络URL、本地文件等）
             try:
-                import requests
-                from urllib.parse import urlparse
-
-                # 处理本地文件URI
-                if new_image_url.startswith("file://"):
-                    from urllib.parse import unquote
-
-                    local_path = unquote(urlparse(new_image_url).path)
-                    if os.name == "nt" and local_path.startswith("/"):
-                        local_path = local_path[1:]
-
-                    if os.path.exists(local_path) and project_path:
-                        # 删除旧的index.*文件
-                        import glob
-
-                        old_index_files = glob.glob(
-                            os.path.join(project_path, "index.*")
-                        )
-                        for old_file in old_index_files:
-                            if os.path.isfile(old_file):
-                                os.remove(old_file)
-
-                        ext = os.path.splitext(local_path)[1] or ".jpg"
-                        project_image_path = os.path.join(project_path, f"index{ext}")
-                        shutil.copy2(local_path, project_image_path)
-                        project.image_url = f"index{ext}"
-
-                # 处理网络URL
-                elif new_image_url.startswith(("http://", "https://")):
-                    if project_path:
-                        response = requests.get(new_image_url, stream=True, timeout=10)
-                        response.raise_for_status()
-
-                        # 删除旧的index.*文件
-                        import glob
-
-                        old_index_files = glob.glob(
-                            os.path.join(project_path, "index.*")
-                        )
-                        for old_file in old_index_files:
-                            if os.path.isfile(old_file):
-                                os.remove(old_file)
-
-                        # 获取文件扩展名
-                        content_type = response.headers.get("Content-Type")
-                        if content_type and "image" in content_type:
-                            ext = "." + content_type.split("/")[1].split(";")[0]
-                        else:
-                            ext = (
-                                os.path.splitext(urlparse(new_image_url).path)[1]
-                                or ".jpg"
-                            )
-
-                        project_image_path = os.path.join(project_path, f"index{ext}")
-                        with open(project_image_path, "wb") as f:
-                            for chunk in response.iter_content(1024):
-                                f.write(chunk)
-
-                        project.image_url = f"index{ext}"
-
-                # 处理已经是用户数据URL的情况（向后兼容）
-                elif new_image_url.startswith("/user_data/"):
-                    user_data_file = new_image_url.replace("/user_data/", "")
-                    user_data_path = os.path.join(
-                        current_app.root_path, "user_data", user_data_file
-                    )
-                    if os.path.exists(user_data_path) and project_path:
-                        # 删除旧的index.*文件
-                        import glob
-
-                        old_index_files = glob.glob(
-                            os.path.join(project_path, "index.*")
-                        )
-                        for old_file in old_index_files:
-                            if os.path.isfile(old_file):
-                                os.remove(old_file)
-
-                        ext = os.path.splitext(user_data_file)[1] or ".jpg"
-                        project_image_path = os.path.join(project_path, f"index{ext}")
-                        shutil.copy2(user_data_path, project_image_path)
-                        project.image_url = f"index{ext}"
-
+                new_rel = ImageService.process_project_image(project, {"image_url": new_image_url})
+                if new_rel:
+                    project.image_url = new_rel
             except Exception as e:
                 current_app.logger.error(f"Failed to process project image: {e}")
-                # 如果处理失败，保持原有的image_url不变
-                pass
 
     # 更新项目信息
     project.title = data.get("title", project.title)
