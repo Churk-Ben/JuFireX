@@ -12,9 +12,10 @@
           <input type="hidden" id="edit_project_id" name="project_id" value="{{ project.id }}" />
           <input type="hidden" id="edit_filename" name="filename" value="{{ filename }}" />
           <div class="mb-3">
-            <label for="editDocTitle" class="form-label">文档标题 <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="editDocTitle" name="docTitle" placeholder="文档标题" required />
-            <div class="form-text">修改标题将重命名文件，请谨慎操作</div>
+            <label for="editDocTitle" class="form-label">文档名称 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="editDocTitle" name="docTitle" placeholder="文档名称" required />
+            <div class="form-text">修改名称将重命名文件, 系统会自动补上 '.md' 后缀, 请谨慎操作</div>
+            <div class="form-text text-warning">注意：由于文件系统需要, 请使用英文命名 (仅字母、数字、下划线、短横线)</div>
           </div>
           <div class="mb-3">
             <label for="editDocContent" class="form-label">文档内容 <span class="text-danger">*</span></label>

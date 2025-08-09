@@ -11,9 +11,10 @@
         <form id="createDocForm">
           <input type="hidden" id="create_project_id" name="project_id" value="{{ project.id }}" />
           <div class="mb-3">
-            <label for="docTitle" class="form-label">文档标题 <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="docTitle" name="docTitle" placeholder="文档标题" required />
-            <div class="form-text">文档标题将作为文件名保存，不要包含特殊字符</div>
+            <label for="docTitle" class="form-label">文档名称 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="docTitle" name="docTitle" placeholder="文档名称" required />
+            <div class="form-text">文档名称将作为文件名保存, 系统会自动补上 '.md' 后缀</div>
+            <div class="form-text text-warning">注意：由于文件系统需要，请使用英文命名 (仅字母、数字、下划线、短横线)</div>
           </div>
           <div class="mb-3">
             <label for="docContent" class="form-label">文档内容 <span class="text-danger">*</span></label>
