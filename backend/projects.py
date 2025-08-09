@@ -30,7 +30,7 @@ from .utils import (
     get_project_folder_path,
     get_project_files,
 )
-from .services import ImageService, ValidationService
+from .services import ImageService
 
 projects_bp = Blueprint("projects", __name__)
 
