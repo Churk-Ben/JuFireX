@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ session.get('_csrf_token', '') }}" />
     <title>
       {% block title %}
-        JueFire Studio
+        JuFire Studio
       {% endblock %}
     </title>
 
@@ -126,7 +126,7 @@
       <div class="container">
         <a class="navbar-brand" href="{{ url_for('index') }}">
           <i class="fas fa-fire"></i>
-          JueFire Studio
+          JuFire Studio
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
@@ -270,7 +270,7 @@
       <div class="container">
         <div class="row">
           <div class="col-md-6 copyright">
-            <p class="mb-0">&copy; 2025 JueFire Studio. All rights reserved.</p>
+            <p class="mb-0">&copy; 2025 JuFire Studio. All rights reserved.</p>
           </div>
           <div class="col-md-6 text-end">
             {% if studio_info and studio_info.github_url %}

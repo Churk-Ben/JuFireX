@@ -4,3 +4,6 @@ Flask-SQLAlchemy
 Pillow
 mistune
 requests
+gunicorn
+pymysql
+gevent

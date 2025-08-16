@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  JueFire Studio - 导航站
+  JuFire Studio - 导航站
 {% endblock %}
 
 {% block required_css %}
@@ -83,9 +83,7 @@
 
                           {% if current_user %}
                             <div class="dropdown">
-                              <button class="btn btn-sm btn-outline-secondary border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v me-1"></i>选项
-                              </button>
+                              <button class="btn btn-sm btn-outline-secondary border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v me-1"></i>选项</button>
                               <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
                                   <a class="dropdown-item" href="#" onclick="hideNavItem({{ item.id }}); return false;"><i class="fas fa-eye-slash me-2"></i>隐藏</a>
