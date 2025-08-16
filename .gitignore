@@ -197,3 +197,9 @@ cython_debug/
 .idea/
 .vercel/
 .vscode/
+
+# 排除项目文档文件夹
+temp/
+projects/
+user_data/
+using_cache/
