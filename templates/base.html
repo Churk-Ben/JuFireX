@@ -135,6 +135,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
             <!-- 游客可见 -->
+
             <li class="nav-item" style="margin: 0 5px">
               <a class="nav-link" href="{{ url_for('index') }}">首页</a>
             </li>
@@ -144,6 +145,10 @@
             {% if current_user and current_user.role >= 1 %}
               <li class="nav-item" style="margin: 0 5px">
                 <a class="nav-link" href="{{ url_for('navigation.navigation') }}">导航</a>
+              </li>
+
+              <li class="nav-item" style="margin: 0 5px">
+                <a class="nav-link" href="">设置</a>
               </li>
             {% endif %}
 
@@ -232,8 +237,7 @@
     <div id="messages" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999"></div>
 
     <!-- 闪现消息数据容器 -->
-    <div id="flash-data" class="toast-container position-fixed bottom-0 end-0 p-3" data-messages="{{ get_flashed_messages(with_categories=true)|tojson|forceescape }}" style="z-index: 9999;
-                display: none"></div>
+    <div id="flash-data" class="toast-container position-fixed bottom-0 end-0 p-3" data-messages="{{ get_flashed_messages(with_categories=true)|tojson|forceescape }}" style="z-index: 9999; display: none"></div>
 
     <!-- 闪现消息处理脚本 -->
     <script>
