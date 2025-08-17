@@ -17,8 +17,9 @@ ROLE_NAMES = {
 
 # Flask配置
 class Config:
-    SECRET_KEY = "your-secret-key-here"
-    SQLALCHEMY_DATABASE_URI = "sqlite:///studio.db"
+    SECRET_KEY = "churkbenisthebest"
+    # SQLALCHEMY_DATABASE_URI = "sqlite:///studio.db"
+    SQLALCHEMY_DATABASE_URI = ("mysql+pymysql://flaskuser:Flask%40123456@1Panel-mysql:3306/flaskdb?charset=utf8mb4")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     @staticmethod
