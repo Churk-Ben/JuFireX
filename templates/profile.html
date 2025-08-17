@@ -177,9 +177,9 @@
           <div class="col-md-4">
             <div class="card text-center">
               <div class="card-body">
-                <i class="fas fa-project-diagram" style="font-size: 2rem; color: var(--github-accent)"></i>
-                <h4 class="mt-2 mb-0">{{ projects|length }}</h4>
-                <p class="text-muted mb-0">项目总数</p>
+                <i class="fas fa-star" style="font-size: 2rem; color: #ffd700"></i>
+                <h4 class="mt-2 mb-0">{{ projects|selectattr('is_featured')|list|length }}</h4>
+                <p class="text-muted mb-0">精选项目</p>
               </div>
             </div>
           </div>
@@ -187,9 +187,9 @@
           <div class="col-md-4">
             <div class="card text-center">
               <div class="card-body">
-                <i class="fas fa-star" style="font-size: 2rem; color: #ffd700"></i>
-                <h4 class="mt-2 mb-0">{{ projects|selectattr('is_featured')|list|length }}</h4>
-                <p class="text-muted mb-0">精选项目</p>
+                <i class="fas fa-compass" style="font-size: 2rem; color: var(--github-accent)"></i>
+                <h4 class="mt-2 mb-0">{{ public_nav_count }}</h4>
+                <p class="text-muted mb-0">公开导航</p>
               </div>
             </div>
           </div>

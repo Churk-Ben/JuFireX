@@ -162,7 +162,7 @@ def logout():
 @auth_bp.route("/profile/<username>", methods=["GET", "POST"])
 @require_role(ROLE_GUEST)
 def profile(username):
-    from .models import Project
+    from .models import Project, NavItem
 
     if username:
         user = User.query.filter_by(username=username).first_or_404()
@@ -174,6 +174,7 @@ def profile(username):
 
     current_user = db.session.get(User, session.get("user_id"))
     user_projects = Project.query.filter_by(author_id=user.id).all()
+    public_nav_count = NavItem.query.filter_by(is_public=True, created_by=user.id).count()
 
     # 定义角色颜色映射
     role_colors = {
@@ -188,6 +189,7 @@ def profile(username):
         user=user,
         current_user=current_user,
         projects=user_projects,
+        public_nav_count=public_nav_count,
         role_names=ROLE_NAMES,
         role_colors=role_colors,
         now=datetime.now(),
