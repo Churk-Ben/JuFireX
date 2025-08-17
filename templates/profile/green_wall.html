@@ -2,8 +2,10 @@
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h5 class="mb-0" id="Contributions"><i class="fas fa-chart-area"></i> 贡献墙</h5>
+    <button class="btn btn-primary btn-sm" id="showBtn" onclick="handleRender()"><i class="fa-solid fa-arrows-rotate"></i> 刷新贡献墙</button>
   </div>
   <div class="card-body">
+    <!-- 用户信息 TODO: 转移到设置 -->
     <div class="row">
       <div class="col-md-6 mb-3">
         <label for="userInput" class="form-label fw-bold">GitHub 用户名</label>
@@ -21,12 +23,15 @@
         </div>
       </div>
     </div>
+
+    <!-- 贡献墙 -->
     <div class="row">
       <div class="col-md-12" style="overflow: auto;">
         <div id="wall" class="grid" style="position: relative"></div>
       </div>
     </div>
 
+    <!-- 图例 -->
     <div class="legend">
       <span>Less</span>
       <div class="legend-item">
@@ -46,8 +51,6 @@
       </div>
       <span>More</span>
     </div>
-
-    <button class="btn btn-primary btn-sm" id="showBtn" onclick="handleRender()"><i class="fas fa-plus"></i> 渲染贡献墙</button>
   </div>
 </div>
 

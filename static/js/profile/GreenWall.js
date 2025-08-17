@@ -302,7 +302,11 @@ function createContributionCell(contribution) {
  */
 function setButtonLoading(isLoading) {
     showBtn.disabled = isLoading;
-    showBtn.textContent = isLoading ? '加载中...' : '渲染贡献墙';
+    if (isLoading) {
+        showBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 加载中...';
+    } else {
+        showBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> 刷新贡献墙';
+    }
 }
 
 /**
