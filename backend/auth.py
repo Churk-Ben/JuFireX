@@ -19,6 +19,7 @@ from flask import (
 from .models import db, User
 from .config import ROLE_SUPER_ADMIN, ROLE_GUEST, ROLE_MEMBER, ROLE_ADMIN, ROLE_NAMES
 from .utils import require_role
+from .services import ImageService
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -46,113 +47,54 @@ def login():
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if "user_id" in session:
-        # 检查用户是否存在，如果不存在则清除session
-        user = db.session.get(User, session["user_id"])
-        if not user:
-            session.clear()
-        else:
+        user = db.session.get(User, session.get("user_id"))
+        if user:
             return redirect(url_for("index"))
+        session.clear()
 
     if request.method == "POST":
+        is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
         username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("password")
 
-        # 检查密码是否为空
         if not password:
-            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return jsonify({"success": False, "message": "密码不能为空"})
-            flash("密码不能为空", "error")
-            return redirect(url_for("auth.register"))
+            return send_response(False, "密码不能为空", url_for("auth.register"), is_ajax)
 
-        # 检查用户名是否已存在
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
-            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return jsonify(
-                    {"success": False, "message": "用户名已存在，请选择其他用户名"}
-                )
-            flash("用户名已存在，请选择其他用户名", "error")
-            return redirect(url_for("auth.register"))
+        if User.query.filter_by(username=username).first():
+            return send_response(False, "用户名已存在，请选择其他用户名", url_for("auth.register"), is_ajax)
 
-        # 检查邮箱是否已存在
-        existing_email = User.query.filter_by(email=email).first()
-        if existing_email:
-            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return jsonify(
-                    {"success": False, "message": "邮箱已被注册，请使用其他邮箱"}
-                )
-            flash("邮箱已被注册，请使用其他邮箱", "error")
-            return redirect(url_for("auth.register"))
-
-        # 创建新用户
-        new_user = User(username=username, email=email)
-        new_user.set_password(password)
-
-        # 如果是第一个用户，设置为超级管理员
-        if User.query.count() == 0:
-            new_user.role = ROLE_SUPER_ADMIN
-
-        db.session.add(new_user)
-        db.session.commit()
-
-        # 处理头像上传
-        avatar_file = request.files.get("avatar")
-        if avatar_file and avatar_file.filename:
-            try:
-                # 为用户创建个人文件夹
-                user_folder = os.path.join(
-                    current_app.config["USER_AVATAR_FOLDER"], str(new_user.id)
-                )
-                os.makedirs(user_folder, exist_ok=True)
-
-                # 读取图片数据
-                img_data = avatar_file.read()
-                img = Image.open(io.BytesIO(img_data))
-
-                # 裁剪为正方形（取中心部分）
-                width, height = img.size
-                size = min(width, height)
-                left = (width - size) // 2
-                top = (height - size) // 2
-                right = left + size
-                bottom = top + size
-                img = img.crop((left, top, right, bottom))
-
-                # 调整大小为标准尺寸
-                img = img.resize((200, 200), Image.LANCZOS)
-
-                # 生成唯一文件名
-                filename = f"{uuid.uuid4().hex}.png"
-                filepath = os.path.join(user_folder, filename)
-
-                # 保存图片
-                img.save(filepath, "PNG")
-
-                # 更新用户头像路径
-                new_user.avatar_path = os.path.join(str(new_user.id), filename)
-            except Exception as e:
-                current_app.logger.error(f"处理头像时出错: {str(e)}")
-                if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                    return jsonify(
-                        {"success": False, "message": f"处理头像时出错: {str(e)}"}
-                    )
+        if User.query.filter_by(email=email).first():
+            return send_response(False, "邮箱已被注册，请使用其他邮箱", url_for("auth.register"), is_ajax)
 
         try:
+            new_user = User(username=username, email=email)
+            new_user.set_password(password)
+
+            if User.query.count() == 0:
+                new_user.role = ROLE_SUPER_ADMIN
+
+            db.session.add(new_user)
             db.session.commit()
 
-            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return jsonify({"success": True, "message": "注册成功，请登录"})
+            avatar_file = request.files.get("avatar")
+            if avatar_file and avatar_file.filename:
+                try:
+                    avatar_path = ImageService.process_user_avatar(
+                        image_data=avatar_file.read(), user_id=new_user.id
+                    )
+                    new_user.avatar_path = avatar_path
+                    db.session.commit()
+                except Exception as e:
+                    current_app.logger.error(f"处理头像时出错: {str(e)}")
+                    return send_response(False, f"处理头像时出错: {str(e)}", is_ajax=is_ajax)
 
-            flash("注册成功，请登录", "success")
-            return redirect(url_for("auth.login"))
+            return send_response(True, "注册成功，请登录", url_for("auth.login"), is_ajax)
+
         except Exception as e:
             db.session.rollback()
             current_app.logger.error(f"注册用户时出错: {str(e)}")
-            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return jsonify({"success": False, "message": f"注册失败: {str(e)}"})
-            flash(f"注册失败: {str(e)}", "error")
-            return redirect(url_for("auth.register"))
+            return send_response(False, f"注册失败: {str(e)}", url_for("auth.register"), is_ajax)
 
     return render_template("register.html")
 
@@ -211,74 +153,33 @@ def upload_avatar():
     if not user:
         return jsonify({"success": False, "message": "用户不存在"})
 
-    # 获取Base64编码的图像数据
     data = request.get_json()
     if not data or "avatar" not in data:
         return jsonify({"success": False, "message": "未提供头像数据"})
 
     try:
-        # 为用户创建个人文件夹
-        user_folder = os.path.join(
-            current_app.config["USER_AVATAR_FOLDER"], str(user.id)
+        avatar_path = ImageService.process_user_avatar(
+            image_data=data["avatar"], user_id=user.id, old_avatar_path=user.avatar_path
         )
-        os.makedirs(user_folder, exist_ok=True)
-        
-        # 解析Base64图像数据
-        image_data = data["avatar"]
-        # 移除Base64前缀
-        if "," in image_data:
-            image_data = image_data.split(",")[1]
-
-        # 解码Base64数据
-        image_bytes = base64.b64decode(image_data)
-
-        # 使用PIL打开图像
-        img = Image.open(io.BytesIO(image_bytes))
-
-        # 确保图像是正方形
-        width, height = img.size
-        size = min(width, height)
-        left = (width - size) // 2
-        top = (height - size) // 2
-        right = left + size
-        bottom = top + size
-        img = img.crop((left, top, right, bottom))
-
-        # 调整大小为200x200像素
-        img = img.resize((200, 200), Image.LANCZOS)
-
-        # 生成唯一文件名
-        filename = f"{uuid.uuid4().hex}.jpg"
-        filepath = os.path.join(user_folder, filename)
-
-        # 保存图像
-        img.save(filepath, "JPEG", quality=95)
-
-        # 更新用户头像路径
-        if user.avatar_path:
-            # 删除旧头像文件
-            old_avatar_path = os.path.join(
-                current_app.config["USER_AVATAR_FOLDER"], user.avatar_path
-            )
-            try:
-                os.remove(old_avatar_path)
-            except FileNotFoundError:
-                pass
-            except Exception as e:
-                return jsonify(
-                    {"success": False, "message": f"删除旧头像出错: {str(e)}"}
-                )
-        user.avatar_path = os.path.join(str(user.id), filename)
+        user.avatar_path = avatar_path
         db.session.commit()
 
-        return jsonify(
-            {
-                "success": True,
-                "message": "头像上传成功",
-                "avatar_url": url_for("auth.user_avatar", filename=user.avatar_path),
-            }
-        )
+        return jsonify({
+            "success": True,
+            "message": "头像上传成功",
+            "avatar_url": url_for("auth.user_avatar", filename=user.avatar_path),
+        })
 
     except Exception as e:
-        print(f"头像上传错误: {str(e)}")
+        current_app.logger.error(f"头像上传错误: {str(e)}")
         return jsonify({"success": False, "message": f"头像上传失败: {str(e)}"})
+
+
+def send_response(success, message, redirect_url=None, is_ajax=False):
+    if is_ajax:
+        return jsonify({"success": success, "message": message})
+    
+    flash(message, "success" if success else "error")
+    if redirect_url:
+        return redirect(redirect_url)
+    return None

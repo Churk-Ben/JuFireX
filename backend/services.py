@@ -4,7 +4,10 @@
 
 import os
 import shutil
-from typing import Optional, Dict, Any, List, Tuple
+import base64
+import io
+import uuid
+from typing import Optional, Dict, Any, List, Tuple, Union
 from werkzeug.datastructures import FileStorage
 from PIL import Image
 import requests
@@ -18,6 +21,7 @@ class ImageService:
     
     ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'}
     MAX_SIZE = (1920, 1080)
+    AVATAR_SIZE = (200, 200)
     
     @classmethod
     def validate_image(cls, file_or_url: str) -> bool:
@@ -34,7 +38,67 @@ class ImageService:
                 return ext in cls.ALLOWED_EXTENSIONS
         except Exception:
             return False
-    
+
+    @classmethod
+    def process_user_avatar(cls, image_data: Union[bytes, str], user_id: int, old_avatar_path: Optional[str] = None) -> Optional[str]:
+        """
+        处理用户头像
+        Args:
+            image_data: 图片数据，可以是bytes或base64字符串
+            user_id: 用户ID
+            old_avatar_path: 旧头像路径（如果有）
+        Returns:
+            Optional[str]: 新头像的相对路径，如果处理失败则返回None
+        """
+        try:
+            user_folder = os.path.join(Config.get_user_avatar_folder(), str(user_id))
+            os.makedirs(user_folder, exist_ok=True)
+
+            # 处理输入数据
+            if isinstance(image_data, str):
+                if "," in image_data:  # base64数据
+                    image_data = image_data.split(",")[1]
+                img = Image.open(io.BytesIO(base64.b64decode(image_data)))
+            else:  # bytes数据
+                img = Image.open(io.BytesIO(image_data))
+
+            # 裁剪为正方形
+            width, height = img.size
+            size = min(width, height)
+            left = (width - size) // 2
+            top = (height - size) // 2
+            img = img.crop((left, top, left + size, top + size))
+
+            # 调整大小
+            img = img.resize(cls.AVATAR_SIZE, Image.LANCZOS)
+
+            # 生成文件名和保存
+            filename = f"{uuid.uuid4().hex}.jpg"
+            filepath = os.path.join(user_folder, filename)
+            
+            # 如果是RGBA模式，转换为RGB
+            if img.mode == 'RGBA':
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                background.paste(img, mask=img.split()[-1])
+                img = background
+
+            img.save(filepath, "JPEG", quality=95)
+
+            # 清理旧头像
+            if old_avatar_path:
+                try:
+                    old_path = os.path.join(Config.get_user_avatar_folder(), old_avatar_path)
+                    if os.path.exists(old_path):
+                        os.remove(old_path)
+                except Exception:
+                    pass  # 忽略删除旧文件时的错误
+
+            return os.path.join(str(user_id), filename)
+
+        except Exception as e:
+            print(f"Error processing user avatar: {e}")
+            return None
+
     @classmethod
     def process_project_image(cls, project: Project, image_data: Dict[str, Any]) -> Optional[str]:
         """
