@@ -202,4 +202,3 @@ cython_debug/
 temp/
 projects/
 user_data/
-using_cache/

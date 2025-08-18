@@ -186,7 +186,7 @@
               <li class="nav-item" style="display: flex;
                   align-items: center;
                          margin: 0 5px">
-                <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile') }}">
+                <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile', user_id=session['user_id']) }}">
                   <div id="user_tag">
                     {% if current_user.avatar_path %}
                       <img id="user_avatar_img" src="{{ url_for('auth.user_avatar', filename=current_user.avatar_path) }}" />

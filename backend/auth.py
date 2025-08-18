@@ -36,7 +36,7 @@ def login():
             session["username"] = user.username
             session["role"] = user.role
             flash("登录成功", "success")
-            return redirect(url_for("auth.profile"))
+            return redirect(url_for("auth.profile", user_id=user.id))
         else:
             flash("用户名或密码错误", "error")
 
@@ -158,19 +158,12 @@ def logout():
     return redirect(url_for("index"))
 
 
-@auth_bp.route("/profile", defaults={"username": None}, methods=["GET", "POST"])
-@auth_bp.route("/profile/<username>", methods=["GET", "POST"])
+@auth_bp.route("/profile/<int:user_id>", methods=["GET", "POST"])
 @require_role(ROLE_GUEST)
-def profile(username):
+def profile(user_id):
     from .models import Project, NavItem
 
-    if username:
-        user = User.query.filter_by(username=username).first_or_404()
-    else:
-        user = db.session.get(User, session["user_id"])
-        if not user:
-            flash("请先登录", "warning")
-            return redirect(url_for("auth.login"))
+    user = User.query.get_or_404(user_id)
 
     current_user = db.session.get(User, session.get("user_id"))
     user_projects = Project.query.filter_by(author_id=user.id).all()

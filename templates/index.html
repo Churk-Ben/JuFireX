@@ -45,7 +45,7 @@
                 登录
               </a>
             {% else %}
-              <a href="{{ url_for('auth.profile') }}" class="btn btn-primary btn-lg"><i class="fas fa-user"></i> 个人主页</a>
+              <a href="{{ url_for('auth.profile', user_id=session['user_id']) }}" class="btn btn-primary btn-lg"><i class="fas fa-user"></i> 个人主页</a>
               <a href="{{ url_for('navigation.navigation') }}" class="btn btn-outline-light btn-lg">
                 <i class="fas fa-compass"></i>
                 导航
@@ -109,7 +109,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                       <!-- 项目作者 -->
                       <div class="d-flex align-items-center">
-                        <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile', username=project.author.username) }}">
+                        <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile', user_id=project.author.id) }}">
                           <!-- TODO:查看他人主页 -->
                           <div id="user_tag" class="me-1">
                             {% if project.author and project.author.avatar_path %}

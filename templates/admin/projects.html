@@ -128,7 +128,7 @@
                     <td>
                       {% if project.author %}
                         <div class="d-flex align-items-center">
-                          <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile', username=project.author.username) }}">
+                          <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile', user_id=project.author.id) }}">
                             <div id="user_tag">
                               {% if project.author.avatar_path %}
                                 <img id="user_avatar_img" src="{{ url_for('auth.user_avatar', filename=project.author.avatar_path) }}" />
@@ -152,7 +152,7 @@
                         </div>
                       {% else %}
                         <div class="d-flex align-items-center">
-                          <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile', username=project.author.username) }}">
+                          <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile', user_id=project.author.id) }}">
                             <div id="user_tag">
                               <i id="user_avatar_fas" class="fas fa-user-circle"></i>
                             </div>
