@@ -31,6 +31,13 @@ app.config["USER_AVATAR_FOLDER"] = Config.get_user_avatar_folder()
 # 添加项目文件夹配置
 app.config["PROJECTS_FOLDER"] = Config.get_projects_folder()
 
+# 添加用户数据文件夹配置
+app.config["USER_DATA_FOLDER"] = os.path.join(app.root_path, "user_data")
+
+# 确保 USER_DATA_FOLDER 存在
+if not os.path.exists(app.config["USER_DATA_FOLDER"]):
+    os.makedirs(app.config["USER_DATA_FOLDER"])
+
 # 初始化扩展
 db.init_app(app)
 socketio = SocketIO(app, cors_allowed_origins="*")

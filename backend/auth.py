@@ -4,6 +4,7 @@ import os
 import uuid
 from datetime import datetime
 from PIL import Image
+import json
 from flask import (
     Blueprint,
     render_template,
@@ -183,3 +184,48 @@ def send_response(success, message, redirect_url=None, is_ajax=False):
     if redirect_url:
         return redirect(redirect_url)
     return None
+
+
+@auth_bp.route("/profile/<int:user_id>/settings", methods=["GET", "POST"])
+@require_role(ROLE_GUEST)
+def settings(user_id):
+    user = User.query.get_or_404(user_id)
+    current_user = db.session.get(User, session.get("user_id"))
+
+    settings_dir = os.path.join(current_app.config["USER_DATA_FOLDER"], str(user.id))
+    settings_file = os.path.join(settings_dir, "settings.json")
+
+    if not os.path.exists(settings_dir):
+        os.makedirs(settings_dir)
+
+    if request.method == "POST":
+        if current_user.id != user.id:
+            flash("您没有权限执行此操作", "error")
+            return redirect(url_for("auth.profile", user_id=user.id))
+
+        settings = {
+            "theme": request.form.get("theme"),
+            "notifications": request.form.get("notifications") == "on",
+        }
+        with open(settings_file, "w") as f:
+            json.dump(settings, f, indent=4)
+
+        flash("设置已保存", "success")
+        return redirect(url_for("auth.settings", user_id=user.id))
+
+    settings = {}
+    if os.path.exists(settings_file):
+        with open(settings_file, "r") as f:
+            settings = json.load(f)
+    else:
+        # Default settings
+        settings = {"theme": "light", "notifications": True}
+        with open(settings_file, "w") as f:
+            json.dump(settings, f, indent=4)
+
+    return render_template(
+        "profile/settings.html",
+        user=user,
+        current_user=current_user,
+        settings=settings,
+    )
