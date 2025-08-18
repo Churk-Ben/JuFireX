@@ -1,14 +1,15 @@
 import os
 from datetime import datetime
+from dotenv import load_dotenv
 
-try:
-    from dotenv import load_dotenv
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    dotenv_path = os.path.join(PROJECT_ROOT, ".env")
-    load_dotenv(dotenv_path)
-except Exception:
-    pass
+# 加载环境变量
+dotenv_path = os.path.join(
+    PROJECT_ROOT,
+    ".env",
+)
+load_dotenv(dotenv_path)
 
 
 # 用户角色常量
@@ -27,21 +28,26 @@ ROLE_NAMES = {
 
 # Flask配置
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY", "Q2h1cmtCZW4")
-    try:
-        SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
-    except Exception:
-        SQLALCHEMY_DATABASE_URI = "mysql+pymysql://flaskuser:Flask%40123456@1Panel-mysql:3306/flaskdb?charset=utf8mb4"
+    SECRET_KEY = os.environ.get(
+        "SECRET_KEY",
+        "Q2h1cmtCZW4",
+    )
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "SQLALCHEMY_DATABASE_URI",
+        "sqlite:///studio.db",
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     @staticmethod
     def get_user_avatar_folder():
         return os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "user_data"
+            PROJECT_ROOT,
+            "user_data",
         )
 
     @staticmethod
     def get_projects_folder():
         return os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "projects"
+            PROJECT_ROOT,
+            "projects",
         )
