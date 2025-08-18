@@ -93,10 +93,19 @@ def register():
         if User.query.count() == 0:
             new_user.role = ROLE_SUPER_ADMIN
 
+        db.session.add(new_user)
+        db.session.commit()
+
         # 处理头像上传
         avatar_file = request.files.get("avatar")
         if avatar_file and avatar_file.filename:
             try:
+                # 为用户创建个人文件夹
+                user_folder = os.path.join(
+                    current_app.config["USER_AVATAR_FOLDER"], str(new_user.id)
+                )
+                os.makedirs(user_folder, exist_ok=True)
+
                 # 读取图片数据
                 img_data = avatar_file.read()
                 img = Image.open(io.BytesIO(img_data))
@@ -115,15 +124,13 @@ def register():
 
                 # 生成唯一文件名
                 filename = f"{uuid.uuid4().hex}.png"
-                filepath = os.path.join(
-                    current_app.config["USER_AVATAR_FOLDER"], filename
-                )
+                filepath = os.path.join(user_folder, filename)
 
                 # 保存图片
                 img.save(filepath, "PNG")
 
                 # 更新用户头像路径
-                new_user.avatar_path = filename
+                new_user.avatar_path = os.path.join(str(new_user.id), filename)
             except Exception as e:
                 current_app.logger.error(f"处理头像时出错: {str(e)}")
                 if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -132,7 +139,6 @@ def register():
                     )
 
         try:
-            db.session.add(new_user)
             db.session.commit()
 
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -191,7 +197,8 @@ def profile(user_id):
 
 @auth_bp.route("/user_data/<path:filename>")
 def user_avatar(filename):
-    return send_from_directory(current_app.config["USER_AVATAR_FOLDER"], filename)
+    directory = os.path.join(current_app.config["USER_AVATAR_FOLDER"], os.path.dirname(filename))
+    return send_from_directory(directory, os.path.basename(filename))
 
 
 @auth_bp.route("/api/users/avatar", methods=["POST"])
@@ -210,6 +217,12 @@ def upload_avatar():
         return jsonify({"success": False, "message": "未提供头像数据"})
 
     try:
+        # 为用户创建个人文件夹
+        user_folder = os.path.join(
+            current_app.config["USER_AVATAR_FOLDER"], str(user.id)
+        )
+        os.makedirs(user_folder, exist_ok=True)
+        
         # 解析Base64图像数据
         image_data = data["avatar"]
         # 移除Base64前缀
@@ -236,7 +249,7 @@ def upload_avatar():
 
         # 生成唯一文件名
         filename = f"{uuid.uuid4().hex}.jpg"
-        filepath = os.path.join(current_app.config["USER_AVATAR_FOLDER"], filename)
+        filepath = os.path.join(user_folder, filename)
 
         # 保存图像
         img.save(filepath, "JPEG", quality=95)
@@ -255,14 +268,14 @@ def upload_avatar():
                 return jsonify(
                     {"success": False, "message": f"删除旧头像出错: {str(e)}"}
                 )
-        user.avatar_path = filename
+        user.avatar_path = os.path.join(str(user.id), filename)
         db.session.commit()
 
         return jsonify(
             {
                 "success": True,
                 "message": "头像上传成功",
-                "avatar_url": url_for("auth.user_avatar", filename=filename),
+                "avatar_url": url_for("auth.user_avatar", filename=user.avatar_path),
             }
         )
 

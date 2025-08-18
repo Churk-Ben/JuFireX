@@ -42,17 +42,6 @@ app.register_blueprint(navigation_bp)
 app.register_blueprint(admin_bp)
 
 
-# 用户数据文件访问路由
-@app.route("/user_data/<path:filename>")
-def user_data_file(filename):
-    # 从user_data目录获取文件
-    user_data_path = os.path.join(app.root_path, "user_data")
-    if os.path.exists(os.path.join(user_data_path, filename)):
-        return send_from_directory(user_data_path, filename)
-
-    return "", 404
-
-
 # 添加CSRF token到模板上下文
 @app.context_processor
 def inject_csrf_token():
