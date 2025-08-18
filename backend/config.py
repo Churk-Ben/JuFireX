@@ -1,6 +1,16 @@
 import os
 from datetime import datetime
 
+try:
+    from dotenv import load_dotenv
+
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    dotenv_path = os.path.join(PROJECT_ROOT, ".env")
+    load_dotenv(dotenv_path)
+except Exception:
+    pass
+
+
 # 用户角色常量
 ROLE_GUEST = 0
 ROLE_MEMBER = 1
@@ -17,9 +27,11 @@ ROLE_NAMES = {
 
 # Flask配置
 class Config:
-    SECRET_KEY = "churkbenisthebest"
-    # SQLALCHEMY_DATABASE_URI = "sqlite:///studio.db"
-    SQLALCHEMY_DATABASE_URI = ("mysql+pymysql://flaskuser:Flask%40123456@1Panel-mysql:3306/flaskdb?charset=utf8mb4")
+    SECRET_KEY = os.environ.get("SECRET_KEY", "Q2h1cmtCZW4")
+    try:
+        SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+    except Exception:
+        SQLALCHEMY_DATABASE_URI = "mysql+pymysql://flaskuser:Flask%40123456@1Panel-mysql:3306/flaskdb?charset=utf8mb4"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     @staticmethod
