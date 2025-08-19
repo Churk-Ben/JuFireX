@@ -224,17 +224,32 @@ def settings(user_id):
             flash("您没有权限执行此操作", "error")
             return redirect(url_for("auth.profile", user_id=user.id))
 
-        # 设置项模板
+        settings_data = request.get_json()
+
+        # 更新设置
         settings = {
-            # "theme": request.form.get("theme"),
-            # "notifications": request.form.get("notifications") == "on",
+            "preferences": {
+                "theme": settings_data.get("preferences", {}).get("theme"),
+                "notifications": settings_data.get("preferences", {}).get("notifications"),
+            },
+            "privacy": {
+                "show_email": settings_data.get("privacy", {}).get("show_email"),
+                "show_join_date": settings_data.get("privacy", {}).get("show_join_date"),
+                "show_green_wall": settings_data.get("privacy", {}).get("show_green_wall"),
+                "show_nav_counts": settings_data.get("privacy", {}).get("show_nav_counts"),
+                "show_projects": settings_data.get("privacy", {}).get("show_projects"),
+            },
+            "linked_accounts": {
+                "github": {
+                    "username": settings_data.get("linked_accounts", {}).get("github", {}).get("username"),
+                }
+            },
         }
 
         with open(settings_file, "w") as f:
             json.dump(settings, f, indent=4)
 
-        flash("设置已保存", "success")
-        return redirect(url_for("auth.settings", user_id=user.id))
+        return jsonify({"message": "设置已保存"})
 
     settings = {}
     if os.path.exists(settings_file):
@@ -275,3 +290,94 @@ def settings(user_id):
         current_user=current_user,
         settings=settings,
     )
+
+
+@auth_bp.route("/profile/<int:user_id>/update_password", methods=["POST"])
+@require_role(ROLE_GUEST)
+def update_password(user_id):
+    user = User.query.get_or_404(user_id)
+    current_user = db.session.get(User, session.get("user_id"))
+
+    if current_user.id != user.id:
+        return jsonify({"message": "您没有权限执行此操作"}), 403
+
+    data = request.get_json()
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+
+    if not current_password or not new_password:
+        return jsonify({"message": "请提供当前密码和新密码"}), 400
+
+    if not user.check_password(current_password):
+        return jsonify({"message": "当前密码不正确"}), 400
+
+    user.set_password(new_password)
+    db.session.commit()
+
+    return jsonify({"message": "密码已更新"})
+
+
+@auth_bp.route("/profile/<int:user_id>/update_token", methods=["POST"])
+@require_role(ROLE_GUEST)
+def update_token(user_id):
+    user = User.query.get_or_404(user_id)
+    current_user = db.session.get(User, session.get("user_id"))
+
+    if current_user.id != user.id:
+        return jsonify({"message": "您没有权限执行此操作"}), 403
+
+    data = request.get_json()
+    github_token = data.get("github_token")
+
+    if not github_token:
+        return jsonify({"message": "请提供 GitHub 个人访问令牌"}), 400
+
+    if not github_token.startswith("ghp_"):
+        return jsonify({"message": "无效的 GitHub 个人访问令牌"}), 400
+
+    settings_dir = os.path.join(current_app.config["USER_DATA_FOLDER"], str(user.id))
+    settings_file = os.path.join(settings_dir, "settings.json")
+
+    with open(settings_file, "r") as f:
+        settings = json.load(f)
+
+    settings["linked_accounts"]["github"]["token"] = github_token
+    settings["linked_accounts"]["github"]["linked"] = True
+
+    with open(settings_file, "w") as f:
+        json.dump(settings, f, indent=4)
+
+    return jsonify({"message": "GitHub 个人访问令牌已更新"})
+
+
+@auth_bp.route("/profile/<int:user_id>/delete_account", methods=["POST"])
+@require_role(ROLE_GUEST)
+def delete_account(user_id):
+    user = User.query.get_or_404(user_id)
+    current_user = db.session.get(User, session.get("user_id"))
+
+    if current_user.id != user.id:
+        return jsonify({"message": "您没有权限执行此操作"}), 403
+
+    data = request.get_json()
+    password = data.get("password")
+
+    if not password:
+        return jsonify({"message": "请提供密码"}), 400
+
+    if not user.check_password(password):
+        return jsonify({"message": "密码不正确"}), 400
+
+    # 删除用户数据目录
+    settings_dir = os.path.join(current_app.config["USER_DATA_FOLDER"], str(user.id))
+    if os.path.exists(settings_dir):
+        shutil.rmtree(settings_dir)
+
+    # 删除用户
+    db.session.delete(user)
+    db.session.commit()
+
+    # 清除会话
+    session.clear()
+
+    return jsonify({"message": "账户已注销"})
