@@ -62,9 +62,6 @@ def register():
         if not password:
             return send_response(False, "密码不能为空", url_for("auth.register"), is_ajax)
 
-        if User.query.filter_by(username=username).first():
-            return send_response(False, "用户名已存在，请选择其他用户名", url_for("auth.register"), is_ajax)
-
         if User.query.filter_by(email=email).first():
             return send_response(False, "邮箱已被注册，请使用其他邮箱", url_for("auth.register"), is_ajax)
 
