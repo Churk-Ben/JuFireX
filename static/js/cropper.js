@@ -19,15 +19,19 @@ class AvatarCropper {
         // 监听文件选择
         this.imageInput.addEventListener('change', this.handleFileSelect.bind(this));
 
+        // 监听重置按钮
+        if (this.cancelButton) {
+            this.cancelButton.addEventListener('click', this.cancelCrop.bind(this));
+        }
+
         // 监听裁剪按钮
         if (this.cropButton) {
             this.cropButton.addEventListener('click', this.cropImage.bind(this));
         }
 
-        // 监听取消按钮
-        if (this.cancelButton) {
-            this.cancelButton.addEventListener('click', this.cancelCrop.bind(this));
-        }
+        // 获取初始头像URL
+        const img = this.previewContainer.querySelector('img');
+        this.initialAvatarUrl = img ? img.src : null;
     }
 
     handleFileSelect(e) {
@@ -62,14 +66,14 @@ class AvatarCropper {
             }
 
             this.cropper = new Cropper(this.cropperImage, {
-                aspectRatio: 1, // 1:1 圆形头像
+                aspectRatio: 1,
                 viewMode: 1,
                 dragMode: 'move',
-                autoCropArea: 0.8, // 减小初始裁剪区域
+                autoCropArea: 0.8,
                 restore: false,
                 guides: true,
                 center: true,
-                highlight: true, // 高亮显示裁剪区域
+                highlight: true,
                 cropBoxMovable: true,
                 cropBoxResizable: true,
                 toggleDragModeOnDblclick: false,
@@ -111,10 +115,7 @@ class AvatarCropper {
         this.previewContainer.innerHTML = '';
         const img = document.createElement('img');
         img.src = this.croppedImageUrl;
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.borderRadius = '50%';
-        img.style.objectFit = 'cover';
+        img.classList.add('avatar');
         this.previewContainer.appendChild(img);
 
         // 设置隐藏输入值
@@ -131,24 +132,38 @@ class AvatarCropper {
     }
 
     cancelCrop() {
+        // 清空裁剪器
         if (this.cropper) {
             this.cropper.destroy();
             this.cropper = null;
         }
 
-        // 隐藏裁剪容器
+        // 清空裁剪容器
         this.cropperContainer.style.display = 'none';
 
         // 清空文件输入
         this.imageInput.value = '';
 
-        // 重置文件名显示
-        const avatarFileName = document.getElementById('avatarFileName');
-        if (avatarFileName) {
-            avatarFileName.textContent = '未选择文件';
-            avatarFileName.classList.add('text-muted');
+        // 还原初始头像
+        this.previewContainer.innerHTML = '';
+        if (this.initialAvatarUrl) {
+            const img = document.createElement('img');
+            img.src = this.initialAvatarUrl;
+            img.classList.add('avatar');
+            this.previewContainer.appendChild(img);
+        }
+        else {
+            const i = document.createElement('i');
+            i.classList.add('avatar', 'fas', 'fa-user-circle');
+            this.previewContainer.appendChild(i);
+        }
+
+        // 清空隐藏输入值
+        if (this.resultInput) {
+            this.resultInput.value = '';
         }
     }
+
 }
 
 // 导出到全局作用域

@@ -1,12 +1,38 @@
+<style>
+  #choose_avatar_btn {
+    bottom: 18px;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 2px solid var(--github-secondary);
+  }
+  
+  .avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: var(--github-bg);
+    margin: 20px auto;
+    overflow: hidden;
+    object-fit: cover;
+    font-size: 120px;
+    color: var(--github-accent);
+  }
+</style>
+
 <div class="card mb-4">
   <div class="card-body">
     <!-- 用户头像 -->
     <div class="mt-5 mb-3 d-flex flex-column align-items-center justify-content-center">
-      <div id="avatarContainer" class="position-relative">
+      <div class="position-relative">
         {% if user.avatar_path %}
-          <img src="{{ url_for('auth.user_avatar', filename=user.avatar_path) }}" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover" />
+          <img class="avatar" src="{{ url_for('auth.user_avatar', filename=user.avatar_path) }}" />
         {% else %}
-          <i class="fas fa-user-circle" style="font-size: 120px; color: var(--github-accent)"></i>
+          <i class="fas fa-user-circle avatar"></i>
         {% endif %}
 
         {% if current_user == user %}

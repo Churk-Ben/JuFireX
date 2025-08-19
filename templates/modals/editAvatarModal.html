@@ -1,4 +1,18 @@
 <!-- 编辑头像模态框 -->
+<style>
+  .avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: var(--github-bg);
+    margin: 20px auto;
+    overflow: hidden;
+    object-fit: cover;
+    font-size: 120px;
+    color: var(--github-accent);
+  }
+</style>
+
 <div class="modal fade" id="avatarModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -11,11 +25,7 @@
         <div class="row">
           <div class="col-md-12 text-center mb-3">
             <div id="avatarPreview">
-              {% if user.avatar_path %}
-                <img src="{{ url_for('auth.user_avatar', filename=user.avatar_path) }}" alt="头像预览" style="width: 100%; height: 100%; object-fit: cover" />
-              {% else %}
-                <i class="fas fa-user" style="font-size: 4rem; color: #ccc; line-height: 120px"></i>
-              {% endif %}
+              <i class="fas fa-user-circle avatar"></i>
             </div>
           </div>
         </div>
@@ -23,10 +33,7 @@
           <div class="input-group">
             <span id="avatarFileName" class="form-control text-muted">未选择文件</span>
             <input type="file" id="avatarUpload" accept="image/*" style="display: none" />
-            <button class="btn btn-outline-primary" type="button" id="customAvatarUploadBtn">
-              <i class="fas fa-folder-open me-1"></i>
-              选择头像
-            </button>
+            <button class="btn btn-outline-primary" type="button" id="customAvatarUploadBtn"><i class="fas fa-folder-open me-1"></i>选择头像</button>
           </div>
           <div class="form-text">
             <i class="fas fa-info-circle me-1"></i>
@@ -38,8 +45,8 @@
       </div>
       <!-- 模态框底部 -->
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-secondary" id="cancelCropBtn">清空</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-secondary" id="cancelCropBtn">重置</button>
         <button type="button" class="btn btn-primary" id="cropAvatarBtn">裁剪</button>
         <button type="button" class="btn btn-success" id="saveAvatarBtn"><i class="fas fa-save me-1"></i>更新</button>
       </div>

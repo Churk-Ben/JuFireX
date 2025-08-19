@@ -12,31 +12,6 @@
   <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
 {% endblock %}
 
-{% block extra_css %}
-  <style>
-    #choose_avatar_btn {
-      bottom: 0;
-      right: 0;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      border: 2px solid var(--github-secondary);
-    }
-    
-    #avatarPreview {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background-color: #f0f0f0;
-      margin: 20px auto;
-      overflow: hidden;
-    }
-  </style>
-{% endblock %}
-
 {% block content %}
   <div class="container mt-4">
     <div class="row">

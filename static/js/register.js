@@ -135,9 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
             previewContainer.innerHTML = '';
             const img = document.createElement('img');
             img.src = croppedData;
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'cover';
+            img.classList.add('avatar');
             previewContainer.appendChild(img);
 
             avatarModal.hide();
@@ -181,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (password !== document.getElementById('confirm_password').value.trim()) {
-                showNotification('两次输入的密码不一致！', 'error');
+                showNotification('两次输入的密码不一致! ', 'error');
                 return;
             }
 
@@ -227,19 +225,19 @@ document.addEventListener('DOMContentLoaded', function () {
             })
                 .then(response => {
                     if (response.redirected) {
-                        showNotification('注册成功！正在跳转到登录页面...', 'success');
+                        showNotification('注册成功! 正在跳转到登录页面...', 'success');
                         setTimeout(() => { window.location.href = response.url; }, 1500);
                         return;
                     }
-                    
+
                     if (response.success) {
-                        showNotification('注册成功！正在跳转到登录页面...', 'success');
+                        showNotification('注册成功! 正在跳转到登录页面...', 'success');
                         setTimeout(() => { window.location.href = "/login"; }, 1500);
                     } else {
                         throw new Error(response.message || '注册失败，请重试');
                     }
                 })
-            
+
                 .catch(error => {
                     console.error('Error:', error);
                     submitBtn.innerHTML = originalBtnText;

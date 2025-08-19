@@ -20,16 +20,22 @@
     }
     
     #avatarPreview {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background-color: #f0f0f0;
-      margin: 20px auto;
-      overflow: hidden;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background-color: var(--github-bg);
+      margin: 20px auto;
+      overflow: hidden;
+      object-fit: cover;
+      font-size: 120px;
+      color: var(--github-accent);
     }
     
     .step-container {
@@ -180,7 +186,7 @@
                 <div class="text-center mb-4">
                   <h5 class="mb-3">设置头像（可选）</h5>
                   <div id="avatarPreview">
-                    <i class="fas fa-user" style="font-size: 4rem; color: #ccc;"></i>
+                    <i class="fas fa-user-circle avatar"></i>
                   </div>
                   <p class="text-muted small">点击头像进行设置</p>
                 </div>
