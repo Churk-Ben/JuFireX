@@ -22,9 +22,9 @@
           <h2><i class="fas fa-compass"></i> 导航站</h2>
 
           {% if current_user %}
-            <div>
-              <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#addNavItemModal"><i class="fas fa-plus"></i> 添加新项</button>
-              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#navigationManageModal"><i class="fas fa-cog"></i> 管理导航</button>
+            <div class="btn-group">
+              <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#navigationManageModal"><i class="fas fa-cog"></i> 管理导航</button>
+              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal"><i class="fas fa-plus"></i> 添加新项</button>
             </div>
           {% endif %}
         </div>

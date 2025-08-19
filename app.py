@@ -237,4 +237,4 @@ if __name__ == "__main__":
     # 启动应用
     print("启动 JuFire Studio 应用...")
     print("访问地址: http://localhost:5000")
-    socketio.run(app, host="0.0.0.0", port=5000)
+    socketio.run(app, debug=True, host="0.0.0.0", port=5000)

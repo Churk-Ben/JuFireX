@@ -22,50 +22,78 @@
 
       <!-- 主要设置区域 -->
       <div class="col-md-8">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-cog"></i> 用户设置</h3>
-          </div>
-          <div class="card-body">
-            <form method="POST" action="{{ url_for('auth.settings', user_id=user.id) }}">
-              <div class="form-group">
-                <label for="username">用户名</label>
-                <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled />
-              </div>
-              <div class="form-group">
-                <label for="email">电子邮箱</label>
-                <input type="email" class="form-control" id="email" value="{{ user.email }}" disabled />
-              </div>
-              <div class="form-group">
-                <label for="theme">主题</label>
-                <select class="form-control" id="theme" name="theme">
-                  {% if settings.theme == 'light' %}
-                    <option value="light" selected>浅色</option>
-                    <option value="dark">深色</option>
-                  {% else %}
-                    <option value="light">浅色</option>
-                    <option value="dark" selected>深色</option>
-                  {% endif %}
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="notifications">接收通知</label>
-                <div class="form-check">
-                  {% if settings.notifications %}
-                    <input class="form-check-input" type="checkbox" id="notifications" name="notifications" checked />
-                  {% else %}
-                    <input class="form-check-input" type="checkbox" id="notifications" name="notifications" />
-                  {% endif %}
-                  <label class="form-check-label" for="notifications">接收邮件通知</label>
-                </div>
-              </div>
-              {% if current_user.id == user.id %}
-                <button type="submit" class="btn btn-primary">保存设置</button>
-              {% endif %}
-            </form>
-          </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="card-title"><i class="fas fa-cog"></i> 设置</h2>
+
+          {% if current_user.id == user.id %}
+            <div class="btn-group">
+              <button id="reset-settings-btn" class="btn btn-outline-primary"><i class="fas fa-arrows-rotate"></i> 恢复默认</button>
+              <button id="save-settings-btn" class="btn btn-primary"><i class="fas fa-save"></i> 全部保存</button>
+            </div>
+          {% endif %}
         </div>
+
+        <!-- 设置表单 -->
+        <form method="POST" id="settings-form" action="{{ url_for('auth.settings', user_id=user.id) }}">
+          <div class="row mb-3">
+            <label for="username" class="form-label fw-bold">用户名</label>
+            <input type="text" class="form-control bg-dark" id="username" value="{{ user.username }}" disabled />
+          </div>
+
+          <div class="row mb-3">
+            <label for="email" class="form-label fw-bold">电子邮箱</label>
+            <input type="email" class="form-control bg-dark" id="email" value="{{ user.email }}" disabled />
+          </div>
+
+          <div class="row mb-3">
+            <label for="theme" class="form-label fw-bold">主题</label>
+            <select class="form-control" id="theme" name="theme">
+              {% if settings.theme == 'light' %}
+                <option value="light" selected>浅色</option>
+                <option value="dark">深色</option>
+              {% else %}
+                <option value="light">浅色</option>
+                <option value="dark" selected>深色</option>
+              {% endif %}
+            </select>
+          </div>
+
+          <!-- 用户信息 TODO: 转移到设置 -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="userInput" class="form-label fw-bold">GitHub 用户名</label>
+              <div class="input-group">
+                <span class="input-group-text bg-dark"><i class="fab fa-github"></i></span>
+                <input type="text" class="form-control" id="userInput" name="github_username" placeholder="GitHub 用户名" />
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="tokenInput" class="form-label fw-bold">个人访问令牌</label>
+              <div class="input-group">
+                <span class="input-group-text bg-dark"><i class="fas fa-key"></i></span>
+                <input type="password" class="form-control" id="tokenInput" name="github_token" placeholder="个人访问令牌 (ghp_xxx)" />
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <label for="notifications" class="form-label fw-bold">接收通知</label>
+            <div class="form-check">
+              {% if settings.notifications %}
+                <input class="form-check-input" type="checkbox" id="notifications" name="notifications" checked />
+              {% else %}
+                <input class="form-check-input" type="checkbox" id="notifications" name="notifications" />
+              {% endif %}
+              <label class="form-check-label" for="notifications">接收邮件通知</label>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block required_js %}
+  <script src="{{ url_for('static', filename='js/Settings.js') }}"></script>
 {% endblock %}

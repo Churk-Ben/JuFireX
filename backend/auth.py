@@ -60,13 +60,22 @@ def register():
         password = request.form.get("password")
 
         if not password:
-            return send_response(False, "密码不能为空", url_for("auth.register"), is_ajax)
+            return send_response(
+                False, "密码不能为空", url_for("auth.register"), is_ajax
+            )
 
         if User.query.filter_by(username=username).first():
-            return send_response(False, "用户名已存在，请选择其他用户名", url_for("auth.register"), is_ajax)
+            return send_response(
+                False,
+                "用户名已存在，请选择其他用户名",
+                url_for("auth.register"),
+                is_ajax,
+            )
 
         if User.query.filter_by(email=email).first():
-            return send_response(False, "邮箱已被注册，请使用其他邮箱", url_for("auth.register"), is_ajax)
+            return send_response(
+                False, "邮箱已被注册，请使用其他邮箱", url_for("auth.register"), is_ajax
+            )
 
         try:
             new_user = User(username=username, email=email)
@@ -88,14 +97,20 @@ def register():
                     db.session.commit()
                 except Exception as e:
                     current_app.logger.error(f"处理头像时出错: {str(e)}")
-                    return send_response(False, f"处理头像时出错: {str(e)}", is_ajax=is_ajax)
+                    return send_response(
+                        False, f"处理头像时出错: {str(e)}", is_ajax=is_ajax
+                    )
 
-            return send_response(True, "注册成功，请登录", url_for("auth.login"), is_ajax)
+            return send_response(
+                True, "注册成功，请登录", url_for("auth.login"), is_ajax
+            )
 
         except Exception as e:
             db.session.rollback()
             current_app.logger.error(f"注册用户时出错: {str(e)}")
-            return send_response(False, f"注册失败: {str(e)}", url_for("auth.register"), is_ajax)
+            return send_response(
+                False, f"注册失败: {str(e)}", url_for("auth.register"), is_ajax
+            )
 
     return render_template("register.html")
 
@@ -116,7 +131,9 @@ def profile(user_id):
 
     current_user = db.session.get(User, session.get("user_id"))
     user_projects = Project.query.filter_by(author_id=user.id).all()
-    public_nav_count = NavItem.query.filter_by(is_public=True, created_by=user.id).count()
+    public_nav_count = NavItem.query.filter_by(
+        is_public=True, created_by=user.id
+    ).count()
 
     # 定义角色颜色映射
     role_colors = {
@@ -140,7 +157,9 @@ def profile(user_id):
 
 @auth_bp.route("/user_data/<path:filename>")
 def user_avatar(filename):
-    directory = os.path.join(current_app.config["USER_AVATAR_FOLDER"], os.path.dirname(filename))
+    directory = os.path.join(
+        current_app.config["USER_AVATAR_FOLDER"], os.path.dirname(filename)
+    )
     return send_from_directory(directory, os.path.basename(filename))
 
 
@@ -165,11 +184,13 @@ def upload_avatar():
         user.avatar_path = avatar_path
         db.session.commit()
 
-        return jsonify({
-            "success": True,
-            "message": "头像上传成功",
-            "avatar_url": url_for("auth.user_avatar", filename=user.avatar_path),
-        })
+        return jsonify(
+            {
+                "success": True,
+                "message": "头像上传成功",
+                "avatar_url": url_for("auth.user_avatar", filename=user.avatar_path),
+            }
+        )
 
     except Exception as e:
         current_app.logger.error(f"头像上传错误: {str(e)}")
@@ -179,7 +200,7 @@ def upload_avatar():
 def send_response(success, message, redirect_url=None, is_ajax=False):
     if is_ajax:
         return jsonify({"success": success, "message": message})
-    
+
     flash(message, "success" if success else "error")
     if redirect_url:
         return redirect(redirect_url)
@@ -203,10 +224,12 @@ def settings(user_id):
             flash("您没有权限执行此操作", "error")
             return redirect(url_for("auth.profile", user_id=user.id))
 
+        # 设置项模板
         settings = {
-            "theme": request.form.get("theme"),
-            "notifications": request.form.get("notifications") == "on",
+            # "theme": request.form.get("theme"),
+            # "notifications": request.form.get("notifications") == "on",
         }
+
         with open(settings_file, "w") as f:
             json.dump(settings, f, indent=4)
 
@@ -218,8 +241,31 @@ def settings(user_id):
         with open(settings_file, "r") as f:
             settings = json.load(f)
     else:
-        # Default settings
-        settings = {"theme": "light", "notifications": True}
+        # 默认设置
+        settings = {
+            "account": {
+                "username": user.username,
+                "email": user.email,
+            },
+            "preferences": {
+                "theme": "light",
+                "notifications": True,
+            },
+            "privacy": {
+                "show_email": True,
+                "show_join_date": True,
+                "show_green_wall": True,
+                "show_nav_counts": True,
+                "show_projects": True,
+            },
+            "linked_accounts": {
+                "github": {
+                    "linked": False,
+                    "username": "",
+                },
+            },
+        }
+
         with open(settings_file, "w") as f:
             json.dump(settings, f, indent=4)
 
