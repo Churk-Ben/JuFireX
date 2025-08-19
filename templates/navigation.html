@@ -64,11 +64,14 @@
                       <div class="card-header bg-transparent border-0 pb-0">
                         <div class="d-flex justify-content-between align-items-start">
                           <div class="d-flex align-items-center">
+                            <!-- 图标 -->
                             {% if item.icon %}
                               <i class="{{ item.icon }} me-2 text-primary"></i>
                             {% else %}
                               <i class="fas fa-link me-2 text-primary"></i>
                             {% endif %}
+
+                            <!-- 标题链接 -->
                             <a href="{{ item.url }}" target="_blank" class="btn text-primary me-2" onclick="recordNavClick({{ item.id }})"><h6 class="card-title mb-0 fw-bold">{{ item.title }}</h6></a>
 
                             <!-- 状态标签 -->

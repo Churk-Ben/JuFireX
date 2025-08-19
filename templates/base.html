@@ -134,17 +134,14 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
-            <!-- 游客可见 -->
-
-            <li class="nav-item" style="margin: 0 5px">
-              <a class="nav-link" href="{{ url_for('index') }}">首页</a>
-            </li>
-
             <!-- 成员可见 -->
-
             {% if current_user and current_user.role >= 1 %}
               <li class="nav-item" style="margin: 0 5px">
                 <a class="nav-link" href="{{ url_for('navigation.navigation') }}">导航</a>
+              </li>
+
+              <li class="nav-item" style="margin: 0 5px">
+                <a class="nav-link" href="{{ url_for('projects.projects') }}">项目</a>
               </li>
 
               <li class="nav-item" style="margin: 0 5px">
@@ -153,7 +150,6 @@
             {% endif %}
 
             <!-- 管理员可见 -->
-
             {% if current_user and current_user.role >= 2 %}
               <li class="nav-item dropdown" style="margin: 0 5px">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">管理</a>

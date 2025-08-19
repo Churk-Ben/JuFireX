@@ -1,5 +1,4 @@
 import os
-# import shutil
 import mistune
 from datetime import datetime
 from flask import (
@@ -36,11 +35,7 @@ projects_bp = Blueprint("projects", __name__)
 @require_role(ROLE_MEMBER)
 def create_project():
     data = request.get_json()
-
-    # 处理图片URL - 不再使用缓存，直接保存到项目文件夹
     image_url = data.get("image_url")
-    # 暂时保存原始URL，稍后在项目文件夹创建后处理
-
     project = Project(
         title=data["title"],
         description=data["description"],
@@ -69,14 +64,16 @@ def create_project():
             save_project_metadata(project_path, project_metadata)
 
             # 创建默认的readme.md文件
-            readme_content = f"# {project.title}\n\n{project.description}\n\n## 项目简介\n\n这是 {project.title} 项目的文档空间。\n\n## GitHub 仓库\n\n{project.github_url if project.github_url else '暂未设置'}\n\n## 演示地址\n\n{project.demo_url if project.demo_url else '暂未设置'}"
+            readme_content = f"# {project.title}"
             readme_path = os.path.join(project_path, "readme.md")
             with open(readme_path, "w", encoding="utf-8") as f:
                 f.write(readme_content)
 
-            # 如果有图片URL，直接下载到项目文件夹
+            # 如果有图片URL, 直接下载到项目文件夹
             if image_url:
-                new_rel = ImageService.process_project_image(project, {"image_url": image_url})
+                new_rel = ImageService.process_project_image(
+                    project, {"image_url": image_url}
+                )
                 if new_rel:
                     project.image_url = new_rel
                 else:
@@ -87,7 +84,7 @@ def create_project():
 
     except Exception as e:
         current_app.logger.error(f"Failed to create project folder: {e}")
-        # 即使文件夹创建失败，项目仍然创建成功
+        # 即使文件夹创建失败, 项目仍然创建成功
 
     return jsonify(
         {"success": True, "message": "项目创建成功", "project_id": project.id}
@@ -121,7 +118,9 @@ def manage_project(project_id):
                 project.image_url = None
             else:
                 try:
-                    new_rel = ImageService.process_project_image(project, {"image_url": new_image_url})
+                    new_rel = ImageService.process_project_image(
+                        project, {"image_url": new_image_url}
+                    )
                     if new_rel:
                         project.image_url = new_rel
                 except Exception as e:
@@ -149,7 +148,7 @@ def manage_project(project_id):
                 }
                 save_project_metadata(project_path, project_metadata)
 
-                # 如果标题发生变化，更新readme.md文件
+                # 如果标题发生变化, 更新readme.md文件
                 if old_title != project.title:
                     readme_path = os.path.join(project_path, "readme.md")
                     if os.path.exists(readme_path):
@@ -200,7 +199,7 @@ def project_docs(project_id):
         flash("该项目文档空间不存在", "error")
         return redirect(url_for("index"))
 
-    # 如果用户未登录，尝试直接访问readme.md
+    # 如果用户未登录, 尝试直接访问readme.md
     if not current_user:
         # 查找readme文件（不区分大小写）
         readme_files = []
@@ -209,7 +208,7 @@ def project_docs(project_id):
                 readme_files.append(file)
 
         if readme_files:
-            # 如果找到readme文件，直接重定向到文档查看页面
+            # 如果找到readme文件, 直接重定向到文档查看页面
             return redirect(
                 url_for(
                     "projects.project_doc_view",
@@ -218,11 +217,11 @@ def project_docs(project_id):
                 )
             )
         else:
-            # 如果没有readme文件，提示用户登录查看文档列表
-            flash("该项目没有公开的readme文档，请登录查看完整文档列表", "info")
+            # 如果没有readme文件, 提示用户登录查看文档列表
+            flash("该项目没有公开的readme文档, 请登录查看完整文档列表", "info")
             return redirect(url_for("auth.login"))
 
-    # 用户已登录，显示完整的文档列表
+    # 用户已登录, 显示完整的文档列表
     # 获取项目文件夹中的所有文件
     all_files = get_project_files(project_docs_path)
 
@@ -230,15 +229,15 @@ def project_docs(project_id):
     md_files = [f for f in all_files if f.get("is_markdown", False)]
     other_files = [f for f in all_files if not f.get("is_markdown", False)]
 
-    # 为了与模板兼容，将modified_time重命名为modified，并添加relative_path字段
+    # 为了与模板兼容, 将modified_time重命名为modified, 并添加relative_path字段
     for file in md_files:
         file["modified"] = file.get("modified_time", datetime.min)
-        file["relative_path"] = file["name"]  # 对于文档文件，相对路径就是文件名
+        file["relative_path"] = file["name"]  # 对于文档文件, 相对路径就是文件名
     for file in other_files:
         file["modified"] = file.get("modified_time", datetime.min)
-        file["relative_path"] = file["name"]  # 对于其他文件，相对路径就是文件名
+        file["relative_path"] = file["name"]  # 对于其他文件, 相对路径就是文件名
 
-    # 按修改时间排序，最新的在前
+    # 按修改时间排序, 最新的在前
     md_files.sort(key=lambda x: x.get("modified", datetime.min), reverse=True)
     other_files.sort(
         key=lambda x: (
@@ -248,10 +247,44 @@ def project_docs(project_id):
     )
 
     return render_template(
-        "project_docs_list.html",
+        "project/project_docs_list.html",
         project=project,
         md_files=md_files,
         other_files=other_files,
+        current_user=current_user,
+    )
+
+
+@projects_bp.route("/projects")
+def projects():
+    # 检查用户是否登录
+    current_user = None
+    if "user_id" in session:
+        current_user = db.session.get(User, session["user_id"])
+
+    # 获取所有项目
+    projects = Project.query.all()
+
+    return render_template(
+        "projects.html",
+        current_user=current_user,
+        projects=projects,
+    )
+
+
+@projects_bp.route("/projects/<int:project_id>")
+def project(project_id):
+    # 获取项目信息
+    project = Project.query.get_or_404(project_id)
+
+    # 检查用户是否登录
+    current_user = None
+    if "user_id" in session:
+        current_user = db.session.get(User, session["user_id"])
+
+    return render_template(
+        "project/project_detail.html",
+        project=project,
         current_user=current_user,
     )
 
@@ -280,28 +313,32 @@ def project_doc_view(project_id, filename):
             def __init__(self, project_id):
                 super().__init__()
                 self.project_id = project_id
-            
+
             def image(self, alt, url, title=None):
-                # 如果是相对路径（不以http://、https://、/开头），则补全为项目图片路径
-                if not url.startswith(('http://', 'https://', '/')):
-                    url = url_for('projects.project_image', project_id=self.project_id, filename=url)
-                
+                # 如果是相对路径（不以http://、https://、/开头）, 则补全为项目图片路径
+                if not url.startswith(("http://", "https://", "/")):
+                    url = url_for(
+                        "projects.project_image",
+                        project_id=self.project_id,
+                        filename=url,
+                    )
+
                 # 构建img标签
                 img_attrs = f'src="{url}"'
                 if alt:
                     img_attrs += f' alt="{alt}"'
                 if title:
                     img_attrs += f' title="{title}"'
-                
-                return f'<img {img_attrs} />'
-        
+
+                return f"<img {img_attrs} />"
+
         # 使用自定义渲染器解析Markdown
         renderer = ProjectImageRenderer(project_id)
         markdown = mistune.Markdown(renderer=renderer)
         html_content = markdown(content)
 
         return render_template(
-            "project_doc_view.html",
+            "project/project_doc_view.html",
             project=project,
             filename=filename,
             content=content,
@@ -347,11 +384,13 @@ def upload_project_doc(project_id):
         success, result = DocumentService.upload_markdown(project, doc_name, content)
 
         if success:
-            return jsonify({
-                "success": True, 
-                "message": "文档上传成功", 
-                "filename": result["filename"]
-            })
+            return jsonify(
+                {
+                    "success": True,
+                    "message": "文档上传成功",
+                    "filename": result["filename"],
+                }
+            )
         else:
             return jsonify({"success": False, "message": result}), 400
 
@@ -382,14 +421,18 @@ def create_project_doc(project_id):
         if not doc_title or not doc_content:
             return jsonify({"success": False, "message": "缺少必要参数"}), 400
 
-        success, result = DocumentService.create_markdown(project, doc_title, doc_content)
+        success, result = DocumentService.create_markdown(
+            project, doc_title, doc_content
+        )
 
         if success:
-            return jsonify({
-                "success": True, 
-                "message": "文档创建成功", 
-                "filename": result["filename"]
-            })
+            return jsonify(
+                {
+                    "success": True,
+                    "message": "文档创建成功",
+                    "filename": result["filename"],
+                }
+            )
         else:
             return jsonify({"success": False, "message": result}), 400
 
@@ -416,7 +459,9 @@ def get_project_doc_raw(project_id, filename):
     if success:
         return jsonify({"success": True, "content": result})
     else:
-        return jsonify({"success": False, "message": result}), 404 if "不存在" in result else 500
+        return jsonify({"success": False, "message": result}), (
+            404 if "不存在" in result else 500
+        )
 
 
 @projects_bp.route(
@@ -444,21 +489,27 @@ def update_project_doc(project_id, filename):
         if not new_doc_title or not doc_content:
             return jsonify({"success": False, "message": "缺少必要参数"}), 400
 
-        success, result = DocumentService.update_markdown(project, filename, new_doc_title, doc_content)
+        success, result = DocumentService.update_markdown(
+            project, filename, new_doc_title, doc_content
+        )
 
         if success:
             if result.get("renamed"):
-                return jsonify({
-                    "success": True,
-                    "message": "文档更新并重命名成功",
-                    "filename": result["filename"],
-                })
+                return jsonify(
+                    {
+                        "success": True,
+                        "message": "文档更新并重命名成功",
+                        "filename": result["filename"],
+                    }
+                )
             else:
-                return jsonify({
-                    "success": True,
-                    "message": "文档更新成功",
-                    "filename": result["filename"],
-                })
+                return jsonify(
+                    {
+                        "success": True,
+                        "message": "文档更新成功",
+                        "filename": result["filename"],
+                    }
+                )
         else:
             return jsonify({"success": False, "message": result}), 400
 
@@ -487,7 +538,9 @@ def delete_project_doc(project_id, filename):
     if success:
         return jsonify({"success": True, "message": "文档删除成功"})
     else:
-        return jsonify({"success": False, "message": result}), 404 if "不存在" in result else 500
+        return jsonify({"success": False, "message": result}), (
+            404 if "不存在" in result else 500
+        )
 
 
 @projects_bp.route("/api/projects/<int:project_id>/featured", methods=["PUT"])
@@ -550,7 +603,9 @@ def update_project(project_id):
             project.image_url = None
         else:
             try:
-                new_rel = ImageService.process_project_image(project, {"image_url": new_image_url})
+                new_rel = ImageService.process_project_image(
+                    project, {"image_url": new_image_url}
+                )
                 if new_rel:
                     project.image_url = new_rel
             except Exception as e:
