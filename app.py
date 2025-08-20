@@ -98,7 +98,18 @@ def index():
 # 错误处理
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template("errors/404.html"), 404
+    # 获取当前用户信息
+    current_user = None
+    if "user_id" in session:
+        current_user = db.session.get(User, session["user_id"])
+
+    return (
+        render_template(
+            "errors/404.html",
+            current_user=current_user,
+        ),
+        404,
+    )
 
 
 # SocketIO事件处理
