@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'components/pageBase.html' %}
 
 {% block title %}
   文档列表 - {{ project.title }}
@@ -274,9 +274,9 @@
   <!-- 引入模态框 -->
 
   {% if current_user.id == project.author_id %}
-    {% include 'modals/addDocModal.html' %}
-    {% include 'modals/uploadDocModal.html' %}
-    {% include 'modals/editDocModal.html' %}
+    {% include 'components/modals/addDocModal.html' %}
+    {% include 'components/modals/uploadDocModal.html' %}
+    {% include 'components/modals/editDocModal.html' %}
   {% endif %}
   <!-- - -->
 {% endblock %}

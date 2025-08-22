@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'components/pageBase.html' %}
 
 {% block title %}
   JuFire Studio - 首页
@@ -80,7 +80,8 @@
       {% if featured_projects %}
         <div class="row g-4">
           {% for project in featured_projects %}
-            {% include 'project/info.html' %}
+            {% set project = project %}
+            {% include 'components/cards/projectCard.html' %}
           {% endfor %}
         </div>
         <!-- 无项目 -->

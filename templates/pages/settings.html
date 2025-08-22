@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'components/pageBase.html' %}
 
 {% block title %}
   用户设置 - {{ user.username }}
@@ -17,7 +17,7 @@
     <div class="row">
       <!-- 用户信息卡片 -->
       <div class="col-md-4">
-        {% include 'profile/info.html' %}
+        {% include 'components/cards/profileCard.html' %}
       </div>
 
       <!-- 主要设置区域 -->
@@ -42,16 +42,9 @@
               </div>
               <div class="card-body">
                 <div class="row mb-3">
-                  <label for="theme" class="form-label fw-bold">主题</label>
-                  <select class="form-control" id="theme" name="theme">
-                    <option value="light" {% if settings.preferences.theme == 'light' %}selected{% endif %}>浅色</option>
-                    <option value="dark" {% if settings.preferences.theme == 'dark' %}selected{% endif %}>深色</option>
-                  </select>
-                </div>
-                <div class="row mb-3">
                   <label for="notifications" class="form-label fw-bold">接收通知</label>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="notifications" name="notifications" {% if settings.preferences.notifications %}checked{% endif %}>
+                    <input class="form-check-input" type="checkbox" id="notifications" name="notifications">
                     <label class="form-check-label" for="notifications">接收邮件通知</label>
                   </div>
                 </div>
@@ -155,10 +148,10 @@
   </div>
 
   <!-- 引入模态框 -->
-  {% include 'modals/editAvatarModal.html' %}
-  {% include 'modals/updatePasswordModal.html' %}
-  {% include 'modals/updateTokenModal.html' %}
-  {% include 'modals/deleteAccountModal.html' %}
+  {% include 'components/modals/editAvatarModal.html' %}
+  {% include 'components/modals/updatePasswordModal.html' %}
+  {% include 'components/modals/updateTokenModal.html' %}
+  {% include 'components/modals/deleteAccountModal.html' %}
 {% endblock %}
 
 {% block required_js %}

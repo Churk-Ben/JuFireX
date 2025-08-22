@@ -88,7 +88,7 @@ def index():
         current_user = db.session.get(User, session["user_id"])
 
     return render_template(
-        "index.html",
+        "pages/index.html",
         studio_info=studio_info,
         featured_projects=featured_projects,
         current_user=current_user,
@@ -105,7 +105,7 @@ def page_not_found(e):
 
     return (
         render_template(
-            "errors/404.html",
+            "pages/errors/404.html",
             current_user=current_user,
         ),
         404,
@@ -115,13 +115,13 @@ def page_not_found(e):
 # SocketIO事件处理
 @socketio.on("connect")
 def handle_connect():
-    print(f"用户连接: {session.get('username', '匿名用户')}")
-    emit("status", {"msg": f"{session.get('username', '匿名用户')} 已连接"})
+    print(f"用户连接: {session.get('username', 'Unknown')}")
+    emit("status", {"msg": f"{session.get('username', 'Unknown')} 已连接"})
 
 
 @socketio.on("disconnect")
 def handle_disconnect():
-    print(f"用户断开连接: {session.get('username', '匿名用户')}")
+    print(f"用户断开连接: {session.get('username', 'Unknown')}")
 
 
 def init_database():

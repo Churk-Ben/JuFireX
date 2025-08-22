@@ -50,7 +50,7 @@ def navigation():
             nav_items_by_category[category.id] = nav_items
 
     return render_template(
-        "navigation.html",
+        "pages/navigations.html",
         categories=categories,
         current_user=current_user,
         hidden_nav_items=hidden_nav_items,

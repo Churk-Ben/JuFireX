@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'components/pageBase.html' %}
 
 {% block title %}
   项目管理 - JuFire Studio
@@ -10,7 +10,6 @@
   <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/table.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block extra_css %}
@@ -127,41 +126,11 @@
                     <!-- 作者 -->
                     <td>
                       {% if project.author %}
-                        <div class="d-flex align-items-center">
-                          <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile', user_id=project.author.id) }}">
-                            <div id="user_tag">
-                              {% if project.author.avatar_path %}
-                                <img id="user_avatar_img" src="{{ url_for('auth.user_avatar', filename=project.author.avatar_path) }}" />
-                              {% else %}
-                                <i id="user_avatar_fas" class="fas fa-user-circle"></i>
-                              {% endif %}
-                            </div>
-                            <span style="padding: 0 4px 0 8px; line-height: 32px">{{ project.author.username }}</span>
-                            <div id="user_dot_box">
-                              {% if project.author.role == 0 %}
-                                <span class="user_dot rounded-circle bg-info" title="权限等级: 游客"></span>
-                              {% elif project.author.role == 1 %}
-                                <span class="user_dot rounded-circle bg-primary" title="权限等级: 成员"></span>
-                              {% elif project.author.role == 2 %}
-                                <span class="user_dot rounded-circle bg-warning" title="权限等级: 管理员"></span>
-                              {% elif project.author.role >= 3 %}
-                                <span class="user_dot rounded-circle bg-danger" title="权限等级: 超级管理员"></span>
-                              {% endif %}
-                            </div>
-                          </a>
-                        </div>
+                        {% set user = project.author %}
+                        {% include 'components/common/userBadge.html' %}
                       {% else %}
-                        <div class="d-flex align-items-center">
-                          <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile', user_id=project.author.id) }}">
-                            <div id="user_tag">
-                              <i id="user_avatar_fas" class="fas fa-user-circle"></i>
-                            </div>
-                            <span style="padding: 0 4px 0 8px; line-height: 32px">未知</span>
-                            <div id="user_dot_box">
-                              <span class="user_dot rounded-circle bg-secondary" title="权限等级: 未知"></span>
-                            </div>
-                          </a>
-                        </div>
+                        {% set user = None %}
+                        {% include 'components/common/userBadge.html' %}
                       {% endif %}
                     </td>
                     <!-- 创建时间 -->
@@ -207,8 +176,8 @@
   </div>
 
   <!-- 引入模态框 -->
-  {% include 'modals/addProjectAdminModal.html' %}
-  {% include 'modals/editProjectAdminModal.html' %}
+  {% include 'components/modals/addProjectAdminModal.html' %}
+  {% include 'components/modals/editProjectAdminModal.html' %}
 
   <!-- - -->
 {% endblock %}

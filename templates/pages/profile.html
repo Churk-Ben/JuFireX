@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'components/pageBase.html' %}
 
 {% block title %}
   个人主页 - {{ user.username }}
@@ -9,8 +9,7 @@
   <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/profile/GreenWall.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/GreenWall.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/profile/navigation.css') }}" rel="stylesheet" />
 {% endblock %}
 
@@ -20,9 +19,9 @@
     <div class="row">
       <div class="col-md-4">
         <!-- 个人信息 -->
-        {% include 'profile/info.html' %}
+        {% include 'components/cards/profileCard.html' %}
         <!-- 成就墙 -->
-        {% include 'profile/achievements.html' %}
+        {% include 'components/profile/awardWall.html' %}
       </div>
 
       <!-- 主要内容区域 -->
@@ -65,18 +64,18 @@
         </div>
 
         <!-- 贡献墙 -->
-        {% include 'profile/green_wall.html' %}
+        {% include 'components/profile/greenWall.html' %}
 
         <!-- 项目 -->
-        {% include 'profile/projects.html' %}
+        {% include 'components/profile/projectsWall.html' %}
       </div>
     </div>
   </div>
 
   <!-- 引入模态框 -->
-  {% include 'modals/addProjectModal.html' %}
-  {% include 'modals/editProjectModal.html' %}
-  {% include 'modals/editAvatarModal.html' %}
+  {% include 'components/modals/addProjectModal.html' %}
+  {% include 'components/modals/editProjectModal.html' %}
+  {% include 'components/modals/editAvatarModal.html' %}
 
   <!-- - -->
 {% endblock %}

@@ -1,0 +1,85 @@
+<style>
+  #choose_avatar_btn {
+    bottom: 18px;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 2px solid var(--github-secondary);
+  }
+  
+  .avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: var(--github-bg);
+    margin: 20px auto;
+    overflow: hidden;
+    object-fit: cover;
+    font-size: 120px;
+    color: var(--github-accent);
+  }
+</style>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <!-- 用户头像 -->
+    <div class="mt-5 mb-3 d-flex flex-column align-items-center justify-content-center">
+      <div class="position-relative">
+        {% if user.avatar_path %}
+          <img class="avatar" src="{{ url_for('auth.user_avatar', filename=user.avatar_path) }}" />
+        {% else %}
+          <i class="fas fa-user-circle avatar"></i>
+        {% endif %}
+
+        {% if current_user == user %}
+          <button type="button" id="choose_avatar_btn" class="btn btn-sm btn-primary position-absolute rounded-circle" data-bs-toggle="modal" data-bs-target="#avatarModal"><i class="fas fa-camera"></i></button>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- 用户昵称 -->
+    <div class="my-2 d-flex justify-content-center align-items-center">
+      <h3>{{ user.username }}</h3>
+    </div>
+
+    <!-- 用户权限 -->
+    <div class="my-2 d-flex justify-content-center align-items-center">
+      {% if user.role == 0 %}
+        <span class="role-badge role-guest">游客</span>
+      {% elif user.role == 1 %}
+        <span class="role-badge role-member">成员</span>
+      {% elif user.role == 2 %}
+        <span class="role-badge role-admin">管理员</span>
+      {% elif user.role == 3 %}
+        <span class="role-badge role-superadmin">超级管理员</span>
+      {% else %}
+        <span class="role-badge role-unknown">未知</span>
+      {% endif %}
+    </div>
+
+    <!-- 高度占位 -->
+    <div class="mt-5 d-flex justify-content-center align-items-center">
+      <div class="border-bottom border-1 border-dark w-100"></div>
+    </div>
+
+    <!-- 用户邮箱 -->
+    <div class="mt-3 d-flex justify-content-start align-items-center">
+      <p class="card-text">
+        <i class="fas fa-envelope ms-4 me-2" style="font-size: 0.8em; color: var(--github-border)"></i>
+        <small class="text-muted">{{ user.email }}</small>
+      </p>
+    </div>
+
+    <!-- 用户注册时间 -->
+    <div class="mt-2 d-flex justify-content-start align-items-center">
+      <p class="card-text">
+        <i class="fas fa-calendar ms-4 me-2" style="font-size: 0.8em; color: var(--github-border)"></i>
+        <small class="text-muted">注册于 {{ user.created_at|format_datetime }}</small>
+      </p>
+    </div>
+  </div>
+</div>

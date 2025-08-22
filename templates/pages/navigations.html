@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'components/pageBase.html' %}
 
 {% block title %}
   JuFire Studio - 导航站
@@ -9,8 +9,6 @@
   <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/alert.css') }}" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='css/badge.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block content %}
@@ -125,33 +123,9 @@
                       <div class="card-footer">
                         <!-- 导航项创建者 -->
                         <div class="d-flex justify-content-between align-items-center">
-                          <a class="nav-link" id="profile_link" href="{{ url_for('auth.profile', user_id=item.creator.id) }}">
-                            <div id="user_tag" class="me-1">
-                              {% if item.creator and item.creator.avatar_path %}
-                                <img id="user_avatar_img" src="{{ url_for('auth.user_avatar', filename=item.creator.avatar_path) }}" />
-                              {% else %}
-                                <i id="user_avatar_fas" class="fas fa-user-circle"></i>
-                              {% endif %}
-                            </div>
-                            <small class="text-white">
-                              {% if item.creator %}
-                                {{ item.creator.username }}
-                              {% else %}
-                                未知
-                              {% endif %}
-                            </small>
-                            <div id="user_dot_box">
-                              {% if item.creator.role == 1 %}
-                                <span class="user_dot rounded-circle bg-primary" title="成员"></span>
-                              {% elif item.creator.role == 2 %}
-                                <span class="user_dot rounded-circle bg-warning" title="管理员"></span>
-                              {% elif item.creator.role == 3 %}
-                                <span class="user_dot rounded-circle bg-danger" title="超级管理员"></span>
-                              {% else %}
-                                <span class="user_dot rounded-circle bg-secondary" title="未知"></span>
-                              {% endif %}
-                            </div>
-                          </a>
+                          {% set user = item.creator %}
+                          {% include 'components/common/userBadge.html' %}
+
                           <!-- 操作按钮 -->
                           <a href="{{ item.url }}" target="_blank" class="btn btn-sm btn-outline-primary" onclick="recordNavClick({{ item.id }})"><i class="fas fa-external-link-alt me-1"></i>前往</a>
                         </div>
@@ -185,9 +159,9 @@
   </div>
 
   <!-- 模态框 -->
-  {% include 'modals/manageNavigationModal.html' %}
-  {% include 'modals/addNavItemModal.html' %}
-  {% include 'modals/editNavItemModal.html' %}
+  {% include 'components/modals/manageNavigationModal.html' %}
+  {% include 'components/modals/addNavItemModal.html' %}
+  {% include 'components/modals/editNavItemModal.html' %}
 
   <!-- - -->
 {% endblock %}

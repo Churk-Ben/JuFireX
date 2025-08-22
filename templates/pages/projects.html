@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'components/pageBase.html' %}
 
 {% block title %}
   全部项目
@@ -25,7 +25,8 @@
     {% if projects %}
       <div class="row">
         {% for project in projects %}
-          {% include 'project/info.html' %}
+          {% set project = project %}
+          {% include 'components/cards/projectCard.html' %}
         {% endfor %}
       </div>
     {% else %}

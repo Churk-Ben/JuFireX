@@ -247,7 +247,7 @@ def project_docs(project_id):
     )
 
     return render_template(
-        "project/project_docs_list.html",
+        "pages/project/project_docs_list.html",
         project=project,
         md_files=md_files,
         other_files=other_files,
@@ -266,7 +266,7 @@ def projects():
     projects = Project.query.all()
 
     return render_template(
-        "projects.html",
+        "pages/projects.html",
         current_user=current_user,
         projects=projects,
     )
@@ -283,7 +283,7 @@ def project(project_id):
         current_user = db.session.get(User, session["user_id"])
 
     return render_template(
-        "project/project_detail.html",
+        "pages/project/project_detail.html",
         project=project,
         current_user=current_user,
     )
@@ -338,7 +338,7 @@ def project_doc_view(project_id, filename):
         html_content = markdown(content)
 
         return render_template(
-            "project/project_doc_view.html",
+            "pages/project/project_doc_view.html",
             project=project,
             filename=filename,
             content=content,
