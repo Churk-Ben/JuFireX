@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ session.get('_csrf_token', '') }}" />
     <title>
       {% block title %}
-        JuFire Studio
+        JuFire Studio - 爝火工作室
       {% endblock %}
     </title>
 
@@ -24,7 +24,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='css/alert.css') }}" rel="stylesheet" />
-    <link href="{{ url_for('static', filename='css/navigation.css') }}" rel="stylesheet" />
 
     {% block required_css %}
 
@@ -125,10 +124,10 @@
     <!-- 导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container">
-        <a class="navbar-brand" href="{{ url_for('index') }}">
-          <i class="fas fa-fire me-1"></i>
-          JuFire Studio
-        </a>
+        <a class="navbar-brand" href="{{ url_for('index') }}"><i class="fas fa-fire me-1"></i>JuFire Studio</a>
+          
+          
+        
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
 
