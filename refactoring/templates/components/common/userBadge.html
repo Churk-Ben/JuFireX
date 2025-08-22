@@ -1,0 +1,88 @@
+<style>
+  .userBadge.userBadge-link {
+    border: 1px solid var(--github-border);
+    border-radius: 16px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin: auto 0;
+  }
+  
+  .userBadge.userBadge-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin: 0 0 0 -1px;
+  }
+  
+  .userBadge.userBadge-avatar-img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    overflow: hidden;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .userBadge.userBadge-avatar-fas {
+    font-size: 24px;
+    color: var(--github-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .userBadge.userBadge-dot-box {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: -1px;
+  }
+  
+  .userBadge.userBadge-dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    display: inline-block !important;
+  }
+</style>
+
+<div class="userBadge d-flex align-items-center">
+  <a class="nav-link userBadge-link" href="{{ url_for('auth.profile', user_id=user.id) }}">
+    <div class="userBadge-avatar me-1">
+      {% if user and user.avatar_path %}
+        <img class="userBadge-avatar-img" src="{{ url_for('auth.user_avatar', filename=user.avatar_path) }}" />
+      {% else %}
+        <i class="userBadge-avatar-fas fas fa-user-circle"></i>
+      {% endif %}
+    </div>
+    <small class="text-muted">
+      {% if user %}
+        {{ user.username }}
+      {% else %}
+        Unknown
+      {% endif %}
+    </small>
+    <div class="userBadge-dot-box">
+      {% if user.role == 1 %}
+        <span class="userBadge-dot rounded-circle bg-primary" title="成员"></span>
+      {% elif user.role == 2 %}
+        <span class="userBadge-dot rounded-circle bg-warning" title="管理员"></span>
+      {% elif user.role == 3 %}
+        <span class="userBadge-dot rounded-circle bg-danger" title="超级管理员"></span>
+      {% else %}
+        <span class="userBadge-dot rounded-circle bg-secondary" title="未知"></span>
+      {% endif %}
+    </div>
+  </a>
+</div>
