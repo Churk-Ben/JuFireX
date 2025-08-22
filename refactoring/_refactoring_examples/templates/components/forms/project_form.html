@@ -1,0 +1,172 @@
+<!-- 项目表单组件 -->
+<!-- 使用方法：{% include 'components/forms/project_form.html' with context %} -->
+<!-- 需要传入的变量：
+     - form_mode: 'add' 或 'edit'
+     - project: 项目对象（编辑模式时需要）
+     - field_prefix: 字段名前缀（可选，默认为空）
+-->
+
+{% set prefix = field_prefix if field_prefix else '' %}
+{% set is_edit = form_mode == 'edit' %}
+
+<!-- 隐藏字段（编辑模式） -->
+{% if is_edit and project %}
+  <input type="hidden" id="{{ prefix }}projectId" name="id" value="{{ project.id }}" />
+{% endif %}
+
+<!-- 项目标题 -->
+<div class="mb-3">
+  <label for="{{ prefix }}projectTitle" class="form-label">
+    项目标题 <span class="text-danger">*</span>
+  </label>
+  <input 
+    type="text" 
+    class="form-control" 
+    id="{{ prefix }}projectTitle" 
+    name="title"
+    value="{{ project.title if is_edit and project else '' }}"
+    required 
+    maxlength="100"
+    placeholder="请输入项目标题"
+  />
+  <div class="invalid-feedback">
+    请输入有效的项目标题（1-100个字符）
+  </div>
+</div>
+
+<!-- 项目描述 -->
+<div class="mb-3">
+  <label for="{{ prefix }}projectDescription" class="form-label">
+    项目描述 <span class="text-danger">*</span>
+  </label>
+  <textarea 
+    class="form-control" 
+    id="{{ prefix }}projectDescription" 
+    name="description"
+    rows="{{ '4' if is_edit else '3' }}"
+    required
+    maxlength="1000"
+    placeholder="请描述您的项目..."
+  >{{ project.description if is_edit and project else '' }}</textarea>
+  <div class="form-text">
+    <span id="{{ prefix }}descriptionCount">0</span>/1000 字符
+  </div>
+  <div class="invalid-feedback">
+    请输入项目描述（最多1000个字符）
+  </div>
+</div>
+
+<!-- GitHub 链接 -->
+<div class="mb-3">
+  <label for="{{ prefix }}projectGithub" class="form-label">
+    <i class="fab fa-github me-1"></i>GitHub 链接
+  </label>
+  <input 
+    type="url" 
+    class="form-control" 
+    id="{{ prefix }}projectGithub" 
+    name="github_url"
+    value="{{ project.github_url if is_edit and project else '' }}"
+    placeholder="https://github.com/username/repository"
+    pattern="https://github\.com/.+"
+  />
+  <div class="form-text">
+    请输入完整的GitHub仓库地址
+  </div>
+  <div class="invalid-feedback">
+    请输入有效的GitHub链接
+  </div>
+</div>
+
+<!-- 演示链接 -->
+<div class="mb-3">
+  <label for="{{ prefix }}projectDemo" class="form-label">
+    <i class="fas fa-external-link-alt me-1"></i>演示链接
+  </label>
+  <input 
+    type="url" 
+    class="form-control" 
+    id="{{ prefix }}projectDemo" 
+    name="demo_url"
+    value="{{ project.demo_url if is_edit and project else '' }}"
+    placeholder="https://your-demo-site.com"
+  />
+  <div class="form-text">
+    项目的在线演示地址
+  </div>
+  <div class="invalid-feedback">
+    请输入有效的URL地址
+  </div>
+</div>
+
+<!-- 项目图片 -->
+<div class="mb-3">
+  <label for="{{ prefix }}projectImage" class="form-label">
+    <i class="fas fa-image me-1"></i>项目图片
+  </label>
+  <input 
+    type="text" 
+    class="form-control" 
+    id="{{ prefix }}projectImage" 
+    name="image_url"
+    value="{{ project.image_url if is_edit and project else '' }}"
+    placeholder="https://example.com/image.jpg 或 file://path/to/image.jpg 或 index.png"
+  />
+  <div class="form-text">
+    支持网络链接、本地文件路径或项目文件夹中的图片文件名
+  </div>
+  <div class="invalid-feedback">
+    请输入有效的图片地址
+  </div>
+</div>
+
+<!-- 精选项目（仅管理员编辑时显示） -->
+{% if is_edit and current_user and current_user.role >= 2 %}
+<div class="mb-3">
+  <div class="form-check">
+    <input 
+      class="form-check-input" 
+      type="checkbox" 
+      id="{{ prefix }}projectFeatured" 
+      name="is_featured"
+      {{ 'checked' if project and project.is_featured else '' }}
+    >
+    <label class="form-check-label" for="{{ prefix }}projectFeatured">
+      <i class="fas fa-star me-1"></i>设为精选项目
+    </label>
+  </div>
+  <div class="form-text">
+    精选项目将在首页优先展示
+  </div>
+</div>
+{% endif %}
+
+<!-- 表单验证脚本 -->
+<script>
+(function() {
+  const form = document.getElementById('{{ prefix }}projectTitle').closest('form');
+  const descriptionField = document.getElementById('{{ prefix }}projectDescription');
+  const countElement = document.getElementById('{{ prefix }}descriptionCount');
+  
+  // 字符计数
+  if (descriptionField && countElement) {
+    function updateCount() {
+      countElement.textContent = descriptionField.value.length;
+    }
+    
+    descriptionField.addEventListener('input', updateCount);
+    updateCount(); // 初始化计数
+  }
+  
+  // 表单验证
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      if (!form.checkValidity()) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      form.classList.add('was-validated');
+    });
+  }
+})();
+</script>

@@ -1,0 +1,61 @@
+<!-- 基础模态框组件 -->
+<!-- 使用方法：{% include 'components/modals/base_modal.html' with context %} -->
+<!-- 需要传入的变量：
+     - modal_id: 模态框ID
+     - modal_title: 模态框标题
+     - modal_icon: 标题图标（可选）
+     - modal_size: 模态框大小（可选，默认为空）
+     - form_id: 表单ID（可选）
+     - submit_text: 提交按钮文本（默认为"确定"）
+     - submit_icon: 提交按钮图标（可选）
+     - cancel_text: 取消按钮文本（默认为"取消"）
+-->
+
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1">
+  <div class="modal-dialog {{ modal_size if modal_size else '' }}">
+    <div class="modal-content">
+      <!-- 模态框头部 -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {% if modal_icon %}
+            <i class="{{ modal_icon }} me-2"></i>
+          {% endif %}
+          {{ modal_title }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+      </div>
+      
+      <!-- 模态框主体 -->
+      <div class="modal-body">
+        {% if form_id %}
+          <form id="{{ form_id }}">
+            {% block modal_form %}
+              <!-- 表单内容将在这里插入 -->
+            {% endblock %}
+          </form>
+        {% else %}
+          {% block modal_content %}
+            <!-- 非表单内容将在这里插入 -->
+          {% endblock %}
+        {% endif %}
+      </div>
+      
+      <!-- 模态框底部 -->
+      <div class="modal-footer">
+        {% block modal_footer %}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            {{ cancel_text if cancel_text else '取消' }}
+          </button>
+          {% if form_id %}
+            <button type="submit" class="btn btn-primary" form="{{ form_id }}">
+              {% if submit_icon %}
+                <i class="{{ submit_icon }} me-1"></i>
+              {% endif %}
+              {{ submit_text if submit_text else '确定' }}
+            </button>
+          {% endif %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>
