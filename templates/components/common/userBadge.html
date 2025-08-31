@@ -1,4 +1,16 @@
-{% if user != None %}
+{% if user == None %}
+  <div class="userBadge d-flex align-items-center">
+    <a class="nav-link userBadge-link" href="{{ url_for('auth.profile', user_id=session.user_id) }}">
+      <div class="userBadge-avatar me-1">
+        <i class="userBadge-avatar-fas fas fa-user-circle"></i>
+      </div>
+      <small class="text-muted">Unknown</small>
+      <div class="userBadge-dot-box">
+        <span class="userBadge-dot rounded-circle bg-secondary" title="未知"></span>
+      </div>
+    </a>
+  </div>
+{% else %}
   <div class="userBadge d-flex align-items-center">
     <a class="nav-link userBadge-link" href="{{ url_for('auth.profile', user_id=user.id) }}">
       <div class="userBadge-avatar me-1">
@@ -27,18 +39,6 @@
         {% else %}
           <span class="userBadge-dot rounded-circle bg-secondary" title="未知"></span>
         {% endif %}
-      </div>
-    </a>
-  </div>
-{% else %}
-  <div class="userBadge d-flex align-items-center">
-    <a class="nav-link userBadge-link" href="{{ url_for('auth.profile', user_id=session.user_id) }}">
-      <div class="userBadge-avatar me-1">
-        <i class="userBadge-avatar-fas fas fa-user-circle"></i>
-      </div>
-      <small class="text-muted">Unknown</small>
-      <div class="userBadge-dot-box">
-        <span class="userBadge-dot rounded-circle bg-secondary" title="未知"></span>
       </div>
     </a>
   </div>

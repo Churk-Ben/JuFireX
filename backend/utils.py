@@ -7,41 +7,53 @@ from datetime import datetime
 from urllib.parse import urlparse, unquote
 from functools import wraps
 from flask import session, flash, redirect, url_for, request, jsonify, current_app
-from .models import db, User, Project, NavItem
-from .config import ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_MEMBER
+from .models import (
+    db,
+    StudioInfo,
+    User,
+    Project,
+    NavCategory,
+    NavItem,
+    HiddenNavItem,
+)
+from .config import (
+    ROLE_GUEST,
+    ROLE_MEMBER,
+    ROLE_ADMIN,
+    ROLE_SUPER_ADMIN,
+    ROLE_NAMES,
+)
 
 
-# 权限检查装饰器
+# 检查装饰器
 def require_role(min_role, owner_check=None):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
+            # 检查用户是否已登录
             if "user_id" not in session:
                 flash("请先登录", "warning")
                 return redirect(url_for("auth.login"))
 
             user = db.session.get(User, session["user_id"])
             if not user or not user.is_active:
-                flash("用户不存在或已被禁用", "error")
+                flash("用户不存在或已被封禁", "error")
                 return redirect(url_for("auth.login"))
 
-            # 基本角色检查
-            if user.role < min_role:
-                flash("权限不足", "error")
-                return redirect(url_for("index"))
+            # 权限检查: 用户达到权限或拥有操作所有权则通过
+            has_role_permission = user.role >= min_role
+            has_ownership = owner_check and owner_check(user, **kwargs)
 
-            # 可选的所有权或更复杂的检查
-            if owner_check:
-                if not owner_check(user, **kwargs):
-                    flash("权限不足或操作不允许", "error")
-                    # 对于API端点，返回JSON错误可能更合适
-                    if request.path.startswith("/api/"):
-                        return (
-                            jsonify(
-                                {"success": False, "message": "权限不足或操作不允许"}
-                            ),
-                            403,
-                        )
+            # 如果用户权限不足且没有所有权，则拒绝访问
+            if not has_role_permission and not has_ownership:
+                # TODO: 重定向到403
+                flash("权限不足或操作不允许", "error")
+                if request.path.startswith("/api/"):
+                    return (
+                        jsonify({"success": False, "message": "权限不足或操作不允许"}),
+                        403,
+                    )
+                else:
                     return redirect(url_for("index"))
 
             return f(*args, **kwargs)
@@ -53,46 +65,36 @@ def require_role(min_role, owner_check=None):
 
 # 所有权检查函数
 def is_project_owner_or_admin(user, project_id):
+    """检查用户是否为项目所有者"""
     project = db.session.get(Project, project_id)
     if not project:
         return False
-    # 超级管理员或管理员可以管理
-    if user.role >= ROLE_ADMIN:
-        return True
-    # 作者可以管理自己的项目
+    # 检查是否为项目作者
     return project.author_id == user.id
 
 
 def can_manage_project(user, project_id):
+    """检查用户是否可以管理项目"""
     project = db.session.get(Project, project_id)
     if not project:
         return False
-    # 超级管理员可以管理所有项目
-    if user.role == ROLE_SUPER_ADMIN:
-        return True
-    # 管理员可以管理非超级管理员和非管理员创建的项目
-    if user.role == ROLE_ADMIN:
-        return project.author.role < ROLE_ADMIN
-    # 成员只能管理自己的项目
-    if user.role == ROLE_MEMBER:
-        return project.author_id == user.id
-    return False
+    # 只检查是否为项目作者
+    return project.author_id == user.id
 
 
 def can_manage_nav_item(user, item_id):
+    """检查用户是否可以管理导航项"""
     item = db.session.get(NavItem, item_id)
     if not item:
         return False
-    if user.role == ROLE_SUPER_ADMIN:
-        return True
-    if user.role == ROLE_ADMIN:
-        return item.creator.role < ROLE_ADMIN
+    # 只检查是否为创建者
     return item.created_by == user.id
 
 
 def can_manage_user(user, user_id):
-    # 只有超级管理员可以管理用户
-    return user.role == ROLE_SUPER_ADMIN
+    """检查用户是否可以管理其他用户"""
+    # 用户只能管理自己
+    return user.id == user_id
 
 
 # CSRF保护函数
@@ -107,6 +109,7 @@ def validate_csrf_token():
     return csrf_token and csrf_token == session.get("_csrf_token")
 
 
+# 项目数据文件 TODO: 更改服务层位置
 def delete_user_data_file(file_url):
     """删除用户数据文件"""
     if not file_url or not file_url.startswith("/user_data/"):
@@ -304,7 +307,7 @@ def get_project_files(project_path, include_hidden=False):
             elif os.path.isdir(item_path):
                 files.append({"name": item, "path": item, "type": "directory"})
 
-        # 按类型和名称排序：目录在前，文件在后，同类型按名称排序
+        # 按类型和名称排序: 目录在前，文件在后，同类型按名称排序
         files.sort(key=lambda x: (x["type"] == "file", x["name"].lower()))
         return files
 

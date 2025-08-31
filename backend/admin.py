@@ -1,6 +1,14 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, session, current_app
-from .models import db, User, Project, StudioInfo, NavCategory, NavItem, HiddenNavItem
+from .models import (
+    db,
+    StudioInfo,
+    User,
+    Project,
+    NavCategory,
+    NavItem,
+    HiddenNavItem,
+)
 from .config import (
     ROLE_GUEST,
     ROLE_MEMBER,
@@ -25,7 +33,9 @@ def admin_projects():
     projects = Project.query.order_by(Project.created_at.desc()).all()
     current_user = db.session.get(User, session["user_id"])
     return render_template(
-        "pages/admin/projects.html", projects=projects, current_user=current_user
+        "pages/admin/projects.html",
+        projects=projects,
+        current_user=current_user,
     )
 
 
