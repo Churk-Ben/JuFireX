@@ -113,8 +113,9 @@
           {% if current_user %}
             <ul class="navbar-account">
               <li class="nav-item" style="display: flex; align-items: center; margin: 0 5px">
-                {% set user = current_user %}
-                {% include 'components/common/userBadge.html' %}
+                {% with user = current_user %}
+                  {% include 'components/common/userBadge.html' %}
+                {% endwith %}
               </li>
             </ul>
             <ul class="navbar-nav">
@@ -137,7 +138,7 @@
     </nav>
 
     <!-- 消息提示容器 - 固定在右下角 -->
-    <div id="messages" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999"></div>
+    <div id="messages" class="toast-container position-fixed bottom-0 p-3" style="z-index: 9999; right: 20px;"></div>
 
     <!-- 闪现消息数据容器 -->
     <div id="flash-data" class="toast-container position-fixed bottom-0 end-0 p-3" data-messages="{{ get_flashed_messages(with_categories=true)|tojson|forceescape }}" style="z-index: 9999; display: none"></div>

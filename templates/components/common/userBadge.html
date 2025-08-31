@@ -1,6 +1,6 @@
 {% if user == None %}
   <div class="userBadge d-flex align-items-center">
-    <a class="nav-link userBadge-link" href="{{ url_for('auth.profile', user_id=session.user_id) }}">
+    <a class="nav-link userBadge-link" href="#" onclick="return false;">
       <div class="userBadge-avatar me-1">
         <i class="userBadge-avatar-fas fas fa-user-circle"></i>
       </div>

@@ -2,7 +2,7 @@
 .alert {
     border: 1px solid var(--github-border);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     min-width: 300px;
     max-width: 400px;
     margin-bottom: 10px;
@@ -14,9 +14,13 @@
     backdrop-filter: blur(8px);
     background-color: rgba(13, 17, 23, 0.85);
     display: flex;
-    align-items: center;
-    padding-right: 2.5rem;
+    align-items: flex-start;
+    padding: 12px 2.5rem 12px 12px;
     z-index: 9999;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    line-height: 1.4;
 }
 
 .alert.show {
