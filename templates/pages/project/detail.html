@@ -1,0 +1,12 @@
+{% extends 'components/pageBase.html' %}
+
+{% block title %}
+  项目详情
+{% endblock %}
+
+{% block content %}
+  <h1>项目详情</h1>
+  <p>项目名称：{{ project.name }}</p>
+  <p>项目描述：{{ project.description }}</p>
+  <p>项目创建时间：{{ project.created_at }}</p>
+{% endblock %}

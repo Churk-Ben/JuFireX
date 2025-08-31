@@ -1,0 +1,67 @@
+{% extends 'components/pageBase.html' %}
+
+{% block title %}
+  {{ filename }} - {{ project.title }}
+{% endblock %}
+
+{% block required_css %}
+  <link href="{{ url_for('static', filename='css/card.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/button.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/modal.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/table.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/markdown.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .empty-docs {
+      padding: 3rem 0;
+      text-align: center;
+    }
+    
+    .empty-docs i {
+      font-size: 4rem;
+      color: var(--github-text-secondary);
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex align-items-center">
+          <h2 class="mb-0">{{ project.title }}</h2>
+        </div>
+        <p class="text-muted mt-2">{{ filename }}</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-file-alt"></i> 文档内容</h5>
+          </div>
+
+          {% if html_content %}
+            <div class="card-body">
+              <div class="markdown-body">{{ html_content|safe }}</div>
+            </div>
+          {% else %}
+            <div class="card-body">
+              <div class="empty-docs">
+                <i class="fas fa-file"></i>
+                <h5 class="mt-3 text-muted">文档暂无内容</h5>
+                <p class="text-muted">该文档还没有任何内容</p>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

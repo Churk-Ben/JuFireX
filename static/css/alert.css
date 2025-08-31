@@ -1,27 +1,30 @@
-/* 警告框 */
+/* 弹出框 */
 .alert {
     border: 1px solid var(--github-border);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     min-width: 300px;
     max-width: 400px;
     margin-bottom: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     opacity: 0;
     transform: translateX(10%);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: all 0.3s ease;
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     background-color: rgba(13, 17, 23, 0.85);
     display: flex;
-    align-items: center;
-    padding-right: 2.5rem;
+    align-items: flex-start;
+    padding: 12px 2.5rem 12px 12px;
     z-index: 9999;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    line-height: 1.4;
 }
 
 .alert.show {
     opacity: 1;
-    transform: translateX(0);
 }
 
 .alert::after {

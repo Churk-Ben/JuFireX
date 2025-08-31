@@ -2,6 +2,7 @@ import base64
 import io
 import os
 import uuid
+import shutil
 from datetime import datetime
 from PIL import Image
 import json
@@ -42,7 +43,7 @@ def login():
         else:
             flash("用户名或密码错误", "error")
 
-    return render_template("login.html")
+    return render_template("pages/login.html")
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -112,7 +113,7 @@ def register():
                 False, f"注册失败: {str(e)}", url_for("auth.register"), is_ajax
             )
 
-    return render_template("register.html")
+    return render_template("pages/register.html")
 
 
 @auth_bp.route("/logout")
@@ -144,7 +145,7 @@ def profile(user_id):
     }
 
     return render_template(
-        "profile.html",
+        "pages/profile.html",
         user=user,
         current_user=current_user,
         projects=user_projects,
@@ -230,18 +231,28 @@ def settings(user_id):
         settings = {
             "preferences": {
                 "theme": settings_data.get("preferences", {}).get("theme"),
-                "notifications": settings_data.get("preferences", {}).get("notifications"),
+                "notifications": settings_data.get("preferences", {}).get(
+                    "notifications"
+                ),
             },
             "privacy": {
                 "show_email": settings_data.get("privacy", {}).get("show_email"),
-                "show_join_date": settings_data.get("privacy", {}).get("show_join_date"),
-                "show_green_wall": settings_data.get("privacy", {}).get("show_green_wall"),
-                "show_nav_counts": settings_data.get("privacy", {}).get("show_nav_counts"),
+                "show_join_date": settings_data.get("privacy", {}).get(
+                    "show_join_date"
+                ),
+                "show_green_wall": settings_data.get("privacy", {}).get(
+                    "show_green_wall"
+                ),
+                "show_nav_counts": settings_data.get("privacy", {}).get(
+                    "show_nav_counts"
+                ),
                 "show_projects": settings_data.get("privacy", {}).get("show_projects"),
             },
             "linked_accounts": {
                 "github": {
-                    "username": settings_data.get("linked_accounts", {}).get("github", {}).get("username"),
+                    "username": settings_data.get("linked_accounts", {})
+                    .get("github", {})
+                    .get("username"),
                 }
             },
         }
@@ -285,7 +296,7 @@ def settings(user_id):
             json.dump(settings, f, indent=4)
 
     return render_template(
-        "profile/settings.html",
+        "pages/settings.html",
         user=user,
         current_user=current_user,
         settings=settings,

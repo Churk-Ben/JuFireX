@@ -1,6 +1,14 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, session, current_app
-from .models import db, User, Project, StudioInfo, NavCategory, NavItem, HiddenNavItem
+from .models import (
+    db,
+    StudioInfo,
+    User,
+    Project,
+    NavCategory,
+    NavItem,
+    HiddenNavItem,
+)
 from .config import (
     ROLE_GUEST,
     ROLE_MEMBER,
@@ -25,7 +33,9 @@ def admin_projects():
     projects = Project.query.order_by(Project.created_at.desc()).all()
     current_user = db.session.get(User, session["user_id"])
     return render_template(
-        "admin/projects.html", projects=projects, current_user=current_user
+        "pages/admin/projects.html",
+        projects=projects,
+        current_user=current_user,
     )
 
 
@@ -35,7 +45,7 @@ def admin_users():
     users = User.query.order_by(User.created_at.desc()).all()
     current_user = db.session.get(User, session["user_id"])
     return render_template(
-        "admin/users.html",
+        "pages/admin/users.html",
         users=users,
         current_user=current_user,
         ROLE_NAMES=ROLE_NAMES,
@@ -48,7 +58,9 @@ def admin_studio_info():
     studio_info = StudioInfo.query.first()
     current_user = db.session.get(User, session["user_id"])
     return render_template(
-        "admin/studio_info.html", studio_info=studio_info, current_user=current_user
+        "pages/admin/studio.html",
+        studio_info=studio_info,
+        current_user=current_user,
     )
 
 
@@ -84,7 +96,7 @@ def admin_navigation():
         )
 
     return render_template(
-        "admin/navigation.html",
+        "pages/admin/navigations.html",
         current_user=current_user,
         categories=categories,
         nav_items=nav_items,
