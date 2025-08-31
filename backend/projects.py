@@ -196,7 +196,7 @@ def projects():
     )
 
 
-# 查看项目详情 TODO:
+# 查看项目详情
 @projects_bp.route("/projects/<int:project_id>")
 @require_role(ROLE_GUEST)
 def project(project_id):
@@ -208,8 +208,27 @@ def project(project_id):
     if "user_id" in session:
         current_user = db.session.get(User, session["user_id"])
 
+    # 获取项目文件夹路径
+    project_docs_path = get_project_folder_path(project.id, project.created_at)
+
+    # 查找readme文件（不区分大小写）
+    readme_files = []
+    for file in os.listdir(project_docs_path):
+        if file.lower() in ["readme.md", "readme.markdown"]:
+            readme_files.append(file)
+
+    if readme_files:
+        # 如果找到readme文件, 直接重定向到文档查看页面
+        return redirect(
+            url_for(
+                "projects.project_doc_view",
+                project_id=project_id,
+                filename=readme_files[0],
+            )
+        )
+
     return render_template(
-        "pages/project/project_detail.html",
+        "pages/project/detail.html",
         project=project,
         current_user=current_user,
     )
@@ -217,6 +236,7 @@ def project(project_id):
 
 # 项目文档
 @projects_bp.route("/projects/<int:project_id>/docs")
+@require_role(ROLE_MEMBER)
 def project_docs(project_id):
     # 获取项目信息
     project = Project.query.get_or_404(project_id)
@@ -232,31 +252,8 @@ def project_docs(project_id):
     # 检查文档空间是否存在
     if not os.path.exists(project_docs_path):
         flash("该项目文档空间不存在", "error")
-        return redirect(url_for("index"))
+        return redirect(url_for("projects.project", project_id=project_id))
 
-    # 如果用户未登录, 尝试直接访问readme.md
-    if not current_user:
-        # 查找readme文件（不区分大小写）
-        readme_files = []
-        for file in os.listdir(project_docs_path):
-            if file.lower() in ["readme.md", "readme.markdown"]:
-                readme_files.append(file)
-
-        if readme_files:
-            # 如果找到readme文件, 直接重定向到文档查看页面
-            return redirect(
-                url_for(
-                    "projects.project_doc_view",
-                    project_id=project_id,
-                    filename=readme_files[0],
-                )
-            )
-        else:
-            # 如果没有readme文件, 提示用户登录查看文档列表
-            flash("该项目没有公开的readme文档, 请登录查看完整文档列表", "info")
-            return redirect(url_for("auth.login"))
-
-    # 用户已登录, 显示完整的文档列表
     # 获取项目文件夹中的所有文件
     all_files = get_project_files(project_docs_path)
 
@@ -290,7 +287,9 @@ def project_docs(project_id):
     )
 
 
+# 项目文档查看
 @projects_bp.route("/projects/<int:project_id>/docs/<path:filename>")
+@require_role(ROLE_GUEST)
 def project_doc_view(project_id, filename):
     # 获取项目信息
     project = Project.query.get_or_404(project_id)
@@ -351,6 +350,7 @@ def project_doc_view(project_id, filename):
         return redirect(url_for("projects.project_docs", project_id=project_id))
 
 
+# 项目文档上传
 @projects_bp.route("/api/projects/<int:project_id>/docs/upload", methods=["POST"])
 @require_role(ROLE_MEMBER, owner_check=can_manage_project)
 def upload_project_doc(project_id):
@@ -395,6 +395,7 @@ def upload_project_doc(project_id):
         return jsonify({"success": False, "message": f"上传文档失败: {str(e)}"}), 500
 
 
+# 项目文档创建
 @projects_bp.route("/api/projects/<int:project_id>/docs/create", methods=["POST"])
 @require_role(ROLE_MEMBER, owner_check=can_manage_project)
 def create_project_doc(project_id):
@@ -433,6 +434,7 @@ def create_project_doc(project_id):
         return jsonify({"success": False, "message": f"创建文档失败: {str(e)}"}), 500
 
 
+# 项目文档原始内容获取
 @projects_bp.route(
     "/api/projects/<int:project_id>/docs/<path:filename>/raw", methods=["GET"]
 )
@@ -555,54 +557,7 @@ def get_project(project_id):
     return jsonify({"success": True, "project": project_data})
 
 
-@projects_bp.route("/api/projects/<int:project_id>", methods=["PUT"])
-@require_role(ROLE_ADMIN)
-def update_project(project_id):
-    project = Project.query.get_or_404(project_id)
-
-    # 检查权限：只有项目作者或超级管理员可以更新
-    if (
-        project.author_id != session["user_id"]
-        and session.get("role", 0) < ROLE_SUPER_ADMIN
-    ):
-        return jsonify({"success": False, "message": "权限不足"})
-
-    data = request.get_json()
-
-    # 处理图片URL
-    new_image_url = data.get("image_url")
-
-    # 检查是否需要更新图片
-    if new_image_url != project.image_url:
-        if not new_image_url:
-            # 清空项目头图并交由服务层清理旧文件
-            try:
-                ImageService.clear_project_image(project)
-            except Exception as e:
-                current_app.logger.error(f"Failed to clear project image: {e}")
-            project.image_url = None
-        else:
-            try:
-                new_rel = ImageService.process_project_image(
-                    project, {"image_url": new_image_url}
-                )
-                if new_rel:
-                    project.image_url = new_rel
-            except Exception as e:
-                current_app.logger.error(f"Failed to process project image: {e}")
-
-    # 更新项目信息
-    project.title = data.get("title", project.title)
-    project.description = data.get("description", project.description)
-    project.github_url = data.get("github_url", project.github_url)
-    project.demo_url = data.get("demo_url", project.demo_url)
-    project.is_featured = data.get("is_featured", project.is_featured)
-
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "项目更新成功"})
-
-
+# 项目文件下载
 @projects_bp.route("/projects/<int:project_id>/download/<path:filename>")
 def download_project_file(project_id, filename):
     """下载项目文件"""
