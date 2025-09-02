@@ -14,18 +14,50 @@ function initSocket() {
         return;
     }
 
-    socket = io();
+    // 配置Socket.IO选项
+    socket = io({
+        transports: ['polling', 'websocket'],
+        upgrade: true,
+        rememberUpgrade: true,
+        timeout: 20000,
+        forceNew: false
+    });
 
     socket.on('connect', function () {
         console.log('Connected to server');
     });
 
-    socket.on('disconnect', function () {
-        console.log('Disconnected from server');
+    socket.on('disconnect', function (reason) {
+        console.log('Disconnected from server:', reason);
+        if (reason === 'io server disconnect') {
+            // 服务器主动断开连接，需要手动重连
+            socket.connect();
+        }
+    });
+
+    socket.on('connect_error', function (error) {
+        console.error('Connection error:', error);
     });
 
     socket.on('notification', function (data) {
         showNotification(data.message, data.type || 'info');
+    });
+
+    // 添加重连事件监听
+    socket.on('reconnect', function (attemptNumber) {
+        console.log('Reconnected to server after', attemptNumber, 'attempts');
+    });
+
+    socket.on('reconnect_attempt', function (attemptNumber) {
+        console.log('Attempting to reconnect...', attemptNumber);
+    });
+
+    socket.on('reconnect_error', function (error) {
+        console.error('Reconnection error:', error);
+    });
+
+    socket.on('reconnect_failed', function () {
+        console.error('Failed to reconnect to server');
     });
 }
 

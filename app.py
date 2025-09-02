@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from flask import Flask, render_template, session, send_from_directory
+from flask import Flask, render_template, session, send_from_directory, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from werkzeug.security import generate_password_hash
@@ -40,7 +40,14 @@ if not os.path.exists(app.config["USER_DATA_FOLDER"]):
 
 # 初始化扩展
 db.init_app(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(
+    app, 
+    cors_allowed_origins="*",
+    logger=True,
+    engineio_logger=True,
+    ping_timeout=60,
+    ping_interval=25
+)
 
 # 注册蓝图
 app.register_blueprint(auth_bp)
@@ -115,13 +122,21 @@ def page_not_found(e):
 # SocketIO事件处理
 @socketio.on("connect")
 def handle_connect():
-    print(f"用户连接: {session.get('username', 'Unknown')}")
-    emit("status", {"msg": f"{session.get('username', 'Unknown')} 已连接"})
+    username = session.get('username', 'Anonymous')
+    print(f"用户连接: {username} (Session ID: {request.sid})")
+    emit("status", {"msg": f"{username} 已连接", "type": "success"})
 
 
 @socketio.on("disconnect")
 def handle_disconnect():
-    print(f"用户断开连接: {session.get('username', 'Unknown')}")
+    username = session.get('username', 'Anonymous')
+    print(f"用户断开连接: {username} (Session ID: {request.sid})")
+
+
+@socketio.on_error_default
+def default_error_handler(e):
+    print(f"Socket.IO错误: {e}")
+    emit("error", {"msg": "连接出现错误", "type": "error"})
 
 
 def init_database():
