@@ -90,6 +90,7 @@ main {
 
 .dropdown-divider {
     border-top: 1px solid var(--github-border);
+    margin: 0.25rem 0;
 }
 
 /* 响应式调整 */

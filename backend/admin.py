@@ -52,13 +52,14 @@ def admin_users():
     )
 
 
-@admin_bp.route("/admin/studio-info")
+# TODO 改到设置.py
+@admin_bp.route("/settings/studio")
 @require_role(ROLE_ADMIN)
 def admin_studio_info():
     studio_info = StudioInfo.query.first()
     current_user = db.session.get(User, session["user_id"])
     return render_template(
-        "pages/admin/studio.html",
+        "pages/settings/studio.html",
         studio_info=studio_info,
         current_user=current_user,
     )

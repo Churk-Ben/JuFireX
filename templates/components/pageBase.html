@@ -85,11 +85,20 @@
                 <li class="nav-item dropdown" style="margin: 0 5px">
                   <a class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">设置</a>
                   <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <!-- 管理员可见 -->
+                    {% if current_user.role >= 2 %}
+                      <li>
+                        <a class="dropdown-item" href="{{ url_for('admin.admin_studio_info') }}">工作室</a>
+                      </li>
+                    {% endif %}
                     <li>
-                      <a class="dropdown-item" href="{{ url_for('auth.profile', user_id=current_user.id) }}">用户信息</a>
+                      <a class="dropdown-item" href="{{ url_for('auth.profile', user_id=current_user.id) }}">仪表盘</a>
                     </li>
                     <li>
-                      <a class="dropdown-item" href="">用户设置</a>
+                      <a class="dropdown-item" href="{{ url_for('auth.profile', user_id=current_user.id) }}">所有设置</a>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider" />
                     </li>
                     <li>
                       <a class="dropdown-item" href="{{ url_for('auth.logout') }}">退出登录</a>
@@ -104,9 +113,6 @@
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">管理</a>
                   <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <!-- 管理员可见 -->
-                    <li>
-                      <a class="dropdown-item" href="{{ url_for('admin.admin_studio_info') }}">工作室信息</a>
-                    </li>
                     <li>
                       <a class="dropdown-item" href="{{ url_for('admin.admin_projects') }}">项目管理</a>
                     </li>
