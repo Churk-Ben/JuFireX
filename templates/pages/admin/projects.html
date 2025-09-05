@@ -39,40 +39,24 @@
     <!-- 项目统计 -->
     <div class="row mb-4">
       <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-folder" style="font-size: 2rem; color: var(--github-accent)"></i>
-            <h4 class="mt-2 mb-0">{{ projects|length }}</h4>
-            <p class="text-muted mb-0">总项目数</p>
-          </div>
-        </div>
+        {% with show='projects_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
       <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-star" style="font-size: 2rem; color: #ffd700"></i>
-            <h4 class="mt-2 mb-0">{{ projects|selectattr('is_featured')|list|length }}</h4>
-            <p class="text-muted mb-0">精选项目</p>
-          </div>
-        </div>
+        {% with show='featured_projects_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
       <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-code-branch" style="font-size: 2rem; color: var(--github-success)"></i>
-            <h4 class="mt-2 mb-0">{{ projects|selectattr('github_url')|list|length }}</h4>
-            <p class="text-muted mb-0">开源项目</p>
-          </div>
-        </div>
+        {% with show='live_demo_projects_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
       <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-external-link-alt" style="font-size: 2rem; color: var(--github-danger)"></i>
-            <h4 class="mt-2 mb-0">{{ projects|selectattr('demo_url')|list|length }}</h4>
-            <p class="text-muted mb-0">在线演示</p>
-          </div>
-        </div>
+        {% with show='open_source_projects_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
     </div>
 

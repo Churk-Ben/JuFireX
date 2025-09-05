@@ -38,20 +38,24 @@
     <!-- 导航统计 -->
     <div class="row mb-4">
       <div class="col-md-3 col-6 mb-3">
-        {% set show = 'categories_total' %}
-        {% include 'components/cards/dashCards.html' %}
+        {% with show='categories_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
       <div class="col-md-3 col-6 mb-3">
-        {% set show = 'navigations_total' %}
-        {% include 'components/cards/dashCards.html' %}
+        {% with show='navigations_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
       <div class="col-md-3 col-6 mb-3">
-        {% set show = 'public_navigations_total' %}
-        {% include 'components/cards/dashCards.html' %}
+        {% with show='public_navigations_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
       <div class="col-md-3 col-6 mb-3">
-        {% set show = 'private_navigations_total' %}
-        {% include 'components/cards/dashCards.html' %}
+        {% with show='private_navigations_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
     </div>
 

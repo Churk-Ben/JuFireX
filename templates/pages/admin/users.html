@@ -63,40 +63,24 @@
     <!-- 用户统计 -->
     <div class="row mb-4">
       <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-users" style="font-size: 2rem; color: var(--github-accent)"></i>
-            <h4 class="mt-2 mb-0">{{ users|length }}</h4>
-            <p class="text-muted mb-0">总用户数</p>
-          </div>
-        </div>
+        {% with show='users_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
       <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-crown" style="font-size: 2rem; color: #ffd700"></i>
-            <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 3)|list|length }}</h4>
-            <p class="text-muted mb-0">超级管理员</p>
-          </div>
-        </div>
+        {% with show='members_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
       <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-user-cog" style="font-size: 2rem; color: var(--github-warning)"></i>
-            <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 2)|list|length }}</h4>
-            <p class="text-muted mb-0">管理员</p>
-          </div>
-        </div>
+        {% with show='moderators_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
       <div class="col-md-3 col-6 mb-3">
-        <div class="card text-center">
-          <div class="card-body">
-            <i class="fas fa-users" style="font-size: 2rem; color: var(--github-success)"></i>
-            <h4 class="mt-2 mb-0">{{ users|selectattr('role', 'equalto', 1)|list|length }}</h4>
-            <p class="text-muted mb-0">成员</p>
-          </div>
-        </div>
+        {% with show='admins_total' %}
+          {% include 'components/cards/dashCards.html' %}
+        {% endwith %}
       </div>
     </div>
 
