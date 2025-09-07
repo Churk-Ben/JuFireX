@@ -150,3 +150,34 @@ main {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--github-text-secondary);
 }
+
+/* 全局 Tooltip（自定义，替代原生 title 展示） */
+/* 如项目曾用 [title]:hover::after 伪元素，请确保移除或禁用以避免双重显示 */
+.jfs-tooltip {
+    position: fixed; /* 脱离局部 stacking/overflow，解决贡献墙与 badge 裁剪问题 */
+    left: 0;
+    top: 0;
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+    transition: opacity 120ms ease, transform 120ms ease;
+    pointer-events: none; /* 不截获鼠标事件，避免遮挡交互 */
+    z-index: 2147483647; /* 最高层，修复“非顶层”问题 */
+
+    max-width: 320px;
+    padding: 6px 10px;
+    border-radius: 10px; /* 优化圆角 */
+    font-size: 12px;
+    line-height: 1.4;
+
+    color: var(--github-text);
+    background: var(--github-bg);
+    border: 1px solid var(--github-border); /* 与主体风格一致 */
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.jfs-tooltip.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}

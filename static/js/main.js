@@ -152,6 +152,147 @@ document.addEventListener('DOMContentLoaded', function () {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
+    // 自定义 Tooltip 管理器（替代原生 title，支持延迟、越过 overflow 裁剪与顶层显示）
+    (function () {
+        const DELAY = 450; // ms 延迟显示，避免遮挡视线
+        const OFFSET = 10; // 与目标元素的距离
+        let showTimer = null;
+        let activeTarget = null;
+
+        // 1) 迁移非 Bootstrap tooltip 的 title -> data-title，避免原生气泡
+        const migrateTitles = (root = document) => {
+            const nodes = root.querySelectorAll('[title]:not([data-bs-toggle="tooltip"])');
+            nodes.forEach(el => {
+                const t = el.getAttribute('title');
+                if (t && !el.hasAttribute('data-title')) {
+                    el.setAttribute('data-title', t);
+                }
+                el.removeAttribute('title');
+            });
+        };
+        migrateTitles(document);
+
+        // 监听动态 DOM 变化，自动迁移
+        const mo = new MutationObserver(mutations => {
+            mutations.forEach(m => {
+                m.addedNodes && m.addedNodes.forEach(node => {
+                    if (node.nodeType === 1) {
+                        if (node.matches && node.matches('[title]')) migrateTitles(node.parentNode || document);
+                        // 扫描其子树
+                        migrateTitles(node);
+                    }
+                });
+            });
+        });
+        mo.observe(document.documentElement, { childList: true, subtree: true });
+
+        // 2) 单例 Tooltip 节点
+        let tipEl = document.querySelector('.jfs-tooltip');
+        if (!tipEl) {
+            tipEl = document.createElement('div');
+            tipEl.className = 'jfs-tooltip';
+            document.body.appendChild(tipEl);
+        }
+
+        const getTooltipText = (el) => el.getAttribute('data-title');
+
+        const positionTooltip = (target) => {
+            const rect = target.getBoundingClientRect();
+            const tipRect = tipEl.getBoundingClientRect();
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            // 默认显示在元素下方
+            let top = rect.bottom + OFFSET;
+            let left = rect.left + (rect.width - tipRect.width) / 2;
+
+            // 如果下方空间不足，则显示在上方
+            if (top + tipRect.height > vh) {
+                top = rect.top - tipRect.height - OFFSET;
+            }
+
+            // 水平防溢出
+            left = Math.max(8, Math.min(left, vw - tipRect.width - 8));
+
+            tipEl.style.transform = 'translateY(0) scale(1)'; // 复位变换基准
+            tipEl.style.left = Math.round(left) + 'px';
+            tipEl.style.top = Math.round(top) + 'px';
+        };
+
+        const showTooltip = (target) => {
+            const text = getTooltipText(target);
+            if (!text) return;
+            tipEl.textContent = text;
+            tipEl.classList.add('show');
+            tipEl.style.opacity = '1';
+            // 先渲染内容再计算尺寸
+            requestAnimationFrame(() => positionTooltip(target));
+        };
+
+        const hideTooltip = () => {
+            tipEl.classList.remove('show');
+            tipEl.style.opacity = '0';
+            activeTarget = null;
+        };
+
+        const eligible = (el) => {
+            if (!el || el.nodeType !== 1) return null;
+            // 忽略启用 Bootstrap Tooltip 的元素
+            const node = el.closest('[data-title]');
+            if (!node) return null;
+            if (node.matches('[data-bs-toggle="tooltip"]')) return null;
+            return node;
+        };
+
+        // 事件委托：鼠标与键盘焦点
+        document.addEventListener('mouseover', (e) => {
+            const target = eligible(e.target);
+            if (!target) return;
+            if (activeTarget === target) return;
+            clearTimeout(showTimer);
+            showTimer = setTimeout(() => {
+                activeTarget = target;
+                showTooltip(target);
+            }, DELAY);
+        }, true);
+
+        document.addEventListener('focusin', (e) => {
+            const target = eligible(e.target);
+            if (!target) return;
+            clearTimeout(showTimer);
+            showTimer = setTimeout(() => {
+                activeTarget = target;
+                showTooltip(target);
+            }, DELAY);
+        });
+
+        // 跟随移动（减少遮挡）
+        document.addEventListener('mousemove', (e) => {
+            if (!activeTarget) return;
+            // 仅在活跃目标仍在 hover 时更新
+            positionTooltip(activeTarget);
+        });
+
+        // 离开/失焦立即隐藏
+        ['mouseout', 'mouseleave'].forEach(evt => {
+            document.addEventListener(evt, (e) => {
+                if (!activeTarget) return;
+                const related = e.relatedTarget;
+                if (related && (related === tipEl || (related.closest && related.closest('.jfs-tooltip')))) return;
+                clearTimeout(showTimer);
+                hideTooltip();
+            }, true);
+        });
+        document.addEventListener('blur', () => {
+            clearTimeout(showTimer);
+            hideTooltip();
+        }, true);
+
+        // 窗口变化时重新定位
+        window.addEventListener('scroll', () => { if (activeTarget) positionTooltip(activeTarget); }, true);
+        window.addEventListener('resize', () => { if (activeTarget) positionTooltip(activeTarget); });
+    })();
+
     // 添加淡入动画
     document.body.classList.add('fade-in');
 
