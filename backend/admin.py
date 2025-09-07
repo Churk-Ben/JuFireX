@@ -1,5 +1,14 @@
 from datetime import datetime
-from flask import Blueprint, render_template, request, jsonify, session, current_app
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    jsonify,
+    session,
+    current_app,
+    redirect,
+    url_for,
+)
 from .models import (
     db,
     StudioInfo,
