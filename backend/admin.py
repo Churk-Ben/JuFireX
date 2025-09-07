@@ -1,4 +1,3 @@
-from datetime import datetime
 from flask import (
     Blueprint,
     render_template,
@@ -9,37 +8,22 @@ from flask import (
     redirect,
     url_for,
 )
-from .models import (
-    db,
-    StudioInfo,
-    User,
-    Project,
-    NavCategory,
-    NavItem,
-    HiddenNavItem,
-)
-from .config import (
-    ROLE_GUEST,
-    ROLE_MEMBER,
-    ROLE_ADMIN,
-    ROLE_SUPER_ADMIN,
-    ROLE_NAMES,
-)
-from .utils import (
-    require_role,
-    can_manage_user,
-    validate_csrf_token,
-    save_file_to_user_data,
-    delete_user_data_file,
-)
+from .models import db, User
+from .config import ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_NAMES
+from .utils import require_role, can_manage_user, validate_csrf_token
+from .services.admin_service import AdminService
 
 admin_bp = Blueprint("admin", __name__)
+
+# 创建管理员服务实例
+admin_service = AdminService(db)
 
 
 @admin_bp.route("/admin/projects")
 @require_role(ROLE_ADMIN)
 def admin_projects():
-    projects = Project.query.order_by(Project.created_at.desc()).all()
+    # 使用服务层获取所有项目
+    projects = admin_service.get_all_projects()
     current_user = db.session.get(User, session["user_id"])
     return render_template(
         "pages/admin/projects.html",
@@ -51,7 +35,8 @@ def admin_projects():
 @admin_bp.route("/admin/users")
 @require_role(ROLE_ADMIN)
 def admin_users():
-    users = User.query.order_by(User.created_at.desc()).all()
+    # 使用服务层获取所有用户
+    users = admin_service.get_all_users()
     current_user = db.session.get(User, session["user_id"])
     return render_template(
         "pages/admin/users.html",
@@ -65,7 +50,8 @@ def admin_users():
 @admin_bp.route("/settings/studio")
 @require_role(ROLE_ADMIN)
 def admin_studio_info():
-    studio_info = StudioInfo.query.first()
+    # 使用服务层获取工作室信息
+    studio_info = admin_service.get_studio_info()
     current_user = db.session.get(User, session["user_id"])
     return render_template(
         "pages/settings/studio.html",
@@ -78,39 +64,16 @@ def admin_studio_info():
 @require_role(ROLE_ADMIN)
 def admin_navigation():
     current_user = db.session.get(User, session["user_id"])
-    # 获取所有分类和导航项
-    categories = NavCategory.query.order_by(NavCategory.order).all()
-    nav_items = NavItem.query.order_by(NavItem.order).all()
-
-    # 获取当前用户隐藏的导航项
-    hidden_items = (
-        db.session.query(HiddenNavItem, NavItem)
-        .join(NavItem, HiddenNavItem.nav_item_id == NavItem.id)
-        .filter(HiddenNavItem.user_id == current_user.id)
-        .all()
-    )
-
-    hidden_nav_items = []
-    for hidden_item, nav_item in hidden_items:
-        hidden_nav_items.append(
-            {
-                "id": nav_item.id,
-                "title": nav_item.title,
-                "url": nav_item.url,
-                "description": nav_item.description,
-                "icon": nav_item.icon,
-                "category_id": nav_item.category_id,
-                "category_name": nav_item.category.name,
-                "hidden_at": hidden_item.hidden_at.strftime("%Y-%m-%d %H:%M:%S"),
-            }
-        )
-
+    
+    # 使用服务层获取导航管理数据
+    nav_data = admin_service.get_navigation_data(current_user.id)
+    
     return render_template(
         "pages/admin/navigations.html",
         current_user=current_user,
-        categories=categories,
-        nav_items=nav_items,
-        hidden_nav_items=hidden_nav_items,
+        categories=nav_data["categories"],
+        nav_items=nav_data["nav_items"],
+        hidden_nav_items=nav_data["hidden_nav_items"],
     )
 
 
@@ -121,17 +84,16 @@ def update_user_role(user_id):
     if not validate_csrf_token():
         return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
 
-    user = User.query.get_or_404(user_id)
     data = request.get_json()
     new_role = data.get("role")
-
-    if new_role not in [ROLE_GUEST, ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN]:
-        return jsonify({"success": False, "message": "无效的角色"}), 400
-
-    user.role = new_role
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "用户角色更新成功"})
+    
+    # 使用服务层更新用户角色
+    success, message = admin_service.update_user_role(user_id, new_role)
+    
+    if not success:
+        return jsonify({"success": False, "message": message}), 400
+        
+    return jsonify({"success": True, "message": message})
 
 
 @admin_bp.route("/api/users/<int:user_id>/status", methods=["PUT"])
@@ -141,37 +103,30 @@ def update_user_status(user_id):
     if not validate_csrf_token():
         return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
 
-    user = User.query.get_or_404(user_id)
     data = request.get_json()
     new_status = data.get("is_active")
 
     if new_status is None:
         return jsonify({"success": False, "message": "缺少状态参数"}), 400
 
-    user.is_active = new_status
-    db.session.commit()
-
-    status_text = "激活" if new_status else "禁用"
-    return jsonify({"success": True, "message": f"用户已{status_text}"})
+    # 使用服务层更新用户状态
+    success, message = admin_service.update_user_status(user_id, new_status)
+    
+    if not success:
+        return jsonify({"success": False, "message": message}), 400
+        
+    return jsonify({"success": True, "message": message})
 
 
 @admin_bp.route("/api/users/<int:user_id>", methods=["GET"])
 @require_role(ROLE_ADMIN)
 def get_user(user_id):
-    user = User.query.get_or_404(user_id)
-
-    # 构建用户数据
-    user_data = {
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
-        "role": user.role,
-        "role_name": ROLE_NAMES.get(user.role, "未知"),
-        "is_active": user.is_active,
-        "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-        "avatar_path": user.avatar_path,
-    }
-
+    # 使用服务层获取用户详情
+    user_data = admin_service.get_user_details(user_id)
+    
+    if not user_data:
+        return jsonify({"success": False, "message": "用户不存在"}), 404
+        
     return jsonify({"success": True, "user": user_data})
 
 
@@ -182,24 +137,20 @@ def delete_user(user_id):
     if not validate_csrf_token():
         return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
 
-    user = User.query.get_or_404(user_id)
-
-    # 不能删除自己
-    if user.id == session["user_id"]:
-        return jsonify({"success": False, "message": "不能删除自己的账户"}), 400
-
-    # 不能删除其他超级管理员（除非是超级管理员删除普通管理员）
-    current_user = db.session.get(User, session["user_id"])
-    if user.role == ROLE_SUPER_ADMIN and current_user.role != ROLE_SUPER_ADMIN:
-        return jsonify({"success": False, "message": "权限不足"}), 403
-
-    try:
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify({"success": True, "message": "用户已删除"})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"success": False, "message": f"删除失败: {str(e)}"}), 500
+    # 使用服务层删除用户
+    success, message = admin_service.delete_user(user_id, session["user_id"])
+    
+    if not success:
+        # 根据错误消息判断状态码
+        if message == "权限不足":
+            status_code = 403
+        elif message == "不能删除自己的账户":
+            status_code = 400
+        else:
+            status_code = 500
+        return jsonify({"success": False, "message": message}), status_code
+        
+    return jsonify({"success": True, "message": message})
 
 
 @admin_bp.route("/api/studio-info", methods=["PUT"])
@@ -209,56 +160,12 @@ def update_studio_info():
     if not validate_csrf_token():
         return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
 
-    try:
-        data = request.get_json()
-        studio_info = StudioInfo.query.first()
-
-        if not studio_info:
-            # 如果不存在，创建新的
-            studio_info = StudioInfo(
-                name=data.get("name", ""),
-                description=data.get("description", ""),
-                logo_url=data.get("logo_url", ""),
-                contact_email=data.get("contact_email", ""),
-                github_url=data.get("github_url", ""),
-            )
-            db.session.add(studio_info)
-        else:
-            # 更新现有信息
-            studio_info.name = data.get("name", studio_info.name)
-            studio_info.description = data.get("description", studio_info.description)
-            if "logo_url" in data:
-                new_logo_url = data["logo_url"]
-                old_logo_url = studio_info.logo_url
-
-                # 如果新的URL与旧的URL不同，或者新的URL为空，则处理旧图片
-                if new_logo_url != old_logo_url:
-                    if old_logo_url:
-                        delete_user_data_file(old_logo_url)
-
-                    if new_logo_url:
-                        # 保存新的logo图片到用户数据目录
-                        saved_url = save_file_to_user_data(
-                            new_logo_url, storage_folder="user_data"
-                        )
-                        if saved_url:
-                            studio_info.logo_url = saved_url
-                        else:
-                            current_app.logger.warning(
-                                f"Failed to save logo from {new_logo_url}"
-                            )
-                            # 保存失败，可以选择不更新URL
-                    else:
-                        # 如果新的URL为空，则清空数据库中的值
-                        studio_info.logo_url = None
-            studio_info.contact_email = data.get(
-                "contact_email", studio_info.contact_email
-            )
-            studio_info.github_url = data.get("github_url", studio_info.github_url)
-            studio_info.updated_at = datetime.now()
-
-        db.session.commit()
-        return jsonify({"success": True, "message": "工作室信息更新成功"})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"success": False, "message": f"更新失败: {str(e)}"}), 500
+    data = request.get_json()
+    
+    # 使用服务层更新工作室信息
+    success, message = admin_service.update_studio_info(data)
+    
+    if not success:
+        return jsonify({"success": False, "message": message}), 500
+        
+    return jsonify({"success": True, "message": message})

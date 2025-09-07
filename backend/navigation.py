@@ -1,60 +1,30 @@
 from flask import Blueprint, render_template, request, jsonify, session
-from .models import db, NavCategory, NavItem, HiddenNavItem, User
+from .models import db, User
 from .config import ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_GUEST
 from .utils import require_role, can_manage_nav_item, validate_csrf_token
+from .services.navigation_service import NavigationService
 
 navigation_bp = Blueprint("navigation", __name__)
+
+# 创建导航服务实例
+navigation_service = NavigationService(db)
 
 
 @navigation_bp.route("/navigation")
 @require_role(ROLE_GUEST)
 def navigation():
-    # 获取所有分类和导航项
-    categories = NavCategory.query.order_by(NavCategory.order).all()
     current_user = db.session.get(User, session.get("user_id"))
-
-    # 获取当前用户隐藏的导航项
-    hidden_nav_items = []
-    hidden_nav_item_ids = []
-    if current_user:
-        hidden_items = (
-            db.session.query(HiddenNavItem, NavItem)
-            .join(NavItem, HiddenNavItem.nav_item_id == NavItem.id)
-            .filter(HiddenNavItem.user_id == current_user.id)
-            .all()
-        )
-        hidden_nav_items = [
-            {
-                "id": nav_item.id,
-                "title": nav_item.title,
-                "url": nav_item.url,
-                "description": nav_item.description,
-                "icon": nav_item.icon,
-                "category_id": nav_item.category_id,
-                "category_name": nav_item.category.name,
-            }
-            for _, nav_item in hidden_items
-        ]
-        hidden_nav_item_ids = [item["id"] for item in hidden_nav_items]
-
-    # 获取所有导航项并按分类分组
-    nav_items_by_category = {}
-    for category in categories:
-        # 获取该分类下的所有导航项（排除隐藏的）
-        query = NavItem.query.filter_by(category_id=category.id)
-        if hidden_nav_item_ids:
-            query = query.filter(~NavItem.id.in_(hidden_nav_item_ids))
-        nav_items = query.order_by(NavItem.order).all()
-
-        if nav_items:
-            nav_items_by_category[category.id] = nav_items
-
+    user_id = current_user.id if current_user else None
+    
+    # 使用服务层获取用户导航数据
+    nav_data = navigation_service.get_user_navigation(user_id)
+    
     return render_template(
         "pages/navigations.html",
-        categories=categories,
+        categories=nav_data["categories"],
         current_user=current_user,
-        hidden_nav_items=hidden_nav_items,
-        nav_items_by_category=nav_items_by_category,
+        hidden_nav_items=nav_data["hidden_nav_items"],
+        nav_items_by_category=nav_data["nav_items_by_category"],
     )
 
 
@@ -66,20 +36,11 @@ def hide_nav_item(nav_item_id):
         return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
 
     user_id = session["user_id"]
-
-    # 检查是否已经隐藏
-    existing = HiddenNavItem.query.filter_by(
-        user_id=user_id, nav_item_id=nav_item_id
-    ).first()
-    if existing:
-        return jsonify({"success": False, "message": "该导航项已被隐藏"})
-
-    # 添加隐藏记录
-    hidden_item = HiddenNavItem(user_id=user_id, nav_item_id=nav_item_id)
-    db.session.add(hidden_item)
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "导航项已隐藏"})
+    
+    # 使用服务层隐藏导航项
+    success, message = navigation_service.hide_nav_item(user_id, nav_item_id)
+    
+    return jsonify({"success": success, "message": message})
 
 
 @navigation_bp.route("/api/navigation/unhide/<int:nav_item_id>", methods=["POST"])
@@ -90,18 +51,11 @@ def unhide_nav_item(nav_item_id):
         return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
 
     user_id = session["user_id"]
-
-    # 查找并删除隐藏记录
-    hidden_item = HiddenNavItem.query.filter_by(
-        user_id=user_id, nav_item_id=nav_item_id
-    ).first()
-    if not hidden_item:
-        return jsonify({"success": False, "message": "该导航项未被隐藏"})
-
-    db.session.delete(hidden_item)
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "导航项已显示"})
+    
+    # 使用服务层显示导航项
+    success, message = navigation_service.unhide_nav_item(user_id, nav_item_id)
+    
+    return jsonify({"success": success, "message": message})
 
 
 @navigation_bp.route("/api/navigation/unhide_all", methods=["POST"])
@@ -112,12 +66,11 @@ def unhide_all_nav_items():
         return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
 
     user_id = session["user_id"]
-
-    # 删除该用户所有隐藏记录
-    num_deleted = HiddenNavItem.query.filter_by(user_id=user_id).delete()
-    db.session.commit()
-
-    return jsonify({"success": True, "message": f"{num_deleted} 个导航项已恢复"})
+    
+    # 使用服务层显示所有导航项
+    success, message = navigation_service.unhide_all_nav_items(user_id)
+    
+    return jsonify({"success": success, "message": message})
 
 
 @navigation_bp.route(
@@ -128,19 +81,19 @@ def toggle_nav_item_privacy(nav_item_id):
     # 验证 CSRF token
     if not validate_csrf_token():
         return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
-
-    nav_item = NavItem.query.get_or_404(nav_item_id)
-    nav_item.is_private = not nav_item.is_private
-    db.session.commit()
-
-    status = "私有" if nav_item.is_private else "公开"
-    return jsonify({"success": True, "message": f"导航项已设为{status}"})
+    
+    # 使用服务层切换导航项私有状态
+    success, message, _ = navigation_service.toggle_nav_item_privacy(nav_item_id)
+    
+    return jsonify({"success": success, "message": message})
 
 
 @navigation_bp.route("/api/nav-categories", methods=["GET"])
 @require_role(ROLE_GUEST)
 def get_nav_categories():
-    categories = NavCategory.query.order_by(NavCategory.order).all()
+    # 使用服务层获取所有导航分类
+    categories = navigation_service.get_navigation_data()["categories"]
+    
     categories_data = []
     for category in categories:
         categories_data.append(
@@ -164,25 +117,17 @@ def create_nav_category():
     if not name:
         return jsonify({"success": False, "message": "分类名称不能为空"}), 400
 
-    # 检查名称是否已存在
-    existing = NavCategory.query.filter_by(name=name).first()
-    if existing:
-        return jsonify({"success": False, "message": "分类名称已存在"}), 400
-
-    category = NavCategory(name=name, order=order)
-    db.session.add(category)
-    db.session.commit()
+    # 使用服务层创建导航分类
+    success, message, category_data = navigation_service.create_nav_category(name, order)
+    
+    if not success:
+        return jsonify({"success": False, "message": message}), 400
 
     return jsonify(
         {
             "success": True,
-            "message": "分类创建成功",
-            "category": {
-                "id": category.id,
-                "name": category.name,
-                "order": category.order,
-                "created_at": category.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            },
+            "message": message,
+            "category": category_data,
         }
     )
 
@@ -190,62 +135,42 @@ def create_nav_category():
 @navigation_bp.route("/api/nav-categories/<int:category_id>", methods=["PUT"])
 @require_role(ROLE_ADMIN)
 def update_nav_category(category_id):
-    category = NavCategory.query.get_or_404(category_id)
     data = request.get_json()
-
     name = data.get("name")
     order = data.get("order")
-
-    if name:
-        # 检查名称是否已存在（排除当前分类）
-        existing = (
-            NavCategory.query.filter_by(name=name)
-            .filter(NavCategory.id != category_id)
-            .first()
-        )
-        if existing:
-            return jsonify({"success": False, "message": "分类名称已存在"}), 400
-        category.name = name
-
-    if order is not None:
-        category.order = order
-
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "分类更新成功"})
+    
+    # 使用服务层更新导航分类
+    success, message, category_data = navigation_service.update_nav_category(category_id, name, order)
+    
+    if not success:
+        return jsonify({"success": False, "message": message}), 400
+        
+    return jsonify({
+        "success": True,
+        "message": message,
+        "category": category_data
+    })
 
 
 @navigation_bp.route("/api/nav-categories/<int:category_id>", methods=["DELETE"])
 @require_role(ROLE_ADMIN)
 def delete_nav_category(category_id):
-    category = NavCategory.query.get_or_404(category_id)
+    # 使用服务层删除导航分类
+    success, message = navigation_service.delete_nav_category(category_id)
+    
+    if not success:
+        return jsonify({"success": False, "message": message}), 400
 
-    # 检查是否有关联的导航项
-    nav_items_count = NavItem.query.filter_by(category_id=category_id).count()
-    if nav_items_count > 0:
-        return (
-            jsonify({"success": False, "message": "该分类下还有导航项，无法删除"}),
-            400,
-        )
-
-    db.session.delete(category)
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "分类删除成功"})
+    return jsonify({"success": True, "message": message})
 
 
 @navigation_bp.route("/api/nav-items", methods=["GET"])
 @require_role(ROLE_GUEST)
 def get_nav_items():
     category_id = request.args.get("category_id", type=int)
-    if category_id:
-        nav_items = (
-            NavItem.query.filter_by(category_id=category_id)
-            .order_by(NavItem.order)
-            .all()
-        )
-    else:
-        nav_items = NavItem.query.order_by(NavItem.order).all()
+    
+    # 使用服务层获取导航项
+    nav_items = navigation_service.get_nav_items(category_id)
 
     items_data = []
     for item in nav_items:
@@ -273,82 +198,31 @@ def get_nav_items():
 @require_role(ROLE_MEMBER)
 def create_nav_item():
     data = request.get_json()
-    title = data.get("title")
-    url = data.get("url")
-    description = data.get("description", "")
-    icon = data.get("icon", "")
-    order = data.get("order", 0)
-    is_public = data.get("is_public", True)
-    category_id = data.get("category_id")
-
-    if not title or not url or not category_id:
-        return jsonify({"success": False, "message": "标题、链接和分类不能为空"}), 400
-
-    # 验证分类是否存在
-    category = NavCategory.query.get(category_id)
-    if not category:
-        return jsonify({"success": False, "message": "指定的分类不存在"}), 400
-
-    nav_item = NavItem(
-        title=title,
-        url=url,
-        description=description,
-        icon=icon,
-        order=order,
-        is_public=is_public,
-        category_id=category_id,
-        created_by=session["user_id"],
-    )
-    db.session.add(nav_item)
-    db.session.commit()
-
-    return jsonify(
-        {
-            "success": True,
-            "message": "导航项创建成功",
-            "item": {
-                "id": nav_item.id,
-                "title": nav_item.title,
-                "url": nav_item.url,
-                "description": nav_item.description,
-                "icon": nav_item.icon,
-                "order": nav_item.order,
-                "is_public": nav_item.is_public,
-                "category_id": nav_item.category_id,
-                "category_name": nav_item.category.name,
-                "creator_id": nav_item.created_by,
-                "creator_name": nav_item.creator.username,
-                "created_at": nav_item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            },
-        }
-    )
+    user_id = session.get("user_id")
+    
+    # 使用服务层创建导航项
+    success, message, item_data = navigation_service.create_nav_item(data, user_id)
+    
+    if not success:
+        return jsonify({"success": False, "message": message}), 400
+        
+    return jsonify({
+        "success": True,
+        "message": message,
+        "item": item_data
+    })
 
 
 @navigation_bp.route("/api/nav-items/<int:item_id>", methods=["GET"])
 @require_role(ROLE_MEMBER)
 def get_nav_item(item_id):
-    nav_item = NavItem.query.get_or_404(item_id)
     user_id = session["user_id"]
-    user = db.session.get(User, user_id)
-
-    # 检查权限：只有创建者或超级管理员可以查看详情
-    if nav_item.created_by != user_id and user.role < ROLE_SUPER_ADMIN:
-        return jsonify({"success": False, "message": "权限不足"}), 403
-
-    item_data = {
-        "id": nav_item.id,
-        "title": nav_item.title,
-        "url": nav_item.url,
-        "description": nav_item.description,
-        "icon": nav_item.icon,
-        "order": nav_item.order,
-        "is_public": nav_item.is_public,
-        "category_id": nav_item.category_id,
-        "category_name": nav_item.category.name,
-        "creator_id": nav_item.created_by,
-        "creator_name": nav_item.creator.username if nav_item.creator else None,
-        "created_at": nav_item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-    }
+    
+    # 使用服务层获取单个导航项
+    success, message, item_data = navigation_service.get_nav_item(item_id, user_id)
+    
+    if not success:
+        return jsonify({"success": False, "message": message}), 403
 
     return jsonify({"success": True, "item": item_data})
 
@@ -356,47 +230,34 @@ def get_nav_item(item_id):
 @navigation_bp.route("/api/nav-items/<int:item_id>", methods=["PUT"])
 @require_role(ROLE_MEMBER, owner_check=can_manage_nav_item)
 def update_nav_item(item_id):
-    nav_item = NavItem.query.get_or_404(item_id)
     data = request.get_json()
-
-    # 更新字段
-    if "title" in data:
-        nav_item.title = data["title"]
-    if "url" in data:
-        nav_item.url = data["url"]
-    if "description" in data:
-        nav_item.description = data["description"]
-    if "icon" in data:
-        nav_item.icon = data["icon"]
-    if "order" in data:
-        nav_item.order = data["order"]
-    if "is_public" in data:
-        nav_item.is_public = data["is_public"]
-    if "category_id" in data:
-        # 验证分类是否存在
-        category = NavCategory.query.get(data["category_id"])
-        if not category:
-            return jsonify({"success": False, "message": "指定的分类不存在"}), 400
-        nav_item.category_id = data["category_id"]
-
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "导航项更新成功"})
+    user_id = session.get("user_id")
+    
+    # 使用服务层更新导航项
+    success, message, item_data = navigation_service.update_nav_item(item_id, data, user_id)
+    
+    if not success:
+        return jsonify({"success": False, "message": message}), 400
+        
+    return jsonify({
+        "success": True,
+        "message": message,
+        "item": item_data
+    })
 
 
 @navigation_bp.route("/api/nav-items/<int:item_id>", methods=["DELETE"])
 @require_role(ROLE_MEMBER, owner_check=can_manage_nav_item)
 def delete_nav_item(item_id):
-    nav_item = NavItem.query.get_or_404(item_id)
-
-    # 删除相关的隐藏记录
-    HiddenNavItem.query.filter_by(nav_item_id=item_id).delete()
-
-    # 删除导航项
-    db.session.delete(nav_item)
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "导航项删除成功"})
+    user_id = session.get("user_id")
+    
+    # 使用服务层删除导航项
+    success, message = navigation_service.delete_nav_item(item_id, user_id)
+    
+    if not success:
+        return jsonify({"success": False, "message": message}), 400
+        
+    return jsonify({"success": True, "message": message})
 
 
 @navigation_bp.route("/api/nav-items/<int:item_id>/visibility", methods=["PUT"])
@@ -410,20 +271,10 @@ def toggle_nav_item_visibility(item_id):
     is_public = data.get("is_public")
     user_id = session["user_id"]
 
-    # 切换公开/私有状态（仅限创建者或超级管理员）
-    nav_item = NavItem.query.get_or_404(item_id)
-    user = db.session.get(User, user_id)
-
-    if nav_item.created_by != user_id and user.role < ROLE_SUPER_ADMIN:
-        return (
-            jsonify(
-                {"success": False, "message": "只有创建者或超级管理员可以修改隐私设置"}
-            ),
-            403,
-        )
-
-    nav_item.is_public = is_public
-    db.session.commit()
-
-    status = "公开" if nav_item.is_public else "私有"
-    return jsonify({"success": True, "message": f"导航项已设为{status}"})
+    # 使用服务层切换导航项可见性
+    success, message = navigation_service.toggle_nav_item_visibility(item_id, is_public, user_id)
+    
+    if not success:
+        return jsonify({"success": False, "message": message}), 403
+        
+    return jsonify({"success": True, "message": message})
