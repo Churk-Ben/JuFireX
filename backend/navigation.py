@@ -267,12 +267,8 @@ def toggle_nav_item_visibility(item_id):
     if not validate_csrf_token():
         return jsonify({"success": False, "message": "CSRF 验证失败"}), 403
 
-    data = request.get_json()
-    is_public = data.get("is_public")
-    user_id = session["user_id"]
-
     # 使用服务层切换导航项可见性
-    success, message = navigation_service.toggle_nav_item_visibility(item_id, is_public, user_id)
+    success, message, is_private = navigation_service.toggle_nav_item_privacy(item_id)
     
     if not success:
         return jsonify({"success": False, "message": message}), 403

@@ -290,12 +290,50 @@ class NavigationService:
             return False, "导航项不存在", None
         
         try:
-            nav_item.is_private = not nav_item.is_private
+            nav_item.is_public = not nav_item.is_public
             self.db.session.commit()
             
-            status = "私有" if nav_item.is_private else "公开"
-            return True, f"导航项已设为{status}", nav_item.is_private
+            status = "公开" if nav_item.is_public else "私有"
+            return True, f"导航项已设为{status}", not nav_item.is_public
         except Exception as e:
             self.db.session.rollback()
             current_app.logger.error(f"切换导航项私有状态失败: {str(e)}")
             return False, f"设置失败: {str(e)}", None
+    
+    def get_nav_item(self, nav_item_id, user_id):
+        """获取单个导航项
+        
+        Args:
+            nav_item_id: 导航项ID
+            user_id: 用户ID
+            
+        Returns:
+            (success, message, item_data) 元组
+        """
+        nav_item = NavItem.query.get(nav_item_id)
+        if not nav_item:
+            return False, "导航项不存在", None
+        
+        # 获取创建者信息
+        creator = User.query.get(nav_item.created_by)
+        creator_name = creator.username if creator else "未知"
+        
+        # 检查是否被当前用户隐藏
+        is_hidden = HiddenNavItem.query.filter_by(user_id=user_id, nav_item_id=nav_item_id).first() is not None
+        
+        item_data = {
+            "id": nav_item.id,
+            "title": nav_item.title,
+            "url": nav_item.url,
+            "description": nav_item.description,
+            "icon": nav_item.icon,
+            "is_public": nav_item.is_public,
+            "order": nav_item.order,
+            "category_id": nav_item.category_id,
+            "created_by": nav_item.created_by,
+            "creator_name": creator_name,
+            "created_at": nav_item.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "is_hidden": is_hidden
+        }
+        
+        return True, "获取成功", item_data
