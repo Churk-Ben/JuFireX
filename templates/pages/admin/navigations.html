@@ -67,9 +67,9 @@
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="{{ category.icon }}"></i> {{ category.name }}</h5>
             <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNavItemModal" data-category-id="{{ category.id }}"><i class="fas fa-plus"></i></button>
-              <button class="btn btn-sm btn-outline-primary edit-category" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}" data-category-icon="{{ category.icon }}" data-category-order="{{ category.order }}"><i class="fas fa-edit"></i></button>
-              <button class="btn btn-sm btn-outline-danger delete-category" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}"><i class="fas fa-trash-alt"></i></button>
+              <button class="btn btn-sm btn-action" data-bs-toggle="modal" data-bs-target="#addNavItemModal" data-category-id="{{ category.id }}"><i class="fas fa-plus"></i></button>
+              <button class="btn btn-sm btn-action edit-category" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}" data-category-icon="{{ category.icon }}" data-category-order="{{ category.order }}"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-sm btn-action delete-category" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}"><i class="fas fa-trash-alt"></i></button>
             </div>
           </div>
           <div class="card-body">
@@ -140,9 +140,9 @@
                         <!-- 操作 -->
                         <td>
                           <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-outline-primary edit-nav-item" data-item-id="{{ item.id }}" data-item-title="{{ item.title }}" data-item-url="{{ item.url }}" data-item-description="{{ item.description or '' }}" data-item-icon="{{ item.icon or '' }}" data-item-category-id="{{ item.category_id }}" data-item-is-public="{{ item.is_public|lower }}" data-item-order="{{ item.order }}"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger delete-nav-item" data-item-id="{{ item.id }}" data-item-title="{{ item.title }}"><i class="fas fa-trash-alt"></i></button>
-                            <button class="btn btn-sm btn-outline-secondary toggle-visibility" data-item-id="{{ item.id }}" data-is-public="{{ item.is_public|lower }}">
+                            <button class="btn btn-sm btn-action edit-nav-item" data-item-id="{{ item.id }}" data-item-title="{{ item.title }}" data-item-url="{{ item.url }}" data-item-description="{{ item.description or '' }}" data-item-icon="{{ item.icon or '' }}" data-item-category-id="{{ item.category_id }}" data-item-is-public="{{ item.is_public|lower }}" data-item-order="{{ item.order }}"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-action delete-nav-item" data-item-id="{{ item.id }}" data-item-title="{{ item.title }}"><i class="fas fa-trash-alt"></i></button>
+                            <button class="btn btn-sm btn-action toggle-visibility" data-item-id="{{ item.id }}" data-is-public="{{ item.is_public|lower }}">
                               {% if item.is_public %}
                                 <i class="fas fa-eye-slash"></i>
                               {% else %}

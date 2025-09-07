@@ -1,5 +1,5 @@
 /* 按钮 */
-.btn-sm {
+.btn-action {
     border-color: var(--github-border);
     color: var(--github-text-secondary);
     background-color: transparent;
