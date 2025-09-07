@@ -46,7 +46,6 @@ def require_role(min_role, owner_check=None):
 
             # 如果用户权限不足且没有所有权，则拒绝访问
             if not has_role_permission and not has_ownership:
-                # TODO: 重定向到403
                 flash("权限不足或操作不允许", "error")
                 if request.path.startswith("/api/"):
                     return (
@@ -54,7 +53,7 @@ def require_role(min_role, owner_check=None):
                         403,
                     )
                 else:
-                    return redirect(url_for("index"))
+                    return redirect(url_for("errors.forbidden"))
 
             return f(*args, **kwargs)
 

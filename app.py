@@ -21,6 +21,7 @@ from backend.auth import auth_bp
 from backend.projects import projects_bp
 from backend.navigation import navigation_bp
 from backend.admin import admin_bp
+from backend.errors import errors_bp
 
 # 创建Flask应用
 app = Flask(__name__)
@@ -54,6 +55,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(projects_bp)
 app.register_blueprint(navigation_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(errors_bp)
 
 
 # 添加CSRF token到模板上下文
@@ -102,21 +104,9 @@ def index():
     )
 
 
-# 错误处理
-@app.errorhandler(404)
-def page_not_found(e):
-    # 获取当前用户信息
-    current_user = None
-    if "user_id" in session:
-        current_user = db.session.get(User, session["user_id"])
-
-    return (
-        render_template(
-            "pages/errors/404.html",
-            current_user=current_user,
-        ),
-        404,
-    )
+# 注册错误处理器
+from backend.errors import register_error_handlers
+register_error_handlers(app)
 
 
 # SocketIO事件处理

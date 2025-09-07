@@ -66,7 +66,7 @@
         <h5 class="mb-0"><i class="fas fa-list"></i> 项目列表</h5>
         <div class="input-group" style="width: 300px">
           <input type="text" class="form-control" id="searchInput" placeholder="搜索项目..." />
-          <button class="btn btn-outline-primary" type="button" id="searchButton"><i class="fas fa-search"></i></button>
+          <button class="btn btn-outline-secondary" type="button" id="searchButton"><i class="fas fa-search"></i></button>
         </div>
       </div>
       <div class="card-body">
@@ -131,15 +131,15 @@
                     <td>
                       <div class="btn-group btn-group-sm" role="group">
                         {% if project.github_url %}
-                          <a href="{{ project.github_url }}" class="btn btn-outline-light" target="_blank" title="查看源码"><i class="fab fa-github"></i></a>
+                          <a href="{{ project.github_url }}" class="btn" target="_blank" title="查看源码"><i class="fab fa-github"></i></a>
                         {% endif %}
 
                         {% if project.demo_url %}
-                          <a href="{{ project.demo_url }}" class="btn btn-outline-primary" target="_blank" title="查看演示"><i class="fas fa-external-link-alt"></i></a>
+                          <a href="{{ project.demo_url }}" class="btn" target="_blank" title="查看演示"><i class="fas fa-external-link-alt"></i></a>
                         {% endif %}
-                        <button class="btn btn-outline-warning toggle-featured" data-project-id="{{ project.id }}" data-is-featured="{{ project.is_featured }}" title="切换精选状态"><i class="fas fa-star"></i></button>
-                        <button class="btn btn-outline-info edit-project" data-project-id="{{ project.id }}" title="编辑项目"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-outline-danger delete-project" data-project-id="{{ project.id }}" title="删除项目"><i class="fas fa-trash"></i></button>
+                        <button class="btn toggle-featured" data-project-id="{{ project.id }}" data-is-featured="{{ project.is_featured }}" title="切换精选状态"><i class="fas fa-star"></i></button>
+                        <button class="btn edit-project" data-project-id="{{ project.id }}" title="编辑项目"><i class="fas fa-edit"></i></button>
+                        <button class="btn delete-project" data-project-id="{{ project.id }}" title="删除项目"><i class="fas fa-trash"></i></button>
                       </div>
                     </td>
                   </tr>

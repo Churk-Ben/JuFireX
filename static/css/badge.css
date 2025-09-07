@@ -156,7 +156,6 @@
 }
 
 /* 用户徽章 */
-
 .userBadge-link {
     border: 1px solid var(--github-border);
     border-radius: 16px;
@@ -169,16 +168,22 @@
     margin: auto 0;
 }
 
+.userBadge-link:hover,
+.userBadge-link:hover>.userBadge-name {
+    color: var(--github-accent);
+    border-color: var(--github-accent);
+}
+
 .userBadge-avatar {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     margin: 0 0 0 -1px;
+    position: relative;
 }
 
 .userBadge-avatar-img {
@@ -199,17 +204,41 @@
 }
 
 .userBadge-dot-box {
-    width: 32px;
-    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: -1px;
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
 }
 
 .userBadge-dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     padding: 0;
     display: inline-block !important;
+}
+
+.userBadge-name {
+    font-size: 1em;
+    margin-bottom: 0.1em;
+    margin-right: 1em;
+    color: var(--github-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    transition: all 0.2s;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: var(--github-bg);
+    margin: 20px auto;
+    overflow: hidden;
+    object-fit: cover;
+    font-size: 120px;
+    color: var(--github-accent);
 }

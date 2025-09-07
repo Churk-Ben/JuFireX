@@ -37,19 +37,22 @@
 
           <div class="d-flex gap-3">
             {% if not current_user %}
-              <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+              <a href="{{ url_for('auth.register') }}" class="btn btn-lg btn-primary">
                 <i class="fas fa-user-plus"></i>
                 加入我们
               </a>
-              <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">
+              <a href="{{ url_for('auth.login') }}" class="btn btn-lg btn-outline-primary">
                 <i class="fas fa-sign-in-alt"></i>
                 登录
               </a>
             {% else %}
-              <a href="{{ url_for('auth.profile', user_id=session.user_id) }}" class="btn btn-primary btn-lg"><i class="fas fa-user"></i> 个人主页</a>
-              <a href="{{ url_for('navigation.navigation') }}" class="btn btn-outline-light btn-lg">
+              <a href="{{ url_for('auth.profile', user_id=session.user_id) }}" class="btn btn-lg btn-primary">
+                <i class="fas fa-user"></i>
+                个人主页
+              </a>
+              <a href="{{ url_for('navigation.navigation') }}" class="btn btn-lg btn-outline-primary">
                 <i class="fas fa-compass"></i>
-                导航
+                导航站
               </a>
             {% endif %}
           </div>

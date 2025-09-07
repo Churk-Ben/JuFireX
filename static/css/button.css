@@ -1,27 +1,8 @@
 /* 按钮 */
-.btn-primary {
-    background-color: var(--github-primary);
-    border-color: var(--github-primary);
-}
-
-.btn-primary:hover {
-    background-color: var(--github-accent);
-    border-color: var(--github-accent);
-}
-
-.btn-success {
-    background-color: var(--github-success);
-    border-color: var(--github-success);
-}
-
-.btn-danger {
-    background-color: var(--github-danger);
-    border-color: var(--github-danger);
-}
-
-.btn-outline-light {
-    color: var(--github-text);
+.btn-sm {
     border-color: var(--github-border);
+    color: var(--github-text-secondary);
+    background-color: transparent;
 }
 
 .btn-outline-light:hover {
@@ -30,15 +11,10 @@
     border-color: var(--github-accent);
 }
 
-.btn-outline-primary {
-    color: var(--github-accent);
-    border-color: var(--github-border);
-}
-
 .btn-outline-primary:hover {
     background-color: rgba(88, 166, 255, 0.1);
-    color: var(--github-accent);
-    border-color: var(--github-accent);
+    color: var(--github-primary);
+    border-color: var(--github-primary);
 }
 
 .btn-icon {
