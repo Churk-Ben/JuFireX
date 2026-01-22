@@ -47,14 +47,14 @@ import {
 } from "naive-ui";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
-  faBars,
+  faHome,
+  faUser,
   faGamepad,
   faGlobe,
-  faHome,
-  faLanguage,
+  faBars,
   faMoon,
   faSun,
-  faUserGroup,
+  faLanguage,
 } from "@fortawesome/free-solid-svg-icons";
 
 const { locale, t } = useI18n();
@@ -95,13 +95,9 @@ function toggleCollapsed() {
 const menuValue = ref(route.path);
 const menuOptions = computed(() => [
   { label: t("sider.menu.home"), key: "/", icon: renderIcon(faHome) },
-  {
-    label: t("sider.menu.roles"),
-    key: "/roles",
-    icon: renderIcon(faUserGroup),
-  },
-  { label: t("sider.menu.local"), key: "/local", icon: renderIcon(faGamepad) },
-  { label: t("sider.menu.online"), key: "/online", icon: renderIcon(faGlobe) },
+  { label: t("sider.menu.page1"), key: "/page1", icon: renderIcon(faUser) },
+  { label: t("sider.menu.page2"), key: "/page2", icon: renderIcon(faGamepad) },
+  { label: t("sider.menu.page3"), key: "/page3", icon: renderIcon(faGlobe) },
 ]);
 
 function onMenu(key: string) {
