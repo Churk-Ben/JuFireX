@@ -1,0 +1,114 @@
+{
+  "app": {
+    "title": "LudusEngine",
+    "subtitle": "Language Tabletop Platform",
+    "description": "Integrated language class board game platform using Python and Vue3. Supports local and online games."
+  },
+  "sider": {
+    "menu": {
+      "home": "Welcome",
+      "roles": "Role Manager",
+      "local": "Local Game",
+      "online": "Online Game"
+    },
+    "ctrl": {
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "locale": "Language",
+      "theme": {
+        "dark": "Dark",
+        "light": "Light"
+      }
+    }
+  },
+  "role": {
+    "title": "Role Manager",
+    "manager": {
+      "title": "Created Players"
+    },
+    "sections": {
+      "human": "Human Player",
+      "llm": "Large Language Model"
+    },
+    "empty": "Empty",
+    "addRole": "Add Role",
+    "modal": {
+      "title": "Create Role",
+      "type": {
+        "label": "Role Type",
+        "human": "Human",
+        "online": "Online Model",
+        "local": "Local Model"
+      },
+      "fields": {
+        "roleName": "Role Name",
+        "provider": "Provider",
+        "modelName": "Model",
+        "api": "API KEY",
+        "localPath": "Model File Path",
+        "prefixPrompt": "Prefix Prompt (Long Text)",
+        "parameters": "Startup Parameters"
+      },
+      "actions": {
+        "create": "Create",
+        "cancel": "Cancel"
+      }
+    },
+    "validation": {
+      "humanExists": "Human player already exists",
+      "required": "Please complete all fields",
+      "absolutePath": "Please provide an absolute path"
+    },
+    "llm": {
+      "title": "LLM Player",
+      "providerPlaceholder": "Provider/API/Local Model",
+      "modelPlaceholder": "Model"
+    },
+    "human": {
+      "title": "Human Player"
+    },
+    "common": {
+      "namePlaceholder": "Name",
+      "add": "Add",
+      "added": "Added",
+      "notSet": "Not set",
+      "remove": "Remove"
+    }
+  },
+  "local": {
+    "title": "Local Game",
+    "configTitle": "Local Game Configuration",
+    "selectGameTitle": "Select Local Game",
+    "selectPlaceholder": "Please select",
+    "selectPlayersTitle": "Select Players",
+    "startButton": "Enter Game UI",
+    "pluginPlaceholder": "Plugin area reserved for custom styles and interactions",
+    "steps": {
+      "prepare": "Prepare",
+      "deal": "Deal/Assign Roles",
+      "play": "Gameplay",
+      "result": "Result"
+    }
+  },
+  "online": {
+    "title": "Online Game",
+    "lobbyTitle": "Online Lobby",
+    "notOpen": "Not available yet",
+    "testInfo": "This is an information message",
+    "testSuccess": "This is a success message",
+    "testWarning": "This is a warning message",
+    "testError": "This is an error message"
+  },
+  "game": {
+    "title": "Game",
+    "chat": {
+      "inputPlaceholder": "Type a message",
+      "send": "Send",
+      "me": "Me"
+    },
+    "flow": {
+      "title": "Flow"
+    },
+    "players": "Players List"
+  }
+}
