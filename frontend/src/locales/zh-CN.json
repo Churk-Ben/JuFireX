@@ -1,15 +1,15 @@
 {
   "app": {
-    "title": "Ludus 引擎",
-    "subtitle": "语言类桌游平台",
-    "description": "一个基于Python, Vue3的统合语言类桌游平台, 支持本地游戏与联机游戏。"
+    "title": "JuFireX",
+    "subtitle": "爝火工作室",
+    "description": "是一个充满热爱与活力的游戏创意工作室。"
   },
   "sider": {
     "menu": {
       "home": "首页",
-      "roles": "角色管理",
-      "local": "本地游戏",
-      "online": "联机游戏"
+      "page1": "页面1",
+      "page2": "页面2",
+      "page3": "页面3"
     },
     "ctrl": {
       "expand": "展开",
@@ -20,95 +20,5 @@
         "light": "亮色"
       }
     }
-  },
-  "role": {
-    "title": "角色管理",
-    "manager": {
-      "title": "已创建的玩家列表"
-    },
-    "sections": {
-      "human": "人类玩家",
-      "llm": "大语言模型"
-    },
-    "empty": "空",
-    "addRole": "添加角色",
-    "modal": {
-      "title": "创建角色",
-      "type": {
-        "label": "角色类型",
-        "human": "人类",
-        "online": "在线模型",
-        "local": "本地模型"
-      },
-      "fields": {
-        "roleName": "角色名称",
-        "provider": "提供商",
-        "modelName": "模型",
-        "api": "API KEY",
-        "localPath": "模型文件路径",
-        "prefixPrompt": "前缀提示词(长文本)",
-        "parameters": "启动参数"
-      },
-      "actions": {
-        "create": "创建",
-        "cancel": "取消"
-      }
-    },
-    "validation": {
-      "humanExists": "已存在人类玩家，无法创建",
-      "required": "请填写完整信息",
-      "absolutePath": "请提供绝对路径"
-    },
-    "llm": {
-      "title": "LLM玩家",
-      "providerPlaceholder": "提供商/API/本地模型",
-      "modelPlaceholder": "模型"
-    },
-    "human": {
-      "title": "人类玩家"
-    },
-    "common": {
-      "namePlaceholder": "名称",
-      "add": "添加",
-      "added": "已添加",
-      "notSet": "未设定",
-      "remove": "移除"
-    }
-  },
-  "local": {
-    "title": "本地游戏",
-    "configTitle": "配置本地游戏",
-    "selectGameTitle": "选择本地游戏",
-    "selectPlaceholder": "请选择",
-    "selectPlayersTitle": "选择参与玩家",
-    "startButton": "进入游戏界面",
-    "pluginPlaceholder": "游戏插件预留空间，供自定义风格与交互",
-    "steps": {
-      "prepare": "准备",
-      "deal": "发牌/分配角色",
-      "play": "游戏进行",
-      "result": "结算"
-    }
-  },
-  "online": {
-    "title": "联机游戏",
-    "lobbyTitle": "联机大厅",
-    "notOpen": "暂不开放",
-    "testInfo": "这是一条信息消息",
-    "testSuccess": "这是一条成功消息",
-    "testWarning": "这是一条警告消息",
-    "testError": "这是一条错误消息"
-  },
-  "game": {
-    "title": "游戏",
-    "chat": {
-      "inputPlaceholder": "输入消息",
-      "send": "发送",
-      "me": "我"
-    },
-    "flow": {
-      "title": "流程"
-    },
-    "players": "玩家列表"
   }
 }

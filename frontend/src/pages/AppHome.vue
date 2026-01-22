@@ -1,33 +1,8 @@
 <template>
   <div class="container">
     <div class="row g-3">
-      <div class="col-6">
-        <n-card embedded>
-          <n-result
-            status="info"
-            :title="t('app.title')"
-            :description="t('app.description')"
-          >
-            <template #icon>
-              <FontAwesomeIcon
-                size="5x"
-                class="my-1"
-                :icon="faGamepad"
-                :style="{ color: '#3BAAFF' }"
-              />
-            </template>
-            <template #footer>
-              <n-space vertical>
-                <n-button @click="$router.push('/local')">
-                  {{ t("local.title") }}
-                </n-button>
-                <n-button @click="$router.push('/online')" disabled>
-                  {{ t("online.title") }}
-                </n-button>
-              </n-space>
-            </template>
-          </n-result>
-        </n-card>
+      <div class="col-12">
+        <h1>{{ t("app.title") }}</h1>
       </div>
     </div>
   </div>
