@@ -44,7 +44,7 @@ class Config:
     
     # Logging
     LOG_DIR = PROJECT_ROOT / "logs"
-    LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+    LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
 
 
     @staticmethod
@@ -54,3 +54,7 @@ class Config:
         os.makedirs(Config.PROFILES_DB_PATH.parent, exist_ok=True)
         os.makedirs(Config.NAVS_DB_PATH.parent, exist_ok=True)
         os.makedirs(Config.LOG_DIR, exist_ok=True)
+
+
+if __name__ == "__main__":
+    Config.ensure_dirs()
