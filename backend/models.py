@@ -1,9 +1,7 @@
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from .config import ROLE_NAMES
-
-db = SQLAlchemy()
+from .extensions import db
 
 
 class User(db.Model):

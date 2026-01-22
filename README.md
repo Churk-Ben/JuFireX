@@ -1,4 +1,4 @@
-# JuFire Studio - 工作室主页系统
+# JuFireX Studio
 
 一个基于 Flask + SocketIO + SQLite 的现代化工作室主页系统，采用 GitHub 风格设计。
 
