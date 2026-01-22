@@ -47,7 +47,7 @@ import {
 } from "naive-ui";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
-  faHome,
+  faFire,
   faUser,
   faGamepad,
   faGlobe,
@@ -94,7 +94,7 @@ function toggleCollapsed() {
 // 应用菜单选项
 const menuValue = ref(route.path);
 const menuOptions = computed(() => [
-  { label: t("sider.menu.home"), key: "/", icon: renderIcon(faHome) },
+  { label: t("sider.menu.home"), key: "/", icon: renderIcon(faFire) },
   { label: t("sider.menu.page1"), key: "/page1", icon: renderIcon(faUser) },
   { label: t("sider.menu.page2"), key: "/page2", icon: renderIcon(faGamepad) },
   { label: t("sider.menu.page3"), key: "/page3", icon: renderIcon(faGlobe) },
