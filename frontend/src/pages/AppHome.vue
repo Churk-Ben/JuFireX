@@ -3,6 +3,9 @@
     <div class="row g-3">
       <div class="col-12">
         <h1>{{ t("app.title") }}</h1>
+        <router-link to="/test">
+          <n-button>Go to API Test Page</n-button>
+        </router-link>
       </div>
     </div>
   </div>
