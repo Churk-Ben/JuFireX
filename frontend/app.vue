@@ -1,41 +1,15 @@
 <template>
-  <n-config-provider
-    :date-locale="naiveDateLocale"
-    :inline-theme-disabled="true"
-    :locale="naiveLocale"
-    :theme="naiveTheme"
-  >
+  <n-config-provider :date-locale="naiveDateLocale" :inline-theme-disabled="true" :locale="naiveLocale"
+    :theme="naiveTheme">
     <div class="app">
       <n-layout has-sider style="height: 100vh">
-        <n-layout-sider
-          :width="collapsed ? 64 : 240"
-          bordered
-          class="app-sider"
-        >
-          <div
-            :style="{ opacity: siderContentVisible ? 1 : 0 }"
-            class="sider-content d-flex flex-column justify-content-between h-100"
-          >
-            <n-menu
-              :collapsed="collapsed"
-              :collapsed-width="64"
-              :indent="16"
-              :options="menuOptions"
-              :root-indent="16"
-              :value="menuValue"
-              class="app-menu"
-              @update:value="onMenu"
-            />
-            <n-menu
-              :collapsed="collapsed"
-              :collapsed-width="64"
-              :indent="16"
-              :options="ctrlOptions"
-              :root-indent="16"
-              :value="ctrlValue"
-              class="app-ctrl"
-              @update:value="onCtrl"
-            />
+        <n-layout-sider :width="collapsed ? 64 : 240" bordered class="app-sider">
+          <div :style="{ opacity: siderContentVisible ? 1 : 0 }"
+            class="sider-content d-flex flex-column justify-content-between h-100">
+            <n-menu :collapsed="collapsed" :collapsed-width="64" :indent="16" :options="menuOptions" :root-indent="16"
+              :value="menuValue" class="app-menu" @update:value="onMenu" />
+            <n-menu :collapsed="collapsed" :collapsed-width="64" :indent="16" :options="ctrlOptions" :root-indent="16"
+              :value="ctrlValue" class="app-ctrl" @update:value="onCtrl" />
           </div>
         </n-layout-sider>
         <n-layout-content class="app-content" content-style="min-height: 0;">
