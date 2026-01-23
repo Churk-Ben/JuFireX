@@ -6,7 +6,7 @@ from flask_cors import CORS
 # Add project root to sys.path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from backend.config import Config
-from backend.utils import Logger
+from backend.core import Logger
 
 def create_app(config_class=Config):
     Config.ensure_dirs()
