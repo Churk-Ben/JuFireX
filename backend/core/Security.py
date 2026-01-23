@@ -5,9 +5,9 @@
 
 import functools
 
-from flask import current_app, jsonify, session
+from flask import jsonify, current_app, session
 
-from backend.config import ROLE_ADMIN, ROLE_GUEST, ROLE_MEMBER, ROLE_SUPER_ADMIN
+from backend.config import ROLE_GUEST, ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN
 
 
 def require_role(role):
@@ -29,7 +29,7 @@ def require_role(role):
         def decorated_function(*args, **kwargs):
             if "user_id" not in session:
                 return (
-                    jsonify({"error": "Unauthorized", "message": "Please login first"}),
+                    jsonify({"level": "warning", "message": "请先登录"}),
                     401,
                 )
 
@@ -37,9 +37,7 @@ def require_role(role):
 
             if user_role < role:
                 return (
-                    jsonify(
-                        {"error": "Forbidden", "message": "Insufficient permissions"}
-                    ),
+                    jsonify({"level": "warning", "message": "权限不足"}),
                     403,
                 )
 
