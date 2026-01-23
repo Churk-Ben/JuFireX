@@ -2,6 +2,7 @@ from typing import Optional, List
 from ..database import db
 from ..models.user import User, HiddenNavItem
 
+
 class UserRepository:
     @staticmethod
     def get_by_id(user_id: int) -> Optional[User]:
@@ -43,7 +44,9 @@ class UserRepository:
 
     @staticmethod
     def hide_nav_item(user_id: int, nav_item_id: int):
-        existing = HiddenNavItem.query.filter_by(user_id=user_id, nav_item_id=nav_item_id).first()
+        existing = HiddenNavItem.query.filter_by(
+            user_id=user_id, nav_item_id=nav_item_id
+        ).first()
         if not existing:
             item = HiddenNavItem(user_id=user_id, nav_item_id=nav_item_id)
             db.session.add(item)
@@ -51,7 +54,9 @@ class UserRepository:
 
     @staticmethod
     def unhide_nav_item(user_id: int, nav_item_id: int):
-        existing = HiddenNavItem.query.filter_by(user_id=user_id, nav_item_id=nav_item_id).first()
+        existing = HiddenNavItem.query.filter_by(
+            user_id=user_id, nav_item_id=nav_item_id
+        ).first()
         if existing:
             db.session.delete(existing)
             db.session.commit()

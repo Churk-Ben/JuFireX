@@ -27,26 +27,25 @@ ROLE_NAMES = {
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "JuFireX-Secret-Key-Change-Me")
-    
+
     # Data Paths
     PROFILES_DB_PATH = DATABASE_DIR / "profiles" / "users.db"
     NAVS_DB_PATH = DATABASE_DIR / "navs" / "navs.db"
-    
+
     PROJECTS_DIR = DATABASE_DIR / "projects"
     BLOGS_DIR = DATABASE_DIR / "blogs"
-    
+
     # SQLAlchemy configuration
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{PROFILES_DB_PATH}"
     SQLALCHEMY_BINDS = {
         "users": f"sqlite:///{PROFILES_DB_PATH}",
-        "navs": f"sqlite:///{NAVS_DB_PATH}"
+        "navs": f"sqlite:///{NAVS_DB_PATH}",
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
+
     # Logging
     LOG_DIR = PROJECT_ROOT / "logs"
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
-
 
     @staticmethod
     def ensure_dirs():

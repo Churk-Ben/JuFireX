@@ -2,6 +2,7 @@ from datetime import datetime
 
 from backend.data.database import db
 
+
 class NavCategory(db.Model):
     __bind_key__ = "navs"
     __tablename__ = "nav_category"
@@ -11,7 +12,7 @@ class NavCategory(db.Model):
     icon = db.Column(db.String(50), default="fas fa-link")
     order = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.now)
-    created_by_id = db.Column(db.Integer) # Logic link to User.id
+    created_by_id = db.Column(db.Integer)  # Logic link to User.id
 
     # Relationship to items
     nav_items = db.relationship(
@@ -26,8 +27,9 @@ class NavCategory(db.Model):
             "order": self.order,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "created_by_id": self.created_by_id,
-            "items": [item.to_dict() for item in self.nav_items]
+            "items": [item.to_dict() for item in self.nav_items],
         }
+
 
 class NavItem(db.Model):
     __bind_key__ = "navs"
@@ -41,9 +43,9 @@ class NavItem(db.Model):
     is_public = db.Column(db.Boolean, default=True)
     order = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.now)
-    
+
     category_id = db.Column(db.Integer, db.ForeignKey("nav_category.id"))
-    created_by_id = db.Column(db.Integer) # Logic link to User.id
+    created_by_id = db.Column(db.Integer)  # Logic link to User.id
 
     def to_dict(self):
         return {
@@ -56,5 +58,5 @@ class NavItem(db.Model):
             "order": self.order,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "category_id": self.category_id,
-            "created_by_id": self.created_by_id
+            "created_by_id": self.created_by_id,
         }

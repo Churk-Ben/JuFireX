@@ -13,13 +13,13 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 def create_app(config_class=Config):
     Config.ensure_dirs()
-    
+
     app = Flask(__name__)
     app.config.from_object(config_class)
-    
+
     # 启用 CORS
     CORS(app)
-    
+
     # 初始化 Logger
     app.logger = Logger.get_logger("JuFireX_Backend")
     app.logger.info("正在初始化 JuFireX Backend...")
@@ -27,18 +27,21 @@ def create_app(config_class=Config):
     # 初始化数据库
     app.logger.info("正在初始化数据库...")
     from backend.data.database import init_db
+
     init_db(app)
 
     # 注册 API 蓝图
     app.logger.info("正在注册 API 蓝图...")
     from backend.api import register_blueprints
+
     register_blueprints(app)
-    
+
     @app.route("/health")
     def health_check():
         return {"status": "healthy", "version": "2.0.0"}
 
     return app
+
 
 if __name__ == "__main__":
     app = create_app()

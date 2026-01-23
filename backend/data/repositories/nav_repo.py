@@ -2,6 +2,7 @@ from typing import List, Optional
 from backend.data.database import db
 from backend.data.models.nav import NavCategory, NavItem
 
+
 class NavRepository:
     @staticmethod
     def get_categories() -> List[NavCategory]:
@@ -16,7 +17,7 @@ class NavRepository:
         db.session.add(category)
         db.session.commit()
         return category
-    
+
     @staticmethod
     def update_category(category: NavCategory) -> NavCategory:
         db.session.commit()

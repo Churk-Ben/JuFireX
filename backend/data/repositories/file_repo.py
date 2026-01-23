@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 from typing import List, Dict, Optional
 
+
 # 文件仓库类
 class FileRepository:
     def __init__(self, base_path: Path):
@@ -20,12 +21,12 @@ class FileRepository:
         items = []
         if not self.base_path.exists():
             return []
-            
+
         for entry in os.scandir(self.base_path):
             if entry.is_dir():
                 metadata = self.get_metadata(entry.name)
                 if metadata:
-                    metadata['id'] = entry.name
+                    metadata["id"] = entry.name
                     items.append(metadata)
         return items
 
@@ -33,7 +34,7 @@ class FileRepository:
         meta_path = self._get_item_path(item_id) / "metadata.json"
         if meta_path.exists():
             try:
-                with open(meta_path, 'r', encoding='utf-8') as f:
+                with open(meta_path, "r", encoding="utf-8") as f:
                     return json.load(f)
             except Exception:
                 return None
@@ -42,9 +43,9 @@ class FileRepository:
     def save_metadata(self, item_id: str, metadata: Dict):
         item_path = self._get_item_path(item_id)
         os.makedirs(item_path, exist_ok=True)
-        
+
         meta_path = item_path / "metadata.json"
-        with open(meta_path, 'w', encoding='utf-8') as f:
+        with open(meta_path, "w", encoding="utf-8") as f:
             json.dump(metadata, f, ensure_ascii=False, indent=4)
 
     def create_item(self, item_id: str, metadata: Dict) -> bool:

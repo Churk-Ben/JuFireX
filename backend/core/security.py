@@ -9,45 +9,61 @@ from flask import current_app, jsonify, session
 
 from backend.config import ROLE_ADMIN, ROLE_GUEST, ROLE_MEMBER, ROLE_SUPER_ADMIN
 
+
 def require_role(role):
     """
     装饰器, 检查当前用户是否有足够的权限.
-    
+
     如果用户未登录, 返回 401 错误.
     如果用户角色低于所需角色, 返回 403 错误.
-    
+
     Args:
         role (int): 所需的角色等级.
-        
+
     Returns:
         function: 包装后的函数.
     """
+
     def decorator(f):
         @functools.wraps(f)
         def decorated_function(*args, **kwargs):
             if "user_id" not in session:
-                return jsonify({"error": "Unauthorized", "message": "Please login first"}), 401
-            
+                return (
+                    jsonify({"error": "Unauthorized", "message": "Please login first"}),
+                    401,
+                )
+
             user_role = session.get("role", ROLE_GUEST)
-            
+
             if user_role < role:
-                return jsonify({"error": "Forbidden", "message": "Insufficient permissions"}), 403
-            
+                return (
+                    jsonify(
+                        {"error": "Forbidden", "message": "Insufficient permissions"}
+                    ),
+                    403,
+                )
+
             return f(*args, **kwargs)
+
         return decorated_function
+
     return decorator
+
 
 def require_login(f):
     """需要登录"""
     return require_role(ROLE_GUEST)(f)
 
+
 def require_member(f):
     """需要成员权限"""
     return require_role(ROLE_MEMBER)(f)
 
+
 def require_admin(f):
     """需要管理员权限"""
     return require_role(ROLE_ADMIN)(f)
+
 
 def require_super_admin(f):
     """需要超级管理员权限"""

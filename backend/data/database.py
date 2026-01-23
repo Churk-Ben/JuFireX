@@ -2,10 +2,13 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 
+
 class Base(DeclarativeBase):
     pass
 
+
 db = SQLAlchemy(model_class=Base)
+
 
 def init_db(app: Flask):
     db.init_app(app)
@@ -23,7 +26,7 @@ def init_db(app: Flask):
                 username="admin",
                 email="admin@jufirex.com",
                 role=ROLE_SUPER_ADMIN,
-                is_active=True
+                is_active=True,
             )
             admin.set_password("admin123")
             db.session.add(admin)

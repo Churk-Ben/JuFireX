@@ -16,6 +16,7 @@ FORMATTER = logging.Formatter(
     "%(asctime)s [%(levelname)s] %(name)s - %(message)s", "%Y-%m-%d %H:%M:%S"
 )
 
+
 def _create_stream_handler(level=Config.LOG_LEVEL, formatter=FORMATTER):
     sh = logging.StreamHandler()
     sh.setLevel(level)
@@ -126,7 +127,7 @@ if __name__ == "__main__":
     def test(a, b):
         log.info("函数 test 被调用")
         print(a + b)
-        
+
     # 测试日志记录器
     log.debug("这是一条调试信息")
     log.info("这是一条信息")

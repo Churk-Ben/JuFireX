@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from backend.config import ROLE_NAMES
 from backend.data.database import db
 
+
 class User(db.Model):
     __tablename__ = "user"
     __bind_key__ = "users"
@@ -33,7 +34,7 @@ class User(db.Model):
             "role_name": self.get_role_name(),
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "is_active": self.is_active,
-            "avatar_path": self.avatar_path
+            "avatar_path": self.avatar_path,
         }
 
     def get_role_name(self):
@@ -42,13 +43,14 @@ class User(db.Model):
     def __repr__(self):
         return f"<User {self.username}>"
 
+
 class HiddenNavItem(db.Model):
     __tablename__ = "hidden_nav_item"
     __bind_key__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    nav_item_id = db.Column(db.Integer) # Logic link to NavItem.id (in navs.db)
+    nav_item_id = db.Column(db.Integer)  # Logic link to NavItem.id (in navs.db)
     hidden_at = db.Column(db.DateTime, default=datetime.now)
-    
+
     user = db.relationship("User", backref=db.backref("hidden_nav_items", lazy=True))
