@@ -25,7 +25,7 @@ def _create_stream_handler(level=Config.LOG_LEVEL, formatter=FORMATTER):
 
 
 def _create_file_handler(logfile, level=Config.LOG_LEVEL, formatter=FORMATTER):
-    # 使用大小轮转日志文件，每个文件最大100KB，保留5个备份
+    # 使用大小轮转日志文件, 每个文件最大100KB, 保留5个备份
     fh = ConcurrentRotatingFileHandler(
         logfile, maxBytes=102400, backupCount=5, encoding="utf-8"
     )

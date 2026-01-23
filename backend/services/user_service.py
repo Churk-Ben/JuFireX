@@ -35,7 +35,7 @@ class UserService:
         if not user.is_active:
             return False, "账户已被禁用", None
 
-        # 登录成功，设置 Session
+        # 登录成功, 设置 Session
         session["user_id"] = user.id
         session["role"] = user.role
         session.permanent = True
@@ -92,7 +92,7 @@ class UserService:
         file_data = avatar_file.read()
 
         # 调用 repo 保存头像 (Repo 会自动处理为 Pillow 对象或直接保存)
-        # 假设文件名使用默认的 avatar.png，或者根据上传文件后缀
+        # 假设文件名使用默认的 avatar.png, 或者根据上传文件后缀
         filename = "avatar.png"
         if avatar_file.filename and "." in avatar_file.filename:
             ext = avatar_file.filename.rsplit(".", 1)[1].lower()

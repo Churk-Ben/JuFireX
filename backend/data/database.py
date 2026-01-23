@@ -12,7 +12,7 @@ db = SQLAlchemy(model_class=Base)
 
 def init_db(app: Flask):
     """
-    初始化数据库连接并创建表结构。
+    初始化数据库连接并创建表结构.
     """
     db.init_app(app)
 

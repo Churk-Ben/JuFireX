@@ -10,7 +10,7 @@ CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&
 
 def seed_admin():
     """
-    如果不存在管理员账户，则创建默认管理员账户。
+    如果不存在管理员账户, 则创建默认管理员账户.
     """
     if not User.query.filter_by(username="admin").first():
         admin = User(

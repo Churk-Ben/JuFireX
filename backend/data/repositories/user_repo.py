@@ -12,7 +12,7 @@ from backend.config import Config
 
 class UserRepository:
     """
-    用户数据仓库，封装 User 模型的所有数据库操作以及用户相关的文件存储操作（如头像）。
+    用户数据仓库, 封装 User 模型的所有数据库操作以及用户相关的文件存储操作（如头像）.
     """
 
     def __init__(self):
@@ -24,9 +24,9 @@ class UserRepository:
 
     def get_by_username(self, username: str) -> List[User]:
         """
-        根据用户名获取用户列表。
-        注意：由于用户名在模型定义中不是唯一的 (unique=False)，
-        可能有多个用户拥有相同的用户名，因此返回列表。
+        根据用户名获取用户列表.
+        注意：由于用户名在模型定义中不是唯一的 (unique=False),
+        可能有多个用户拥有相同的用户名, 因此返回列表.
         """
         stmt = select(self.model).filter_by(username=username)
         return list(db.session.scalars(stmt).all())
@@ -51,7 +51,7 @@ class UserRepository:
         return self.model.query.count()
 
     def add(self, user: User, commit: bool = True) -> User:
-        """添加新用户，并初始化用户目录"""
+        """添加新用户, 并初始化用户目录"""
         db.session.add(user)
         if commit:
             db.session.commit()
@@ -66,7 +66,7 @@ class UserRepository:
             db.session.commit()
 
     def delete(self, user: User, commit: bool = True) -> None:
-        """删除用户，并清理用户目录"""
+        """删除用户, 并清理用户目录"""
         db.session.delete(user)
         if commit:
             db.session.commit()
@@ -94,7 +94,7 @@ class UserRepository:
         self, user: User, image: Union[Image.Image, bytes], filename: str = "avatar.png"
     ) -> Path:
         """
-        保存用户头像到用户目录。
+        保存用户头像到用户目录.
         :param user: 用户对象
         :param image: Pillow Image 对象或二进制数据
         :param filename: 文件名（默认为 avatar.png）
@@ -111,8 +111,8 @@ class UserRepository:
             img_obj = image
 
         # 保存图像
-        # 如果 filename 是 .png 结尾，Pillow 会自动保存为 PNG 格式
-        # 这里我们不强制转换格式，而是信任 Pillow 根据文件扩展名处理
+        # 如果 filename 是 .png 结尾, Pillow 会自动保存为 PNG 格式
+        # 这里我们不强制转换格式, 而是信任 Pillow 根据文件扩展名处理
         # 但通常建议标准化头像格式（如 PNG）
         img_obj.save(file_path)
 
@@ -122,8 +122,8 @@ class UserRepository:
         self, user: User, filename: str = "avatar.png"
     ) -> Optional[Path]:
         """
-        获取用户头像文件路径。
-        :return: 如果文件存在返回 Path，否则返回 None
+        获取用户头像文件路径.
+        :return: 如果文件存在返回 Path, 否则返回 None
         """
         user_dir = self._get_user_dir(user)
         file_path = user_dir / filename
@@ -135,8 +135,8 @@ class UserRepository:
         self, user: User, filename: str = "avatar.png"
     ) -> Optional[Image.Image]:
         """
-        获取用户头像的 Pillow Image 对象。
-        :return: 如果文件存在返回 Image 对象，否则返回 None
+        获取用户头像的 Pillow Image 对象.
+        :return: 如果文件存在返回 Image 对象, 否则返回 None
         """
         path = self.get_avatar_path(user, filename)
         if path:
