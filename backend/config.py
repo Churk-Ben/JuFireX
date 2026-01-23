@@ -30,7 +30,6 @@ class Config:
 
     # Data Paths
     PROFILES_DB_PATH = DATABASE_DIR / "profiles" / "users.db"
-    NAVS_DB_PATH = DATABASE_DIR / "navs" / "navs.db"
 
     PROJECTS_DIR = DATABASE_DIR / "projects"
     BLOGS_DIR = DATABASE_DIR / "blogs"
@@ -39,7 +38,6 @@ class Config:
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{PROFILES_DB_PATH}"
     SQLALCHEMY_BINDS = {
         "users": f"sqlite:///{PROFILES_DB_PATH}",
-        "navs": f"sqlite:///{NAVS_DB_PATH}",
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -52,7 +50,6 @@ class Config:
         os.makedirs(Config.PROJECTS_DIR, exist_ok=True)
         os.makedirs(Config.BLOGS_DIR, exist_ok=True)
         os.makedirs(Config.PROFILES_DB_PATH.parent, exist_ok=True)
-        os.makedirs(Config.NAVS_DB_PATH.parent, exist_ok=True)
         os.makedirs(Config.LOG_DIR, exist_ok=True)
 
 

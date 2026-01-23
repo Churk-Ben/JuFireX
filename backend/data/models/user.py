@@ -1,4 +1,5 @@
 from datetime import datetime
+import uuid
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -11,13 +12,15 @@ class User(db.Model):
     __bind_key__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    uuid = db.Column(
+        db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4())
+    )
+    username = db.Column(db.String(80), unique=False, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
     role = db.Column(db.Integer, default=0)  # ROLE_GUEST
     created_at = db.Column(db.DateTime, default=datetime.now)
     is_active = db.Column(db.Boolean, default=True)
-    avatar_path = db.Column(db.String(200), default=None)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -28,13 +31,13 @@ class User(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
+            "uuid": self.uuid,
             "username": self.username,
             "email": self.email,
             "role": self.role,
             "role_name": self.get_role_name(),
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "is_active": self.is_active,
-            "avatar_path": self.avatar_path,
         }
 
     def get_role_name(self):
@@ -42,15 +45,3 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User {self.username}>"
-
-
-class HiddenNavItem(db.Model):
-    __tablename__ = "hidden_nav_item"
-    __bind_key__ = "users"
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    nav_item_id = db.Column(db.Integer)  # Logic link to NavItem.id (in navs.db)
-    hidden_at = db.Column(db.DateTime, default=datetime.now)
-
-    user = db.relationship("User", backref=db.backref("hidden_nav_items", lazy=True))
