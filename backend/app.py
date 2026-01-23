@@ -4,11 +4,11 @@ import sys
 from flask import Flask
 from flask_cors import CORS
 
-from backend.config import Config
-from backend.core import Logger
-
 # 确保项目根目录在 sys.path 中
 sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+from backend.config import Config
+from backend.core import Logger
 
 
 def create_app(config_class=Config):

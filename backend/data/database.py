@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from backend.data.seed import seed_admin
 
 
 class Base(DeclarativeBase):
@@ -20,6 +19,7 @@ def init_db(app: Flask):
     with app.app_context():
         # 导入模型确保它们被注册到 SQLAlchemy
         from backend.data.models.user import User
+        from backend.data.seed import seed_admin
 
         db.create_all()
         seed_admin()

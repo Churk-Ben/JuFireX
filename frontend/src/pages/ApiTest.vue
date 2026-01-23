@@ -7,8 +7,8 @@
           <n-space vertical>
             <n-space>
               <n-input
-                v-model:value="loginForm.username"
-                placeholder="Username"
+                v-model:value="loginForm.identifier"
+                placeholder="Email / UUID"
               />
               <n-input
                 v-model:value="loginForm.password"
@@ -148,7 +148,7 @@ const lastResponse = reactive({
   data: null as any,
 });
 
-const loginForm = reactive({ username: "", password: "" });
+const loginForm = reactive({ identifier: "", password: "" });
 const navForm = reactive({ name: "", icon: "fas fa-link", order: 0 });
 const generic = reactive({
   method: "GET",

@@ -7,9 +7,10 @@
         </div>
       </template>
       <n-form ref="formRef" :model="formModel" :rules="rules">
-        <n-form-item path="username" :label="t('login.username')">
+        <n-form-item path="identifier" label="Email / UUID">
           <n-input
-            v-model:value="formModel.username"
+            v-model:value="formModel.identifier"
+            placeholder="Email or UUID"
             @keydown.enter="handleLogin"
           />
         </n-form-item>
@@ -30,6 +31,9 @@
           >
             {{ t("sider.menu.user.login") }}
           </n-button>
+          <div class="mt-3 text-center">
+            <router-link to="/register">Register new account</router-link>
+          </div>
         </div>
       </n-form>
     </n-card>
@@ -50,14 +54,14 @@ const userStore = useUserStore();
 
 const formRef = ref(null);
 const formModel = reactive({
-  username: "",
+  identifier: "",
   password: "",
 });
 
 const rules = {
-  username: {
+  identifier: {
     required: true,
-    message: t("login.validation.usernameRequired"),
+    message: "Please input Email or UUID",
     trigger: "blur",
   },
   password: {
@@ -68,7 +72,7 @@ const rules = {
 };
 
 async function handleLogin() {
-  if (!formModel.username || !formModel.password) return;
+  if (!formModel.identifier || !formModel.password) return;
 
   try {
     await userStore.login(formModel);
