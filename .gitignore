@@ -120,6 +120,7 @@ config_local.py
 # Database
 *.sqlite3
 *.db
+database/
 
 # Logs
 *.log

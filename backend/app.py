@@ -32,6 +32,7 @@ def create_app(config_class=Config):
     socketio.init_app(app, cors_allowed_origins="*")
     
     # Register Socket Events
+    app.logger.info("正在注册 SocketIO 事件...")
     import backend.sockets
 
     # Register Blueprints
