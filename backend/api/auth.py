@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 from backend.data.repositories.user_repo import UserRepository
 from backend.data.models.user import User
-from backend.core.security import require_login
+from backend.core.Security import require_login
 from backend.config import ROLE_MEMBER
 
 auth_bp = Blueprint("auth", __name__)
