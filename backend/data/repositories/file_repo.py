@@ -1,64 +1,84 @@
-import os
 import json
-import shutil
+import os
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Optional, TypeVar, Dict, Any
+from .base import BaseRepository
+
+T = TypeVar("T", bound=Dict[str, Any])
 
 
-# 文件仓库类
-class FileRepository:
-    def __init__(self, base_path: Path):
-        self.base_path = base_path
-        os.makedirs(self.base_path, exist_ok=True)
+class FileRepository(BaseRepository[T, str]):
+    """
+    基于文件系统的仓储通用实现 (JSON/Markdown等)
+    这里简化为以文件名为 ID，内容为字典的模式
+    """
 
-    # 获取项目路径
-    def _get_item_path(self, item_id: str) -> Path:
-        return self.base_path / item_id
+    def __init__(self, directory: Path):
+        self.directory = directory
+        os.makedirs(self.directory, exist_ok=True)
 
-    # 列出所有项目
-    def list_items(self) -> List[Dict]:
-        """扫描项目目录，返回所有有效项目的元数据"""
-        items = []
-        if not self.base_path.exists():
-            return []
+    def _get_file_path(self, id: str) -> Path:
+        # 假设 ID 就是文件名 (不含扩展名，或包含，这里简化处理)
+        # 具体实现可能需要子类重写，这里默认处理 .json
+        return self.directory / f"{id}.json"
 
-        for entry in os.scandir(self.base_path):
-            if entry.is_dir():
-                metadata = self.get_metadata(entry.name)
-                if metadata:
-                    metadata["id"] = entry.name
-                    items.append(metadata)
-        return items
+    def get(self, id: str) -> Optional[T]:
+        file_path = self._get_file_path(id)
+        if not file_path.exists():
+            return None
 
-    def get_metadata(self, item_id: str) -> Optional[Dict]:
-        meta_path = self._get_item_path(item_id) / "metadata.json"
-        if meta_path.exists():
-            try:
-                with open(meta_path, "r", encoding="utf-8") as f:
-                    return json.load(f)
-            except Exception:
-                return None
-        return None
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                # 注入 ID 到数据中，方便使用
+                if isinstance(data, dict):
+                    data["id"] = id
+                return data
+        except Exception:
+            return None
 
-    def save_metadata(self, item_id: str, metadata: Dict):
-        item_path = self._get_item_path(item_id)
-        os.makedirs(item_path, exist_ok=True)
+    def list(self, **kwargs) -> List[T]:
+        results = []
+        if not self.directory.exists():
+            return results
 
-        meta_path = item_path / "metadata.json"
-        with open(meta_path, "w", encoding="utf-8") as f:
-            json.dump(metadata, f, ensure_ascii=False, indent=4)
+        for filename in os.listdir(self.directory):
+            if filename.endswith(".json"):
+                file_id = filename[:-5]  # remove .json
+                item = self.get(file_id)
+                if item:
+                    # 简单的内存过滤
+                    match = True
+                    for k, v in kwargs.items():
+                        if item.get(k) != v:
+                            match = False
+                            break
+                    if match:
+                        results.append(item)
+        return results
 
-    def create_item(self, item_id: str, metadata: Dict) -> bool:
-        item_path = self._get_item_path(item_id)
-        if item_path.exists():
-            return False
-        self.save_metadata(item_id, metadata)
-        return True
+    def create(self, entity: T) -> T:
+        # 必须确保 entity 中有 ID，或者自动生成 ID
+        if "id" not in entity:
+            raise ValueError("Entity must have an 'id' field for FileRepository")
 
-    def delete_item(self, item_id: str):
-        item_path = self._get_item_path(item_id)
-        if item_path.exists():
-            shutil.rmtree(item_path)
+        file_id = str(entity["id"])
+        file_path = self._get_file_path(file_id)
 
-    def exists(self, item_id: str) -> bool:
-        return self._get_item_path(item_id).exists()
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(entity, f, ensure_ascii=False, indent=2)
+
+        return entity
+
+    def update(self, entity: T) -> T:
+        return self.create(entity)  # 文件覆盖即更新
+
+    def delete(self, id: str) -> bool:
+        file_path = self._get_file_path(id)
+        if file_path.exists():
+            os.remove(file_path)
+            return True
+        return False
+
+    def count(self, **kwargs) -> int:
+        return len(self.list(**kwargs))
