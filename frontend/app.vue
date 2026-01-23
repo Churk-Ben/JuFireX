@@ -48,9 +48,14 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faFire,
+  faCompass,
+  faBook,
+  faBug,
   faUser,
-  faGamepad,
-  faGlobe,
+  faCrown,
+  faUserGroup,
+  faCog,
+  faSignOutAlt,
   faBars,
   faMoon,
   faSun,
@@ -94,10 +99,71 @@ function toggleCollapsed() {
 // 应用菜单选项
 const menuValue = ref(route.path);
 const menuOptions = computed(() => [
-  { label: t("sider.menu.home"), key: "/", icon: renderIcon(faFire) },
-  { label: t("sider.menu.page1"), key: "/page1", icon: renderIcon(faUser) },
-  { label: t("sider.menu.page2"), key: "/page2", icon: renderIcon(faGamepad) },
-  { label: t("sider.menu.page3"), key: "/page3", icon: renderIcon(faGlobe) },
+  {
+    label: t("sider.menu.home"),
+    key: "/",
+    icon: renderIcon(faFire),
+  },
+  {
+    label: t("sider.menu.navigations"),
+    key: "/navigations",
+    icon: renderIcon(faCompass),
+  },
+  {
+    label: t("sider.menu.projects"),
+    key: "/projects",
+    icon: renderIcon(faBook),
+  },
+  {
+    label: t("sider.menu.debug"),
+    key: "/test",
+    icon: renderIcon(faBug),
+  },
+  // 这里暂时先放着，之后要判断是否登录了，还要看权限等级来判断有些选项是否显示
+  {
+    label: t("sider.menu.admin"),
+    key: "/admin",
+    icon: renderIcon(faCrown),
+    children: [
+      {
+        label: t("sider.menu.admin.users"),
+        key: "/admin/users",
+        icon: renderIcon(faUserGroup),
+      },
+      {
+        label: t("sider.menu.admin.navigations"),
+        key: "/admin/navigations",
+        icon: renderIcon(faCompass),
+      },
+      {
+        label: t("sider.menu.admin.projects"),
+        key: "/admin/projects",
+        icon: renderIcon(faBook),
+      },
+    ],
+  },
+  {
+    label: t("sider.menu.user"),
+    key: "/user",
+    icon: renderIcon(faUser),
+    children: [
+      {
+        label: t("sider.menu.user.profile"),
+        key: "/user/profile",
+        icon: renderIcon(faUser),
+      },
+      {
+        label: t("sider.menu.user.settings"),
+        key: "/user/settings",
+        icon: renderIcon(faCog),
+      },
+      {
+        label: t("sider.menu.user.logout"),
+        key: "/user/logout",
+        icon: renderIcon(faSignOutAlt),
+      },
+    ],
+  },
 ]);
 
 function onMenu(key: string) {

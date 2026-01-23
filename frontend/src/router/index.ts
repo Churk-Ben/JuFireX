@@ -1,13 +1,17 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-const AppHome = () => import("@/pages/AppHome.vue");
 const ApiTest = () => import("@/pages/ApiTest.vue");
+const AppHome = () => import("@/pages/AppHome.vue");
+const Navigations = () => import("@/pages/Navigations.vue");
+const Projects = () => import("@/pages/Projects.vue");
 
 const router = createRouter({
 	history: createWebHistory(),
 	routes: [
-		{ path: "/", component: AppHome },
 		{ path: "/test", component: ApiTest },
+		{ path: "/", component: AppHome },
+		{ path: "/navigations", component: Navigations },
+		{ path: "/projects", component: Projects },
 	],
 });
 
