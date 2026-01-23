@@ -29,11 +29,12 @@ def seed_admin():
         user_folder = Config.PROFILES_DB_PATH.parent / admin.uuid
         os.makedirs(user_folder, exist_ok=True)
 
-        print(
-            f"Default admin user created: admin / {init_password} (UUID: {admin.uuid})"
-        )
+        from backend.core.Logger import get_logger
+
+        logger = get_logger(__name__)
+        logger.info(f"默认管理员: admin / {init_password} (UUID: {admin.uuid})")
 
 
 if __name__ == "__main__":
     init_password = "".join(random.choice(CHARSET) for _ in range(12))
-    print(f"Default admin user created: admin / {init_password}")
+    print(f"默认管理员: admin / {init_password}")
