@@ -7,9 +7,18 @@
   "sider": {
     "menu": {
       "home": "首页",
-      "page1": "页面1",
-      "page2": "页面2",
-      "page3": "页面3"
+      "navigations": "导航",
+      "projects": "项目",
+      "debug": "调试",
+      "user": "用户",
+      "user.login": "登录",
+      "user.profile": "个人资料",
+      "user.settings": "设置",
+      "user.logout": "退出登录",
+      "admin": "管理后台",
+      "admin.users": "用户管理",
+      "admin.navigations": "导航管理",
+      "admin.projects": "项目管理"
     },
     "ctrl": {
       "expand": "展开",
@@ -19,6 +28,15 @@
         "dark": "暗色",
         "light": "亮色"
       }
+    }
+  },
+  "login": {
+    "username": "用户名",
+    "password": "密码",
+    "success": "登录成功",
+    "validation": {
+      "usernameRequired": "请输入用户名",
+      "passwordRequired": "请输入密码"
     }
   }
 }

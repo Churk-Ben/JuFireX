@@ -6,10 +6,16 @@
         <n-layout-sider :width="collapsed ? 64 : 240" bordered class="app-sider">
           <div :style="{ opacity: siderContentVisible ? 1 : 0 }"
             class="sider-content d-flex flex-column justify-content-between h-100">
-            <n-menu :collapsed="collapsed" :collapsed-width="64" :indent="16" :options="menuOptions" :root-indent="16"
-              :value="menuValue" class="app-menu" @update:value="onMenu" />
-            <n-menu :collapsed="collapsed" :collapsed-width="64" :indent="16" :options="ctrlOptions" :root-indent="16"
-              :value="ctrlValue" class="app-ctrl" @update:value="onCtrl" />
+            <section>
+              <n-menu :collapsed="collapsed" :collapsed-width="64" :indent="16" :options="menuOptions" :root-indent="16"
+                :value="menuValue" class="app-menu" @update:value="onMenu" />
+            </section>
+            <section>
+              <n-menu :collapsed="collapsed" :collapsed-width="64" :indent="16" :options="ctrlOptions" :root-indent="16"
+                :value="ctrlValue" class="app-ctrl" @update:value="onCtrl" />
+              <n-menu :collapsed="collapsed" :collapsed-width="64" :indent="16" :options="userOptions" :root-indent="16"
+                :value="userValue" class="user-menu" @update:value="onUser" />
+            </section>
           </div>
         </n-layout-sider>
         <n-layout-content class="app-content" content-style="min-height: 0;">
@@ -28,6 +34,7 @@
 import { computed, h, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterView, useRoute, useRouter } from "vue-router";
+import { useUserStore } from "@/stores/user";
 import {
   darkTheme,
   dateEnUS,
@@ -35,6 +42,7 @@ import {
   dateZhCN,
   enUS,
   jaJP,
+  zhCN,
   NConfigProvider,
   NIcon,
   NLayout,
@@ -43,7 +51,6 @@ import {
   NMenu,
   NMessageProvider,
   NDialogProvider,
-  zhCN,
 } from "naive-ui";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
@@ -56,6 +63,7 @@ import {
   faUserGroup,
   faCog,
   faSignOutAlt,
+  faSignInAlt,
   faBars,
   faMoon,
   faSun,
@@ -65,6 +73,7 @@ import {
 const { locale, t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const userStore = useUserStore();
 
 function renderIcon(icon: any) {
   return () =>
@@ -119,51 +128,6 @@ const menuOptions = computed(() => [
     key: "/test",
     icon: renderIcon(faBug),
   },
-  // 这里暂时先放着，之后要判断是否登录了，还要看权限等级来判断有些选项是否显示
-  {
-    label: t("sider.menu.admin"),
-    key: "/admin",
-    icon: renderIcon(faCrown),
-    children: [
-      {
-        label: t("sider.menu.admin.users"),
-        key: "/admin/users",
-        icon: renderIcon(faUserGroup),
-      },
-      {
-        label: t("sider.menu.admin.navigations"),
-        key: "/admin/navigations",
-        icon: renderIcon(faCompass),
-      },
-      {
-        label: t("sider.menu.admin.projects"),
-        key: "/admin/projects",
-        icon: renderIcon(faBook),
-      },
-    ],
-  },
-  {
-    label: t("sider.menu.user"),
-    key: "/user",
-    icon: renderIcon(faUser),
-    children: [
-      {
-        label: t("sider.menu.user.profile"),
-        key: "/user/profile",
-        icon: renderIcon(faUser),
-      },
-      {
-        label: t("sider.menu.user.settings"),
-        key: "/user/settings",
-        icon: renderIcon(faCog),
-      },
-      {
-        label: t("sider.menu.user.logout"),
-        key: "/user/logout",
-        icon: renderIcon(faSignOutAlt),
-      },
-    ],
-  },
 ]);
 
 function onMenu(key: string) {
@@ -205,6 +169,81 @@ function onCtrl(key: string | null) {
     onLocale(key.split(":")[1]);
   }
   ctrlValue.value = null;
+}
+
+// 应用用户选项
+const userValue = ref<string | null>(null);
+const userOptions = computed(() => {
+  if (!userStore.currentUser) {
+    return [
+      {
+        label: t("sider.menu.user.login"),
+        key: "/login",
+        icon: renderIcon(faSignInAlt),
+      },
+    ];
+  }
+  return [
+    {
+      label: userStore.currentUser.username || t("sider.menu.user"),
+      key: "/user",
+      icon: renderIcon(faUser),
+      children: [
+        {
+          label: t("sider.menu.user.profile"),
+          key: "/user/profile",
+          icon: renderIcon(faUser),
+        },
+        {
+          label: t("sider.menu.user.settings"),
+          key: "/user/settings",
+          icon: renderIcon(faCog),
+        },
+        {
+          label: t("sider.menu.admin"),
+          key: "/admin",
+          icon: renderIcon(faCrown),
+          children: [
+            {
+              label: t("sider.menu.admin.users"),
+              key: "/admin/users",
+              icon: renderIcon(faUserGroup),
+            },
+            {
+              label: t("sider.menu.admin.navigations"),
+              key: "/admin/navigations",
+              icon: renderIcon(faCompass),
+            },
+            {
+              label: t("sider.menu.admin.projects"),
+              key: "/admin/projects",
+              icon: renderIcon(faBook),
+            },
+          ],
+        },
+        {
+          label: t("sider.menu.user.logout"),
+          key: "/user/logout",
+          icon: renderIcon(faSignOutAlt),
+        },
+      ],
+    },
+  ];
+});
+
+async function onLogout() {
+  await userStore.logout();
+  router.push("/");
+}
+
+function onUser(key: string | null) {
+  if (!key) return;
+  if (key === "/user/logout") {
+    onLogout();
+  } else {
+    router.push(key);
+  }
+  userValue.value = null;
 }
 
 // 应用主题模式
@@ -265,6 +304,7 @@ function onLocale(v: string) {
 onMounted(() => {
   document.documentElement.lang = locale.value;
   collapsed.value = localStorage.getItem("collapsed") === "true";
+  userStore.checkAuth();
 });
 
 watch(

@@ -12,6 +12,7 @@ const AdminProjects = () => import("@/pages/admin/Projects.vue");
 const UserProfile = () => import("@/pages/user/Profile.vue");
 const UserSettings = () => import("@/pages/user/Settings.vue");
 const UserLogout = () => import("@/pages/user/Logout.vue");
+const Login = () => import("@/pages/Login.vue");
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -24,6 +25,7 @@ const router = createRouter({
 		{ path: "/admin/users", component: AdminUsers },
 		{ path: "/admin/navigations", component: AdminNavigations },
 		{ path: "/admin/projects", component: AdminProjects },
+		{ path: "/login", component: Login },
 		{ path: "/user", redirect: "/user/profile" },
 		{ path: "/user/profile", component: UserProfile },
 		{ path: "/user/settings", component: UserSettings },
