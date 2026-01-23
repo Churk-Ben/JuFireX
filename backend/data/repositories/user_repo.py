@@ -1,21 +1,25 @@
 from typing import Optional, List
+from sqlalchemy import select
 from backend.data.database import db
 from backend.data.models.user import User
-from .db_repo import DBRepository
+from backend.data.repositories.base_repo import BaseRepository
 
 
-class UserRepository(DBRepository[User]):
+class UserRepository(BaseRepository[User]):
     def __init__(self):
         super().__init__(User)
 
-    def get_by_username(self, username: str) -> List[User]:
-        return User.query.filter_by(username=username).all()
+    def get_by_username(self, username: str) -> Optional[User]:
+        stmt = select(self.model).filter_by(username=username)
+        return db.session.scalars(stmt).first()
 
     def get_by_email(self, email: str) -> Optional[User]:
-        return User.query.filter_by(email=email).first()
+        stmt = select(self.model).filter_by(email=email)
+        return db.session.scalars(stmt).first()
 
     def get_by_uuid(self, uuid: str) -> Optional[User]:
-        return User.query.filter_by(uuid=uuid).first()
+        stmt = select(self.model).filter_by(uuid=uuid)
+        return db.session.scalars(stmt).first()
 
     def get_count(self) -> int:
-        return self.count()
+        return self.model.query.count()

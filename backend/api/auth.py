@@ -6,6 +6,10 @@ from backend.config import ROLE_GUEST
 from backend.core.Security import require_login
 from backend.data.models.user import User
 from backend.data import users
+from backend.services.user_service import UserService
+
+# 实例化 UserService
+user_service = UserService(users)
 
 auth_bp = Blueprint("auth", __name__)
 
