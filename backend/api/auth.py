@@ -1,13 +1,15 @@
-from flask import Blueprint, request, jsonify, session
-from backend.data.repositories.user_repo import UserRepository
-from backend.data.models.user import User
-from backend.core.Security import require_login
+from flask import Blueprint, jsonify, request, session
+
 from backend.config import ROLE_MEMBER
+from backend.core.Security import require_login
+from backend.data.models.user import User
+from backend.data.repositories.user_repo import UserRepository
 
 auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
+    """用户登录"""
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
@@ -26,11 +28,13 @@ def login():
 
 @auth_bp.route("/logout", methods=["POST"])
 def logout():
+    """注销当前登录用户"""
     session.clear()
     return jsonify({"message": "Logged out successfully"})
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
+    """用户注册"""
     data = request.get_json()
     username = data.get("username")
     email = data.get("email")
@@ -61,6 +65,7 @@ def register():
 @auth_bp.route("/me", methods=["GET"])
 @require_login
 def get_current_user():
+    """获取当前登录用户的信息"""
     user_id = session.get("user_id")
     user = UserRepository.get_by_id(user_id)
     if not user:

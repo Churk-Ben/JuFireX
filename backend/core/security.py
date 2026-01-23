@@ -4,8 +4,10 @@
 # ------------------------------
 
 import functools
-from flask import session, jsonify, current_app
-from backend.config import ROLE_GUEST, ROLE_MEMBER, ROLE_ADMIN, ROLE_SUPER_ADMIN
+
+from flask import current_app, jsonify, session
+
+from backend.config import ROLE_ADMIN, ROLE_GUEST, ROLE_MEMBER, ROLE_SUPER_ADMIN
 
 def require_role(role):
     """

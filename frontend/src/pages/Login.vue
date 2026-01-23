@@ -8,14 +8,26 @@
       </template>
       <n-form ref="formRef" :model="formModel" :rules="rules">
         <n-form-item path="username" :label="t('login.username')">
-          <n-input v-model:value="formModel.username" @keydown.enter="handleLogin" />
+          <n-input
+            v-model:value="formModel.username"
+            @keydown.enter="handleLogin"
+          />
         </n-form-item>
         <n-form-item path="password" :label="t('login.password')">
-          <n-input v-model:value="formModel.password" type="password" show-password-on="click"
-            @keydown.enter="handleLogin" />
+          <n-input
+            v-model:value="formModel.password"
+            type="password"
+            show-password-on="click"
+            @keydown.enter="handleLogin"
+          />
         </n-form-item>
         <div class="actions">
-          <n-button type="primary" block :loading="userStore.loading" @click="handleLogin">
+          <n-button
+            type="primary"
+            block
+            :loading="userStore.loading"
+            @click="handleLogin"
+          >
             {{ t("sider.menu.user.login") }}
           </n-button>
         </div>

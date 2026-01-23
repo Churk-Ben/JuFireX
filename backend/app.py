@@ -1,12 +1,15 @@
-import sys
 from pathlib import Path
+import sys
+
 from flask import Flask
 from flask_cors import CORS
 
-# Add project root to sys.path
-sys.path.append(str(Path(__file__).resolve().parent.parent))
 from backend.config import Config
 from backend.core import Logger
+
+# 确保项目根目录在 sys.path 中
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 
 def create_app(config_class=Config):
     Config.ensure_dirs()
@@ -17,16 +20,16 @@ def create_app(config_class=Config):
     # 启用 CORS
     CORS(app)
     
-    # Initialize Logger
+    # 初始化 Logger
     app.logger = Logger.get_logger("JuFireX_Backend")
     app.logger.info("正在初始化 JuFireX Backend...")
 
-    # Initialize Extensions (Database, etc.)
+    # 初始化数据库
     app.logger.info("正在初始化数据库...")
     from backend.data.database import init_db
     init_db(app)
 
-    # Register Blueprints
+    # 注册 API 蓝图
     app.logger.info("正在注册 API 蓝图...")
     from backend.api import register_blueprints
     register_blueprints(app)

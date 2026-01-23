@@ -1,8 +1,8 @@
 <template>
-    <div class="container">
-        <h1>{{ t("sider.menu.admin.users") }}</h1>
-        <p>Admin Users Management Page</p>
-    </div>
+  <div class="container">
+    <h1>{{ t("sider.menu.admin.users") }}</h1>
+    <p>Admin Users Management Page</p>
+  </div>
 </template>
 
 <script setup lang="ts">

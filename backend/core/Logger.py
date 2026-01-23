@@ -6,8 +6,10 @@
 import functools
 import inspect
 import logging
-from backend.config import Config
+
 from concurrent_log_handler import ConcurrentRotatingFileHandler
+
+from backend.config import Config
 
 DEFAULT_LOGFILE = Config.LOG_DIR / "jufirex.log"
 FORMATTER = logging.Formatter(

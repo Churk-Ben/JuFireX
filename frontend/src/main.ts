@@ -10,19 +10,23 @@ import App from "../app.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 function resolveInitialLocale(): string {
-	const saved = localStorage.getItem("locale");
-	if (saved) return saved;
-	const nav = (navigator.language || "zh-CN").toLowerCase();
-	if (nav.startsWith("zh")) return "zh-CN";
-	return "en";
+  const saved = localStorage.getItem("locale");
+  if (saved) return saved;
+  const nav = (navigator.language || "zh-CN").toLowerCase();
+  if (nav.startsWith("zh")) return "zh-CN";
+  return "en";
 }
 
 const i18n = createI18n({
-	legacy: false,
-	locale: resolveInitialLocale(),
-	fallbackLocale: "en",
-	messages,
+  legacy: false,
+  locale: resolveInitialLocale(),
+  fallbackLocale: "en",
+  messages,
 });
 
-const app = createApp(App).use(createPinia()).use(router).use(i18n).component("fa", FontAwesomeIcon);
+const app = createApp(App)
+  .use(createPinia())
+  .use(router)
+  .use(i18n)
+  .component("fa", FontAwesomeIcon);
 app.mount("#app");

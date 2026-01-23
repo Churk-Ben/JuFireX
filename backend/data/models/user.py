@@ -1,7 +1,9 @@
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
-from backend.data.database import db
+
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from backend.config import ROLE_NAMES
+from backend.data.database import db
 
 class User(db.Model):
     __tablename__ = "user"

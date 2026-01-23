@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from backend.data.database import db
 
 class NavCategory(db.Model):

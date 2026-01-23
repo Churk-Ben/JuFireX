@@ -1,20 +1,54 @@
 <template>
-  <n-config-provider :date-locale="naiveDateLocale" :inline-theme-disabled="true" :locale="naiveLocale"
-    :theme="naiveTheme">
+  <n-config-provider
+    :date-locale="naiveDateLocale"
+    :inline-theme-disabled="true"
+    :locale="naiveLocale"
+    :theme="naiveTheme"
+  >
     <div class="app">
       <n-layout has-sider style="height: 100vh">
-        <n-layout-sider :width="collapsed ? 64 : 240" bordered class="app-sider">
-          <div :style="{ opacity: siderContentVisible ? 1 : 0 }"
-            class="sider-content d-flex flex-column justify-content-between h-100">
+        <n-layout-sider
+          :width="collapsed ? 64 : 240"
+          bordered
+          class="app-sider"
+        >
+          <div
+            :style="{ opacity: siderContentVisible ? 1 : 0 }"
+            class="sider-content d-flex flex-column justify-content-between h-100"
+          >
             <section>
-              <n-menu :collapsed="collapsed" :collapsed-width="64" :indent="16" :options="menuOptions" :root-indent="16"
-                :value="menuValue" class="app-menu" @update:value="onMenu" />
+              <n-menu
+                :collapsed="collapsed"
+                :collapsed-width="64"
+                :indent="16"
+                :options="menuOptions"
+                :root-indent="16"
+                :value="menuValue"
+                class="app-menu"
+                @update:value="onMenu"
+              />
             </section>
             <section>
-              <n-menu :collapsed="collapsed" :collapsed-width="64" :indent="16" :options="ctrlOptions" :root-indent="16"
-                :value="ctrlValue" class="app-ctrl" @update:value="onCtrl" />
-              <n-menu :collapsed="collapsed" :collapsed-width="64" :indent="16" :options="userOptions" :root-indent="16"
-                :value="userValue" class="user-menu" @update:value="onUser" />
+              <n-menu
+                :collapsed="collapsed"
+                :collapsed-width="64"
+                :indent="16"
+                :options="ctrlOptions"
+                :root-indent="16"
+                :value="ctrlValue"
+                class="app-ctrl"
+                @update:value="onCtrl"
+              />
+              <n-menu
+                :collapsed="collapsed"
+                :collapsed-width="64"
+                :indent="16"
+                :options="userOptions"
+                :root-indent="16"
+                :value="userValue"
+                class="user-menu"
+                @update:value="onUser"
+              />
             </section>
           </div>
         </n-layout-sider>
@@ -258,13 +292,13 @@ const prefersDark = () => {
 };
 const themeMode = ref<"light" | "dark">(prefersDark() ? "dark" : "light");
 const naiveTheme = computed(() =>
-  themeMode.value === "dark" ? darkTheme : null
+  themeMode.value === "dark" ? darkTheme : null,
 );
 
 const themeLabel = computed(() =>
   themeMode.value === "light"
     ? t("sider.ctrl.theme.dark")
-    : t("sider.ctrl.theme.light")
+    : t("sider.ctrl.theme.light"),
 );
 
 function toggleTheme() {
@@ -311,7 +345,7 @@ watch(
   () => route.path,
   (p) => {
     menuValue.value = p;
-  }
+  },
 );
 </script>
 
@@ -325,7 +359,8 @@ watch(
 }
 
 .app-sider {
-  transition: width var(--motion-duration) var(--motion-easing),
+  transition:
+    width var(--motion-duration) var(--motion-easing),
     max-width var(--motion-duration) var(--motion-easing),
     min-width var(--motion-duration) var(--motion-easing),
     color var(--motion-duration) var(--motion-easing),
@@ -340,7 +375,8 @@ watch(
 
 .app-menu :deep(.n-menu-item-content),
 .app-ctrl:deep(.n-menu-item-content) {
-  transition: color var(--motion-duration) var(--motion-easing),
+  transition:
+    color var(--motion-duration) var(--motion-easing),
     background-color var(--motion-duration) var(--motion-easing),
     border-color var(--motion-duration) var(--motion-easing),
     padding var(--motion-duration) var(--motion-easing),

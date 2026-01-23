@@ -6,8 +6,15 @@
         <n-card title="Authentication" class="my-2">
           <n-space vertical>
             <n-space>
-              <n-input v-model:value="loginForm.username" placeholder="Username" />
-              <n-input v-model:value="loginForm.password" placeholder="Password" type="password" />
+              <n-input
+                v-model:value="loginForm.username"
+                placeholder="Username"
+              />
+              <n-input
+                v-model:value="loginForm.password"
+                placeholder="Password"
+                type="password"
+              />
               <n-button-group>
                 <n-button @click="login">登录</n-button>
                 <n-button @click="logout">注销</n-button>
@@ -15,7 +22,8 @@
               </n-button-group>
             </n-space>
             <div v-if="currentUser">
-              Current User: <strong>{{ currentUser.username }}</strong> (Role: {{ currentUser.role }})
+              Current User: <strong>{{ currentUser.username }}</strong> (Role:
+              {{ currentUser.role }})
             </div>
           </n-space>
         </n-card>
@@ -30,11 +38,22 @@
             </n-tab-pane>
             <n-tab-pane name="create" tab="Create Category">
               <n-space vertical>
-                <n-input v-model:value="navForm.name" placeholder="Category Name" />
-                <n-input v-model:value="navForm.icon" placeholder="Icon Class (e.g. fas fa-home)" />
-                <n-input-number v-model:value="navForm.order" placeholder="Order" />
+                <n-input
+                  v-model:value="navForm.name"
+                  placeholder="Category Name"
+                />
+                <n-input
+                  v-model:value="navForm.icon"
+                  placeholder="Icon Class (e.g. fas fa-home)"
+                />
+                <n-input-number
+                  v-model:value="navForm.order"
+                  placeholder="Order"
+                />
                 <n-button-group>
-                  <n-button type="primary" @click="createNavCategory">Create</n-button>
+                  <n-button type="primary" @click="createNavCategory"
+                    >Create</n-button
+                  >
                 </n-button-group>
               </n-space>
             </n-tab-pane>
@@ -57,14 +76,27 @@
         <n-card title="Generic Request" class="my-2">
           <n-space vertical>
             <n-space>
-              <n-select v-model:value="generic.method" :options="methods" style="width: 100px" />
-              <n-input v-model:value="generic.url" placeholder="/api/..." style="width: 300px" />
+              <n-select
+                v-model:value="generic.method"
+                :options="methods"
+                style="width: 100px"
+              />
+              <n-input
+                v-model:value="generic.url"
+                placeholder="/api/..."
+                style="width: 300px"
+              />
               <n-button-group>
                 <n-button type="primary" @click="sendGeneric">Send</n-button>
               </n-button-group>
             </n-space>
-            <n-input v-if="['POST', 'PUT', 'PATCH'].includes(generic.method)" v-model:value="generic.body"
-              type="textarea" placeholder="JSON Body" :rows="3" />
+            <n-input
+              v-if="['POST', 'PUT', 'PATCH'].includes(generic.method)"
+              v-model:value="generic.body"
+              type="textarea"
+              placeholder="JSON Body"
+              :rows="3"
+            />
           </n-space>
         </n-card>
 
@@ -72,11 +104,19 @@
         <n-card title="Response Console" class="my-2">
           <n-space vertical>
             <div v-if="lastResponse.status">
-              <n-tag :type="lastResponse.status >= 200 && lastResponse.status < 300 ? 'success' : 'error'">
+              <n-tag
+                :type="
+                  lastResponse.status >= 200 && lastResponse.status < 300
+                    ? 'success'
+                    : 'error'
+                "
+              >
                 {{ lastResponse.status }} {{ lastResponse.statusText }}
               </n-tag>
             </div>
-            <pre v-if="lastResponse.data">{{ JSON.stringify(lastResponse.data, null, 2) }}</pre>
+            <pre v-if="lastResponse.data">{{
+              JSON.stringify(lastResponse.data, null, 2)
+            }}</pre>
             <div v-else>No response yet</div>
           </n-space>
         </n-card>
@@ -86,33 +126,47 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import { NCard, NSpace, NInput, NButton, NTabs, NTabPane, NInputNumber, NSelect, NTag, NButtonGroup } from 'naive-ui';
+import { ref, reactive } from "vue";
+import {
+  NCard,
+  NSpace,
+  NInput,
+  NButton,
+  NTabs,
+  NTabPane,
+  NInputNumber,
+  NSelect,
+  NTag,
+  NButtonGroup,
+} from "naive-ui";
 
 // State
 const currentUser = ref<any>(null);
 const lastResponse = reactive({
   status: 0,
-  statusText: '',
-  data: null as any
+  statusText: "",
+  data: null as any,
 });
 
-const loginForm = reactive({ username: '', password: '' });
-const navForm = reactive({ name: '', icon: 'fas fa-link', order: 0 });
+const loginForm = reactive({ username: "", password: "" });
+const navForm = reactive({ name: "", icon: "fas fa-link", order: 0 });
 const generic = reactive({
-  method: 'GET',
-  url: '/api/',
-  body: '{}'
+  method: "GET",
+  url: "/api/",
+  body: "{}",
 });
 
-const methods = ['GET', 'POST', 'PUT', 'DELETE'].map(m => ({ label: m, value: m }));
+const methods = ["GET", "POST", "PUT", "DELETE"].map((m) => ({
+  label: m,
+  value: m,
+}));
 
 // Helper
 async function request(url: string, options: RequestInit = {}) {
   try {
     const res = await fetch(url, {
-      headers: { 'Content-Type': 'application/json' },
-      ...options
+      headers: { "Content-Type": "application/json" },
+      ...options,
     });
 
     lastResponse.status = res.status;
@@ -128,7 +182,7 @@ async function request(url: string, options: RequestInit = {}) {
     return res;
   } catch (err: any) {
     lastResponse.status = 0;
-    lastResponse.statusText = 'Network Error';
+    lastResponse.statusText = "Network Error";
     lastResponse.data = err.message;
     throw err;
   }
@@ -136,9 +190,9 @@ async function request(url: string, options: RequestInit = {}) {
 
 // Actions
 async function login() {
-  const res = await request('/api/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(loginForm)
+  const res = await request("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify(loginForm),
   });
   if (res.ok) {
     currentUser.value = lastResponse.data.user;
@@ -146,12 +200,12 @@ async function login() {
 }
 
 async function logout() {
-  await request('/api/auth/logout', { method: 'POST' });
+  await request("/api/auth/logout", { method: "POST" });
   currentUser.value = null;
 }
 
 async function checkMe() {
-  const res = await request('/api/auth/me');
+  const res = await request("/api/auth/me");
   if (res.ok) {
     currentUser.value = lastResponse.data;
   } else {
@@ -160,35 +214,35 @@ async function checkMe() {
 }
 
 async function getNavCategories() {
-  await request('/api/nav/categories');
+  await request("/api/nav/categories");
 }
 
 async function createNavCategory() {
-  await request('/api/nav/categories', {
-    method: 'POST',
-    body: JSON.stringify(navForm)
+  await request("/api/nav/categories", {
+    method: "POST",
+    body: JSON.stringify(navForm),
   });
 }
 
 async function getProjects() {
-  await request('/api/projects');
+  await request("/api/projects");
 }
 
 async function getFeaturedProjects() {
-  await request('/api/projects/featured');
+  await request("/api/projects/featured");
 }
 
 async function sendGeneric() {
   const options: RequestInit = {
-    method: generic.method
+    method: generic.method,
   };
-  if (['POST', 'PUT', 'PATCH'].includes(generic.method)) {
+  if (["POST", "PUT", "PATCH"].includes(generic.method)) {
     try {
       // Validate JSON
       JSON.parse(generic.body);
       options.body = generic.body;
     } catch (e) {
-      alert('Invalid JSON in body');
+      alert("Invalid JSON in body");
       return;
     }
   }
