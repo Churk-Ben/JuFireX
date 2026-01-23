@@ -26,6 +26,14 @@ def create_app(config_class=Config):
     from backend.data.database import init_db
     init_db(app)
 
+    # Initialize SocketIO
+    app.logger.info("正在初始化 SocketIO...")
+    from backend.extensions import socketio
+    socketio.init_app(app, cors_allowed_origins="*")
+    
+    # Register Socket Events
+    import backend.sockets
+
     # Register Blueprints
     app.logger.info("正在注册 API 蓝图...")
     from backend.api import register_blueprints
@@ -39,5 +47,6 @@ def create_app(config_class=Config):
 
 if __name__ == "__main__":
     app = create_app()
+    from backend.extensions import socketio
     app.logger.info("JuFireX Backend 已就绪")
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    socketio.run(app, debug=True, host="0.0.0.0", port=5000)
