@@ -9,9 +9,9 @@ export const useUserStore = defineStore("user", () => {
   async function login(data: any) {
     loading.value = true;
     try {
-      const res = await authService.login(data);
-      currentUser.value = res.user;
-      return res;
+      const user = await authService.login(data);
+      currentUser.value = user;
+      return user;
     } finally {
       loading.value = false;
     }

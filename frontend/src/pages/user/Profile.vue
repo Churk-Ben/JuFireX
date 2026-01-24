@@ -67,12 +67,13 @@ function formatDate(dateStr?: string) {
 async function handleAvatarCrop(blob: Blob) {
   try {
     const file = new File([blob], "avatar.png", { type: "image/png" });
-    const res = await userService.uploadAvatar(file);
-    message.success(res.message || "Avatar updated successfully");
+    await userService.uploadAvatar(file);
+    // Success message is handled by request interceptor
     // Refresh avatar image
     timestamp.value = Date.now();
   } catch (e: any) {
-    message.error(e.message || "Failed to upload avatar");
+    // Error message is handled by request interceptor
+    console.error(e);
   }
 }
 

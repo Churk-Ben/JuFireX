@@ -76,10 +76,10 @@ async function handleLogin() {
 
   try {
     await userStore.login(formModel);
-    message.success(t("login.success"));
     router.push("/");
   } catch (e: any) {
-    message.error(e.message || "Login failed");
+    // Error is handled by request interceptor
+    console.error(e);
   }
 }
 </script>

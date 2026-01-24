@@ -12,14 +12,9 @@ export interface User {
   created_at?: string;
 }
 
-export interface LoginResponse {
-  message: string;
-  user: User;
-}
-
 export const authService = {
   login(data: any) {
-    return request<LoginResponse>("/api/auth/login", {
+    return request<User>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -32,7 +27,7 @@ export const authService = {
   },
 
   register(data: any) {
-    return request("/api/auth/register", {
+    return request<User>("/api/auth/register", {
       method: "POST",
       body: JSON.stringify(data),
     });

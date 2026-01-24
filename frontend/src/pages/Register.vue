@@ -112,10 +112,10 @@ async function handleRegister() {
   try {
     const { username, email, password } = formModel;
     await authService.register({ username, email, password });
-    message.success("Registration successful! Please login.");
     router.push("/login");
   } catch (e: any) {
-    message.error(e.message || "Registration failed");
+    // Error is handled by request interceptor
+    console.error(e);
   } finally {
     loading.value = false;
   }

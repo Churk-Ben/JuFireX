@@ -1,5 +1,9 @@
+import { createDiscreteApi } from "naive-ui";
+
+const { message: messageApi } = createDiscreteApi(["message"]);
+
 export interface ApiResponse<T = any> {
-  success: boolean;
+  level?: "info" | "success" | "warning" | "error";
   message?: string;
   data?: T;
   [key: string]: any;
@@ -24,6 +28,32 @@ export async function request<T = any>(
 
   if (contentType && contentType.includes("application/json")) {
     data = await response.json();
+    
+    // Unify frontend API response handling
+    if (data && typeof data === "object") {
+      const { level, message } = data;
+      if (message) {
+        switch (level) {
+          case "success":
+            messageApi.success(message);
+            break;
+          case "warning":
+            messageApi.warning(message);
+            break;
+          case "error":
+            messageApi.error(message);
+            break;
+          case "info":
+            messageApi.info(message);
+            break;
+          default:
+            // If level is missing but message exists, maybe info? 
+            // Or if it's an error status, error.
+            if (!response.ok) messageApi.error(message);
+            else messageApi.info(message);
+        }
+      }
+    }
   } else {
     data = await response.text();
   }
@@ -35,5 +65,6 @@ export async function request<T = any>(
     throw error;
   }
 
-  return data;
+  // Return the data payload if it exists, otherwise return the whole response
+  return data.data !== undefined ? data.data : data;
 }

@@ -9,14 +9,17 @@ export const userService = {
    */
   async uploadAvatar(
     file: File | Blob,
-  ): Promise<ApiResponse<{ avatar_url: string; filename: string }>> {
+  ): Promise<{ avatar_url: string; filename: string }> {
     const formData = new FormData();
     formData.append("avatar", file);
 
-    return request("/api/user/avatar", {
-      method: "POST",
-      body: formData,
-    });
+    return request<{ avatar_url: string; filename: string }>(
+      "/api/user/avatar",
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
   },
 
   /**
