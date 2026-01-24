@@ -4,13 +4,11 @@
 # @description: 用户数据仓库, 封装 User 模型的所有数据库操作
 # ------------------------------------------------------------
 
-import io
 import os
 from pathlib import Path
 import shutil
-from typing import List, Optional, Union
+from typing import List, Optional
 
-from PIL import Image
 from sqlalchemy import select
 
 from backend.config import Config
