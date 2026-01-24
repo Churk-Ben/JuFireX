@@ -111,9 +111,13 @@ def register():
 @auth_bp.route("/logout", methods=["POST"])
 def logout():
     """注销当前登录用户"""
-    user_service.logout()
     user = user_service.get_current_user()
-    logger.info(f"用户 {user.username} 注销成功")
+    if user:
+        logger.info(f"用户 {user.username} 注销成功")
+    else:
+        logger.info("匿名用户注销")
+
+    user_service.logout()
     return (
         jsonify(
             {
