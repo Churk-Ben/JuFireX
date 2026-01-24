@@ -31,16 +31,8 @@ def login():
         logger.info(f"用户 {user.username} 登录成功, uuid: {user.uuid}")
         return jsonify({"level": "success", "message": message, "data": user.to_dict()})
     else:
-        logger.debug(f"用户 {identifier} 登录失败：{message}")
+        logger.debug(f"用户 {identifier} 登录失败: {message}")
         return jsonify({"level": "warning", "message": message}), 401
-
-
-@auth_bp.route("/logout", methods=["POST"])
-def logout():
-    """注销当前登录用户"""
-    user_service.logout()
-    logger.info("用户注销成功")
-    return jsonify({"level": "success", "message": "注销成功"})
 
 
 @auth_bp.route("/register", methods=["POST"])
@@ -55,16 +47,26 @@ def register():
         logger.debug("注册请求缺少用户名/邮箱/密码")
         return jsonify({"level": "warning", "message": "请填写完整注册信息"}), 400
 
-    success, message, new_user = user_service.register(username, email, password)
+    success, message, user = user_service.register(username, email, password)
 
     if success:
-        logger.info(f"用户 {username} 注册成功, uuid: {new_user.uuid}")
-        return jsonify(
-            {"level": "success", "message": message, "data": new_user.to_dict()}
+        logger.info(f"用户 {user.username} 注册成功, uuid: {user.uuid}")
+        return (
+            jsonify({"level": "success", "message": message, "data": user.to_dict()}),
+            201,
         )
     else:
-        logger.debug(f"用户 {username} 注册失败：{message}")
+        logger.debug(f"用户 {user.username} 注册失败: {message}")
         return jsonify({"level": "warning", "message": message}), 400
+
+
+@auth_bp.route("/logout", methods=["POST"])
+def logout():
+    """注销当前登录用户"""
+    user_service.logout()
+    user = user_service.get_current_user()
+    logger.info(f"用户 {user.username} 注销成功")
+    return jsonify({"level": "success", "message": "注销成功"}), 200
 
 
 @auth_bp.route("/me", methods=["GET"])
@@ -73,8 +75,8 @@ def get_current_user():
     """获取当前登录用户的信息"""
     user = user_service.get_current_user()
     if not user:
-        logger.debug("获取当前用户失败：用户未找到")
+        logger.debug("获取当前用户失败: 用户未找到")
         return jsonify({"level": "error", "message": "用户未找到"}), 404
 
-    logger.info(f"当前用户 {user.username} 信息：{user.to_dict()}")
-    return jsonify({"level": "success", "data": user.to_dict()})
+    logger.debug(f"当前用户 {user.username} 信息: {user.to_dict()}")
+    return jsonify({"level": "success", "data": user.to_dict()}), 200

@@ -19,17 +19,12 @@ class UserService:
         :return: (是否成功, 消息, 用户对象)
         """
         user = None
-        # 简单判断是否为邮箱
         if "@" in identifier:
             user = self.user_repo.get_by_email(identifier)
         else:
-            # 尝试作为UUID查找
             user = self.user_repo.get_by_uuid(identifier)
 
-        if not user:
-            return False, "用户不存在或密码错误", None
-
-        if not user.check_password(password):
+        if not user or not user.check_password(password):
             return False, "用户不存在或密码错误", None
 
         if not user.is_active:
@@ -40,7 +35,7 @@ class UserService:
         session["role"] = user.role
         session.permanent = True
 
-        return True, "登录成功", user
+        return True, f"欢迎回来, {user.username}", user
 
     def logout(self) -> None:
         """注销当前用户"""
@@ -82,7 +77,7 @@ class UserService:
         更新用户头像
         :param user_id: 用户ID
         :param avatar_file: 上传的文件对象 (Werkzeug FileStorage)
-        :return: (是否成功, 消息, 头像URL/路径)
+        :return: (是否成功, 消息, 头像文件名)
         """
         user = self.user_repo.get_by_id(user_id)
         if not user:
