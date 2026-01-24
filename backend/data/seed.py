@@ -1,9 +1,9 @@
 import os
-from flask import Flask
-from backend.config import Config, ROLE_SUPER_ADMIN
+import random
+
+from backend.config import Config, ROLE_SUPER_ADMIN, PROJECT_ROOT
 from backend.data.database import db
 from backend.data.models.user import User
-import random
 
 CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"
 
@@ -25,7 +25,7 @@ def seed_admin():
         db.session.add(admin)
         db.session.commit()
 
-        # Create user folder
+        # 创建用户文件夹
         user_folder = Config.PROFILES_DB_PATH.parent / admin.uuid
         os.makedirs(user_folder, exist_ok=True)
 
@@ -33,6 +33,10 @@ def seed_admin():
 
         logger = get_logger(__name__)
         logger.info(f"默认管理员: admin / {init_password} (UUID: {admin.uuid})")
+
+        # 在根目录生成密码文件
+        with open(PROJECT_ROOT / "password.txt", "w") as f:
+            f.write(f"{admin.uuid}:{init_password}")
 
 
 if __name__ == "__main__":
