@@ -1,13 +1,13 @@
 # ------------------------------------------------------------
 # @author: Churk
-# @status: 完成
+# @status: 阶段性完工
 # @description: 认证模块, 包含登录, 注册, 注销
 # ------------------------------------------------------------
 
 from flask import Blueprint, jsonify, request
 
-from backend.core.Security import require_login
 from backend.core.Logger import get_logger
+from backend.core.Security import require_login
 from backend.services import user_service
 
 

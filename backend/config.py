@@ -29,8 +29,8 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "JuFireX-Secret-Key-Change-Me")
 
     # Data Paths
+    DEFAULTS_DIR = PROJECT_ROOT / "defaults"
     PROFILES_DB_PATH = DATABASE_DIR / "profiles" / "users.db"
-
     PROJECTS_DIR = DATABASE_DIR / "projects"
     BLOGS_DIR = DATABASE_DIR / "blogs"
 
