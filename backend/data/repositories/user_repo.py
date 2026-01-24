@@ -1,18 +1,26 @@
-from typing import Optional, List, Union
-from pathlib import Path
-import os
-import shutil
+# ------------------------------------------------------------
+# @author: Churk
+# @status: 阶段性完工
+# @description: 用户数据仓库, 封装 User 模型的所有数据库操作
+# ------------------------------------------------------------
+
 import io
+import os
+from pathlib import Path
+import shutil
+from typing import List, Optional, Union
+
 from PIL import Image
 from sqlalchemy import select
+
+from backend.config import Config
 from backend.data.database import db
 from backend.data.models.user import User
-from backend.config import Config
 
 
 class UserRepository:
     """
-    用户数据仓库, 封装 User 模型的所有数据库操作以及用户相关的文件存储操作（如头像）.
+    用户数据仓库, 封装 User 模型的所有数据库操作
     """
 
     def __init__(self):
@@ -25,7 +33,7 @@ class UserRepository:
     def get_by_username(self, username: str) -> List[User]:
         """
         根据用户名获取用户列表.
-        注意: 由于用户名在模型定义中不是唯一的 (unique=False),
+        注意: 由于用户名在模型定义中不是唯一的,
         可能有多个用户拥有相同的用户名, 因此返回列表.
         """
         stmt = select(self.model).filter_by(username=username)
@@ -72,6 +80,12 @@ class UserRepository:
             db.session.commit()
             self._remove_user_directory(user)
 
+    def rebuild(self, user: User) -> None:
+        """重建用户文件夹, 用于用户数据意外删除或损坏"""
+        if user:
+            self._remove_user_directory(user)
+            self._ensure_user_directory(user)
+
     # --- 文件管理方法 ---
 
     def _get_user_dir(self, user: User) -> Path:
@@ -93,54 +107,20 @@ class UserRepository:
     # --- 头像管理方法 ---
 
     def save_avatar(
-        self, user: User, image: Union[Image.Image, bytes], filename: str = "avatar.png"
-    ) -> Path:
+        self, user: User, image: bytes, filename: str = "avatar.png"
+    ) -> int:
         """
         保存用户头像到用户目录.
         :param user: 用户对象
-        :param image: Pillow Image 对象或二进制数据
-        :param filename: 文件名（默认为 avatar.png）
-        :return: 头像文件的绝对路径
+        :param image: 二进制数据
+        :param filename: 文件名 (默认为 avatar.png)
+        :return: 头像文件的大小 (千字节)
         """
         self._ensure_user_directory(user)
         user_dir = self._get_user_dir(user)
         file_path = user_dir / filename
 
-        # 处理图像数据
-        if isinstance(image, bytes):
-            img_obj = Image.open(io.BytesIO(image))
-        else:
-            img_obj = image
+        with open(file_path, "wb") as f:
+            f.write(image)
 
-        # 保存图像
-        # 如果 filename 是 .png 结尾, Pillow 会自动保存为 PNG 格式
-        # 这里我们不强制转换格式, 而是信任 Pillow 根据文件扩展名处理
-        # 但通常建议标准化头像格式（如 PNG）
-        img_obj.save(file_path)
-
-        return file_path
-
-    def get_avatar_path(
-        self, user: User, filename: str = "avatar.png"
-    ) -> Optional[Path]:
-        """
-        获取用户头像文件路径.
-        :return: 如果文件存在返回 Path, 否则返回 None
-        """
-        user_dir = self._get_user_dir(user)
-        file_path = user_dir / filename
-        if file_path.exists():
-            return file_path
-        return None
-
-    def get_avatar_image(
-        self, user: User, filename: str = "avatar.png"
-    ) -> Optional[Image.Image]:
-        """
-        获取用户头像的 Pillow Image 对象.
-        :return: 如果文件存在返回 Image 对象, 否则返回 None
-        """
-        path = self.get_avatar_path(user, filename)
-        if path:
-            return Image.open(path)
-        return None
+        return file_path.stat().st_size / 1024

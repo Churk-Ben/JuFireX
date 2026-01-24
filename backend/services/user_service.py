@@ -1,10 +1,17 @@
-from typing import Optional, Dict, Any, Tuple
+# ------------------------------------------------------------
+# @author: Churk
+# @status: 阶段性完工
+# @description: 用户服务层, 包含用户登录, 注册, 注销等业务逻辑
+# ------------------------------------------------------------
+
+from typing import Optional, Tuple
+
 from flask import session
 from werkzeug.datastructures import FileStorage
 
+from backend.config import Config, ROLE_GUEST
 from backend.data import UserRepository
 from backend.data.models.user import User
-from backend.config import ROLE_GUEST, ROLE_MEMBER
 
 
 class UserService:
@@ -85,9 +92,6 @@ class UserService:
 
         # 读取文件数据
         file_data = avatar_file.read()
-
-        # 调用 repo 保存头像 (Repo 会自动处理为 Pillow 对象或直接保存)
-        # 假设文件名使用默认的 avatar.png, 或者根据上传文件后缀
         filename = "avatar.png"
         if avatar_file.filename and "." in avatar_file.filename:
             ext = avatar_file.filename.rsplit(".", 1)[1].lower()
@@ -95,7 +99,14 @@ class UserService:
                 filename = f"avatar.{ext}"
 
         try:
-            saved_path = self.user_repo.save_avatar(user, file_data, filename=filename)
+            size_kb = self.user_repo.save_avatar(user, file_data, filename=filename)
+            if size_kb > 1024:
+                # 从默认文件夹还原为默认头像
+                default_avatar_path = Config.DEFAULTS_DIR / "avatar.png"
+                with open(default_avatar_path, "rb") as f:
+                    default_avatar_data = f.read()
+                self.user_repo.save_avatar(user, default_avatar_data, filename=filename)
+                return False, "?你给我喂了什么?", ""
             return True, "头像更新成功", filename
         except Exception as e:
             return False, f"头像保存失败: {str(e)}", ""
