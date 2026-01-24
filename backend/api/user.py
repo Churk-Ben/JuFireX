@@ -91,8 +91,7 @@ def upload_avatar():
 def get_avatar(uuid, filename):
     """获取用户头像文件"""
     # 头像存储路径: database/profiles/<uuid>/<filename>
-    PROFILES_DIR = Config.PROFILES_DB_PATH.parent
-    user_dir = PROFILES_DIR / uuid
+    user_dir = Config.PROFILES_DIR / uuid
 
     if not user_dir.exists():
         logger.debug(f"用户目录不存在: {user_dir}")

@@ -34,10 +34,6 @@ def create_app(config_class=Config):
 
     register_blueprints(app)
 
-    @app.route("/health")
-    def health_check():
-        return {"status": "healthy", "version": "2.0.0"}
-
     return app
 
 

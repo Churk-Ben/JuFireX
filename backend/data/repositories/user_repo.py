@@ -89,7 +89,7 @@ class UserRepository:
     def _get_user_dir(self, user: User) -> Path:
         """获取用户专属数据目录"""
         # 假设所有用户数据都在 profiles/UUID/ 下
-        return Config.PROFILES_DB_PATH.parent / user.uuid
+        return Config.PROFILES_DIR / user.uuid
 
     def _ensure_user_directory(self, user: User) -> None:
         """确保用户目录存在"""
