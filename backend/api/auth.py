@@ -28,13 +28,7 @@ def login():
     {
         "level": "success",
         "message": "登录成功",
-        "data": {
-            "uuid": "12345678-1234-5678-1234-567812345678",
-            "username": "user",
-            "email": "user@example.com",
-            "role": "user",
-            "is_active": true,
-        }
+        "data": user_obj
     }
     """
     data = request.get_json()
@@ -94,13 +88,7 @@ def register():
     {
         "level": "success",
         "message": "注册成功",
-        "data": {
-            "uuid": "12345678-1234-5678-1234-567812345678",
-            "username": "user",
-            "email": "user@example.com",
-            "role": "user",
-            "is_active": true,
-        }
+        "data": user_obj,
     }
     """
     data = request.get_json()
@@ -149,7 +137,15 @@ def register():
 
 @auth_bp.route("/logout", methods=["POST"])
 def logout():
-    """注销当前登录用户"""
+    """
+    @name: 注销当前登录用户
+    @expect: None
+    @return:
+    {
+        "level": "success",
+        "message": "白白~",
+    }
+    """
     user = user_service.get_current_user()
     if user:
         logger.info(f"用户 {user.username} 注销成功, uuid: {user.uuid}")
@@ -178,13 +174,7 @@ def get_current_user():
     {
         "level": "success",
         "message": "获取用户信息成功",
-        "data": {
-            "uuid": "12345678-1234-5678-1234-567812345678",
-            "username": "user",
-            "email": "user@example.com",
-            "role": "user",
-            "is_active": true,
-        }
+        "data": user_obj,
     }
     """
     user = user_service.get_current_user()

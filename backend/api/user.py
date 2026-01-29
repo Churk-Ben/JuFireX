@@ -18,14 +18,29 @@ user_bp = Blueprint("user", __name__)
 @user_bp.route("/avatar", methods=["POST"])
 @require_login
 def upload_avatar():
-    """上传并更新用户头像"""
+    """
+    @name: 上传并更新用户头像
+    @expect:
+    {
+        "avatar": "file"
+    }
+    @return:
+    {
+        "level": "success",
+        "message": "头像上传成功",
+        "data": {
+            "avatar_url": "/api/user/avatar/12345678-1234-5678-1234-567812345678/avatar.jpg",
+            "filename": "avatar.jpg",
+        }
+    }
+    """
     if "avatar" not in request.files:
         logger.debug("上传请求缺失头像文件")
         return (
             jsonify(
                 {
                     "level": "warning",
-                    "message": "你上传的头像被弄丢了!",
+                    "message": "你上传的头像似乎被弄丢了!",
                 }
             ),
             400,
@@ -89,7 +104,11 @@ def upload_avatar():
 
 @user_bp.route("/avatar/<uuid>/<filename>")
 def get_avatar(uuid, filename):
-    """获取用户头像文件"""
+    """
+    @name: 获取用户头像文件
+    @expect: None
+    @return: 头像文件(file)
+    """
     # 头像存储路径: database/profiles/<uuid>/<filename>
     user_dir = Config.PROFILES_DIR / uuid
 
