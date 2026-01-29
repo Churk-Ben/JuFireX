@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 const ApiTest = () => import("@/pages/ApiTest.vue");
+
 const AppHome = () => import("@/pages/AppHome.vue");
 const Navigations = () => import("@/pages/Navigations.vue");
 const Projects = () => import("@/pages/Projects.vue");
@@ -12,6 +13,7 @@ const AdminProjects = () => import("@/pages/admin/Projects.vue");
 const UserProfile = () => import("@/pages/user/Profile.vue");
 const UserSettings = () => import("@/pages/user/Settings.vue");
 const UserLogout = () => import("@/pages/user/Logout.vue");
+
 const Login = () => import("@/pages/Login.vue");
 const Register = () => import("@/pages/Register.vue");
 
