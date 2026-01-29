@@ -17,7 +17,26 @@ auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    """用户登录"""
+    """
+    @name: 用户登录
+    @expect:
+    {
+        "identifier": "user@example.com",
+        "password": "123456"
+    }
+    @return:
+    {
+        "level": "success",
+        "message": "登录成功",
+        "data": {
+            "uuid": "12345678-1234-5678-1234-567812345678",
+            "username": "user",
+            "email": "user@example.com",
+            "role": "user",
+            "is_active": true,
+        }
+    }
+    """
     data = request.get_json()
     identifier = data.get("identifier")
     password = data.get("password")
@@ -63,7 +82,27 @@ def login():
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
-    """用户注册"""
+    """
+    @name: 用户注册
+    @expect:
+    {
+        "username": "user",
+        "email": "user@example.com",
+        "password": "123456"
+    }
+    @return:
+    {
+        "level": "success",
+        "message": "注册成功",
+        "data": {
+            "uuid": "12345678-1234-5678-1234-567812345678",
+            "username": "user",
+            "email": "user@example.com",
+            "role": "user",
+            "is_active": true,
+        }
+    }
+    """
     data = request.get_json()
     username = data.get("username")
     email = data.get("email")
@@ -113,7 +152,7 @@ def logout():
     """注销当前登录用户"""
     user = user_service.get_current_user()
     if user:
-        logger.info(f"用户 {user.username} 注销成功")
+        logger.info(f"用户 {user.username} 注销成功, uuid: {user.uuid}")
     else:
         logger.info("匿名用户注销")
 
@@ -132,7 +171,22 @@ def logout():
 @auth_bp.route("/me", methods=["GET"])
 @require_login
 def get_current_user():
-    """获取当前登录用户的信息"""
+    """
+    @name: 获取当前登录用户的信息
+    @expect: None
+    @return:
+    {
+        "level": "success",
+        "message": "获取用户信息成功",
+        "data": {
+            "uuid": "12345678-1234-5678-1234-567812345678",
+            "username": "user",
+            "email": "user@example.com",
+            "role": "user",
+            "is_active": true,
+        }
+    }
+    """
     user = user_service.get_current_user()
     if not user:
         logger.debug("获取当前用户失败: 用户未找到")

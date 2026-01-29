@@ -9,6 +9,7 @@
       "home": "首页",
       "navigations": "导航",
       "projects": "项目",
+      "blogs": "文章",
       "debug": "调试",
       "user": "用户",
       "user.login": "登录",
@@ -18,7 +19,8 @@
       "admin": "管理后台",
       "admin.users": "用户管理",
       "admin.navigations": "导航管理",
-      "admin.projects": "项目管理"
+      "admin.projects": "项目管理",
+      "admin.blogs": "文章管理"
     },
     "ctrl": {
       "expand": "展开",

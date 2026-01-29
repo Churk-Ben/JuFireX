@@ -36,6 +36,7 @@ def seed_admin():
 
         # 在根目录生成密码文件
         with open(Config.PROJECT_ROOT / "password.txt", "w") as f:
+            f.write("# format: uuid:password\n")
             f.write(f"{admin.uuid}:{init_password}")
 
 

@@ -47,6 +47,8 @@ class Config:
 
     PROFILES_DB_PATH = PROFILES_DIR / "users.db"
     NAVIGATIONS_DB_PATH = NAVIGATIONS_DIR / "navigations.db"
+    PROJECTS_DB_PATH = PROJECTS_DIR / "projects.db"
+    BLOGS_DB_PATH = BLOGS_DIR / "blogs.db"
 
     # 日志配置
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
@@ -56,6 +58,8 @@ class Config:
     SQLALCHEMY_BINDS = {
         "users": f"sqlite:///{PROFILES_DB_PATH}",
         "navigations": f"sqlite:///{NAVIGATIONS_DB_PATH}",
+        "projects": f"sqlite:///{PROJECTS_DB_PATH}",
+        "blogs": f"sqlite:///{BLOGS_DB_PATH}",
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
