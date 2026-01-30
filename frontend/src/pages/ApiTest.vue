@@ -214,11 +214,11 @@ async function checkMe() {
 }
 
 async function getNavCategories() {
-  await request("/api/nav/categories");
+  await request("/api/navigation/categories");
 }
 
 async function createNavCategory() {
-  await request("/api/nav/categories", {
+  await request("/api/navigation/categories", {
     method: "POST",
     body: JSON.stringify(navForm),
   });
