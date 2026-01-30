@@ -8,13 +8,17 @@
     <div class="app">
       <n-layout has-sider style="height: 100vh">
         <n-layout-sider
-          :width="collapsed ? 64 : 240"
-          bordered
+          content-style="min-height: 100%; display: flex; flex-direction: column;"
           class="app-sider"
+          collapse-mode="width"
+          :collapsed-width="64"
+          :width="240"
+          :collapsed="collapsed"
+          :native-scrollbar="false"
+          bordered
         >
           <div
-            :style="{ opacity: siderContentVisible ? 1 : 0 }"
-            class="sider-content d-flex flex-column justify-content-between h-100"
+            class="sider-content d-flex flex-column justify-content-between flex-grow-1"
           >
             <section>
               <n-menu
@@ -102,6 +106,7 @@ import {
   faMoon,
   faSun,
   faLanguage,
+  faNewspaper,
 } from "@fortawesome/free-solid-svg-icons";
 
 const { locale, t } = useI18n();
@@ -116,27 +121,10 @@ function renderIcon(icon: any) {
 
 // 应用侧边栏折叠状态
 const collapsed = ref(localStorage.getItem("collapsed") === "true");
-const siderContentVisible = ref(true);
-const siderAnimating = ref(false);
 
 function toggleCollapsed() {
-  const duration = 200;
-  if (collapsed.value) {
-    if (siderAnimating.value) return;
-    siderAnimating.value = true;
-    siderContentVisible.value = false;
-    window.setTimeout(() => {
-      collapsed.value = false;
-      localStorage.setItem("collapsed", "false");
-      window.setTimeout(() => {
-        siderContentVisible.value = true;
-        siderAnimating.value = false;
-      }, duration);
-    }, duration);
-  } else {
-    collapsed.value = true;
-    localStorage.setItem("collapsed", "true");
-  }
+  collapsed.value = !collapsed.value;
+  localStorage.setItem("collapsed", String(collapsed.value));
 }
 
 // 应用菜单选项
@@ -156,6 +144,11 @@ const menuOptions = computed(() => [
     label: t("sider.menu.projects"),
     key: "/projects",
     icon: renderIcon(faBook),
+  },
+  {
+    label: t("sider.menu.blogs"),
+    key: "/blogs",
+    icon: renderIcon(faNewspaper),
   },
   {
     label: t("sider.menu.debug"),
@@ -252,6 +245,11 @@ const userOptions = computed(() => {
               label: t("sider.menu.admin.projects"),
               key: "/admin/projects",
               icon: renderIcon(faBook),
+            },
+            {
+              label: t("sider.menu.admin.blogs"),
+              key: "/admin/blogs",
+              icon: renderIcon(faNewspaper),
             },
           ],
         },
@@ -351,43 +349,7 @@ watch(
 
 <style scoped>
 .app {
-  --motion-duration: 200ms;
-  --motion-easing: ease;
-  --padding: 12px;
-  --gap: 8px;
-  --icon-size: 16px;
-}
-
-.app-sider {
-  transition:
-    width var(--motion-duration) var(--motion-easing),
-    max-width var(--motion-duration) var(--motion-easing),
-    min-width var(--motion-duration) var(--motion-easing),
-    color var(--motion-duration) var(--motion-easing),
-    background-color var(--motion-duration) var(--motion-easing),
-    border-color var(--motion-duration) var(--motion-easing),
-    flex-basis var(--motion-duration) var(--motion-easing);
-}
-
-.sider-content {
-  transition: opacity var(--motion-duration) var(--motion-easing);
-}
-
-.app-menu :deep(.n-menu-item-content),
-.app-ctrl:deep(.n-menu-item-content) {
-  transition:
-    color var(--motion-duration) var(--motion-easing),
-    background-color var(--motion-duration) var(--motion-easing),
-    border-color var(--motion-duration) var(--motion-easing),
-    padding var(--motion-duration) var(--motion-easing),
-    margin var(--motion-duration) var(--motion-easing),
-    transform var(--motion-duration) var(--motion-easing);
-  will-change: padding, margin, transform;
-}
-
-.app-menu :deep(.n-menu-item-content__icon),
-.app-ctrl :deep(.n-menu-item-content__icon) {
-  font-size: var(--icon-size);
+  --padding: 24px;
 }
 
 .app-content {
