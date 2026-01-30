@@ -17,7 +17,7 @@ from backend.core.Logger import get_logger
 from backend.data.database import db
 from backend.data.models.user import User
 
-logger = get_logger("REPO_USER")
+logger = get_logger("Repo_User")
 
 
 class UserRepository:

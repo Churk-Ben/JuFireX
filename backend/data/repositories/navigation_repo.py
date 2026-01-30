@@ -14,7 +14,7 @@ from backend.core.Logger import get_logger
 from backend.data.database import db
 from backend.data.models.navigation import Navigation
 
-logger = get_logger("REPO_NAVIGATION")
+logger = get_logger("Repo_Navigation")
 
 
 class NavigationRepository:
