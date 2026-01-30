@@ -6,7 +6,6 @@
 
 from typing import Optional, Tuple
 
-from flask import session
 from werkzeug.datastructures import FileStorage
 
 from backend.config import Config, ROLE_GUEST
@@ -37,17 +36,7 @@ class UserService:
         if not user.is_active:
             return False, "账户已被禁用", None
 
-        # 登录成功, 设置 Session
-        session["user_id"] = user.id
-        session["user_uuid"] = user.uuid
-        session["role"] = user.role
-        session.permanent = True
-
         return True, f"欢迎回来, {user.username}", user
-
-    def logout(self) -> None:
-        """注销当前用户"""
-        session.clear()
 
     def register(
         self, username: str, email: str, password: str
@@ -71,23 +60,22 @@ class UserService:
 
         return True, "注册成功", new_user
 
-    def get_current_user(self) -> Optional[User]:
-        """获取当前登录用户"""
-        user_id = session.get("user_id")
-        if not user_id:
+    def get_profile(self, user_uuid: str) -> Optional[User]:
+        """获取用户个人信息"""
+        if not user_uuid:
             return None
-        return self.user_repo.get_by_id(user_id)
+        return self.user_repo.get_by_uuid(user_uuid)
 
     def update_avatar(
-        self, user_id: int, avatar_file: FileStorage
+        self, user_uuid: str, avatar_file: FileStorage
     ) -> Tuple[bool, str, str]:
         """
         更新用户头像
-        :param user_id: 用户ID
+        :param user_uuid: 用户UUID
         :param avatar_file: 上传的文件对象 (Werkzeug FileStorage)
         :return: (是否成功, 消息, 头像文件名)
         """
-        user = self.user_repo.get_by_id(user_id)
+        user = self.user_repo.get_by_uuid(user_uuid)
         if not user:
             return False, "用户不存在", ""
 

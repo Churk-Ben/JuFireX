@@ -65,39 +65,24 @@ def get_blogs():
 @blog_bp.route("/<uuid>", methods=["GET"])
 def get_blog_detail(uuid):
     """获取博客详情"""
-    blog = blog_service.get_by_uuid(uuid)
-    if not blog:
+    user_uuid = session.get("user_uuid")
+    user_role = session.get("role", ROLE_GUEST)
+
+    success, message, blog = blog_service.get_by_uuid(uuid, user_uuid, user_role)
+
+    if not success:
+        # 如果是权限不足, 返回 403; 如果是不存在, 返回 404
+        # 为了安全, 也可以统一返回 404, 但这里为了清晰区分, 使用 403
+        code = 403 if message == "权限不足" else 404
         return (
             jsonify(
                 {
                     "level": "error",
-                    "message": "文章不存在或无权访问",
+                    "message": message,
                 },
             ),
-            404,
+            code,
         )
-
-    if not blog.get("is_public", True):
-        is_admin = False
-        user_uuid = session.get("user_uuid")
-
-        if "user_id" in session:
-            if session.get("role", ROLE_GUEST) >= ROLE_ADMIN:
-                is_admin = True
-
-        # 豁免作者
-        is_owner = user_uuid and user_uuid == blog.get("owner_uuid")
-
-        if not (is_admin or is_owner):
-            return (
-                jsonify(
-                    {
-                        "level": "error",
-                        "message": "文章不存在或无权访问",
-                    },
-                ),
-                404,
-            )
 
     # 增加访问量并更新视图数
     blog_service.increment_views(uuid)
@@ -179,40 +164,13 @@ def create_blog():
 def update_blog(uuid):
     """更新博客"""
     data: dict = request.json
-
-    blog = blog_service.get_by_uuid(uuid)
-    if not blog:
-        return (
-            jsonify(
-                {
-                    "level": "warning",
-                    "message": "文章不存在",
-                },
-            ),
-            404,
-        )
-
-    # 验权
     user_uuid = session.get("user_uuid")
     user_role = session.get("role", ROLE_GUEST)
-    is_admin = user_role >= ROLE_ADMIN
 
-    # 如果不是管理员, 且不是所有者 -> 拒绝
-    if not is_admin and blog.get("owner_uuid") != user_uuid:
-        return (
-            jsonify(
-                {
-                    "level": "warning",
-                    "message": "权限不足",
-                },
-            ),
-            403,
-        )
-
-    success, message, blog = blog_service.update(uuid, data)
+    success, message, blog = blog_service.update(uuid, data, user_uuid, user_role)
 
     if success:
-        logger.debug(f"文章 {blog.get("uuid")} 更新成功: {blog.get('title')}")
+        logger.debug(f"文章 {blog.get('uuid')} 更新成功: {blog.get('title')}")
         return (
             jsonify(
                 {
@@ -225,14 +183,18 @@ def update_blog(uuid):
         )
     else:
         logger.error(f"文章更新失败: {message}")
+        code = (
+            403 if message == "权限不足" else (404 if message == "文章不存在" else 500)
+        )
+        level = "warning" if code < 500 else "error"
         return (
             jsonify(
                 {
-                    "level": "error",
+                    "level": level,
                     "message": message,
                 },
             ),
-            500,
+            code,
         )
 
 
@@ -240,36 +202,10 @@ def update_blog(uuid):
 @require_member
 def delete_blog(uuid):
     """删除博客"""
-    blog = blog_service.get_by_uuid(uuid)
-    if not blog:
-        return (
-            jsonify(
-                {
-                    "level": "warning",
-                    "message": "文章不存在",
-                },
-            ),
-            404,
-        )
-
-    # 验权
     user_uuid = session.get("user_uuid")
     user_role = session.get("role", ROLE_GUEST)
-    is_admin = user_role >= ROLE_ADMIN
 
-    # 如果不是管理员, 且不是所有者 -> 拒绝
-    if not is_admin and blog.get("owner_uuid") != user_uuid:
-        return (
-            jsonify(
-                {
-                    "level": "warning",
-                    "message": "权限不足",
-                },
-            ),
-            403,
-        )
-
-    success, message = blog_service.delete(uuid)
+    success, message = blog_service.delete(uuid, user_uuid, user_role)
 
     if success:
         logger.debug(f"文章删除成功: {uuid}")
@@ -284,12 +220,16 @@ def delete_blog(uuid):
         )
     else:
         logger.error(f"文章删除失败: {message}")
+        code = (
+            403 if message == "权限不足" else (404 if message == "文章不存在" else 500)
+        )
+        level = "warning" if code < 500 else "error"
         return (
             jsonify(
                 {
-                    "level": "error",
+                    "level": level,
                     "message": message,
                 },
             ),
-            500,
+            code,
         )

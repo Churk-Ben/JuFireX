@@ -20,13 +20,21 @@ def get_projects():
     """获取项目列表"""
     # 检查是否请求所有 (管理员)
     show_all = request.args.get("all", "false").lower() == "true"
+    user_role = session.get("role", 0)
 
-    is_admin = False
-    if "user_id" in session:
-        if session.get("role", 0) >= ROLE_ADMIN:
-            is_admin = True
+    # 代理给 Service, Service 会根据 Role 决定是否真的 view_all
+    projects_list = project_service.get_all(user_role=user_role, view_all=show_all)
 
-    if show_all and not is_admin:
+    # 如果用户想看所有但被 Service 降级了(返回了公开的), 这种行为是静默的，符合 API 设计
+    # 但如果用户明确请求 all 且权限不足，原逻辑是返回 403。
+    # 为了保持行为一致，我们可以在这里简单判断一下，或者信任 Service 的静默降级。
+    # 原逻辑: if show_all and not is_admin: return 403
+    # 新逻辑: Service 内部降级。
+    # 如果我们要严格保持原 API 行为 (403), 我们需要在 API 层判断。
+    # 既然是重构，我们可以稍微放宽，或者为了兼容性，保留 API 层的快速失败。
+    # 让我们保留 403 逻辑以保持 API 契约不变，但使用 Service 的接口。
+
+    if show_all and user_role < ROLE_ADMIN:
         return (
             jsonify(
                 {
@@ -37,11 +45,6 @@ def get_projects():
             403,
         )
 
-    # 如果是 admin 且请求 all, 则返回所有; 否则只返回公开
-    public_only = not (show_all and is_admin)
-
-    projects = project_service.get_all(public_only=public_only)
-    projects_list = [project.to_dict() for project in projects]
     return (
         jsonify(
             {
@@ -56,36 +59,22 @@ def get_projects():
 @project_bp.route("/<uuid>", methods=["GET"])
 def get_project_detail(uuid):
     """获取项目详情"""
-    project = project_service.get_by_uuid(uuid)
-    if not project:
+    user_role = session.get("role", 0)
+
+    success, message, project = project_service.get_by_uuid(uuid, user_role)
+
+    if not success:
+        code = 403 if message == "权限不足" else 404
         return (
-            jsonify({"level": "error", "message": "项目不存在"}),
-            404,
+            jsonify({"level": "error", "message": message}),
+            code,
         )
-
-    # Check permission if not public
-    if not project.is_public:
-        is_admin = False
-        if "user_id" in session:
-            if session.get("role", 0) >= ROLE_ADMIN:
-                is_admin = True
-
-        if not is_admin:
-            return (
-                jsonify(
-                    {
-                        "level": "error",
-                        "message": "项目不存在或无权访问",
-                    },
-                ),
-                404,
-            )
 
     return (
         jsonify(
             {
                 "level": "success",
-                "data": project.to_dict(),
+                "data": project,
             },
         ),
         200,
@@ -108,22 +97,24 @@ def create_project():
             400,
         )
 
-    success, message, project = project_service.create(data)
+    user_role = session.get("role", 0)
+    success, message, project = project_service.create(data, user_role)
 
     if success:
-        logger.info(f"项目创建成功: {project.title}")
+        logger.info(f"项目创建成功: {project.get('title')}")
         return (
             jsonify(
                 {
                     "level": "success",
                     "message": message,
-                    "data": project.to_dict(),
+                    "data": project,
                 },
             ),
             200,
         )
     else:
         logger.error(f"项目创建失败: {message}")
+        code = 403 if message == "权限不足" else 500
         return (
             jsonify(
                 {
@@ -131,7 +122,7 @@ def create_project():
                     "message": message,
                 },
             ),
-            500,
+            code,
         )
 
 
@@ -140,23 +131,24 @@ def create_project():
 def update_project(uuid):
     """更新项目"""
     data = request.json
+    user_role = session.get("role", 0)
 
-    success, message, project = project_service.update(uuid, data)
+    success, message, project = project_service.update(uuid, data, user_role)
 
     if success:
-        logger.info(f"项目更新成功: {project.title}")
+        logger.info(f"项目更新成功: {project.get('title')}")
         return (
             jsonify(
                 {
                     "level": "success",
                     "message": message,
-                    "data": project.to_dict(),
+                    "data": project,
                 },
             ),
             200,
         )
     else:
-        status_code = 404 if "不存在" in message else 500
+        code = 403 if message == "权限不足" else (404 if "不存在" in message else 500)
         logger.error(f"项目更新失败: {message}")
         return (
             jsonify(
@@ -165,7 +157,7 @@ def update_project(uuid):
                     "message": message,
                 },
             ),
-            status_code,
+            code,
         )
 
 
@@ -173,7 +165,9 @@ def update_project(uuid):
 @require_admin
 def delete_project(uuid):
     """删除项目"""
-    success, message = project_service.delete(uuid)
+    user_role = session.get("role", 0)
+
+    success, message = project_service.delete(uuid, user_role)
 
     if success:
         logger.info(f"项目删除成功: {uuid}")
@@ -187,7 +181,7 @@ def delete_project(uuid):
             200,
         )
     else:
-        status_code = 404 if "不存在" in message else 500
+        code = 403 if message == "权限不足" else (404 if "不存在" in message else 500)
         logger.error(f"项目删除失败: {message}")
         return (
             jsonify(
@@ -196,5 +190,5 @@ def delete_project(uuid):
                     "message": message,
                 },
             ),
-            status_code,
+            code,
         )

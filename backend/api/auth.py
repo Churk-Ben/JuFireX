@@ -4,7 +4,7 @@
 # @description: 认证模块, 包含登录, 注册, 注销
 # ------------------------------------------------------------
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 
 from backend.core.Logger import get_logger
 from backend.core.Security import require_login
@@ -50,6 +50,12 @@ def login():
     success, message, user = user_service.login(identifier, password)
 
     if success:
+        # 登录成功, 设置 Session (API 层负责)
+        session["user_id"] = user.id
+        session["user_uuid"] = user.uuid
+        session["role"] = user.role
+        session.permanent = True
+
         logger.info(f"用户 {user.username} 登录成功, uuid: {user.uuid}")
         return (
             jsonify(
@@ -146,13 +152,15 @@ def logout():
         "message": "白白~",
     }
     """
-    user = user_service.get_current_user()
-    if user:
-        logger.info(f"用户 {user.username} 注销成功, uuid: {user.uuid}")
+    # 获取当前用户信息仅用于日志
+    user_uuid = session.get("user_uuid")
+    if user_uuid:
+        logger.info(f"用户 {user_uuid} 注销成功")
     else:
         logger.info("匿名用户注销")
 
-    user_service.logout()
+    session.clear()
+
     return (
         jsonify(
             {
@@ -177,7 +185,9 @@ def get_current_user():
         "data": user_obj,
     }
     """
-    user = user_service.get_current_user()
+    user_uuid = session.get("user_uuid")
+    user = user_service.get_profile(user_uuid)
+
     if not user:
         logger.debug("获取当前用户失败: 用户未找到")
         return (

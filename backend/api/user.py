@@ -59,26 +59,26 @@ def upload_avatar():
             400,
         )
 
-    user = user_service.get_current_user()
-    if not user:
-        logger.debug("上传请求用户未找到")
+    user_uuid = session.get("user_uuid")
+    if not user_uuid:
+        # 理论上 @require_login 已经保证了有 session, 但为了安全起见
         return (
             jsonify(
                 {
                     "level": "error",
-                    "message": "用户未找到",
+                    "message": "用户未登录",
                 }
             ),
-            404,
+            401,
         )
 
     # 直接传递 FileStorage 对象给 Service
-    success, message, filename = user_service.update_avatar(user.id, file)
+    success, message, filename = user_service.update_avatar(user_uuid, file)
 
     if success:
         # 构造头像 URL
-        avatar_url = f"/api/user/avatar/{user.uuid}/{filename}"
-        logger.debug(f"用户 {user.username} 更新头像成功: {filename}")
+        avatar_url = f"/api/user/avatar/{user_uuid}/{filename}"
+        logger.debug(f"用户 {user_uuid} 更新头像成功: {filename}")
         return (
             jsonify(
                 {
@@ -90,7 +90,7 @@ def upload_avatar():
             200,
         )
     else:
-        logger.warning(f"用户 {user.username} 更新头像失败: {message}")
+        logger.warning(f"用户 {user_uuid} 更新头像失败: {message}")
         return (
             jsonify(
                 {

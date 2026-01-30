@@ -65,12 +65,11 @@ def get_navigations():
     """获取导航列表"""
     user_uuid = session.get("user_uuid")
     user_role = session.get("role", ROLE_GUEST)
-    is_admin = user_role >= ROLE_ADMIN
 
     # 检查是否请求所有 (管理员)
     show_all = request.args.get("all", "false").lower() == "true"
 
-    if show_all and not is_admin:
+    if show_all and user_role < ROLE_ADMIN:
         return (
             jsonify(
                 {
@@ -81,11 +80,9 @@ def get_navigations():
             403,
         )
 
-    # 如果是管理员明确请求所有, 则 view_all=True, 否则按正常逻辑: 公开 + 自己的
-    view_all = show_all and is_admin
-
-    navs = navigation_service.get_all(user_uuid=user_uuid, view_all=view_all)
-    navs_list = [nav.to_dict() for nav in navs]
+    navs_list = navigation_service.get_all(
+        user_uuid=user_uuid, user_role=user_role, view_all=show_all
+    )
 
     return (
         jsonify(
@@ -116,33 +113,24 @@ def create_navigation():
 
     user_uuid = session.get("user_uuid")
     user_role = session.get("role", ROLE_GUEST)
-    is_admin = user_role >= ROLE_ADMIN
 
-    # 权限控制
-    if not is_admin:
-        # 如果是成员用户, 强制设置 owner_uuid 为自己
-        data["owner_uuid"] = user_uuid
-    else:
-        # 管理员可以指定 owner_uuid, 如果未指定则默认为 None (系统/公共)
-        if "owner_uuid" not in data:
-            data["owner_uuid"] = None
-
-    success, message, nav = navigation_service.create(data)
+    success, message, nav = navigation_service.create(data, user_uuid, user_role)
 
     if success:
-        logger.debug(f"导航创建成功: {nav.title}")
+        logger.debug(f"导航创建成功: {nav.get('title')}")
         return (
             jsonify(
                 {
                     "level": "success",
                     "message": message,
-                    "data": nav.to_dict(),
+                    "data": nav,
                 },
             ),
             201,
         )
     else:
         logger.error(f"导航创建失败: {message}")
+        code = 403 if message == "权限不足" else 500
         return (
             jsonify(
                 {
@@ -150,7 +138,7 @@ def create_navigation():
                     "message": message,
                 },
             ),
-            500,
+            code,
         )
 
 
@@ -160,50 +148,28 @@ def update_navigation(uuid):
     """更新导航"""
     data: dict = request.json
 
-    nav = navigation_service.get_by_uuid(uuid)
-    if not nav:
-        return (
-            jsonify(
-                {
-                    "level": "warning",
-                    "message": "导航不存在",
-                },
-            ),
-            404,
-        )
-
     user_uuid = session.get("user_uuid")
     user_role = session.get("role", ROLE_GUEST)
-    is_admin = user_role >= ROLE_ADMIN
 
-    # 如果不是管理员, 且不是所有者 -> 拒绝
-    if not is_admin and nav.owner_uuid != user_uuid:
-        return (
-            jsonify(
-                {
-                    "level": "warning",
-                    "message": "权限不足",
-                },
-            ),
-            403,
-        )
-
-    success, message, nav = navigation_service.update(uuid, data)
+    success, message, nav = navigation_service.update(uuid, data, user_uuid, user_role)
 
     if success:
-        logger.debug(f"导航更新成功: {nav.title}")
+        logger.debug(f"导航更新成功: {nav.get('title')}")
         return (
             jsonify(
                 {
                     "level": "success",
                     "message": message,
-                    "data": nav.to_dict(),
+                    "data": nav,
                 },
             ),
             200,
         )
     else:
         logger.error(f"导航更新失败: {message}")
+        code = (
+            403 if message == "权限不足" else (404 if message == "导航不存在" else 500)
+        )
         return (
             jsonify(
                 {
@@ -211,7 +177,7 @@ def update_navigation(uuid):
                     "message": message,
                 },
             ),
-            500,
+            code,
         )
 
 
@@ -219,36 +185,10 @@ def update_navigation(uuid):
 @require_login
 def delete_navigation(uuid):
     """删除导航"""
-    nav = navigation_service.get_by_uuid(uuid)
-
-    if not nav:
-        return (
-            jsonify(
-                {
-                    "level": "warning",
-                    "message": "导航不存在",
-                },
-            ),
-            404,
-        )
-
     user_role = session.get("role", ROLE_GUEST)
-    is_admin = user_role >= ROLE_ADMIN
     user_uuid = session.get("user_uuid")
 
-    # 如果不是管理员, 且不是所有者 -> 拒绝
-    if not is_admin and nav.owner_uuid != user_uuid:
-        return (
-            jsonify(
-                {
-                    "level": "warning",
-                    "message": "权限不足",
-                },
-            ),
-            403,
-        )
-
-    success, message = navigation_service.delete(uuid)
+    success, message = navigation_service.delete(uuid, user_uuid, user_role)
 
     if success:
         logger.debug(f"导航删除成功: {uuid}")
@@ -263,6 +203,9 @@ def delete_navigation(uuid):
         )
     else:
         logger.error(f"导航删除失败: {message}")
+        code = (
+            403 if message == "权限不足" else (404 if message == "导航不存在" else 500)
+        )
         return (
             jsonify(
                 {
@@ -270,5 +213,5 @@ def delete_navigation(uuid):
                     "message": message,
                 },
             ),
-            500,
+            code,
         )
