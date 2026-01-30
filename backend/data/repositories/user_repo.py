@@ -29,11 +29,7 @@ class UserRepository:
         return db.session.get(self.model, user_id)
 
     def get_by_username(self, username: str) -> List[User]:
-        """
-        根据用户名获取用户列表.
-        注意: 由于用户名在模型定义中不是唯一的,
-        可能有多个用户拥有相同的用户名, 因此返回列表.
-        """
+        """根据用户名获取用户列表"""
         stmt = select(self.model).filter_by(username=username)
         return list(db.session.scalars(stmt).all())
 
