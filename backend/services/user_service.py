@@ -39,6 +39,7 @@ class UserService:
 
         # 登录成功, 设置 Session
         session["user_id"] = user.id
+        session["user_uuid"] = user.uuid
         session["role"] = user.role
         session.permanent = True
 
