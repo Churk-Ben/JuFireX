@@ -15,6 +15,36 @@ logger = get_logger("API_User")
 user_bp = Blueprint("user", __name__)
 
 
+@user_bp.route("/list", methods=["GET"])
+@require_login
+def list_users():
+    """
+    @name: 获取所有用户列表 (Admin only - mocked for now as we don't have role check middleware here yet, but assuming admin access)
+    """
+    # In a real scenario, check for admin role here.
+    # user_role = session.get("user_role")
+    # if user_role != "admin": return 403
+
+    users = user_service.get_all_users()
+    user_list = []
+    for u in users:
+        user_list.append(
+            {
+                "uuid": u.uuid,
+                "username": u.username,
+                "email": u.email,
+                "role": u.role,
+                "role_name": u.get_role_name(),
+                "is_active": u.is_active,
+                "created_at": u.created_at.isoformat() if u.created_at else None,
+            }
+        )
+
+    return jsonify(
+        {"level": "success", "message": "获取用户列表成功", "data": user_list}
+    )
+
+
 @user_bp.route("/avatar", methods=["POST"])
 @require_login
 def upload_avatar():

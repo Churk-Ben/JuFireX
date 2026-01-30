@@ -2,14 +2,14 @@
   <div class="page-container">
     <n-space vertical size="large">
       <n-space justify="space-between" align="center">
-        <n-h1 style="margin: 0">{{ t("sider.menu.admin.projects") }}</n-h1>
-        <n-button type="primary" @click="openModal()"> Add Project </n-button>
+        <n-h1 style="margin: 0">{{ t("sider.menu.admin.blogs") }}</n-h1>
+        <n-button type="primary" @click="openModal()">Add Blog</n-button>
       </n-space>
 
       <n-card>
         <n-data-table
           :columns="columns"
-          :data="projects"
+          :data="blogs"
           :loading="loading"
           :pagination="pagination"
         />
@@ -19,7 +19,7 @@
         v-model:show="showModal"
         preset="card"
         :title="modalTitle"
-        style="width: 700px"
+        style="width: 800px"
       >
         <n-form
           ref="formRef"
@@ -29,43 +29,34 @@
           label-width="100"
         >
           <n-form-item label="Title" path="title">
-            <n-input
-              v-model:value="formModel.title"
-              placeholder="Project Title"
-            />
+            <n-input v-model:value="formModel.title" placeholder="Blog Title" />
           </n-form-item>
-          <n-form-item label="Description" path="description">
+          <n-form-item label="Summary" path="summary">
             <n-input
-              v-model:value="formModel.description"
+              v-model:value="formModel.summary"
               type="textarea"
-              placeholder="Short description"
+              placeholder="Short summary"
             />
           </n-form-item>
           <n-form-item label="Content" path="content">
             <n-input
               v-model:value="formModel.content"
               type="textarea"
-              placeholder="Detailed content (Markdown)"
-              :rows="5"
+              placeholder="Markdown Content"
+              :rows="10"
             />
           </n-form-item>
-          <n-form-item label="URL" path="url">
+          <n-form-item label="Cover Image" path="cover_image">
             <n-input
-              v-model:value="formModel.url"
-              placeholder="Project Link / Demo"
+              v-model:value="formModel.cover_image"
+              placeholder="Image URL"
             />
-          </n-form-item>
-          <n-form-item label="Icon" path="icon">
-            <n-input v-model:value="formModel.icon" placeholder="Icon URL" />
           </n-form-item>
           <n-form-item label="Tags" path="tags">
             <n-dynamic-tags v-model:value="formModel.tags" />
           </n-form-item>
           <n-form-item label="Public" path="is_public">
             <n-switch v-model:value="formModel.is_public" />
-          </n-form-item>
-          <n-form-item label="Order" path="order">
-            <n-input-number v-model:value="formModel.order" />
           </n-form-item>
         </n-form>
         <template #footer>
@@ -93,24 +84,19 @@ import {
   NFormItem,
   NInput,
   NSwitch,
-  NInputNumber,
   useMessage,
   NTag,
   NSpace,
   NDynamicTags,
   NH1,
 } from "naive-ui";
-import {
-  projectService,
-  type Project,
-  type CreateProjectDto,
-} from "@/services/project";
+import { blogService, type Blog, type CreateBlogDto } from "@/services/blog";
 
 const { t } = useI18n();
 const message = useMessage();
 
 const loading = ref(false);
-const projects = ref<Project[]>([]);
+const blogs = ref<Blog[]>([]);
 const pagination = { pageSize: 10 };
 
 const showModal = ref(false);
@@ -119,15 +105,13 @@ const formRef = ref(null);
 const isEditing = ref(false);
 const currentUuid = ref("");
 
-const formModel = reactive<CreateProjectDto>({
+const formModel = reactive<CreateBlogDto>({
   title: "",
-  description: "",
+  summary: "",
   content: "",
-  url: "",
-  icon: "",
+  cover_image: "",
   tags: [],
   is_public: true,
-  order: 0,
 });
 
 const rules = {
@@ -139,7 +123,7 @@ const columns = [
   {
     title: "Tags",
     key: "tags",
-    render: (row: Project) => {
+    render: (row: Blog) => {
       return row.tags.map((tag) =>
         h(
           NTag,
@@ -152,13 +136,18 @@ const columns = [
   {
     title: "Public",
     key: "is_public",
-    render: (row: Project) => (row.is_public ? "Yes" : "No"),
+    render: (row: Blog) => (row.is_public ? "Yes" : "No"),
   },
-  { title: "Order", key: "order" },
+  { title: "Views", key: "views" },
+  {
+    title: "Date",
+    key: "created_at",
+    render: (row: Blog) => new Date(row.created_at).toLocaleDateString(),
+  },
   {
     title: "Actions",
     key: "actions",
-    render(row: Project) {
+    render(row: Blog) {
       return h(
         NSpace,
         {},
@@ -185,12 +174,12 @@ const columns = [
   },
 ];
 
-const modalTitle = ref("Add Project");
+const modalTitle = ref("Add Blog");
 
-async function fetchProjects() {
+async function fetchBlogs() {
   loading.value = true;
   try {
-    projects.value = await projectService.getAll(true);
+    blogs.value = await blogService.getAll(true);
   } catch (e) {
     console.error(e);
   } finally {
@@ -198,34 +187,30 @@ async function fetchProjects() {
   }
 }
 
-function openModal(proj?: Project) {
-  if (proj) {
+function openModal(blog?: Blog) {
+  if (blog) {
     isEditing.value = true;
-    currentUuid.value = proj.uuid;
-    modalTitle.value = "Edit Project";
+    currentUuid.value = blog.uuid;
+    modalTitle.value = "Edit Blog";
     Object.assign(formModel, {
-      title: proj.title,
-      description: proj.description,
-      content: proj.content,
-      url: proj.url,
-      icon: proj.icon,
-      tags: [...proj.tags],
-      is_public: proj.is_public,
-      order: proj.order,
+      title: blog.title,
+      summary: blog.summary,
+      content: blog.content,
+      cover_image: blog.cover_image,
+      tags: [...blog.tags],
+      is_public: blog.is_public,
     });
   } else {
     isEditing.value = false;
     currentUuid.value = "";
-    modalTitle.value = "Add Project";
+    modalTitle.value = "Add Blog";
     Object.assign(formModel, {
       title: "",
-      description: "",
+      summary: "",
       content: "",
-      url: "",
-      icon: "",
+      cover_image: "",
       tags: [],
       is_public: true,
-      order: 0,
     });
   }
   showModal.value = true;
@@ -238,14 +223,14 @@ async function handleSubmit() {
       submitting.value = true;
       try {
         if (isEditing.value) {
-          await projectService.update(currentUuid.value, formModel);
+          await blogService.update(currentUuid.value, formModel);
           message.success("Updated successfully");
         } else {
-          await projectService.create(formModel);
+          await blogService.create(formModel);
           message.success("Created successfully");
         }
         showModal.value = false;
-        fetchProjects();
+        fetchBlogs();
       } catch (e) {
         console.error(e);
       } finally {
@@ -255,12 +240,12 @@ async function handleSubmit() {
   });
 }
 
-async function handleDelete(proj: Project) {
-  if (window.confirm(`Are you sure you want to delete "${proj.title}"?`)) {
+async function handleDelete(blog: Blog) {
+  if (window.confirm(`Are you sure you want to delete "${blog.title}"?`)) {
     try {
-      await projectService.delete(proj.uuid);
+      await blogService.delete(blog.uuid);
       message.success("Deleted successfully");
-      fetchProjects();
+      fetchBlogs();
     } catch (e) {
       console.error(e);
     }
@@ -268,7 +253,7 @@ async function handleDelete(proj: Project) {
 }
 
 onMounted(() => {
-  fetchProjects();
+  fetchBlogs();
 });
 </script>
 

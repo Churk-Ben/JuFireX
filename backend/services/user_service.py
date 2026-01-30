@@ -66,6 +66,10 @@ class UserService:
             return None
         return self.user_repo.get_by_uuid(user_uuid)
 
+    def get_all_users(self) -> list[User]:
+        """获取所有用户"""
+        return self.user_repo.get_all()
+
     def update_avatar(
         self, user_uuid: str, avatar_file: FileStorage
     ) -> Tuple[bool, str, str]:

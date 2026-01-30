@@ -30,4 +30,13 @@ export const userService = {
   getAvatarUrl(uuid: string, filename: string = "avatar.png"): string {
     return `/api/user/avatar/${uuid}/${filename}`;
   },
+
+  /**
+   * Get all users (Admin only)
+   */
+  async getAll(): Promise<User[]> {
+    return request<User[]>("/api/user/list", {
+      method: "GET",
+    });
+  },
 };

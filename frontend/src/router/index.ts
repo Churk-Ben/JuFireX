@@ -5,10 +5,13 @@ const ApiTest = () => import("@/pages/ApiTest.vue");
 const AppHome = () => import("@/pages/AppHome.vue");
 const Navigations = () => import("@/pages/Navigations.vue");
 const Projects = () => import("@/pages/Projects.vue");
+const Blogs = () => import("@/pages/Blogs.vue");
+const BlogDetail = () => import("@/pages/BlogDetail.vue");
 
 const AdminUsers = () => import("@/pages/admin/Users.vue");
 const AdminNavigations = () => import("@/pages/admin/Navigations.vue");
 const AdminProjects = () => import("@/pages/admin/Projects.vue");
+const AdminBlogs = () => import("@/pages/admin/Blogs.vue");
 
 const UserProfile = () => import("@/pages/user/Profile.vue");
 const UserSettings = () => import("@/pages/user/Settings.vue");
@@ -24,10 +27,13 @@ const router = createRouter({
     { path: "/", component: AppHome },
     { path: "/navigations", component: Navigations },
     { path: "/projects", component: Projects },
+    { path: "/blogs", component: Blogs },
+    { path: "/blogs/:uuid", component: BlogDetail },
     { path: "/admin", redirect: "/admin/users" },
     { path: "/admin/users", component: AdminUsers },
     { path: "/admin/navigations", component: AdminNavigations },
     { path: "/admin/projects", component: AdminProjects },
+    { path: "/admin/blogs", component: AdminBlogs },
     { path: "/login", component: Login },
     { path: "/register", component: Register },
     { path: "/user", redirect: "/user/profile" },
