@@ -5,13 +5,12 @@
 # ------------------------------------------------------------
 
 import json
-import os
 
 from flask import Blueprint, jsonify, request, session
 
 from backend.config import Config, ROLE_ADMIN, ROLE_GUEST
 from backend.core.Logger import get_logger
-from backend.core.Security import require_member, require_login
+from backend.core.Security import require_login, require_member
 from backend.services import navigation_service
 
 logger = get_logger("API_Navigation")
@@ -23,7 +22,7 @@ def get_categories():
     """获取所有导航分类"""
     try:
         file_path = Config.NAVIGATIONS_DIR / "categories.json"
-        if not os.path.exists(file_path):
+        if not file_path.exists():
             logger.warning("获取分类文件时发现文件不存在, 建议检查返回结果是否可靠")
             return (
                 jsonify(
@@ -35,7 +34,7 @@ def get_categories():
                 200,
             )
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with file_path.open("r", encoding="utf-8") as f:
             categories = json.load(f)
 
         logger.debug(f"获取分类文件成功, 现有分类: {categories}")

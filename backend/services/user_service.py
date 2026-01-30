@@ -104,7 +104,7 @@ class UserService:
             if size_kb > 1024:
                 # 从默认文件夹还原为默认头像
                 default_avatar_path = Config.DEFAULTS_DIR / "avatar.png"
-                with open(default_avatar_path, "rb") as f:
+                with default_avatar_path.open("rb") as f:
                     default_avatar_data = f.read()
                 self.user_repo.save_avatar(user, default_avatar_data, filename=filename)
                 return False, "?你给我喂了什么?", ""

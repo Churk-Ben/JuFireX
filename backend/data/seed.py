@@ -1,4 +1,3 @@
-import os
 import random
 
 from backend.config import Config, ROLE_SUPER_ADMIN
@@ -27,7 +26,7 @@ def seed_admin():
 
         # 创建用户文件夹
         user_folder = Config.PROFILES_DIR / admin.uuid
-        os.makedirs(user_folder, exist_ok=True)
+        user_folder.mkdir(parents=True, exist_ok=True)
 
         from backend.core.Logger import get_logger
 
@@ -35,7 +34,7 @@ def seed_admin():
         logger.info(f"默认管理员: admin / {init_password} (UUID: {admin.uuid})")
 
         # 在根目录生成密码文件
-        with open(Config.PROJECT_ROOT / "password.txt", "w") as f:
+        with (Config.PROJECT_ROOT / "password.txt").open("w") as f:
             f.write("# format: uuid:password\n")
             f.write(f"{admin.uuid}:{init_password}")
 

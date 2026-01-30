@@ -39,7 +39,7 @@ class NavigationRepository:
             file_path = Config.NAVIGATIONS_DIR / "categories.json"
 
             # 写入文件
-            with open(file_path, "w", encoding="utf-8") as f:
+            with file_path.open("w", encoding="utf-8") as f:
                 json.dump(categories, f, ensure_ascii=False, indent=2)
 
             logger.info(f"已同步分类: {categories}")

@@ -65,11 +65,11 @@ class Config:
 
     @staticmethod
     def ensure_dirs():
-        os.makedirs(Config.PROJECTS_DIR, exist_ok=True)
-        os.makedirs(Config.PROFILES_DIR, exist_ok=True)
-        os.makedirs(Config.NAVIGATIONS_DIR, exist_ok=True)
-        os.makedirs(Config.BLOGS_DIR, exist_ok=True)
-        os.makedirs(Config.LOG_DIR, exist_ok=True)
+        Config.PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
+        Config.PROFILES_DIR.mkdir(parents=True, exist_ok=True)
+        Config.NAVIGATIONS_DIR.mkdir(parents=True, exist_ok=True)
+        Config.BLOGS_DIR.mkdir(parents=True, exist_ok=True)
+        Config.LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
 if __name__ == "__main__":

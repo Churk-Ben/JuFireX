@@ -4,11 +4,9 @@
 # @description: 用户数据仓库, 封装 User 模型的所有数据库操作
 # ------------------------------------------------------------
 
-import os
 from pathlib import Path
 import shutil
 from typing import List, Optional
-from datetime import datetime
 
 from sqlalchemy import select
 
@@ -92,7 +90,7 @@ class UserRepository:
             backup_dir = backup_root / f"{user.uuid}_backup"
 
             try:
-                os.makedirs(backup_root, exist_ok=True)
+                backup_root.mkdir(parents=True, exist_ok=True)
 
                 # 如果已存在旧备份, 先删除
                 if backup_dir.exists():
@@ -118,7 +116,7 @@ class UserRepository:
     def _ensure_user_directory(self, user: User) -> None:
         """确保用户目录存在"""
         user_dir = self._get_user_dir(user)
-        os.makedirs(user_dir, exist_ok=True)
+        user_dir.mkdir(parents=True, exist_ok=True)
 
     def _remove_user_directory(self, user: User) -> None:
         """删除用户目录及其内容"""
@@ -142,7 +140,7 @@ class UserRepository:
         user_dir = self._get_user_dir(user)
         file_path = user_dir / filename
 
-        with open(file_path, "wb") as f:
+        with file_path.open("wb") as f:
             f.write(image)
 
         return file_path.stat().st_size / 1024
