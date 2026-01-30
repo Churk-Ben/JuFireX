@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="row g-2">
-      <div class="col-6">
+      <div class="col-8">
         <!-- Authentication Section -->
         <n-card title="Authentication" class="my-2">
           <n-space vertical>
@@ -21,57 +21,9 @@
                 <n-button @click="checkMe">检查</n-button>
               </n-button-group>
             </n-space>
-            <div v-if="currentUser">
-              Current User: <strong>{{ currentUser.username }}</strong> (Role:
-              {{ currentUser.role }})
-            </div>
           </n-space>
         </n-card>
 
-        <!-- Navigation API Section -->
-        <n-card title="Navigation API" class="my-2">
-          <n-tabs type="line">
-            <n-tab-pane name="list" tab="List Categories">
-              <n-button-group>
-                <n-button @click="getNavCategories">Fetch Categories</n-button>
-              </n-button-group>
-            </n-tab-pane>
-            <n-tab-pane name="create" tab="Create Category">
-              <n-space vertical>
-                <n-input
-                  v-model:value="navForm.name"
-                  placeholder="Category Name"
-                />
-                <n-input
-                  v-model:value="navForm.icon"
-                  placeholder="Icon Class (e.g. fas fa-home)"
-                />
-                <n-input-number
-                  v-model:value="navForm.order"
-                  placeholder="Order"
-                />
-                <n-button-group>
-                  <n-button type="primary" @click="createNavCategory"
-                    >Create</n-button
-                  >
-                </n-button-group>
-              </n-space>
-            </n-tab-pane>
-          </n-tabs>
-        </n-card>
-
-        <!-- Projects API Section -->
-        <n-card title="Projects API" class="my-2">
-          <n-space>
-            <n-button-group>
-              <n-button @click="getProjects">List Projects</n-button>
-              <n-button @click="getFeaturedProjects">List Featured</n-button>
-            </n-button-group>
-          </n-space>
-        </n-card>
-      </div>
-
-      <div class="col-6">
         <!-- Generic Request Section -->
         <n-card title="Generic Request" class="my-2">
           <n-space vertical>
@@ -114,10 +66,14 @@
                 {{ lastResponse.status }} {{ lastResponse.statusText }}
               </n-tag>
             </div>
-            <pre v-if="lastResponse.data">{{
-              JSON.stringify(lastResponse.data, null, 2)
-            }}</pre>
-            <div v-else>No response yet</div>
+            <n-scrollbar style="height: 40vh">
+              <n-code
+                v-if="lastResponse.data"
+                show-line-numbers
+                language="json"
+                :code="JSON.stringify(lastResponse.data, null, 2)"
+              />
+            </n-scrollbar>
           </n-space>
         </n-card>
       </div>
@@ -132,11 +88,10 @@ import {
   NSpace,
   NInput,
   NButton,
-  NTabs,
-  NTabPane,
-  NInputNumber,
+  NScrollbar,
   NSelect,
   NTag,
+  NCode,
   NButtonGroup,
 } from "naive-ui";
 
@@ -213,25 +168,6 @@ async function checkMe() {
   }
 }
 
-async function getNavCategories() {
-  await request("/api/navigation/categories");
-}
-
-async function createNavCategory() {
-  await request("/api/navigation/categories", {
-    method: "POST",
-    body: JSON.stringify(navForm),
-  });
-}
-
-async function getProjects() {
-  await request("/api/projects");
-}
-
-async function getFeaturedProjects() {
-  await request("/api/projects/featured");
-}
-
 async function sendGeneric() {
   const options: RequestInit = {
     method: generic.method,
@@ -249,10 +185,3 @@ async function sendGeneric() {
   await request(generic.url, options);
 }
 </script>
-
-<style scoped>
-.container {
-  max-width: 80vw;
-  margin: 0 auto;
-}
-</style>
