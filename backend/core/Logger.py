@@ -119,19 +119,3 @@ def get_logger(name=None, level=Config.LOG_LEVEL, logfile=None, formatter=FORMAT
     setattr(logger, "decorate", DecoratorFactory(logger))
 
     return logger
-
-
-if __name__ == "__main__":
-    log = get_logger(name="TestLogger")
-
-    @log.decorate.info("拉起函数 test, 参数 a={a}, b={b}")
-    def test(a, b):
-        log.info("函数 test 被调用")
-        print(a + b)
-
-    # 测试日志记录器
-    log.debug("这是一条调试信息")
-    log.info("这是一条信息")
-    log.warning("这是一条警告信息")
-    log.error("这是一条错误信息")
-    test(1, 2)
