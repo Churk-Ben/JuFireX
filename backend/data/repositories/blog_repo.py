@@ -9,7 +9,7 @@ from pathlib import Path
 import shutil
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import select, or_
+from sqlalchemy import or_, select
 
 from backend.config import Config
 from backend.data.database import db
