@@ -8,12 +8,16 @@ import os
 from pathlib import Path
 import shutil
 from typing import List, Optional
+from datetime import datetime
 
 from sqlalchemy import select
 
 from backend.config import Config
+from backend.core.Logger import get_logger
 from backend.data.database import db
 from backend.data.models.user import User
+
+logger = get_logger("REPO_USER")
 
 
 class UserRepository:
@@ -75,10 +79,34 @@ class UserRepository:
             self._remove_user_directory(user)
 
     def rebuild(self, user: User) -> None:
-        """重建用户文件夹, 用于用户数据意外删除或损坏"""
-        if user:
-            self._remove_user_directory(user)
-            self._ensure_user_directory(user)
+        """重建用户文件夹, 用于用户数据意外损坏导致网站出现非预期行为时"""
+        if not user:
+            return
+
+        logger.warning(f"用户 {user.username} ({user.uuid}) 请求了文件夹重建")
+        user_dir = self._get_user_dir(user)
+
+        if user_dir.exists():
+            # 备份到 profiles/backups/uuid_backup (只保留一份, 防止滥用存储)
+            backup_root = Config.PROFILES_DIR / "backups"
+            backup_dir = backup_root / f"{user.uuid}_backup"
+
+            try:
+                os.makedirs(backup_root, exist_ok=True)
+
+                # 如果已存在旧备份, 先删除
+                if backup_dir.exists():
+                    shutil.rmtree(backup_dir)
+
+                shutil.move(str(user_dir), str(backup_dir))
+                logger.info(f"原用户目录已备份至: {backup_dir}")
+            except Exception as e:
+                logger.error(f"备份用户目录失败: {e}")
+                # 即使备份失败, 也尝试继续重建流程
+                pass
+
+        # 重新创建空目录
+        self._ensure_user_directory(user)
 
     # --- 文件管理方法 ---
 
