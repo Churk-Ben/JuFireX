@@ -12,8 +12,11 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy import or_, select
 
 from backend.config import Config
+from backend.core.Logger import get_logger
 from backend.data.database import db
 from backend.data.models.blog import Blog
+
+logger = get_logger("Repo_Blog")
 
 
 class BlogRepository:
@@ -81,9 +84,13 @@ class BlogRepository:
 
         return result
 
-    def _merge_blog_data(self, blog: Blog) -> Dict[str, Any]:
+    def _merge_blog_data(self, blog: Blog, show_content: bool = True) -> Dict[str, Any]:
         base_data = blog.to_dict()
         file_data = self._read_files(blog.uuid)
+        if not show_content:
+            # 过滤掉 content 字段, 这是为了防止渲染全部文章时获取过多内容, 拖慢响应时间
+            file_data.pop("content", None)
+
         return {**base_data, **file_data}
 
     def get_all(
@@ -105,7 +112,7 @@ class BlogRepository:
         stmt = stmt.order_by(self.model.created_at.desc())
         blogs = db.session.scalars(stmt).all()
 
-        return [self._merge_blog_data(b) for b in blogs]
+        return [self._merge_blog_data(b, show_content=False) for b in blogs]
 
     def get_by_uuid(self, uuid: str) -> Optional[Dict[str, Any]]:
         stmt = select(self.model).filter_by(uuid=uuid)
