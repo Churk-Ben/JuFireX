@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">
+  <ScrollContainer>
     <n-space vertical size="large">
       <n-h1>{{ t("sider.menu.projects") }}</n-h1>
 
@@ -75,12 +75,13 @@
         </n-grid>
       </n-spin>
     </n-space>
-  </div>
+  </ScrollContainer>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
+import { ScrollContainer } from "@/components/scroll-container";
 import {
   NGrid,
   NGridItem,
@@ -121,9 +122,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-container {
-  padding: 24px;
-}
 .project-card {
   height: 100%;
   display: flex;

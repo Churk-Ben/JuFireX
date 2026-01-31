@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">
+  <ScrollContainer>
     <n-space vertical size="large">
       <n-h1>{{ t("sider.menu.blogs") }}</n-h1>
 
@@ -55,13 +55,14 @@
         </div>
       </n-spin>
     </n-space>
-  </div>
+  </ScrollContainer>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { ScrollContainer } from "@/components/scroll-container";
 import {
   NCard,
   NSpin,
@@ -100,9 +101,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-container {
-  padding: 24px;
-}
 .blog-list-container {
   max-width: 800px;
   margin: 0 auto;

@@ -45,7 +45,7 @@ import {
   NDescriptions,
   NDescriptionsItem,
 } from "naive-ui";
-import AvatarCropper from "@/components/AvatarCropper.vue";
+import { AvatarCropper } from "@/components/avatar-cropper";
 
 const userStore = useUserStore();
 const message = useMessage();

@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">
+  <ScrollContainer>
     <n-space vertical size="large">
       <n-h1>{{ t("sider.menu.navigations") }}</n-h1>
 
@@ -51,12 +51,13 @@
         </n-space>
       </n-spin>
     </n-space>
-  </div>
+  </ScrollContainer>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { ScrollContainer } from "@/components/scroll-container";
 import {
   NGrid,
   NGridItem,
@@ -123,9 +124,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-container {
-  padding: 24px;
-}
 .cursor-pointer {
   cursor: pointer;
 }
