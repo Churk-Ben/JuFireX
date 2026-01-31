@@ -5,24 +5,30 @@
     "description": "是一个充满热爱与活力的游戏创意工作室. "
   },
   "sider": {
-    "menu": {
+    "appMenu": {
       "home": "首页",
       "navigations": "导航",
       "projects": "项目",
       "blogs": "文章",
-      "debug": "调试",
-      "user": "用户",
-      "user.login": "登录",
-      "user.profile": "个人资料",
-      "user.settings": "设置",
-      "user.logout": "退出登录",
-      "admin": "管理后台",
-      "admin.users": "用户管理",
-      "admin.navigations": "导航管理",
-      "admin.projects": "项目管理",
-      "admin.blogs": "文章管理"
+      "debug": "调试"
     },
-    "ctrl": {
+    "userMenu": {
+      "user": {
+        "user": "用户",
+        "profile": "档案",
+        "settings": "设置",
+        "login": "登录",
+        "logout": "登出"
+      },
+      "admin": {
+        "admin": "管理",
+        "users": "用户管理",
+        "navigations": "导航管理",
+        "projects": "项目管理",
+        "blogs": "文章管理"
+      }
+    },
+    "appCtrl": {
       "expand": "展开",
       "collapse": "收起",
       "locale": "语言",

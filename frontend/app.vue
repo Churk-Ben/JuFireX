@@ -51,6 +51,7 @@
                 :root-indent="16"
                 :value="userValue"
                 class="user-menu"
+                accordion
                 @update:value="onUser"
               />
             </section>
@@ -131,27 +132,28 @@ function toggleCollapsed() {
 const menuValue = ref(route.path);
 const menuOptions = computed(() => [
   {
-    label: t("sider.menu.home"),
+    label: t("sider.appMenu.home"),
     key: "/",
     icon: renderIcon(faFire),
   },
   {
-    label: t("sider.menu.navigations"),
+    label: t("sider.appMenu.navigations"),
     key: "/navigations",
     icon: renderIcon(faCompass),
   },
   {
-    label: t("sider.menu.projects"),
+    label: t("sider.appMenu.projects"),
     key: "/projects",
     icon: renderIcon(faBook),
   },
   {
-    label: t("sider.menu.blogs"),
+    label: t("sider.appMenu.blogs"),
     key: "/blogs",
     icon: renderIcon(faNewspaper),
   },
   {
-    label: t("sider.menu.debug"),
+    show: userStore.currentUser?.role === 3,
+    label: t("sider.appMenu.debug"),
     key: "/test",
     icon: renderIcon(faBug),
   },
@@ -166,7 +168,9 @@ function onMenu(key: string) {
 const ctrlValue = ref<string | null>(null);
 const ctrlOptions = computed(() => [
   {
-    label: collapsed.value ? t("sider.ctrl.expand") : t("sider.ctrl.collapse"),
+    label: collapsed.value
+      ? t("sider.appCtrl.expand")
+      : t("sider.appCtrl.collapse"),
     key: "toggleCollapsed",
     icon: renderIcon(faBars),
   },
@@ -204,7 +208,7 @@ const userOptions = computed(() => {
   if (!userStore.currentUser) {
     return [
       {
-        label: t("sider.menu.user.login"),
+        label: t("sider.userMenu.user.login"),
         key: "/login",
         icon: renderIcon(faSignInAlt),
       },
@@ -212,51 +216,52 @@ const userOptions = computed(() => {
   }
   return [
     {
-      label: userStore.currentUser.username || t("sider.menu.user"),
+      label: userStore.currentUser.username,
       key: "/user",
       icon: renderIcon(faUser),
       children: [
         {
-          label: t("sider.menu.user.profile"),
+          label: t("sider.userMenu.user.profile"),
           key: "/user/profile",
           icon: renderIcon(faUser),
         },
         {
-          label: t("sider.menu.user.settings"),
+          label: t("sider.userMenu.user.settings"),
           key: "/user/settings",
           icon: renderIcon(faCog),
         },
         {
-          label: t("sider.menu.admin"),
-          key: "/admin",
-          icon: renderIcon(faCrown),
-          children: [
-            {
-              label: t("sider.menu.admin.users"),
-              key: "/admin/users",
-              icon: renderIcon(faUserGroup),
-            },
-            {
-              label: t("sider.menu.admin.navigations"),
-              key: "/admin/navigations",
-              icon: renderIcon(faCompass),
-            },
-            {
-              label: t("sider.menu.admin.projects"),
-              key: "/admin/projects",
-              icon: renderIcon(faBook),
-            },
-            {
-              label: t("sider.menu.admin.blogs"),
-              key: "/admin/blogs",
-              icon: renderIcon(faNewspaper),
-            },
-          ],
-        },
-        {
-          label: t("sider.menu.user.logout"),
+          label: t("sider.userMenu.user.logout"),
           key: "/user/logout",
           icon: renderIcon(faSignOutAlt),
+        },
+      ],
+    },
+    {
+      show: userStore.currentUser?.role >= 2,
+      label: t("sider.userMenu.admin.admin"),
+      key: "/admin",
+      icon: renderIcon(faCrown),
+      children: [
+        {
+          label: t("sider.userMenu.admin.users"),
+          key: "/admin/users",
+          icon: renderIcon(faUserGroup),
+        },
+        {
+          label: t("sider.userMenu.admin.navigations"),
+          key: "/admin/navigations",
+          icon: renderIcon(faCompass),
+        },
+        {
+          label: t("sider.userMenu.admin.projects"),
+          key: "/admin/projects",
+          icon: renderIcon(faBook),
+        },
+        {
+          label: t("sider.userMenu.admin.blogs"),
+          key: "/admin/blogs",
+          icon: renderIcon(faNewspaper),
         },
       ],
     },
@@ -295,8 +300,8 @@ const naiveTheme = computed(() =>
 
 const themeLabel = computed(() =>
   themeMode.value === "light"
-    ? t("sider.ctrl.theme.dark")
-    : t("sider.ctrl.theme.light"),
+    ? t("sider.appCtrl.theme.dark")
+    : t("sider.appCtrl.theme.light"),
 );
 
 function toggleTheme() {
@@ -305,7 +310,7 @@ function toggleTheme() {
 }
 
 // 应用语言选项
-const localeLabel = computed(() => t("sider.ctrl.locale"));
+const localeLabel = computed(() => t("sider.appCtrl.locale"));
 const localeOptions = [
   { label: "中文", value: "zh-CN" },
   { label: "English", value: "en" },
