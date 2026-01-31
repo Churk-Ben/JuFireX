@@ -10,7 +10,11 @@ from flask import Blueprint, jsonify, request, send_from_directory, session
 
 from backend.config import Config
 from backend.core.Logger import get_logger
-from backend.core.Security import require_login, require_super_admin
+from backend.core.Security import (
+    require_login,
+    require_self_or_super_admin,
+    require_super_admin,
+)
 from backend.services import user_service
 
 logger = get_logger("API_User")
@@ -158,3 +162,70 @@ def get_avatar(uuid, filename):
         return send_from_directory(Config.DEFAULTS_DIR, filename)
     else:
         return send_from_directory(user_dir, filename)
+
+
+@user_bp.route("/rebuild/<uuid>", methods=["POST"])
+@require_self_or_super_admin
+def rebuild_user_dir(uuid):
+    """
+    @name: 重建用户目录
+    @expect:
+    {
+        "uuid": "用户 UUID (必须与 URL 参数一致)"
+    }
+    @return:
+    {
+        "level": "success",
+        "message": "用户目录重建成功",
+    }
+    """
+    data: dict = request.get_json()
+    body_uuid = data.get("uuid")
+
+    if not body_uuid:
+        logger.debug("重建请求缺失用户 UUID")
+        return (
+            jsonify(
+                {
+                    "level": "warning",
+                    "message": "缺少用户 UUID",
+                }
+            ),
+            400,
+        )
+
+    # 双重一致性检查: 防止误操作
+    if uuid != body_uuid:
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": "操作被拒绝: 请求构造不一致",
+                }
+            ),
+            403,
+        )
+
+    success, message = user_service.rebuild(uuid)
+    if success:
+        logger.debug(f"用户目录 {uuid} 重建成功")
+        return (
+            jsonify(
+                {
+                    "level": "success",
+                    "message": message,
+                },
+            ),
+            200,
+        )
+    else:
+        logger.warning(f"用户目录 {uuid} 重建失败: {message}")
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": message,
+                }
+            ),
+            500,
+        )

@@ -60,6 +60,22 @@ class UserService:
 
         return True, "注册成功", new_user
 
+    def rebuild(self, user_uuid: str) -> Tuple[bool, str]:
+        """
+        重建用户目录
+        :param user_uuid: 用户UUID
+        :return: (是否成功, 消息)
+        """
+        user = self.user_repo.get_by_uuid(user_uuid)
+        if not user:
+            return False, "用户不存在"
+
+        try:
+            self.user_repo.rebuild(user)
+            return True, "用户目录重建成功"
+        except Exception as e:
+            return False, f"用户目录重建失败: {str(e)}"
+
     def get_profile(self, user_uuid: str) -> Optional[User]:
         """获取用户个人信息"""
         if not user_uuid:
