@@ -20,15 +20,19 @@ class UserService:
     def login(self, identifier: str, password: str) -> Tuple[bool, str, Optional[User]]:
         """
         用户登录逻辑
-        :param identifier: 邮箱或UUID
+        :param identifier: 邮箱 或 ID
         :param password: 密码
         :return: (是否成功, 消息, 用户对象)
         """
         user = None
         if "@" in identifier:
             user = self.user_repo.get_by_email(identifier)
-        else:
+        elif identifier.isalnum():
+            user = self.user_repo.get_by_id(identifier)
+        elif "-" in identifier:
             user = self.user_repo.get_by_uuid(identifier)
+        else:
+            return False, "无效的用户凭证", None
 
         if not user or not user.check_password(password):
             return False, "用户不存在或密码错误", None
