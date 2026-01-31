@@ -77,15 +77,17 @@ def require_role(role):
     return decorator
 
 
-def require_owner(role):
+def require_self_or_role(role):
     """
-    启用所有者豁免.
+    启用"本人或指定角色"鉴权 (Identity Match OR Role Check).
 
-    自动检查路由参数中的 `uuid` 或 `user_uuid` 是否与当前登录用户的 UUID 一致.
-    如果一致, 或者是role以上权限, 则允许访问. 否则返回 403 错误.
+    用于操作用户自身的接口 (如修改密码, 重建目录).
+    允许访问的条件:
+    1. 当前用户拥有 >= role 的角色权限.
+    2. 或者当前用户就是被操作的目标用户 (uuid一致).
 
     Args:
-        role (int): 所需的角色等级.
+        role (int): 豁免所需的最低角色等级 (如果不是本人, 需要达到此等级).
 
     Returns:
         function: 包装后的函数.
@@ -105,7 +107,7 @@ def require_owner(role):
                     401,
                 )
 
-            # 1. 检查是否为管理员 (直接放行)
+            # 1. 检查是否为特权角色 (直接放行)
             user_role = session.get("role", ROLE_GUEST)
             if user_role >= role:
                 return f(*args, **kwargs)
@@ -113,8 +115,6 @@ def require_owner(role):
             # 2. 获取当前用户 UUID
             current_user_uuid = session.get("user_uuid")
             if not current_user_uuid:
-                # 这种情况理论上不应该发生, 除非是在添加 user_uuid 之前的旧 session
-                # 为了安全起见, 拒绝访问并提示重新登录
                 return (
                     jsonify(
                         {
@@ -125,14 +125,15 @@ def require_owner(role):
                     401,
                 )
 
-            # 3. 获取目标 UUID (从路由参数中)
-            # 尝试常见的参数名: uuid, user_uuid
+            # 3. 获取目标 UUID (待操作的用户 UUID)
             target_uuid = kwargs.get("uuid") or kwargs.get("user_uuid")
+            if not target_uuid and request.is_json:
+                data = request.get_json(silent=True) or {}
+                target_uuid = data.get("uuid") or data.get("user_uuid")
 
             if target_uuid and target_uuid == current_user_uuid:
                 return f(*args, **kwargs)
 
-            # 如果没有匹配到所有者, 且不是管理员
             return (
                 jsonify(
                     {
@@ -145,7 +146,7 @@ def require_owner(role):
 
         return decorated_function
 
-    return decorator(f)
+    return decorator
 
 
 def require_login(f):
@@ -168,11 +169,16 @@ def require_super_admin(f):
     return require_role(ROLE_SUPER_ADMIN)(f)
 
 
-def require_owner_or_admin(f):
-    """需要所有者权限或管理员以上权限"""
-    return require_owner(ROLE_ADMIN)(f)
+def require_self(f):
+    """需要本人权限 (Strict Self Check)"""
+    return require_self_or_role(ROLE_SUPER_ADMIN + 999)(f)
 
 
-def require_owner_or_super_admin(f):
-    """需要所有者权限或超级管理员以上权限"""
-    return require_owner(ROLE_SUPER_ADMIN)(f)
+def require_self_or_admin(f):
+    """需要本人权限或管理员以上权限"""
+    return require_self_or_role(ROLE_ADMIN)(f)
+
+
+def require_self_or_super_admin(f):
+    """需要本人权限或超级管理员以上权限"""
+    return require_self_or_role(ROLE_SUPER_ADMIN)(f)

@@ -31,7 +31,7 @@ def login():
         "data": user_obj
     }
     """
-    data = request.get_json()
+    data: dict = request.get_json()
     identifier = data.get("identifier")
     password = data.get("password")
 
@@ -97,7 +97,7 @@ def register():
         "data": user_obj,
     }
     """
-    data = request.get_json()
+    data: dict = request.get_json()
     username = data.get("username")
     email = data.get("email")
     password = data.get("password")
