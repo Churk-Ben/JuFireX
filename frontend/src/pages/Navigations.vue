@@ -28,13 +28,9 @@
                 >
                   <template #header>
                     <n-space align="center" :wrap="false" :size="10">
-                      <n-avatar
-                        v-if="nav.icon"
-                        :src="nav.icon"
-                        fallback-src="/favicon.ico"
-                        size="small"
-                        color="transparent"
-                        class="nav-icon"
+                      <FontAwesomeIcon
+                        :icon="getIcon(nav.icon)"
+                        class="text-xl"
                       />
                       <n-ellipsis style="max-width: 100%">
                         {{ nav.title }}
@@ -74,6 +70,7 @@ import {
   NResult,
 } from "naive-ui";
 import { navigationService, type Navigation } from "@/services/navigation";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const { t } = useI18n();
 const loading = ref(false);
@@ -100,6 +97,20 @@ async function fetchNavigations() {
   } finally {
     loading.value = false;
   }
+}
+
+function getIcon(iconClass: string | undefined): any {
+  if (!iconClass) return ["fas", "link"];
+
+  // format: "fas:link" or "fab:github"
+  if (iconClass.includes(":")) {
+    const parts = iconClass.split(":");
+    if (parts.length === 2) {
+      return [parts[0], parts[1]];
+    }
+  }
+
+  return iconClass;
 }
 
 function openLink(url: string) {

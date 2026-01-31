@@ -42,6 +42,24 @@ def require_role(role):
             user_role = session.get("role", ROLE_GUEST)
 
             if user_role < role:
+                # 尝试从数据库刷新权限 (处理 Session 过期/未更新的情况)
+                user_uuid = session.get("user_uuid")
+                if user_uuid:
+                    try:
+                        from backend.data.database import db
+                        from backend.data.models.user import User
+                        from sqlalchemy import select
+
+                        stmt = select(User).where(User.uuid == user_uuid)
+                        user_obj = db.session.execute(stmt).scalars().first()
+
+                        if user_obj and user_obj.role >= role:
+                            # 更新 Session 并放行
+                            session["role"] = user_obj.role
+                            return f(*args, **kwargs)
+                    except Exception:
+                        pass
+
                 return (
                     jsonify(
                         {

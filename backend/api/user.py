@@ -4,11 +4,13 @@
 # @description: 用户相关 API (头像上传, 个人信息等)
 # ------------------------------------------------------------
 
-from flask import Blueprint, jsonify, request, send_from_directory
+from pathlib import Path
+
+from flask import Blueprint, jsonify, request, send_from_directory, session
 
 from backend.config import Config
 from backend.core.Logger import get_logger
-from backend.core.Security import require_login
+from backend.core.Security import require_login, require_super_admin
 from backend.services import user_service
 
 logger = get_logger("API_User")
@@ -16,14 +18,11 @@ user_bp = Blueprint("user", __name__)
 
 
 @user_bp.route("/list", methods=["GET"])
-@require_login
+@require_super_admin
 def list_users():
     """
-    @name: 获取所有用户列表 (Admin only - mocked for now as we don't have role check middleware here yet, but assuming admin access)
+    @name: 获取所有用户列表
     """
-    # In a real scenario, check for admin role here.
-    # user_role = session.get("user_role")
-    # if user_role != "admin": return 403
 
     users = user_service.get_all_users()
     user_list = []
@@ -140,7 +139,8 @@ def get_avatar(uuid, filename):
     @return: 头像文件(file)
     """
     # 头像存储路径: database/profiles/<uuid>/<filename>
-    user_dir = Config.PROFILES_DIR / uuid
+    user_dir: Path = Config.PROFILES_DIR / uuid
+    avatar_path: Path = user_dir / filename
 
     if not user_dir.exists():
         logger.debug(f"用户目录不存在: {user_dir}")
@@ -154,7 +154,7 @@ def get_avatar(uuid, filename):
             404,
         )
 
-    if not (user_dir / filename).exists():
+    if not avatar_path.exists():
         return send_from_directory(Config.DEFAULTS_DIR, filename)
     else:
         return send_from_directory(user_dir, filename)

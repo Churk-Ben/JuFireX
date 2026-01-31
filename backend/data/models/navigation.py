@@ -16,7 +16,7 @@ class Navigation(db.Model):
     uuid = db.Column(db.String(36), unique=True, nullable=False, default=_get_uuid)
     title = db.Column(db.String(100), nullable=False)
     url = db.Column(db.String(500), nullable=False)
-    icon = db.Column(db.String(255), nullable=True, default="fas fa-link")
+    icon = db.Column(db.String(255), nullable=True, default="fas:link")
     description = db.Column(db.String(500), nullable=True)
     category = db.Column(db.String(50), nullable=True, default="default")
     owner_uuid = db.Column(db.String(36), nullable=True)
