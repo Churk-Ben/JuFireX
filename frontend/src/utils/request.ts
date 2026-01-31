@@ -1,6 +1,43 @@
-import { createDiscreteApi } from "naive-ui";
+import { createDiscreteApi, darkTheme } from "naive-ui";
 
-const { message: messageApi } = createDiscreteApi(["message"]);
+// 检查主题模式, 从 localStorage 或系统偏好设置中获取
+const themeMode = localStorage.getItem("themeMode");
+const isDark =
+  themeMode === "dark" ||
+  (!themeMode &&
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+// 为通知添加亚克力效果 (背景模糊)
+const style = document.createElement("style");
+style.textContent = `
+  .n-notification {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    min-height: 6rem;
+    max-width: 30rem;
+  }
+
+  .n-notification-main__content {
+    padding-top: 4px;
+    font-size: 1rem;
+  }
+`;
+document.head.appendChild(style);
+
+const { notification } = createDiscreteApi(["notification"], {
+  configProviderProps: {
+    theme: isDark ? darkTheme : undefined,
+    themeOverrides: {
+      Notification: {
+        color: isDark ? "rgba(24, 24, 28, 0.7)" : "rgba(255, 255, 255, 0.7)",
+      },
+    },
+  },
+  notificationProviderProps: {
+    placement: "bottom-right",
+  },
+});
 
 export interface ApiResponse<T = any> {
   level?: "info" | "success" | "warning" | "error";
@@ -28,29 +65,48 @@ export async function request<T = any>(
 
   if (contentType && contentType.includes("application/json")) {
     data = await response.json();
-    
-    // Unify frontend API response handling
+
+    // 统一处理 API 响应
     if (data && typeof data === "object") {
       const { level, message } = data;
       if (message) {
         switch (level) {
           case "success":
-            messageApi.success(message);
+            notification.success({
+              content: message,
+              duration: 2000,
+              keepAliveOnHover: true,
+            });
             break;
           case "warning":
-            messageApi.warning(message);
+            notification.warning({
+              content: message,
+              duration: 3000,
+              keepAliveOnHover: true,
+            });
             break;
           case "error":
-            messageApi.error(message);
+            notification.error({
+              content: message,
+              duration: 4000,
+              keepAliveOnHover: true,
+            });
             break;
           case "info":
-            messageApi.info(message);
+            notification.info({
+              content: message,
+              duration: 2000,
+              keepAliveOnHover: true,
+            });
             break;
           default:
-            // If level is missing but message exists, maybe info? 
-            // Or if it's an error status, error.
-            if (!response.ok) messageApi.error(message);
-            else messageApi.info(message);
+            // 如果 level 缺失但 message 存在, 默认为 info 通知
+            notification.info({
+              content: message,
+              duration: 2000,
+              keepAliveOnHover: true,
+            });
+            break;
         }
       }
     }
@@ -65,6 +121,6 @@ export async function request<T = any>(
     throw error;
   }
 
-  // Return the data payload if it exists, otherwise return the whole response
+  // 如果 data 存在 data 字段, 返回 data.data, 否则返回 data
   return data.data !== undefined ? data.data : data;
 }
