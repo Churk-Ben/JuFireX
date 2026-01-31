@@ -108,10 +108,6 @@ onMounted(() => {
   flex: 1;
 }
 
-.mb-3 {
-  margin-bottom: 1rem;
-}
-
 @media (max-width: 600px) {
   .profile-header {
     flex-direction: column;
