@@ -117,14 +117,6 @@ function renderIcon(icon: any) {
     h(NIcon, { size: 16 }, { default: () => h(FontAwesomeIcon, { icon }) });
 }
 
-// 应用侧边栏折叠状态
-const collapsed = ref(localStorage.getItem("collapsed") === "true");
-
-function toggleCollapsed() {
-  collapsed.value = !collapsed.value;
-  localStorage.setItem("collapsed", String(collapsed.value));
-}
-
 // 应用菜单选项
 const menuValue = ref(route.path);
 const menuOptions = computed(() => [
@@ -199,7 +191,7 @@ function onCtrl(key: string | null) {
   ctrlValue.value = null;
 }
 
-// 应用用户选项
+// 用户菜单选项
 const userValue = ref<string | null>(null);
 const userOptions = computed(() => {
   if (!userStore.currentUser) {
@@ -278,6 +270,14 @@ function onUser(key: string | null) {
     router.push(key);
   }
   userValue.value = null;
+}
+
+// 应用侧边栏折叠状态
+const collapsed = ref(localStorage.getItem("collapsed") === "true");
+
+function toggleCollapsed() {
+  collapsed.value = !collapsed.value;
+  localStorage.setItem("collapsed", String(collapsed.value));
 }
 
 // 应用主题模式
