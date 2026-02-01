@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { ref, nextTick, onBeforeUnmount, watch } from "vue";
-import { NModal, NButton, NSpace, useMessage } from "naive-ui";
+import { NModal, NButton, NSpace } from "naive-ui";
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.css";
 
@@ -49,7 +49,6 @@ const showModal = ref(false);
 const imageUrl = ref("");
 const processing = ref(false);
 let cropper: Cropper | null = null;
-const message = useMessage();
 
 function triggerSelect() {
   fileInput.value?.click();
@@ -62,7 +61,6 @@ function handleFileChange(e: Event) {
 
     // Basic validation
     if (!file.type.startsWith("image/")) {
-      message.error("Please select an image file");
       return;
     }
 
@@ -134,7 +132,6 @@ function confirmCrop() {
       emit("cropped", blob);
       showModal.value = false;
     } else {
-      message.error("Failed to crop image");
       emit("error", new Error("Failed to create blob"));
     }
   }, "image/png");

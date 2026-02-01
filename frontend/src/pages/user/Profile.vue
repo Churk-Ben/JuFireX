@@ -38,7 +38,6 @@ import { ref, computed, onMounted } from "vue";
 import { useUserStore } from "@/stores/user";
 import { userService } from "@/services/user";
 import {
-  useMessage,
   NCard,
   NAvatar,
   NButton,
@@ -48,7 +47,6 @@ import {
 import { AvatarCropper } from "@/components/avatar-cropper";
 
 const userStore = useUserStore();
-const message = useMessage();
 const timestamp = ref(Date.now());
 
 const avatarUrl = computed(() => {
@@ -68,11 +66,9 @@ async function handleAvatarCrop(blob: Blob) {
   try {
     const file = new File([blob], "avatar.png", { type: "image/png" });
     await userService.uploadAvatar(file);
-    // Success message is handled by request interceptor
-    // Refresh avatar image
+    // 立即刷新头像
     timestamp.value = Date.now();
   } catch (e: any) {
-    // Error message is handled by request interceptor
     console.error(e);
   }
 }

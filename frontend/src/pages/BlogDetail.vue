@@ -75,7 +75,8 @@ import {
 } from "naive-ui";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { blogService, type Blog } from "@/services/blog";
+import { blogService } from "@/services/blog";
+import type { Blog } from "@/types/models";
 import { marked } from "marked";
 
 const route = useRoute();

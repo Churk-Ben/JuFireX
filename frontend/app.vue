@@ -59,9 +59,7 @@
         </n-layout-sider>
         <n-layout-content class="app-content" content-style="min-height: 0;">
           <n-dialog-provider>
-            <n-message-provider placement="bottom-right">
-              <RouterView />
-            </n-message-provider>
+            <RouterView />
           </n-dialog-provider>
         </n-layout-content>
       </n-layout>
@@ -88,7 +86,6 @@ import {
   NLayoutContent,
   NLayoutSider,
   NMenu,
-  NMessageProvider,
   NDialogProvider,
 } from "naive-ui";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";

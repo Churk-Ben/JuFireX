@@ -70,7 +70,8 @@ import {
   NEllipsis,
   NResult,
 } from "naive-ui";
-import { navigationService, type Navigation } from "@/services/navigation";
+import { navigationService } from "@/services/navigation";
+import type { Navigation } from "@/types/models";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const { t } = useI18n();

@@ -25,9 +25,18 @@
 <script setup lang="ts">
 import { ref, onMounted, h } from "vue";
 import { useI18n } from "vue-i18n";
-import { NCard, NButton, NDataTable, NSpace, NH1, NTag, NTime } from "naive-ui";
+import {
+  NCard,
+  NButton,
+  NDataTable,
+  NSpace,
+  NH1,
+  NTag,
+  NTime,
+  NScrollbar,
+} from "naive-ui";
 import { userService } from "@/services/user";
-import type { User } from "@/services/auth";
+import type { User } from "@/types/models";
 
 const { t } = useI18n();
 

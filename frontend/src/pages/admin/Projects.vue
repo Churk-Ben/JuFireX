@@ -94,20 +94,16 @@ import {
   NInput,
   NSwitch,
   NInputNumber,
-  useMessage,
   NTag,
   NSpace,
   NDynamicTags,
   NH1,
 } from "naive-ui";
-import {
-  projectService,
-  type Project,
-  type CreateProjectDto,
-} from "@/services/project";
+import { projectService } from "@/services/project";
+import type { Project } from "@/types/models";
+import type { CreateProjectDto } from "@/types/api";
 
 const { t } = useI18n();
-const message = useMessage();
 
 const loading = ref(false);
 const projects = ref<Project[]>([]);
@@ -239,10 +235,8 @@ async function handleSubmit() {
       try {
         if (isEditing.value) {
           await projectService.update(currentUuid.value, formModel);
-          message.success("Updated successfully");
         } else {
           await projectService.create(formModel);
-          message.success("Created successfully");
         }
         showModal.value = false;
         fetchProjects();
@@ -259,7 +253,6 @@ async function handleDelete(proj: Project) {
   if (window.confirm(`Are you sure you want to delete "${proj.title}"?`)) {
     try {
       await projectService.delete(proj.uuid);
-      message.success("Deleted successfully");
       fetchProjects();
     } catch (e) {
       console.error(e);

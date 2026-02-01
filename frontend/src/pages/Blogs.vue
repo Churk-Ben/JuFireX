@@ -73,7 +73,8 @@ import {
   NEllipsis,
   NText,
 } from "naive-ui";
-import { blogService, type Blog } from "@/services/blog";
+import { blogService } from "@/services/blog";
+import type { Blog } from "@/types/models";
 
 const { t } = useI18n();
 const router = useRouter();

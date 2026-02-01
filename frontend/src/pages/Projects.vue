@@ -95,7 +95,8 @@ import {
   NEllipsis,
   NResult,
 } from "naive-ui";
-import { projectService, type Project } from "@/services/project";
+import { projectService } from "@/services/project";
+import type { Project } from "@/types/models";
 
 const { t } = useI18n();
 const loading = ref(false);

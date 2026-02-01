@@ -43,7 +43,7 @@
     "password": "密码",
     "success": "登录成功",
     "validation": {
-      "usernameRequired": "请输入用户名",
+      "identifierRequired": "请输入邮箱或ID",
       "passwordRequired": "请输入密码"
     }
   }

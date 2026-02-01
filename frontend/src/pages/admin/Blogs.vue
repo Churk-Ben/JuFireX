@@ -84,16 +84,16 @@ import {
   NFormItem,
   NInput,
   NSwitch,
-  useMessage,
   NTag,
   NSpace,
   NDynamicTags,
   NH1,
 } from "naive-ui";
-import { blogService, type Blog, type CreateBlogDto } from "@/services/blog";
+import { blogService } from "@/services/blog";
+import type { Blog } from "@/types/models";
+import type { CreateBlogDto } from "@/types/api";
 
 const { t } = useI18n();
-const message = useMessage();
 
 const loading = ref(false);
 const blogs = ref<Blog[]>([]);
@@ -224,10 +224,8 @@ async function handleSubmit() {
       try {
         if (isEditing.value) {
           await blogService.update(currentUuid.value, formModel);
-          message.success("Updated successfully");
         } else {
           await blogService.create(formModel);
-          message.success("Created successfully");
         }
         showModal.value = false;
         fetchBlogs();
@@ -244,7 +242,6 @@ async function handleDelete(blog: Blog) {
   if (window.confirm(`Are you sure you want to delete "${blog.title}"?`)) {
     try {
       await blogService.delete(blog.uuid);
-      message.success("Deleted successfully");
       fetchBlogs();
     } catch (e) {
       console.error(e);

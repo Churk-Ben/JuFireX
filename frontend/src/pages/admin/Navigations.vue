@@ -88,19 +88,15 @@ import {
   NInput,
   NSwitch,
   NInputNumber,
-  useMessage,
   NTag,
   NSpace,
   NH1,
 } from "naive-ui";
-import {
-  navigationService,
-  type Navigation,
-  type CreateNavigationDto,
-} from "@/services/navigation";
+import { navigationService } from "@/services/navigation";
+import type { Navigation } from "@/types/models";
+import type { CreateNavigationDto } from "@/types/api";
 
 const { t } = useI18n();
-const message = useMessage();
 
 const loading = ref(false);
 const navigations = ref<Navigation[]>([]);
@@ -229,10 +225,8 @@ async function handleSubmit() {
       try {
         if (isEditing.value) {
           await navigationService.update(currentUuid.value, formModel);
-          message.success("Updated successfully");
         } else {
           await navigationService.create(formModel);
-          message.success("Created successfully");
         }
         showModal.value = false;
         fetchNavigations();
@@ -249,7 +243,6 @@ async function handleDelete(nav: Navigation) {
   if (window.confirm(`Are you sure you want to delete "${nav.title}"?`)) {
     try {
       await navigationService.delete(nav.uuid);
-      message.success("Deleted successfully");
       fetchNavigations();
     } catch (e) {
       console.error(e);

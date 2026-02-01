@@ -44,12 +44,11 @@
 import { ref, reactive, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { useMessage, NCard, NForm, NFormItem, NInput, NButton } from "naive-ui";
+import { NCard, NForm, NFormItem, NInput, NButton } from "naive-ui";
 import { useUserStore } from "@/stores/user";
 
 const { t } = useI18n();
 const router = useRouter();
-const message = useMessage();
 const userStore = useUserStore();
 
 const formRef = ref(null);
@@ -61,7 +60,7 @@ const formModel = reactive({
 const rules = {
   identifier: {
     required: true,
-    message: "Please input Email or UUID",
+    message: t("login.validation.identifierRequired"),
     trigger: "blur",
   },
   password: {

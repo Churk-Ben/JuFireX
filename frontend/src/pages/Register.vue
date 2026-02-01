@@ -8,16 +8,10 @@
       </template>
       <n-form ref="formRef" :model="formModel" :rules="rules">
         <n-form-item path="username" label="Username">
-          <n-input
-            v-model:value="formModel.username"
-            placeholder="Username"
-          />
+          <n-input v-model:value="formModel.username" placeholder="Username" />
         </n-form-item>
         <n-form-item path="email" label="Email">
-          <n-input
-            v-model:value="formModel.email"
-            placeholder="Email"
-          />
+          <n-input v-model:value="formModel.email" placeholder="Email" />
         </n-form-item>
         <n-form-item path="password" label="Password">
           <n-input
@@ -43,7 +37,9 @@
             Register
           </n-button>
           <div class="mt-3 text-center">
-            <router-link to="/login">Already have an account? Login</router-link>
+            <router-link to="/login"
+              >Already have an account? Login</router-link
+            >
           </div>
         </div>
       </n-form>
@@ -54,11 +50,19 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
-import { useMessage, NCard, NForm, NFormItem, NInput, NButton, FormItemRule } from "naive-ui";
+import { useI18n } from "vue-i18n";
+import {
+  NCard,
+  NForm,
+  NFormItem,
+  NInput,
+  NButton,
+  FormItemRule,
+} from "naive-ui";
 import { authService } from "@/services/auth";
 
 const router = useRouter();
-const message = useMessage();
+const { t } = useI18n();
 
 const formRef = ref(null);
 const loading = ref(false);
@@ -72,30 +76,30 @@ const formModel = reactive({
 const rules = {
   username: {
     required: true,
-    message: "Please input username",
+    message: t("register.validation.usernameRequired"),
     trigger: "blur",
   },
   email: {
     required: true,
-    message: "Please input email",
+    message: t("register.validation.emailRequired"),
     trigger: "blur",
   },
   password: {
     required: true,
-    message: "Please input password",
+    message: t("register.validation.passwordRequired"),
     trigger: "blur",
   },
   confirmPassword: [
     {
       required: true,
-      message: "Please confirm your password",
+      message: t("register.validation.confirmPasswordRequired"),
       trigger: "blur",
     },
     {
       validator: (rule: FormItemRule, value: string) => {
         return value === formModel.password;
       },
-      message: "Passwords do not match",
+      message: t("register.validation.passwordsDoNotMatch"),
       trigger: ["blur", "password-input"],
     },
   ],
@@ -103,10 +107,7 @@ const rules = {
 
 async function handleRegister() {
   if (!formModel.username || !formModel.email || !formModel.password) return;
-  if (formModel.password !== formModel.confirmPassword) {
-    message.error("Passwords do not match");
-    return;
-  }
+  if (formModel.password !== formModel.confirmPassword) return;
 
   loading.value = true;
   try {
@@ -114,7 +115,6 @@ async function handleRegister() {
     await authService.register({ username, email, password });
     router.push("/login");
   } catch (e: any) {
-    // Error is handled by request interceptor
     console.error(e);
   } finally {
     loading.value = false;
