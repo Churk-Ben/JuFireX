@@ -1,0 +1,16 @@
+{
+  "common": {
+    "borderRadius": "8px",
+    "borderRadiusSmall": "6px",
+    "primaryColor": "#63e2b7",
+    "primaryColorHover": "#7fe7c4",
+    "primaryColorPressed": "#5acea7",
+    "iconColorPressed": "rgba(255, 255, 255, 0.3)"
+  },
+  "Avatar": {},
+  "AvatarGroup": {},
+  "Breadcrumb": {
+    "itemBorderRadius": "4px"
+  },
+  "Calendar": {}
+}

@@ -1,9 +1,10 @@
 <template>
   <n-config-provider
-    :date-locale="naiveDateLocale"
+    :theme-overrides="themeOverrides['native']"
     :inline-theme-disabled="true"
-    :locale="naiveLocale"
     :theme="naiveTheme"
+    :date-locale="naiveDateLocale"
+    :locale="naiveLocale"
   >
     <div class="app">
       <n-layout has-sider style="height: 100vh">
@@ -72,6 +73,8 @@ import { computed, h, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterView, useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
+import { themeOverrides } from "@/themes";
+
 import {
   darkTheme,
   dateEnUS,
