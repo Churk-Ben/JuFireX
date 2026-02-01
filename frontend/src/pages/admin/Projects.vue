@@ -202,7 +202,7 @@ function openModal(proj?: Project) {
     Object.assign(formModel, {
       title: proj.title,
       description: proj.description,
-      content: proj.content,
+      content: proj.readme || "",
       url: proj.url,
       icon: proj.icon,
       tags: [...proj.tags],

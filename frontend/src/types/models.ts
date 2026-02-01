@@ -5,13 +5,13 @@ export interface User {
   email: string;
   role: number;
   role_name?: string;
-  avatar_path?: string;
   is_active: boolean;
   created_at?: string;
 }
 
 export interface Blog {
   uuid: string;
+  owner_uuid?: string;
   title: string;
   summary?: string;
   content?: string;
@@ -26,14 +26,17 @@ export interface Blog {
 
 export interface Project {
   uuid: string;
+  owner_uuid?: string;
   title: string;
   description?: string;
-  content?: string;
+  readme?: string;
   url?: string;
   icon?: string;
   tags: string[];
   is_public: boolean;
   order: number;
+  views: number;
+  stars: number;
   created_at: string;
   updated_at: string;
 }
