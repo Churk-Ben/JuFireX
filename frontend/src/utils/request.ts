@@ -12,8 +12,8 @@ const isDark =
 const style = document.createElement("style");
 style.textContent = `
   .n-notification {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     min-height: 6rem;
     max-width: 30rem;
   }
