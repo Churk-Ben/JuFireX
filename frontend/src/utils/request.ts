@@ -39,13 +39,6 @@ const { notification } = createDiscreteApi(["notification"], {
   },
 });
 
-export interface ApiResponse<T = any> {
-  level?: "info" | "success" | "warning" | "error";
-  message?: string;
-  data?: T;
-  [key: string]: any;
-}
-
 export async function request<T = any>(
   url: string,
   options: RequestInit = {},
