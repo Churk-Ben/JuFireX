@@ -153,46 +153,8 @@ function onMenu(key: string) {
   router.push(key);
 }
 
-// 应用控制选项
-const ctrlValue = ref<string | null>(null);
-const ctrlOptions = computed(() => [
-  {
-    label: collapsed.value
-      ? t("sider.appCtrl.expand")
-      : t("sider.appCtrl.collapse"),
-    key: "toggleCollapsed",
-    icon: renderIcon(faBars),
-  },
-  {
-    label: themeLabel.value,
-    key: "toggleTheme",
-    icon: renderIcon(themeMode.value === "light" ? faMoon : faSun),
-  },
-  {
-    label: localeLabel.value,
-    key: "locale",
-    icon: renderIcon(faLanguage),
-    children: localeOptions.map((o) => ({
-      label: o.label,
-      key: `locale:${o.value}`,
-    })),
-  },
-]);
-
-function onCtrl(key: string | null) {
-  if (!key) return;
-  if (key === "toggleCollapsed") {
-    toggleCollapsed();
-  } else if (key === "toggleTheme") {
-    toggleTheme();
-  } else if (key.startsWith("locale:")) {
-    onLocale(key.split(":")[1]);
-  }
-  ctrlValue.value = null;
-}
-
 // 用户菜单选项
-const userValue = ref<string | null>(null);
+const userValue = ref(route.path);
 const userOptions = computed(() => {
   if (!userStore.currentUser) {
     return [
@@ -257,19 +219,47 @@ const userOptions = computed(() => {
   ];
 });
 
-async function onLogout() {
-  await userStore.logout();
-  router.push("/");
+function onUser(key: string) {
+  userValue.value = key;
+  router.push(key);
 }
 
-function onUser(key: string | null) {
+// 应用控制选项
+const ctrlValue = ref<string | null>(null);
+const ctrlOptions = computed(() => [
+  {
+    label: collapsed.value
+      ? t("sider.appCtrl.expand")
+      : t("sider.appCtrl.collapse"),
+    key: "toggleCollapsed",
+    icon: renderIcon(faBars),
+  },
+  {
+    label: themeLabel.value,
+    key: "toggleTheme",
+    icon: renderIcon(themeMode.value === "light" ? faMoon : faSun),
+  },
+  {
+    label: localeLabel.value,
+    key: "locale",
+    icon: renderIcon(faLanguage),
+    children: localeOptions.map((o) => ({
+      label: o.label,
+      key: `locale:${o.value}`,
+    })),
+  },
+]);
+
+function onCtrl(key: string | null) {
   if (!key) return;
-  if (key === "/user/logout") {
-    onLogout();
-  } else {
-    router.push(key);
+  if (key === "toggleCollapsed") {
+    toggleCollapsed();
+  } else if (key === "toggleTheme") {
+    toggleTheme();
+  } else if (key.startsWith("locale:")) {
+    onLocale(key.split(":")[1]);
   }
-  userValue.value = null;
+  ctrlValue.value = null;
 }
 
 // 应用侧边栏折叠状态

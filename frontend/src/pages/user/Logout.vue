@@ -1,7 +1,9 @@
 <template>
   <div class="container">
-    <h1>{{ t("sider.menu.user.logout") }}</h1>
-    <p>Logging out...</p>
+    <div class="row justify-content-center">
+      <h1>{{ t("sider.menu.user.logout") }}</h1>
+      <p>Logging out...</p>
+    </div>
   </div>
 </template>
 
@@ -9,16 +11,18 @@
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { onMounted } from "vue";
+import { useUserStore } from "@/stores/user";
 
 const { t } = useI18n();
 const router = useRouter();
+const userStore = useUserStore();
 
-onMounted(() => {
-  // Simulate logout process
-  setTimeout(() => {
-    // Clear tokens here if needed
-    // localStorage.removeItem('token');
-    router.push("/");
-  }, 1000);
-});
+async function onLogout() {
+  await userStore.logout();
+  router.push("/");
+}
+
+// onMounted(() => {
+//   onLogout();
+// });
 </script>
