@@ -1,3 +1,22 @@
+<!--  -->
+<template>
+  <div class="scroll-container-root">
+    <NScrollbar v-if="scrollable" :ref="forwardRef" v-bind="$attrs">
+      <div class="scroll-content" :class="wrapperClass" :style="wrapperStyle">
+        <slot />
+      </div>
+    </NScrollbar>
+    <div
+      v-else
+      class="scroll-container-root scroll-content"
+      :class="wrapperClass"
+      :style="wrapperStyle"
+    >
+      <slot />
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { NScrollbar } from "naive-ui";
 import { getCurrentInstance } from "vue";
@@ -30,23 +49,6 @@ function forwardRef(ref: Element | ComponentPublicInstance | null) {
   }
 }
 </script>
-<template>
-  <div class="scroll-container-root">
-    <NScrollbar v-if="scrollable" :ref="forwardRef" v-bind="$attrs">
-      <div class="scroll-content" :class="wrapperClass" :style="wrapperStyle">
-        <slot />
-      </div>
-    </NScrollbar>
-    <div
-      v-else
-      class="scroll-container-root scroll-content"
-      :class="wrapperClass"
-      :style="wrapperStyle"
-    >
-      <slot />
-    </div>
-  </div>
-</template>
 
 <style scoped>
 .scroll-container-root {
