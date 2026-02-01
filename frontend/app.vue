@@ -1,6 +1,6 @@
 <template>
   <n-config-provider
-    :theme-overrides="themeOverrides['native']"
+    :theme-overrides="themes[themeStore.currentTheme]"
     :inline-theme-disabled="true"
     :theme="naiveTheme"
     :date-locale="naiveDateLocale"
@@ -73,7 +73,8 @@ import { computed, h, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterView, useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
-import { themeOverrides } from "@/themes";
+import { useThemeStore } from "@/stores/theme";
+import { themes } from "@/themes";
 
 import {
   darkTheme,
@@ -114,6 +115,7 @@ const { locale, t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const themeStore = useThemeStore();
 
 function renderIcon(icon: any) {
   return () =>
@@ -338,6 +340,7 @@ watch(
   () => route.path,
   (p) => {
     menuValue.value = p;
+    userValue.value = p;
   },
 );
 </script>
