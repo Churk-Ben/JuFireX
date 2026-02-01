@@ -29,6 +29,7 @@ ROLE_NAMES = {
 
 
 class Config:
+    DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
     SECRET_KEY = os.environ.get("SECRET_KEY", "JuFireX-Secret-Key-Change-Me")
 
     # 一级目录
