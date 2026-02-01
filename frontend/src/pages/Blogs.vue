@@ -93,7 +93,7 @@ async function fetchBlogs() {
 }
 
 function openDetail(uuid: string) {
-  router.push(`/blogs/${uuid}`);
+  router.push(`/blog/${uuid}`);
 }
 
 onMounted(() => {
