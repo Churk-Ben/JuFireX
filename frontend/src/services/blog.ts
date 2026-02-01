@@ -1,30 +1,6 @@
 import { request } from "@/utils/request";
-
-export interface Blog {
-  uuid: string;
-  title: string;
-  summary?: string;
-  content?: string;
-  cover_image?: string;
-  tags: string[];
-  is_public: boolean;
-  views: number;
-  author_name?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CreateBlogDto {
-  title: string;
-  summary?: string;
-  content?: string;
-  cover_image?: string;
-  tags?: string[];
-  is_public?: boolean;
-  author_name?: string;
-}
-
-export interface UpdateBlogDto extends Partial<CreateBlogDto> {}
+import type { Blog } from "@/types/models";
+import type { CreateBlogDto, UpdateBlogDto } from "@/types/api";
 
 export const blogService = {
   async getAll(showAll: boolean = false): Promise<Blog[]> {
@@ -32,7 +8,7 @@ export const blogService = {
   },
 
   async getDetail(uuid: string): Promise<Blog> {
-      return request<Blog>(`/api/blog/${uuid}`);
+    return request<Blog>(`/api/blog/${uuid}`);
   },
 
   async create(data: CreateBlogDto): Promise<Blog> {

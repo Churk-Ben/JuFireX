@@ -1,16 +1,5 @@
 import { request } from "@/utils/request";
-
-export interface User {
-  id: number;
-  uuid: string;
-  username: string;
-  email: string;
-  role: number;
-  role_name?: string;
-  avatar_path?: string;
-  is_active: boolean;
-  created_at?: string;
-}
+import type { User } from "@/types/models";
 
 export const authService = {
   login(data: any) {
