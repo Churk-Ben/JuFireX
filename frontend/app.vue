@@ -167,28 +167,6 @@ const userOptions = computed(() => {
   }
   return [
     {
-      label: userStore.currentUser.username,
-      key: "/user",
-      icon: renderIcon(faUser),
-      children: [
-        {
-          label: t("sider.userMenu.user.profile"),
-          key: "/user/profile",
-          icon: renderIcon(faUser),
-        },
-        {
-          label: t("sider.userMenu.user.settings"),
-          key: "/user/settings",
-          icon: renderIcon(faCog),
-        },
-        {
-          label: t("sider.userMenu.user.logout"),
-          key: "/user/logout",
-          icon: renderIcon(faSignOutAlt),
-        },
-      ],
-    },
-    {
       show: userStore.currentUser?.role >= 2,
       label: t("sider.userMenu.admin.admin"),
       key: "/admin",
@@ -213,6 +191,28 @@ const userOptions = computed(() => {
           label: t("sider.userMenu.admin.blogs"),
           key: "/admin/blogs",
           icon: renderIcon(faNewspaper),
+        },
+      ],
+    },
+    {
+      label: userStore.currentUser.username,
+      key: "/user",
+      icon: renderIcon(faUser),
+      children: [
+        {
+          label: t("sider.userMenu.user.profile"),
+          key: "/user/profile",
+          icon: renderIcon(faUser),
+        },
+        {
+          label: t("sider.userMenu.user.settings"),
+          key: "/user/settings",
+          icon: renderIcon(faCog),
+        },
+        {
+          label: t("sider.userMenu.user.logout"),
+          key: "/user/logout",
+          icon: renderIcon(faSignOutAlt),
         },
       ],
     },

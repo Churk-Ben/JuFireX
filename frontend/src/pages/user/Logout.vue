@@ -22,7 +22,10 @@ async function onLogout() {
   router.push("/");
 }
 
-// onMounted(() => {
-//   onLogout();
-// });
+onMounted(() => {
+  // 等待一秒后再执行注销操作
+  setTimeout(() => {
+    onLogout();
+  }, 1000);
+});
 </script>
