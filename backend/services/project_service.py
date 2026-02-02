@@ -132,6 +132,6 @@ class ProjectService:
             content = self.proj_repo.get_file_content(uuid, path)
             return True, "文件内容获取成功", content
         except FileNotFoundError:
-            return False, "File not found", None
+            return False, "文件不存在", None
         except Exception as e:
             return False, f"读取文件内容失败: {str(e)}", None

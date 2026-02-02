@@ -442,12 +442,14 @@
     {
       "name": "src",
       "type": "directory",
-      "path": "src"
+      "path": "src",
+      "size": 0
     },
     {
       "name": "main.py",
       "type": "file",
-      "path": "main.py"
+      "path": "main.py",
+      "size": 1024
     }
   ]
 }
@@ -469,6 +471,12 @@
   "data": "File content string..."
 }
 ```
+
+**Error Responses**:
+
+- 404: 路径或文件不存在
+- 403: 权限不足
+- 400: 文件过大或无法读取 (二进制文件)
 
 ### 5. 创建项目
 
