@@ -246,6 +246,9 @@ class ProjectRepository:
                         "name": entry.name,
                         "type": "directory" if entry.is_dir() else "file",
                         "size": entry.stat().st_size if entry.is_file() else 0,
+                        "path": (
+                            (Path(path) / entry.name).as_posix() if path else entry.name
+                        ),
                     }
                 )
         except Exception as e:

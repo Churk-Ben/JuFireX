@@ -19,7 +19,11 @@
           responsive="screen"
         >
           <n-grid-item v-for="project in projects" :key="project.uuid">
-            <n-card hoverable class="project-card">
+            <n-card
+              hoverable
+              class="project-card"
+              @click="openDetail(project.uuid)"
+            >
               <template #header>
                 <n-space align="center" :wrap="false" :size="10">
                   <n-avatar
@@ -63,11 +67,18 @@
                     size="small"
                     secondary
                     type="primary"
-                    @click="openLink(project.url)"
+                    @click="(e) => openLink(e, project.url!)"
                   >
                     Visit
                   </n-button>
-                  <n-button v-else size="small" disabled> Details </n-button>
+                  <n-button
+                    v-else
+                    size="small"
+                    secondary
+                    @click.stop="openDetail(project.uuid)"
+                  >
+                    Details
+                  </n-button>
                 </n-space>
               </template>
             </n-card>
@@ -81,6 +92,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import { ScrollContainer } from "@/components/scroll-container";
 import {
   NGrid,
@@ -99,6 +111,7 @@ import { projectService } from "@/services/project";
 import type { Project } from "@/types/models";
 
 const { t } = useI18n();
+const router = useRouter();
 const loading = ref(false);
 const projects = ref<Project[]>([]);
 
@@ -113,7 +126,12 @@ async function fetchProjects() {
   }
 }
 
-function openLink(url: string) {
+function openDetail(uuid: string) {
+  router.push(`/project/${uuid}`);
+}
+
+function openLink(e: Event, url: string) {
+  e.stopPropagation();
   window.open(url, "_blank");
 }
 
