@@ -41,13 +41,13 @@
 
 - **URL**: `/login`
 - **Method**: `POST`
-- **Description**: 用户登录接口，支持邮箱或 UUID 登录。
+- **Description**: 用户登录接口，支持 ID, 邮箱或 UUID 登录。
 
 **Request Body**:
 
 ```json
 {
-  "identifier": "user@example.com", // 邮箱或 UUID
+  "identifier": "user@example.com", // ID, 邮箱或 UUID
   "password": "your_password"
 }
 ```
@@ -56,17 +56,17 @@
 
 ```json
 {
-    "level": "success",
-    "message": "登录成功",
-    "data": {
-        "id": 1,
-        "uuid": "550e8400-e29b-41d4-a716-446655440000",
-        "username": "admin",
-        "email": "admin@example.com",
-        "role": 99,
-        "role_name": "Super Admin",
-        ...
-    }
+  "level": "success",
+  "message": "登录成功",
+  "data": {
+    "id": 1,
+    "uuid": "550e8400-e29b-41d4-a716-446655440000",
+    "username": "admin",
+    "email": "admin@example.com",
+    "role": 99,
+    "role_name": "Super Admin",
+    ...
+  }
 }
 ```
 
@@ -99,9 +99,9 @@
 
 ```json
 {
-    "level": "success",
-    "message": "注册成功",
-    "data": { ... } // 用户对象
+  "level": "success",
+  "message": "注册成功",
+  "data": { ... } // 用户对象
 }
 ```
 
@@ -130,14 +130,14 @@
 
 ```json
 {
-    "level": "success",
-    "message": "获取用户信息成功",
-    "data": {
-        "uuid": "...",
-        "username": "...",
-        "email": "...",
-        ...
-    }
+  "level": "success",
+  "message": "获取用户信息成功",
+  "data": {
+    "uuid": "...",
+    "username": "...",
+    "email": "...",
+    ...
+  }
 }
 ```
 
@@ -159,16 +159,16 @@
 
 ```json
 {
-    "level": "success",
-    "data": [
-        {
-            "uuid": "...",
-            "title": "Blog Title",
-            "owner_uuid": "...",
-            "is_public": true,
-            ...
-        }
-    ]
+  "level": "success",
+  "data": [
+    {
+      "uuid": "...",
+      "title": "Blog Title",
+      "owner_uuid": "...",
+      "is_public": true,
+      ...
+    }
+  ]
 }
 ```
 
@@ -182,14 +182,14 @@
 
 ```json
 {
-    "level": "success",
-    "data": {
-        "uuid": "...",
-        "title": "Blog Title",
-        "content": "Markdown Content...",
-        "views": 10,
-        ...
-    }
+  "level": "success",
+  "data": {
+    "uuid": "...",
+    "title": "Blog Title",
+    "content": "Markdown Content...",
+    "views": 10,
+    ...
+  }
 }
 ```
 
@@ -197,7 +197,7 @@
 
 - **URL**: `/`
 - **Method**: `POST`
-- **Description**: 创建新的博客文章。需要会员权限。
+- **Description**: 创建新的博客文章。需要成员权限。
 
 **Request Body**:
 
@@ -214,9 +214,9 @@
 
 ```json
 {
-    "level": "success",
-    "message": "创建成功",
-    "data": { ... } // 创建后的博客对象
+  "level": "success",
+  "message": "创建成功",
+  "data": { ... } // 创建后的博客对象
 }
 ```
 
@@ -239,9 +239,9 @@
 
 ```json
 {
-    "level": "success",
-    "message": "更新成功",
-    "data": { ... }
+  "level": "success",
+  "message": "更新成功",
+  "data": { ... }
 }
 ```
 
@@ -276,8 +276,8 @@
 
 ```json
 {
-    "level": "success",
-    "data": ["Technology", "Design", "Tools", ...]
+  "level": "success",
+  "data": ["Technology", "Design", "Tools", ...]
 }
 ```
 
@@ -293,16 +293,16 @@
 
 ```json
 {
-    "level": "success",
-    "data": [
-        {
-            "uuid": "...",
-            "title": "Google",
-            "url": "https://google.com",
-            "category": "Tools",
-            ...
-        }
-    ]
+  "level": "success",
+  "data": [
+    {
+      "uuid": "...",
+      "title": "Google",
+      "url": "https://google.com",
+      "category": "Tools",
+      ...
+    }
+  ]
 }
 ```
 
@@ -310,7 +310,7 @@
 
 - **URL**: `/`
 - **Method**: `POST`
-- **Description**: 创建新的导航项。需要会员权限。
+- **Description**: 创建新的导航项。需要成员权限。
 
 **Request Body**:
 
@@ -328,9 +328,9 @@
 
 ```json
 {
-    "level": "success",
-    "message": "导航创建成功",
-    "data": { ... }
+  "level": "success",
+  "message": "导航创建成功",
+  "data": { ... }
 }
 ```
 
@@ -353,9 +353,9 @@
 
 ```json
 {
-    "level": "success",
-    "message": "导航更新成功",
-    "data": { ... }
+  "level": "success",
+  "message": "导航更新成功",
+  "data": { ... }
 }
 ```
 
@@ -392,16 +392,16 @@
 
 ```json
 {
-    "level": "success",
-    "data": [
-        {
-            "uuid": "...",
-            "title": "Project Alpha",
-            "description": "...",
-            "is_public": true,
-            ...
-        }
-    ]
+  "level": "success",
+  "data": [
+    {
+      "uuid": "...",
+      "title": "Project Alpha",
+      "description": "...",
+      "is_public": true,
+      ...
+    }
+  ]
 }
 ```
 
@@ -415,13 +415,13 @@
 
 ```json
 {
-    "level": "success",
-    "data": {
-        "uuid": "...",
-        "title": "Project Alpha",
-        "readme": "# README content...",
-        "metadata": { ... }
-    }
+  "level": "success",
+  "data": {
+    "uuid": "...",
+    "title": "Project Alpha",
+    "readme": "# README content...",
+    "metadata": { ... }
+  }
 }
 ```
 
@@ -490,9 +490,9 @@
 
 ```json
 {
-    "level": "success",
-    "message": "项目创建成功",
-    "data": { ... }
+  "level": "success",
+  "message": "项目创建成功",
+  "data": { ... }
 }
 ```
 
@@ -515,9 +515,9 @@
 
 ```json
 {
-    "level": "success",
-    "message": "项目更新成功",
-    "data": { ... }
+  "level": "success",
+  "message": "项目更新成功",
+  "data": { ... }
 }
 ```
 
@@ -552,15 +552,15 @@
 
 ```json
 {
-    "level": "success",
-    "data": [
-        {
-            "uuid": "...",
-            "username": "user1",
-            "role_name": "Member",
-            ...
-        }
-    ]
+  "level": "success",
+  "data": [
+    {
+      "uuid": "...",
+      "username": "user1",
+      "role_name": "Member",
+      ...
+    }
+  ]
 }
 ```
 

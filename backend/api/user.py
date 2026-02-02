@@ -11,9 +11,9 @@ from flask import Blueprint, jsonify, request, send_from_directory, session
 from backend.config import Config
 from backend.core.Logger import get_logger
 from backend.core.Security import (
+    require_admin,
     require_login,
     require_self_or_super_admin,
-    require_super_admin,
 )
 from backend.services import user_service
 
@@ -22,7 +22,7 @@ user_bp = Blueprint("user", __name__)
 
 
 @user_bp.route("/list", methods=["GET"])
-@require_super_admin
+@require_admin
 def list_users():
     """
     @name: 获取所有用户列表
