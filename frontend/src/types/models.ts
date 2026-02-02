@@ -24,6 +24,13 @@ export interface Blog {
   updated_at: string;
 }
 
+export interface ProjectFile {
+  name: string;
+  type: "file" | "directory";
+  path: string;
+  size: number;
+}
+
 export interface Project {
   uuid: string;
   owner_uuid?: string;

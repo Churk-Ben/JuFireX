@@ -1,5 +1,5 @@
 import { request } from "@/utils/request";
-import type { Project } from "@/types/models";
+import type { Project, ProjectFile } from "@/types/models";
 import type { CreateProjectDto, UpdateProjectDto } from "@/types/api";
 
 export const projectService = {
@@ -9,6 +9,16 @@ export const projectService = {
 
   async getDetail(uuid: string): Promise<Project> {
     return request<Project>(`/api/project/${uuid}`);
+  },
+
+  async getFileTree(uuid: string, path: string = ""): Promise<ProjectFile[]> {
+    const query = path ? `?path=${encodeURIComponent(path)}` : "";
+    return request<ProjectFile[]>(`/api/project/${uuid}/files${query}`);
+  },
+
+  async getFileContent(uuid: string, path: string): Promise<string> {
+    const query = `?path=${encodeURIComponent(path)}`;
+    return request<string>(`/api/project/${uuid}/file${query}`);
   },
 
   async create(data: CreateProjectDto): Promise<Project> {
