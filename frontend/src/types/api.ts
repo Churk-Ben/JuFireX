@@ -21,7 +21,6 @@ export interface CreateProjectDto {
   title: string;
   description?: string;
   readme?: string;
-  content?: string;
   url?: string;
   icon?: string;
   tags?: string[];

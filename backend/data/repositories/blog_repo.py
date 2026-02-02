@@ -73,6 +73,7 @@ class BlogRepository:
                 with metadata_path.open("r", encoding="utf-8") as f:
                     result.update(json.load(f))
             except Exception:
+                logger.warning(f"博客 {uuid} 元数据文件损坏")
                 pass
 
         if content_path.exists():
@@ -80,6 +81,7 @@ class BlogRepository:
                 with content_path.open("r", encoding="utf-8") as f:
                     result["content"] = f.read()
             except Exception:
+                logger.warning(f"博客 {uuid} 内容文件损坏")
                 pass
 
         return result
@@ -122,7 +124,7 @@ class BlogRepository:
         return self._merge_blog_data(blog)
 
     def create(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        # 数据库字段
+        # 提取数据库字段
         db_data = {
             "owner_uuid": data.get("owner_uuid"),
             "is_public": data.get("is_public", True),
@@ -177,7 +179,7 @@ class BlogRepository:
         db.session.delete(blog)
         db.session.commit()
 
-        # 删除文件
+        # 删除博客目录
         blog_dir = self._get_blog_dir(uuid)
         if blog_dir.exists():
             shutil.rmtree(blog_dir)
@@ -190,3 +192,12 @@ class BlogRepository:
         if blog:
             blog.views += 1
             db.session.commit()
+
+    """
+    def update_likes(self, uuid: str, increment: bool = True):
+        stmt = select(self.model).filter_by(uuid=uuid)
+        blog = db.session.scalars(stmt).first()
+        if blog:
+            blog.likes += 1 if increment else -1
+            db.session.commit()
+    """

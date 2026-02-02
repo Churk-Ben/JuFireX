@@ -41,11 +41,11 @@
               placeholder="Short description"
             />
           </n-form-item>
-          <n-form-item label="Content" path="content">
+          <n-form-item label="README" path="readme">
             <n-input
-              v-model:value="formModel.content"
+              v-model:value="formModel.readme"
               type="textarea"
-              placeholder="Detailed content (Markdown)"
+              placeholder="README content (Markdown)"
               :rows="5"
             />
           </n-form-item>
@@ -118,7 +118,7 @@ const currentUuid = ref("");
 const formModel = reactive<CreateProjectDto>({
   title: "",
   description: "",
-  content: "",
+  readme: "",
   url: "",
   icon: "",
   tags: [],
@@ -216,7 +216,7 @@ function openModal(proj?: Project) {
     Object.assign(formModel, {
       title: "",
       description: "",
-      content: "",
+      readme: "",
       url: "",
       icon: "",
       tags: [],

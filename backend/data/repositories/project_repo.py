@@ -9,11 +9,14 @@ from pathlib import Path
 import shutil
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 
 from backend.config import Config
+from backend.core.Logger import get_logger
 from backend.data.database import db
 from backend.data.models.project import Project
+
+logger = get_logger("Repo_Project")
 
 
 class ProjectRepository:
@@ -23,11 +26,50 @@ class ProjectRepository:
     def _get_project_dir(self, uuid: str) -> Path:
         return Config.PROJECTS_DIR / uuid
 
+    def _save_files(self, uuid: str, data: dict):
+        """将项目元数据和README内容保存到项目目录"""
+        project_dir = self._get_project_dir(uuid)
+        project_dir.mkdir(parents=True, exist_ok=True)
+
+        # 元数据
+        metadata = {
+            "title": data.get("title", "Untitled Project"),
+            "description": data.get("description", ""),
+            "tags": data.get("tags", []),
+            "url": data.get("url", ""),
+            "icon": data.get("icon", ""),
+        }
+
+        if isinstance(metadata["tags"], str):
+            metadata["tags"] = [
+                t.strip() for t in metadata["tags"].split(",") if t.strip()
+            ]
+
+        with (project_dir / "metadata.json").open("w", encoding="utf-8") as f:
+            json.dump(metadata, f, ensure_ascii=False, indent=2)
+
+        # README
+        if "readme" in data:
+            with (project_dir / "README.md").open("w", encoding="utf-8") as f:
+                f.write(data["readme"])
+
     def _read_files(self, uuid: str) -> Dict[str, Any]:
-        """Read metadata and readme content from file system"""
+        """从项目目录读取元数据和README文件内容"""
+        possible_readme_files = [
+            "README.md",
+            "readme.md",
+            "Readme.md",
+            "README.markdown",
+            "readme.markdown",
+            "Readme.markdown",
+        ]
         project_dir = self._get_project_dir(uuid)
         metadata_path = project_dir / "metadata.json"
-        readme_path = project_dir / "README.md"
+        readme_path = None
+        for readme_file in possible_readme_files:
+            if (project_dir / readme_file).exists():
+                readme_path = project_dir / readme_file
+                break
 
         result = {
             "title": "Untitled Project",
@@ -40,64 +82,43 @@ class ProjectRepository:
 
         if metadata_path.exists():
             try:
-                with open(metadata_path, "r", encoding="utf-8") as f:
+                with metadata_path.open("r", encoding="utf-8") as f:
                     metadata = json.load(f)
                     result.update(metadata)
             except Exception:
+                logger.warning(f"项目 {uuid} 元数据文件损坏")
                 pass
 
         if readme_path.exists():
             try:
-                with open(readme_path, "r", encoding="utf-8") as f:
+                with readme_path.open("r", encoding="utf-8") as f:
                     result["readme"] = f.read()
             except Exception:
+                logger.warning(f"项目 {uuid} README 文件损坏")
                 pass
 
         return result
 
-    def _save_files(self, uuid: str, data: dict):
-        """Save metadata and readme to file system"""
-        project_dir = self._get_project_dir(uuid)
-        project_dir.mkdir(parents=True, exist_ok=True)
-
-        # Extract metadata fields
-        metadata = {
-            "title": data.get("title", "Untitled Project"),
-            "description": data.get("description", ""),
-            "tags": data.get("tags", []),
-            "url": data.get("url", ""),
-            "icon": data.get("icon", ""),
-        }
-
-        # Handle tags if they are string (legacy compatibility)
-        if isinstance(metadata["tags"], str):
-            metadata["tags"] = [
-                t.strip() for t in metadata["tags"].split(",") if t.strip()
-            ]
-
-        with open(project_dir / "metadata.json", "w", encoding="utf-8") as f:
-            json.dump(metadata, f, ensure_ascii=False, indent=2)
-
-        # Save README if provided
-        if "readme" in data:
-            with open(project_dir / "README.md", "w", encoding="utf-8") as f:
-                f.write(data["readme"])
-        elif "content" in data:  # Compatible with old "content" field
-            with open(project_dir / "README.md", "w", encoding="utf-8") as f:
-                f.write(data["content"])
+    def _merge_project_data(self, proj: Project, show_content: bool = True) -> dict:
+        proj_dict = proj.to_dict()
+        file_data = self._read_files(proj.uuid)
+        proj_dict.update(file_data)
+        if not show_content:
+            proj_dict.pop("readme", None)
+        return proj_dict
 
     def get_all(
-        self, public_only: bool = False, owner_uuid: Optional[str] = None
+        self, user_uuid: Optional[str] = None, view_all: bool = False
     ) -> List[Dict[str, Any]]:
         stmt = select(self.model)
 
-        if public_only:
-            # If public_only is requested, we strictly return public items
-            # If owner_uuid is provided, we ALSO include private items owned by them
-            if owner_uuid:
-                stmt = stmt.filter(
-                    (self.model.is_public == True)
-                    | (self.model.owner_uuid == owner_uuid)
+        if not view_all:
+            # Public + Own
+            if user_uuid:
+                stmt = stmt.where(
+                    or_(
+                        self.model.is_public == True, self.model.owner_uuid == user_uuid
+                    )
                 )
             else:
                 stmt = stmt.filter_by(is_public=True)
@@ -105,32 +126,17 @@ class ProjectRepository:
         stmt = stmt.order_by(self.model.order.desc(), self.model.created_at.desc())
         projects = db.session.scalars(stmt).all()
 
-        results = []
-        for p in projects:
-            p_dict = p.to_dict()
-            file_data = self._read_files(p.uuid)
-            p_dict.update(file_data)
-            results.append(p_dict)
-
-        return results
+        return [self._merge_project_data(p, show_content=False) for p in projects]
 
     def get_by_uuid(self, uuid: str) -> Optional[Dict[str, Any]]:
         stmt = select(self.model).filter_by(uuid=uuid)
         proj = db.session.scalars(stmt).first()
         if not proj:
             return None
-
-        # Increment views
-        proj.views += 1
-        db.session.commit()
-
-        p_dict = proj.to_dict()
-        file_data = self._read_files(uuid)
-        p_dict.update(file_data)
-        return p_dict
+        return self._merge_project_data(proj)
 
     def create(self, data: dict) -> Dict[str, Any]:
-        # Extract DB fields
+        # 提取数据库字段
         db_data = {
             "owner_uuid": data.get("owner_uuid"),
             "is_public": data.get("is_public", True),
@@ -142,17 +148,18 @@ class ProjectRepository:
         db.session.add(proj)
         db.session.commit()
 
-        # Save files
+        # 保存文件
         self._save_files(proj.uuid, data)
 
-        return self.get_by_uuid(proj.uuid)
+        return self._merge_project_data(proj)
 
     def update(self, uuid: str, data: dict) -> Optional[Dict[str, Any]]:
-        proj = db.session.scalars(select(self.model).filter_by(uuid=uuid)).first()
+        stmt = select(self.model).filter_by(uuid=uuid)
+        proj = db.session.scalars(stmt).first()
         if not proj:
             return None
 
-        # Update DB fields
+        # 更新数据库字段
         if "is_public" in data:
             proj.is_public = data["is_public"]
         if "order" in data:
@@ -162,39 +169,51 @@ class ProjectRepository:
 
         db.session.commit()
 
-        # Update files
+        # 更新文件
         current_file_data = self._read_files(uuid)
 
-        for k, v in data.items():
-            if k in [
-                "title",
-                "description",
-                "tags",
-                "url",
-                "icon",
-                "readme",
-                "content",
-            ]:
-                current_file_data[k] = v
-
-        if "content" in data:
-            current_file_data["readme"] = data["content"]
+        for key in [
+            "title",
+            "description",
+            "tags",
+            "url",
+            "icon",
+            "readme",
+            "content",
+        ]:
+            if key in data:
+                current_file_data[key] = data[key]
 
         self._save_files(uuid, current_file_data)
 
-        return self.get_by_uuid(uuid)
+        return self._merge_project_data(proj)
 
     def delete(self, uuid: str) -> bool:
-        proj = db.session.scalars(select(self.model).filter_by(uuid=uuid)).first()
+        stmt = select(self.model).filter_by(uuid=uuid)
+        proj = db.session.scalars(stmt).first()
         if not proj:
             return False
 
         db.session.delete(proj)
         db.session.commit()
 
-        # Delete directory
+        # 删除项目目录
         project_dir = self._get_project_dir(uuid)
         if project_dir.exists():
             shutil.rmtree(project_dir)
 
         return True
+
+    def increment_views(self, uuid: str):
+        stmt = select(self.model).filter_by(uuid=uuid)
+        proj = db.session.scalars(stmt).first()
+        if proj:
+            proj.views += 1
+            db.session.commit()
+
+    def update_stars(self, uuid: str, increment: bool = True):
+        stmt = select(self.model).filter_by(uuid=uuid)
+        proj = db.session.scalars(stmt).first()
+        if proj:
+            proj.stars += 1 if increment else -1
+            db.session.commit()
