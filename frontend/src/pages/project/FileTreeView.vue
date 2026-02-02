@@ -1,256 +1,273 @@
 <template>
   <div class="page-container">
-    <n-spin :show="loading">
-      <div class="header">
-        <n-button text @click="goBack" class="back-button">
-          <template #icon>
-            <n-icon>
-              <font-awesome-icon :icon="faArrowLeft" />
-            </n-icon>
+    <div class="row h-100">
+      <!-- 左边栏 -->
+      <div class="col-md-3 h-100">
+        <n-card
+          embedded
+          title="项目文件"
+          class="h-100 flex-card"
+          header-class="pb-0"
+        >
+          <ScrollContainer>
+            <n-spin :show="loadingTree">
+              <n-tree
+                block-line
+                show-line
+                :data="treeData"
+                :on-load="handleLoad"
+                key-field="path"
+                label-field="name"
+                children-field="children"
+                @update:selected-keys="handleNodeClick"
+                selectable
+                expand-on-click
+                :node-props="nodeProps"
+              />
+            </n-spin>
+          </ScrollContainer>
+          <template #header-extra>
+            <n-button type="primary" @click="router.back()"> 返回 </n-button>
           </template>
-          Back to Project
-        </n-button>
-        <n-h2 v-if="project" style="margin: 0 0 0 16px"
-          >{{ project.title }} Files</n-h2
-        >
-      </div>
-
-      <!-- Breadcrumbs -->
-      <n-breadcrumb class="breadcrumbs">
-        <n-breadcrumb-item @click="navigateTo('')">
-          <span class="breadcrumb-link">Root</span>
-        </n-breadcrumb-item>
-        <n-breadcrumb-item
-          v-for="(part, index) in pathParts"
-          :key="index"
-          @click="navigateToPart(index)"
-        >
-          <span class="breadcrumb-link">{{ part }}</span>
-        </n-breadcrumb-item>
-      </n-breadcrumb>
-
-      <!-- File Content View -->
-      <div v-if="currentFileContent !== null" class="file-content-view">
-        <div class="file-header">
-          <n-text strong>{{ currentFileName }}</n-text>
-          <n-button size="small" @click="closeFile">Close File</n-button>
-        </div>
-        <n-card class="code-card">
-          <pre><code>{{ currentFileContent }}</code></pre>
         </n-card>
       </div>
 
-      <!-- File List View -->
-      <div v-else class="file-list">
-        <n-list hoverable clickable>
-          <n-list-item v-if="currentPath" @click="navigateUp">
-            <template #prefix>
-              <n-icon><font-awesome-icon :icon="faFolder" /></n-icon>
-            </template>
-            ..
-          </n-list-item>
-          <n-list-item
-            v-for="file in files"
-            :key="file.name"
-            @click="handleItemClick(file)"
-          >
-            <template #prefix>
-              <n-icon>
-                <font-awesome-icon
-                  :icon="file.type === 'directory' ? faFolder : faFile"
-                />
-              </n-icon>
-            </template>
-            <n-space justify="space-between" style="width: 100%">
-              <n-text>{{ file.name }}</n-text>
-              <n-text depth="3" v-if="file.type === 'file'">{{
-                formatSize(file.size)
-              }}</n-text>
-            </n-space>
-          </n-list-item>
-          <n-list-item v-if="files.length === 0">
-            <n-text depth="3">Empty directory</n-text>
-          </n-list-item>
-        </n-list>
+      <!-- 右边栏 -->
+      <div class="col-md-9 h-100">
+        <n-card embedded class="h-100 flex-card" header-class="pb-2">
+          <template #header>
+            <n-breadcrumb>
+              <n-breadcrumb-item @click="navigateToRoot">
+                Root
+              </n-breadcrumb-item>
+              <n-breadcrumb-item
+                v-for="(part, index) in breadcrumbPaths"
+                :key="index"
+              >
+                {{ part }}
+              </n-breadcrumb-item>
+            </n-breadcrumb>
+          </template>
+
+          <ScrollContainer>
+            <div v-if="currentFileContent !== null">
+              <n-code
+                :code="currentFileContent"
+                :language="detectedLanguage"
+                show-line-numbers
+                word-wrap
+              />
+            </div>
+            <div v-else class="h-100 text-center">
+              <n-empty />
+            </div>
+          </ScrollContainer>
+        </n-card>
       </div>
-    </n-spin>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ref, onMounted, computed, h } from "vue";
+import { useRoute } from "vue-router";
 import {
-  NSpin,
+  NCard,
   NButton,
-  NIcon,
+  NTree,
   NBreadcrumb,
   NBreadcrumbItem,
-  NList,
-  NListItem,
-  NText,
-  NSpace,
-  NCard,
-  NH2,
+  NCode,
+  NIcon,
+  NSpin,
+  NEmpty,
+  type TreeOption,
 } from "naive-ui";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
-  faArrowLeft,
   faFolder,
-  faFile,
+  faFileAlt,
+  faFileImage,
+  faFileCode,
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPython,
+  faJs,
+  faHtml5,
+  faCss3,
+  faMarkdown,
+} from "@fortawesome/free-brands-svg-icons";
 import { projectService } from "@/services/project";
-import type { Project, ProjectFile } from "@/types/models";
+import type { ProjectFile } from "@/types/models";
+import ScrollContainer from "@/components/scroll-container/ScrollContainer.vue";
+import router from "@/router";
 
 const route = useRoute();
-const router = useRouter();
-const loading = ref(false);
-const project = ref<Project | null>(null);
-const files = ref<ProjectFile[]>([]);
-const currentPath = ref("");
+const projectUuid = route.params.uuid as string;
+
+const treeData = ref<TreeOption[]>([]);
+const loadingTree = ref(false);
 const currentFileContent = ref<string | null>(null);
-const currentFileName = ref("");
+const currentFilePath = ref<string>("");
 
-const uuid = route.params.uuid as string;
+// Language detection map
+const getLanguage = (filename: string) => {
+  const ext = filename.split(".").pop()?.toLowerCase();
+  switch (ext) {
+    case "py":
+      return "python";
+    case "js":
+      return "javascript";
+    case "ts":
+      return "typescript";
+    case "vue":
+      return "html";
+    case "html":
+      return "html";
+    case "css":
+      return "css";
+    case "json":
+      return "json";
+    case "md":
+      return "markdown";
+    case "sql":
+      return "sql";
+    default:
+      return "text";
+  }
+};
 
-const pathParts = computed(() => {
-  return currentPath.value ? currentPath.value.split("/") : [];
+const detectedLanguage = computed(() => getLanguage(currentFilePath.value));
+
+const breadcrumbPaths = computed(() => {
+  if (!currentFilePath.value) return [];
+  return currentFilePath.value.split("/");
 });
 
-async function fetchProject() {
-  try {
-    project.value = await projectService.getDetail(uuid);
-  } catch (e) {
-    console.error(e);
-  }
-}
+// Icon helper
+const getIcon = (file: ProjectFile) => {
+  if (file.type === "directory") return faFolder;
 
-async function fetchFiles(path: string) {
-  loading.value = true;
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  switch (ext) {
+    case "py":
+      return faPython;
+    case "js":
+    case "ts":
+      return faJs;
+    case "html":
+    case "vue":
+      return faHtml5;
+    case "css":
+      return faCss3;
+    case "md":
+      return faMarkdown;
+    case "png":
+    case "jpg":
+    case "jpeg":
+    case "gif":
+      return faFileImage;
+    case "json":
+    case "xml":
+    case "sql":
+      return faFileCode;
+    default:
+      return faFileAlt;
+  }
+};
+
+// Transform API response to TreeOption
+const mapFilesToOptions = (files: ProjectFile[]): TreeOption[] => {
+  return files.map((file) => ({
+    path: file.path,
+    name: file.name,
+    isLeaf: file.type === "file",
+    prefix: () =>
+      h(NIcon, null, {
+        default: () => h(FontAwesomeIcon, { icon: getIcon(file) }),
+      }),
+  }));
+};
+
+const loadRoot = async () => {
+  loadingTree.value = true;
   try {
-    files.value = await projectService.getFileTree(uuid, path);
-    currentPath.value = path;
-    currentFileContent.value = null; // Ensure we are in list mode
-  } catch (e) {
-    console.error(e);
+    const files = await projectService.getFileTree(projectUuid, "");
+    treeData.value = mapFilesToOptions(files);
+  } catch (error) {
+    console.error("Failed to load project files", error);
   } finally {
-    loading.value = false;
+    loadingTree.value = false;
   }
-}
+};
 
-async function fetchFileContent(path: string, name: string) {
-  loading.value = true;
+const handleLoad = async (node: TreeOption) => {
   try {
-    const content = await projectService.getFileContent(uuid, path);
-    currentFileContent.value = content;
-    currentFileName.value = name;
-  } catch (e) {
-    console.error(e);
-  } finally {
-    loading.value = false;
+    const path = node.path as string;
+    const files = await projectService.getFileTree(projectUuid, path);
+    node.children = mapFilesToOptions(files);
+    return Promise.resolve();
+  } catch (error) {
+    console.error("Failed to load directory", error);
+    return Promise.reject();
   }
-}
+};
 
-function handleItemClick(file: ProjectFile) {
-  if (file.type === "directory") {
-    fetchFiles(file.path);
-  } else {
-    fetchFileContent(file.path, file.name);
+const handleNodeClick = async (
+  keys: Array<string | number>,
+  options: Array<TreeOption | null>,
+) => {
+  if (keys.length === 0 || !options[0]) return;
+
+  const node = options[0];
+  if (node.isLeaf) {
+    const path = node.path as string;
+    currentFilePath.value = path;
+    try {
+      const content = await projectService.getFileContent(projectUuid, path);
+      currentFileContent.value = content;
+    } catch (error) {
+      console.error("Failed to load file content", error);
+    }
   }
-}
+};
 
-function navigateTo(path: string) {
-  fetchFiles(path);
-}
-
-function navigateToPart(index: number) {
-  const newPath = pathParts.value.slice(0, index + 1).join("/");
-  fetchFiles(newPath);
-}
-
-function navigateUp() {
-  if (!currentPath.value) return;
-  const parts = currentPath.value.split("/");
-  parts.pop();
-  fetchFiles(parts.join("/"));
-}
-
-function closeFile() {
+const navigateToRoot = () => {
+  currentFilePath.value = "";
   currentFileContent.value = null;
-}
+};
 
-function goBack() {
-  router.push(`/project/${uuid}`);
-}
-
-function formatSize(bytes: number) {
-  if (bytes === 0) return "0 B";
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-}
+// Node props for styling if needed
+const nodeProps = ({ option }: { option: TreeOption }) => {
+  return {
+    // Prevent default click behavior for directories if we only want expansion
+    // But NTree 'expand-on-click' handles this.
+    // We can add custom classes here.
+  };
+};
 
 onMounted(() => {
-  if (uuid) {
-    fetchProject();
-    fetchFiles("");
-  }
+  loadRoot();
 });
 </script>
 
 <style scoped>
 .page-container {
-  padding: 24px;
-  max-width: 900px;
-  margin: 0 auto;
+  height: calc(100vh - 48px);
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.breadcrumbs {
-  margin-bottom: 16px;
-  font-size: 16px;
-}
-
-.breadcrumb-link {
-  cursor: pointer;
-}
-
-.breadcrumb-link:hover {
-  text-decoration: underline;
-  color: var(--n-primary-color);
-}
-
-.file-list {
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #efeff5;
-}
-
-.file-content-view {
+:deep(.flex-card) {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
-.file-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+:deep(.flex-card > .n-card-header) {
+  flex-shrink: 0;
 }
 
-.code-card {
-  overflow-x: auto;
-}
-
-pre {
-  margin: 0;
-  font-family: v-mono, SFMono-Regular, Menlo, Consolas, Courier, monospace;
-  font-size: 14px;
+:deep(.flex-card > .n-card__content) {
+  flex: 1;
+  min-height: 0;
+  padding: 0 !important;
 }
 </style>
