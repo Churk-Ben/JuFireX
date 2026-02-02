@@ -8,7 +8,7 @@ from flask import Blueprint, jsonify, request, session
 
 from backend.config import ROLE_ADMIN, ROLE_GUEST
 from backend.core.Logger import get_logger
-from backend.core.Security import require_admin, require_member
+from backend.core.Security import require_member
 from backend.services import blog_service
 
 logger = get_logger("API_Blog")
