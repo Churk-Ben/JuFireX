@@ -5,6 +5,7 @@
 # ------------------------------------------------------------
 
 import json
+import os
 from pathlib import Path
 import shutil
 from typing import Any, Dict, List, Optional
@@ -217,3 +218,67 @@ class ProjectRepository:
         if proj:
             proj.stars += 1 if increment else -1
             db.session.commit()
+
+    def get_file_tree(self, uuid: str, path: str = "") -> List[Dict[str, Any]]:
+        project_root = self._get_project_dir(uuid)
+        path = path.lstrip("/\\")
+        target_path = (project_root / path).resolve()
+
+        try:
+            target_path.relative_to(project_root)
+        except ValueError:
+            logger.warning(f"获取项目 {uuid} 路径越界: {path}")
+            raise FileNotFoundError("Path not found")
+
+        if not target_path.exists():
+            logger.warning(f"获取项目 {uuid} 路径不存在: {path}")
+            raise FileNotFoundError("Path not found")
+
+        if not target_path.is_dir():
+            logger.warning(f"获取项目 {uuid} 路径不是目录: {path}")
+            raise NotADirectoryError("Not a directory")
+
+        files = []
+        try:
+            for entry in os.scandir(target_path):
+                files.append(
+                    {
+                        "name": entry.name,
+                        "type": "directory" if entry.is_dir() else "file",
+                        "size": entry.stat().st_size if entry.is_file() else 0,
+                    }
+                )
+        except Exception as e:
+            logger.error(f"获取项目 {uuid} 路径 {path} 文件列表时出错: {e}")
+            raise e
+
+        files.sort(key=lambda x: (x["type"] != "directory", x["name"]))
+        return files
+
+    def get_file_content(self, uuid: str, path: str) -> str:
+        project_root = self._get_project_dir(uuid)
+        path = path.lstrip("/\\")
+        target_path = (project_root / path).resolve()
+
+        try:
+            target_path.relative_to(project_root)
+        except ValueError:
+            logger.warning(f"获取项目 {uuid} 路径越界: {path}")
+            raise FileNotFoundError("File not found")
+
+        if not target_path.exists() or not target_path.is_file():
+            logger.warning(f"获取项目 {uuid} 路径不存在或不是文件: {path}")
+            raise FileNotFoundError("File not found")
+
+        if target_path.stat().st_size > 1024 * 1024 * 2:
+            size = target_path.stat().st_size / (1024 * 1024)
+            logger.warning(f"获取项目 {uuid} 路径 {path} 文件大小超限: {size:.2f}MB")
+            raise ValueError("File too large to view")
+
+        try:
+            with open(target_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            return content
+        except UnicodeDecodeError:
+            logger.warning(f"获取项目 {uuid} 路径 {path} 文件: 不支持的编码")
+            raise ValueError("Binary file cannot be viewed")
