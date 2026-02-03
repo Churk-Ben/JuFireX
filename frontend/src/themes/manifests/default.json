@@ -2,10 +2,11 @@
   "common": {
     "borderRadius": "8px",
     "borderRadiusSmall": "6px",
-    "primaryColor": "#63e2b7",
-    "primaryColorHover": "#7fe7c4",
-    "primaryColorPressed": "#5acea7",
-    "iconColorPressed": "rgba(255, 255, 255, 0.3)"
+    "primaryColor": "#2A7BE4FF",
+    "primaryColorHover": "#2292E7FF",
+    "primaryColorPressed": "#2D8CDEFF",
+    "iconColorPressed": "rgba(255, 255, 255, 0.3)",
+    "primaryColorSuppl": "rgba(42, 86, 148, 1)"
   },
   "Avatar": {},
   "AvatarGroup": {},
