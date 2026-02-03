@@ -4,9 +4,9 @@
       <div class="profile-header">
         <div class="avatar-section">
           <n-avatar round :size="128" :src="avatarUrl" class="mb-3" />
-          <avatar-cropper @cropped="handleAvatarCrop">
+          <AvatarCropper @cropped="handleAvatarCrop">
             <n-button>Change Avatar</n-button>
-          </avatar-cropper>
+          </AvatarCropper>
         </div>
 
         <div class="info-section">
@@ -66,7 +66,6 @@ async function handleAvatarCrop(blob: Blob) {
   try {
     const file = new File([blob], "avatar.png", { type: "image/png" });
     await userService.uploadAvatar(file);
-    // 立即刷新头像
     timestamp.value = Date.now();
   } catch (e: any) {
     console.error(e);

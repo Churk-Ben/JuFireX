@@ -1,4 +1,7 @@
 <!-- @author: Lithe-Admin -->
+<!-- @description: 滚动容器组件，用于包裹内容并添加滚动条 -->
+<!-- @status: 完工 -->
+
 <template>
   <div class="scroll-container-root">
     <NScrollbar v-if="scrollable" :ref="forwardRef" v-bind="$attrs">

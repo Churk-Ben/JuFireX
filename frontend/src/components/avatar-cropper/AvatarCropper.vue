@@ -1,14 +1,17 @@
+<!-- @author: Churk -->
+<!-- @description: 头像裁剪组件，用于裁剪用户上传的头像 -->
+<!-- @status: 完工 -->
+
 <template>
   <div class="avatar-cropper-trigger" @click="triggerSelect">
     <slot>
-      <!-- Default trigger if no slot provided -->
       <n-button>Select Image</n-button>
     </slot>
     <input
       ref="fileInput"
       type="file"
       accept="image/*"
-      class="hidden-input"
+      class="d-none"
       @change="handleFileChange"
     />
   </div>
@@ -16,9 +19,10 @@
   <n-modal
     v-model:show="showModal"
     preset="card"
-    title="Crop Avatar"
+    title="裁剪头像"
     style="width: 600px; max-width: 90vw"
     :mask-closable="false"
+    @after-leave="handleAfterLeave"
   >
     <div class="cropper-container" v-if="imageUrl">
       <img ref="imageRef" :src="imageUrl" alt="Source Image" />
@@ -59,19 +63,19 @@ function handleFileChange(e: Event) {
   if (input.files && input.files.length > 0) {
     const file = input.files[0];
 
-    // Basic validation
+    // 简单校验
     if (!file.type.startsWith("image/")) {
       return;
     }
 
-    // Create URL
+    // 创建 URL
     if (imageUrl.value) {
       URL.revokeObjectURL(imageUrl.value);
     }
     imageUrl.value = URL.createObjectURL(file);
     showModal.value = true;
 
-    // Reset input
+    // 重置输入
     input.value = "";
   }
 }
@@ -82,10 +86,12 @@ watch(showModal, async (val) => {
     if (imageRef.value) {
       initCropper();
     }
-  } else {
-    destroyCropper();
   }
 });
+
+function handleAfterLeave() {
+  destroyCropper();
+}
 
 function initCropper() {
   if (cropper) {
@@ -103,6 +109,8 @@ function initCropper() {
     movable: true,
     scalable: false,
     rotatable: false,
+    cropBoxMovable: false,
+    cropBoxResizable: false,
   });
 }
 
@@ -146,13 +154,10 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.hidden-input {
-  display: none;
-}
-
 .cropper-container {
   height: 400px;
-  background-color: #f0f0f0;
+  background-color: #f0f0f020;
+  border-radius: var(--n-border-radius);
   overflow: hidden;
 }
 
