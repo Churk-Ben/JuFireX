@@ -9,8 +9,9 @@
     <div class="app">
       <n-layout has-sider style="height: 100vh">
         <n-layout-sider
-          content-style="min-height: 100%; display: flex; flex-direction: column;"
           class="app-sider"
+          content-style="min-height: 100%;"
+          content-class="d-flex flex-column"
           collapse-mode="width"
           :collapsed-width="64"
           :width="240"
@@ -126,20 +127,14 @@ function renderIcon(icon: any) {
 
 function renderUserAvatar() {
   return () => {
-    if (userStore.currentUser) {
-      return h(NAvatar, {
-        size: 18,
-        round: true,
-        src: userService.getAvatarUrl(userStore.currentUser.uuid),
-        fallbackSrc:
-          "https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg",
-      });
-    }
-    return h(
-      NIcon,
-      { size: 16 },
-      { default: () => h(FontAwesomeIcon, { icon: faUser }) },
-    );
+    const currentUser = userStore.currentUser;
+    const avatarUrl = userService.getAvatarUrl(currentUser!.uuid);
+
+    return h(NAvatar, {
+      size: 22,
+      round: true,
+      src: avatarUrl,
+    });
   };
 }
 
