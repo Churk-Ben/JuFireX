@@ -75,6 +75,7 @@ import { RouterView, useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { useThemeStore } from "@/stores/theme";
 import { themes } from "@/themes";
+import { userService } from "@/services/user";
 
 import {
   darkTheme,
@@ -91,6 +92,7 @@ import {
   NLayoutSider,
   NMenu,
   NDialogProvider,
+  NAvatar,
 } from "naive-ui";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
@@ -120,6 +122,25 @@ const themeStore = useThemeStore();
 function renderIcon(icon: any) {
   return () =>
     h(NIcon, { size: 16 }, { default: () => h(FontAwesomeIcon, { icon }) });
+}
+
+function renderUserAvatar() {
+  return () => {
+    if (userStore.currentUser) {
+      return h(NAvatar, {
+        size: 18,
+        round: true,
+        src: userService.getAvatarUrl(userStore.currentUser.uuid),
+        fallbackSrc:
+          "https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg",
+      });
+    }
+    return h(
+      NIcon,
+      { size: 16 },
+      { default: () => h(FontAwesomeIcon, { icon: faUser }) },
+    );
+  };
 }
 
 // 应用菜单选项
@@ -202,7 +223,7 @@ const userOptions = computed(() => {
     {
       label: userStore.currentUser.username,
       key: "/user",
-      icon: renderIcon(faUser),
+      icon: renderUserAvatar(),
       children: [
         {
           label: t("sider.userMenu.user.profile"),
