@@ -59,7 +59,7 @@ def get_project_detail(uuid):
     user_role = session.get("role", ROLE_GUEST)
     user_uuid = session.get("user_uuid")
 
-    success, message, project = project_service.get_by_uuid(uuid, user_role, user_uuid)
+    success, message, project = project_service.get_by_uuid(uuid, user_uuid, user_role)
 
     if not success:
         code = 403 if message == "权限不足" else 404

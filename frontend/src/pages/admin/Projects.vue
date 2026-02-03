@@ -194,11 +194,13 @@ async function fetchProjects() {
   }
 }
 
-function openModal(proj?: Project) {
+async function openModal(proj?: Project) {
   if (proj) {
     isEditing.value = true;
     currentUuid.value = proj.uuid;
     modalTitle.value = "Edit Project";
+
+    // 先用列表数据填充基本信息
     Object.assign(formModel, {
       title: proj.title,
       description: proj.description,
@@ -209,6 +211,27 @@ function openModal(proj?: Project) {
       is_public: proj.is_public,
       order: proj.order,
     });
+
+    showModal.value = true;
+
+    // 异步获取完整详情（主要是为了获取 readme）
+    try {
+      const fullProj = await projectService.getDetail(proj.uuid);
+      if (fullProj) {
+        Object.assign(formModel, {
+          title: fullProj.title,
+          description: fullProj.description,
+          readme: fullProj.readme || "",
+          url: fullProj.url,
+          icon: fullProj.icon,
+          tags: [...fullProj.tags],
+          is_public: fullProj.is_public,
+          order: fullProj.order,
+        });
+      }
+    } catch (e) {
+      console.error("Failed to fetch project details", e);
+    }
   } else {
     isEditing.value = false;
     currentUuid.value = "";
@@ -223,8 +246,8 @@ function openModal(proj?: Project) {
       is_public: true,
       order: 0,
     });
+    showModal.value = true;
   }
-  showModal.value = true;
 }
 
 async function handleSubmit() {
