@@ -19,8 +19,10 @@
           :native-scrollbar="false"
           bordered
         >
-          <div
-            class="sider-content d-flex flex-column justify-content-between flex-grow-1"
+          <n-flex
+            vertical
+            justify="space-between"
+            class="sider-content flex-grow-1"
           >
             <section>
               <n-menu
@@ -57,7 +59,7 @@
                 @update:value="onUser"
               />
             </section>
-          </div>
+          </n-flex>
         </n-layout-sider>
         <n-layout-content class="app-content" content-style="min-height: 0;">
           <n-dialog-provider>
@@ -94,6 +96,7 @@ import {
   NMenu,
   NDialogProvider,
   NAvatar,
+  NFlex,
 } from "naive-ui";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
