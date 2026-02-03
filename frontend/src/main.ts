@@ -23,6 +23,7 @@ function resolveInitialLocale(): string {
 
 const i18n = createI18n({
   legacy: false,
+  globalInjection: true,
   locale: resolveInitialLocale(),
   fallbackLocale: "en",
   messages,

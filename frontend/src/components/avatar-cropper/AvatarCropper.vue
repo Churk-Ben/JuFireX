@@ -5,7 +5,7 @@
 <template>
   <div class="avatar-cropper-trigger" @click="triggerSelect">
     <slot>
-      <n-button>Select Image</n-button>
+      <n-button>{{ $t("common.avatarCropper.select") }}</n-button>
     </slot>
     <input
       ref="fileInput"
@@ -19,7 +19,7 @@
   <n-modal
     v-model:show="showModal"
     preset="card"
-    title="裁剪头像"
+    :title="$t('common.avatarCropper.title')"
     style="width: 600px; max-width: 90vw"
     :mask-closable="false"
     @after-leave="handleAfterLeave"
@@ -30,9 +30,11 @@
 
     <template #footer>
       <n-space justify="end">
-        <n-button @click="showModal = false">Cancel</n-button>
+        <n-button @click="showModal = false">
+          {{ $t("common.avatarCropper.cancel") }}
+        </n-button>
         <n-button type="primary" :loading="processing" @click="confirmCrop">
-          Confirm
+          {{ $t("common.avatarCropper.confirm") }}
         </n-button>
       </n-space>
     </template>
@@ -126,7 +128,7 @@ function confirmCrop() {
 
   processing.value = true;
 
-  // Get cropped canvas at 256x256 as requested
+  // 裁剪图片
   const canvas = cropper.getCroppedCanvas({
     width: 256,
     height: 256,
