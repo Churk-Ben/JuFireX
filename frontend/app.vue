@@ -6,7 +6,7 @@
     :date-locale="naiveDateLocale"
     :locale="naiveLocale"
   >
-    <div class="app">
+    <div class="app" :style="route.path === '/' ? '--padding: 0' : ''">
       <n-layout has-sider style="height: 100vh">
         <n-layout-sider
           class="app-sider"
