@@ -3,6 +3,7 @@ import { notification } from "./notification";
 export async function request<T = any>(
   url: string,
   options: RequestInit = {},
+  config: { silent?: boolean } = {},
 ): Promise<T> {
   const headers = new Headers(options.headers);
   if (!headers.has("Content-Type") && !(options.body instanceof FormData)) {
@@ -21,7 +22,7 @@ export async function request<T = any>(
     data = await response.json();
 
     // 统一处理 API 响应
-    if (data && typeof data === "object") {
+    if (data && typeof data === "object" && !config.silent) {
       const { level, message } = data;
       if (message) {
         switch (level) {

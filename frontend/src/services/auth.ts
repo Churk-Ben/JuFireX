@@ -23,6 +23,6 @@ export const authService = {
   },
 
   getMe() {
-    return request<User>("/api/auth/me");
+    return request<User>("/api/auth/me", {}, { silent: true });
   },
 };
