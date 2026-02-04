@@ -46,13 +46,65 @@
       }
     }
   },
-  "login": {
-    "username": "用户名",
-    "password": "密码",
-    "success": "登录成功",
-    "validation": {
-      "identifierRequired": "请输入邮箱或ID",
-      "passwordRequired": "请输入密码"
+  "page": {
+    "appHome": {
+      "title": "首页"
+    },
+    "navigations": {
+      "title": "导航"
+    },
+    "projects": {
+      "title": "项目"
+    },
+    "blogs": {
+      "title": "文章"
+    },
+    "apiTest": {
+      "title": "API测试"
+    },
+    "login": {
+      "title": "登录"
+    },
+    "register": {
+      "title": "注册"
+    },
+    "user": {
+      "profile": {
+        "title": "用户档案"
+      },
+      "settings": {
+        "title": "用户设置"
+      },
+      "logout": {
+        "title": "登出"
+      }
+    },
+    "admin": {
+      "users": {
+        "title": "用户管理"
+      },
+      "navigations": {
+        "title": "导航管理"
+      },
+      "projects": {
+        "title": "项目管理"
+      },
+      "blogs": {
+        "title": "文章管理"
+      }
+    },
+    "project": {
+      "overview": {
+        "title": "项目概览"
+      },
+      "fileTreeView": {
+        "title": "项目文件树"
+      }
+    },
+    "blog": {
+      "detail": {
+        "title": "文章详情"
+      }
     }
   }
 }

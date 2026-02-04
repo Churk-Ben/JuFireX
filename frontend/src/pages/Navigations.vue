@@ -1,7 +1,7 @@
 <template>
   <ScrollContainer>
     <n-space vertical size="large">
-      <n-h1>{{ t("sider.menu.navigations") }}</n-h1>
+      <n-h1>{{ $t("page.navigations.title") }}</n-h1>
 
       <n-spin :show="loading">
         <n-result

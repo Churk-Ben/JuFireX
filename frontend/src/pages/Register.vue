@@ -3,7 +3,7 @@
     <n-card class="register-card">
       <template #header>
         <div class="text-center">
-          <h2>Register</h2>
+          <h2>{{ $t("page.register.title") }}</h2>
         </div>
       </template>
       <n-form ref="formRef" :model="formModel" :rules="rules">

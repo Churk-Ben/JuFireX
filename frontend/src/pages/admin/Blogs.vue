@@ -2,7 +2,7 @@
   <div class="page-container">
     <n-space vertical size="large">
       <n-space justify="space-between" align="center">
-        <n-h1 style="margin: 0">{{ t("sider.menu.admin.blogs") }}</n-h1>
+        <n-h1 style="margin: 0">{{ $t("page.admin.blogs.title") }}</n-h1>
         <n-button type="primary" @click="openModal()">Add Blog</n-button>
       </n-space>
 

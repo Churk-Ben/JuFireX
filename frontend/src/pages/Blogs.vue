@@ -1,7 +1,7 @@
 <template>
   <ScrollContainer>
     <n-space vertical size="large">
-      <n-h1>{{ t("sider.menu.blogs") }}</n-h1>
+      <n-h1>{{ $t("page.blogs.title") }}</n-h1>
 
       <n-spin :show="loading">
         <n-result
@@ -60,7 +60,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { ScrollContainer } from "@/components/scroll-container";
 import {
@@ -76,7 +75,6 @@ import {
 import { blogService } from "@/services/blog";
 import type { Blog } from "@/types/models";
 
-const { t } = useI18n();
 const router = useRouter();
 const loading = ref(false);
 const blogs = ref<Blog[]>([]);

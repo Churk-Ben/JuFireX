@@ -3,7 +3,7 @@
     <n-card class="login-card">
       <template #header>
         <div class="text-center">
-          <h2>{{ t("sider.menu.user.login") }}</h2>
+          <h2>{{ $t("page.login.title") }}</h2>
         </div>
       </template>
       <n-form ref="formRef" :model="formModel" :rules="rules">
