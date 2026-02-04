@@ -68,19 +68,51 @@
       "register": "还没有账号? 前往注册",
       "identifier": {
         "label": "邮箱 / ID",
-        "placeholder": "请输入邮箱 / ID"
+        "placeholder": "请输入邮箱 / ID",
+        "validation": "请输入邮箱 / ID"
       },
       "password": {
         "label": "密码",
-        "placeholder": "请输入密码"
+        "placeholder": "请输入密码",
+        "validation": "请输入密码"
       },
-      "validation": {
-        "identifierRequired": "请输入邮箱 / ID",
-        "passwordRequired": "请输入密码"
+      "notification": {
+        "level1": "请检查你的邮箱 / ID 和密码",
+        "level2": "你睁眼看看你填全了没啊",
+        "level3": " ? "
       }
     },
     "register": {
-      "title": "注册"
+      "title": "注册",
+      "login": "已经有账号了? 去登录",
+      "register": "注册",
+      "username": {
+        "label": "用户名",
+        "placeholder": "我们不使用唯一用户名, 所以随意就好",
+        "validation": "请输入用户名昵称"
+      },
+      "email": {
+        "label": "邮箱",
+        "placeholder": "请输入邮箱",
+        "validation": "请输入邮箱"
+      },
+      "password": {
+        "label": "密码",
+        "placeholder": "请输入密码",
+        "validation": "请输入密码"
+      },
+      "confirmPassword": {
+        "label": "确认密码",
+        "placeholder": "请确认密码",
+        "validation": {
+          "confirmPasswordRequired": "请再次输入密码",
+          "passwordsDoNotMatch": "两次输入的密码不一致"
+        }
+      },
+      "notification": {
+        "emptyFields": "请完整填写信息",
+        "passwordsDoNotMatch": "两次输入的密码不一致"
+      }
     },
     "user": {
       "profile": {

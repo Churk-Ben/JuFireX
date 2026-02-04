@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col-4 offset-4">
+      <div class="col-md-6 col-xl-4 offset-md-3 offset-xl-4">
         <n-card class="login-card">
           <template #header>
             <div class="text-center">
@@ -62,11 +62,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { NCard, NForm, NFormItem, NInput, NButton, NH1 } from "naive-ui";
 import { useUserStore } from "@/stores/user";
+import { notification } from "@/utils/notification";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -80,17 +81,42 @@ const formModel = reactive({
 const rules = {
   identifier: {
     required: true,
-    message: t("page.login.validation.identifierRequired"),
+    message: t("page.login.identifier.validation"),
     trigger: "blur",
   },
   password: {
     required: true,
-    message: t("page.login.validation.passwordRequired"),
+    message: t("page.login.password.validation"),
     trigger: "blur",
   },
 };
 
+let tryCount = 0;
+
 async function handleLogin() {
+  if (!formModel.identifier || !formModel.password) {
+    tryCount++;
+    if (tryCount > 3 && tryCount <= 6) {
+      notification.warning({
+        content: t("page.login.notification.level1"),
+        duration: 2000,
+      });
+    } else if (tryCount > 6 && tryCount <= 9) {
+      notification.warning({
+        content: t("page.login.notification.level2"),
+        duration: 2000,
+      });
+    } else if (tryCount > 9 && tryCount <= 10) {
+      setTimeout(() => {
+        notification.error({
+          content: t("page.login.notification.level3"),
+          duration: 6000,
+        });
+      }, 800);
+    }
+    return;
+  }
+
   try {
     await userStore.login(formModel);
     router.push("/");

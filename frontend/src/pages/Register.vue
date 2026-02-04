@@ -1,49 +1,78 @@
 <template>
-  <div class="register-container">
-    <n-card class="register-card">
-      <template #header>
-        <div class="text-center">
-          <h2>{{ $t("page.register.title") }}</h2>
-        </div>
-      </template>
-      <n-form ref="formRef" :model="formModel" :rules="rules">
-        <n-form-item path="username" label="Username">
-          <n-input v-model:value="formModel.username" placeholder="Username" />
-        </n-form-item>
-        <n-form-item path="email" label="Email">
-          <n-input v-model:value="formModel.email" placeholder="Email" />
-        </n-form-item>
-        <n-form-item path="password" label="Password">
-          <n-input
-            v-model:value="formModel.password"
-            type="password"
-            show-password-on="click"
-          />
-        </n-form-item>
-        <n-form-item path="confirmPassword" label="Confirm Password">
-          <n-input
-            v-model:value="formModel.confirmPassword"
-            type="password"
-            show-password-on="click"
-          />
-        </n-form-item>
-        <div class="actions">
-          <n-button
-            type="primary"
-            block
-            :loading="loading"
-            @click="handleRegister"
-          >
-            Register
-          </n-button>
-          <div class="mt-3 text-center">
-            <router-link to="/login"
-              >Already have an account? Login</router-link
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-xl-4 offset-md-3 offset-xl-4">
+        <n-card class="register-card">
+          <template #header>
+            <div class="text-center">
+              <n-h1>{{ $t("page.register.title") }}</n-h1>
+            </div>
+          </template>
+          <n-form ref="formRef" :model="formModel" :rules="rules">
+            <n-form-item
+              path="username"
+              :label="$t('page.register.username.label')"
             >
-          </div>
-        </div>
-      </n-form>
-    </n-card>
+              <n-input
+                v-model:value="formModel.username"
+                :placeholder="$t('page.register.username.placeholder')"
+              />
+            </n-form-item>
+            <n-form-item path="email" :label="$t('page.register.email.label')">
+              <n-input
+                v-model:value="formModel.email"
+                :placeholder="$t('page.register.email.placeholder')"
+              />
+            </n-form-item>
+            <n-form-item
+              path="password"
+              :label="$t('page.register.password.label')"
+            >
+              <n-input
+                v-model:value="formModel.password"
+                type="password"
+                show-password-on="click"
+                :placeholder="$t('page.register.password.placeholder')"
+              />
+            </n-form-item>
+            <n-form-item
+              path="confirmPassword"
+              :label="$t('page.register.confirmPassword.label')"
+            >
+              <n-input
+                v-model:value="formModel.confirmPassword"
+                type="password"
+                show-password-on="click"
+                :placeholder="$t('page.register.confirmPassword.placeholder')"
+              />
+            </n-form-item>
+            <div class="mt-4">
+              <n-button
+                type="primary"
+                block
+                :loading="loading"
+                @click="handleRegister"
+              >
+                {{ $t("page.register.register") }}
+              </n-button>
+              <div class="mt-3 text-center">
+                <router-link to="/login" custom #="{ navigate, href }">
+                  <n-button
+                    tag="a"
+                    text
+                    :href="href"
+                    type="primary"
+                    @click="navigate"
+                  >
+                    {{ $t("page.register.login") }}
+                  </n-button>
+                </router-link>
+              </div>
+            </div>
+          </n-form>
+        </n-card>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -58,13 +87,14 @@ import {
   NInput,
   NButton,
   FormItemRule,
+  NH1,
 } from "naive-ui";
 import { authService } from "@/services/auth";
+import { notification } from "@/utils/notification";
 
 const router = useRouter();
 const { t } = useI18n();
 
-const formRef = ref(null);
 const loading = ref(false);
 const formModel = reactive({
   username: "",
@@ -76,38 +106,54 @@ const formModel = reactive({
 const rules = {
   username: {
     required: true,
-    message: t("register.validation.usernameRequired"),
+    message: t("page.register.username.validation"),
     trigger: "blur",
   },
   email: {
     required: true,
-    message: t("register.validation.emailRequired"),
+    message: t("page.register.email.validation"),
     trigger: "blur",
   },
   password: {
     required: true,
-    message: t("register.validation.passwordRequired"),
+    message: t("page.register.password.validation"),
     trigger: "blur",
   },
   confirmPassword: [
     {
       required: true,
-      message: t("register.validation.confirmPasswordRequired"),
+      message: t(
+        "page.register.confirmPassword.validation.confirmPasswordRequired",
+      ),
       trigger: "blur",
     },
     {
       validator: (rule: FormItemRule, value: string) => {
         return value === formModel.password;
       },
-      message: t("register.validation.passwordsDoNotMatch"),
+      message: t(
+        "page.register.confirmPassword.validation.passwordsDoNotMatch",
+      ),
       trigger: ["blur", "password-input"],
     },
   ],
 };
 
 async function handleRegister() {
-  if (!formModel.username || !formModel.email || !formModel.password) return;
-  if (formModel.password !== formModel.confirmPassword) return;
+  if (!formModel.username || !formModel.email || !formModel.password) {
+    notification.warning({
+      content: t("page.register.notification.emptyFields"),
+      duration: 2000,
+    });
+    return;
+  }
+  if (formModel.password !== formModel.confirmPassword) {
+    notification.warning({
+      content: t("page.register.notification.passwordsDoNotMatch"),
+      duration: 2000,
+    });
+    return;
+  }
 
   loading.value = true;
   try {
@@ -123,23 +169,10 @@ async function handleRegister() {
 </script>
 
 <style scoped>
-.register-container {
+.container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
   height: 100%;
-}
-
-.register-card {
-  width: 100%;
-  max-width: 400px;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.actions {
-  margin-top: 24px;
 }
 </style>
