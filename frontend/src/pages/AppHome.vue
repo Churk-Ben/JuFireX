@@ -156,19 +156,19 @@
               target="_blank"
               class="social-link"
             >
-              <n-icon size="24"
-                ><font-awesome-icon :icon="['fab', 'github']"
-              /></n-icon>
+              <n-icon size="24">
+                <font-awesome-icon :icon="['fab', 'github']" />
+              </n-icon>
             </a>
             <a href="#" class="social-link">
-              <n-icon size="24"
-                ><font-awesome-icon :icon="['fab', 'twitter']"
-              /></n-icon>
+              <n-icon size="24">
+                <font-awesome-icon :icon="['fab', 'twitter']" />
+              </n-icon>
             </a>
             <a href="#" class="social-link">
-              <n-icon size="24"
-                ><font-awesome-icon :icon="['fab', 'discord']"
-              /></n-icon>
+              <n-icon size="24">
+                <font-awesome-icon :icon="['fab', 'discord']" />
+              </n-icon>
             </a>
           </div>
           <p class="copyright">© 2024 JuFireX Studio. All rights reserved.</p>
@@ -267,6 +267,8 @@ const games = [
   --brand-blue: #003aff;
   --brand-blue-dim: #0026a3;
   --accent-orange: #ff3d00;
+  --accent-orange-dim: #cc3300;
+  --gradient-orange: #b8500b;
   --bg-dark: #0a0a0a;
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.7);
@@ -281,6 +283,7 @@ const games = [
   color: var(--text-primary);
   overflow: hidden;
   position: relative;
+  user-select: none;
   font-family:
     "Inter",
     -apple-system,
@@ -345,7 +348,7 @@ const games = [
   height: 300px;
   margin-top: -150px;
   margin-left: -150px;
-  background: purple;
+  background: var(--gradient-orange);
   animation: orbit-2 25s infinite linear;
 }
 

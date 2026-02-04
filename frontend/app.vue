@@ -259,9 +259,12 @@ const ctrlOptions = computed(() => [
     icon: renderIcon(faBars),
   },
   {
+    disabled: router.currentRoute.value.path === "/",
     label: themeLabel.value,
     key: "toggleTheme",
-    icon: renderIcon(themeMode.value === "light" ? faMoon : faSun),
+    icon: renderIcon(
+      themeMode.value === "light" && route.path !== "/" ? faMoon : faSun,
+    ),
   },
   {
     label: localeLabel.value,
@@ -305,12 +308,20 @@ const prefersDark = () => {
   );
 };
 const themeMode = ref<"light" | "dark">(prefersDark() ? "dark" : "light");
+
+const effectiveThemeMode = computed(() => {
+  if (route.path === "/") {
+    return "dark";
+  }
+  return themeMode.value;
+});
+
 const naiveTheme = computed(() =>
-  themeMode.value === "dark" ? darkTheme : null,
+  effectiveThemeMode.value === "dark" ? darkTheme : null,
 );
 
 const themeLabel = computed(() =>
-  themeMode.value === "light"
+  effectiveThemeMode.value === "light"
     ? t("sider.appCtrl.theme.dark")
     : t("sider.appCtrl.theme.light"),
 );
