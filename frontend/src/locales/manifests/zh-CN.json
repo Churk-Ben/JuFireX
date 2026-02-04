@@ -63,7 +63,21 @@
       "title": "API测试"
     },
     "login": {
-      "title": "登录"
+      "title": "登录",
+      "login": "登录",
+      "register": "还没有账号? 前往注册",
+      "identifier": {
+        "label": "邮箱 / ID",
+        "placeholder": "请输入邮箱 / ID"
+      },
+      "password": {
+        "label": "密码",
+        "placeholder": "请输入密码"
+      },
+      "validation": {
+        "identifierRequired": "请输入邮箱 / ID",
+        "passwordRequired": "请输入密码"
+      }
     },
     "register": {
       "title": "注册"

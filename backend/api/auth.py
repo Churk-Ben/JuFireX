@@ -41,7 +41,7 @@ def login():
             jsonify(
                 {
                     "level": "warning",
-                    "message": "请输入邮箱/UUID和密码",
+                    "message": "请输入邮箱/ID/uuid和密码",
                 }
             ),
             400,
