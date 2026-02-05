@@ -6,6 +6,11 @@ import type { User } from "@/types/models";
 export const useUserStore = defineStore("user", () => {
   const currentUser = ref<User | null>(null);
   const loading = ref(false);
+  const avatarTimestamp = ref(Date.now());
+
+  function refreshAvatar() {
+    avatarTimestamp.value = Date.now();
+  }
 
   async function login(data: any) {
     loading.value = true;
@@ -43,8 +48,10 @@ export const useUserStore = defineStore("user", () => {
   return {
     currentUser,
     loading,
+    avatarTimestamp,
     login,
     logout,
     checkAuth,
+    refreshAvatar,
   };
 });

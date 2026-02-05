@@ -47,13 +47,12 @@ import {
 import { AvatarCropper } from "@/components/avatar-cropper";
 
 const userStore = useUserStore();
-const timestamp = ref(Date.now());
 
 const avatarUrl = computed(() => {
   if (!userStore.currentUser?.uuid) return "";
   return (
     userService.getAvatarUrl(userStore.currentUser.uuid) +
-    `?t=${timestamp.value}`
+    `?t=${userStore.avatarTimestamp}`
   );
 });
 
@@ -66,7 +65,7 @@ async function handleAvatarCrop(blob: Blob) {
   try {
     const file = new File([blob], "avatar.png", { type: "image/png" });
     await userService.uploadAvatar(file);
-    timestamp.value = Date.now();
+    userStore.refreshAvatar();
   } catch (e: any) {
     console.error(e);
   }

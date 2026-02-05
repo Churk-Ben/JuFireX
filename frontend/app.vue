@@ -131,7 +131,9 @@ function renderIcon(icon: any) {
 function renderUserAvatar() {
   return () => {
     const currentUser = userStore.currentUser;
-    const avatarUrl = userService.getAvatarUrl(currentUser!.uuid);
+    const avatarUrl =
+      userService.getAvatarUrl(currentUser!.uuid) +
+      `?t=${userStore.avatarTimestamp}`;
 
     return h(NAvatar, {
       size: 22,

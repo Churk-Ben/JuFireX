@@ -119,7 +119,7 @@ async function handleLogin() {
 
   try {
     await userStore.login(formModel);
-    router.push("/");
+    router.push("/user/profile");
   } catch (e: any) {
     console.error(e);
   }
