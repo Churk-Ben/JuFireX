@@ -1,1 +1,168 @@
-{}
+{
+  "app": {
+    "title": "JuFireX",
+    "subtitle": "JuFireX Studio",
+    "slogan": "The sun and moon have risen, yet the flame burns on.",
+    "description": "A game creative studio full of passion and vitality."
+  },
+  "common": {
+    "avatarCropper": {
+      "title": "Crop Avatar",
+      "select": "Select Image",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    }
+  },
+  "sider": {
+    "appMenu": {
+      "home": "Home",
+      "navigations": "Navigations",
+      "projects": "Projects",
+      "blogs": "Blogs",
+      "debug": "Debug"
+    },
+    "userMenu": {
+      "user": {
+        "user": "User",
+        "profile": "Profile",
+        "settings": "Settings",
+        "login": "Login",
+        "logout": "Logout"
+      },
+      "admin": {
+        "admin": "Admin",
+        "users": "User Management",
+        "navigations": "Navigation Management",
+        "projects": "Project Management",
+        "blogs": "Blog Management"
+      }
+    },
+    "appCtrl": {
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "locale": "Language",
+      "theme": {
+        "dark": "Dark",
+        "light": "Light"
+      }
+    }
+  },
+  "page": {
+    "appHome": {
+      "title": "Home",
+      "jufirex-suffix": "JuFireX",
+      "studio-suffix": "studio",
+      "slogan": "The sun and moon have risen, yet the flame burns on.",
+      "scroll": "Scroll to Explore",
+      "philosophy": {
+        "title": "Philosophy",
+        "desc": "In an era where giants shine like the sun and moon, JuFireX represents the eternal flame of creativity. Small, yet persistent. We dedicate ourselves to the pure art of game development, bringing unique experiences to players who seek something different."
+      },
+      "showcase": {
+        "title": "Featured Works"
+      }
+    },
+    "navigations": {
+      "title": "Navigations"
+    },
+    "projects": {
+      "title": "Projects"
+    },
+    "blogs": {
+      "title": "Blogs"
+    },
+    "apiTest": {
+      "title": "API Test"
+    },
+    "login": {
+      "title": "Login",
+      "login": "Login",
+      "register": "No account? Register here",
+      "identifier": {
+        "label": "Email / ID",
+        "placeholder": "Enter Email / ID",
+        "validation": "Please enter Email / ID"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter Password",
+        "validation": "Please enter Password"
+      },
+      "notification": {
+        "level1": "Please check your Email / ID and Password",
+        "level2": "Please ensure all fields are filled correctly",
+        "level3": " ? "
+      }
+    },
+    "register": {
+      "title": "Register",
+      "login": "Already have an account? Login",
+      "register": "Register",
+      "username": {
+        "label": "Username",
+        "placeholder": "We don't enforce unique usernames, so feel free",
+        "validation": "Please enter a username"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter Email",
+        "validation": "Please enter Email"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter Password",
+        "validation": "Please enter Password"
+      },
+      "confirmPassword": {
+        "label": "Confirm Password",
+        "placeholder": "Confirm Password",
+        "validation": {
+          "confirmPasswordRequired": "Please enter password again",
+          "passwordsDoNotMatch": "Passwords do not match"
+        }
+      },
+      "notification": {
+        "emptyFields": "Please fill in all fields",
+        "passwordsDoNotMatch": "Passwords do not match"
+      }
+    },
+    "user": {
+      "profile": {
+        "title": "User Profile"
+      },
+      "settings": {
+        "title": "User Settings"
+      },
+      "logout": {
+        "title": "Logout"
+      }
+    },
+    "admin": {
+      "users": {
+        "title": "User Management"
+      },
+      "navigations": {
+        "title": "Navigation Management"
+      },
+      "projects": {
+        "title": "Project Management"
+      },
+      "blogs": {
+        "title": "Blog Management"
+      }
+    },
+    "project": {
+      "overview": {
+        "title": "Project Overview"
+      },
+      "fileTreeView": {
+        "title": "Project File Tree"
+      }
+    },
+    "blog": {
+      "detail": {
+        "title": "Blog Detail"
+      }
+    }
+  }
+}

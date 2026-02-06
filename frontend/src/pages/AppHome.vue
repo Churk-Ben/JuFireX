@@ -24,18 +24,22 @@
       <section class="hero-section">
         <div class="hero-content">
           <h1 class="studio-name">
-            <span class="text-gradient">JuFireX</span>
-            <span class="studio-suffix">Studio</span>
+            <span class="text-gradient">
+              {{ $t("page.appHome.jufirex-suffix") }}
+            </span>
+            <span class="studio-suffix">
+              {{ $t("page.appHome.studio-suffix") }}
+            </span>
           </h1>
           <div class="slogan-container">
             <p class="slogan-main">
-              {{ $t("app.home.slogan", "日月出矣，而爝火不息") }}
+              {{ $t("page.appHome.slogan") }}
             </p>
             <div class="slogan-divider"></div>
-            <p class="slogan-sub">Crafting Worlds, One Pixel at a Time</p>
+            <!-- <p class="slogan-sub">Crafting Worlds, One Pixel at a Time</p> -->
           </div>
           <div class="scroll-indicator">
-            <span>Scroll to Explore</span>
+            <span>{{ $t("page.appHome.scroll") }}</span>
             <n-icon size="20">
               <font-awesome-icon icon="chevron-down" />
             </n-icon>
@@ -49,14 +53,11 @@
           <n-grid x-gap="24" cols="1 m:2" responsive="screen">
             <n-grid-item>
               <div class="philosophy-text">
-                <h2 class="section-title">Philosophy</h2>
+                <h2 class="section-title">
+                  {{ $t("page.appHome.philosophy.title") }}
+                </h2>
                 <p class="philosophy-desc">
-                  In an era where giants shine like the sun and moon,
-                  <span class="highlight">JuFireX (爝火)</span> represents the
-                  eternal flame of creativity. Small, yet persistent. We
-                  dedicate ourselves to the pure art of game development,
-                  bringing unique experiences to players who seek something
-                  different.
+                  {{ $t("page.appHome.philosophy.desc") }}
                 </p>
               </div>
             </n-grid-item>
@@ -79,7 +80,9 @@
 
       <!-- Showcase Section (Refactored Style) -->
       <section class="showcase-section">
-        <h2 class="section-title text-center mb-5">Featured Works</h2>
+        <h2 class="section-title text-center mb-5">
+          {{ $t("page.appHome.showcase.title") }}
+        </h2>
         <div class="showcase-list">
           <div
             v-for="(game, index) in games"
@@ -171,7 +174,11 @@
               </n-icon>
             </a>
           </div>
-          <p class="copyright">© 2024 JuFireX Studio. All rights reserved.</p>
+          <p class="copyright">
+            {{
+              `© ${new Date().getFullYear()} JuFireX Studio. All rights reserved.`
+            }}
+          </p>
         </div>
       </footer>
     </div>
@@ -264,13 +271,14 @@ const games = [
 <style scoped>
 /* Variables */
 .home-container {
+  --brand-blue-light: #b7b7e5;
   --brand-blue: #003aff;
   --brand-blue-dim: #0026a3;
   --accent-orange: #ff3d00;
   --accent-orange-dim: #cc3300;
   --gradient-orange: #b8500b;
   --bg-dark: #0a0a0a;
-  --text-primary: #ffffff;
+  --text-primary: #eeeeee;
   --text-secondary: rgba(255, 255, 255, 0.7);
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.1);
@@ -382,7 +390,11 @@ const games = [
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #fff 0%, var(--brand-blue) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--brand-blue-light) 0%,
+    var(--brand-blue) 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -408,6 +420,7 @@ const games = [
   letter-spacing: 4px;
   text-transform: uppercase;
   font-weight: 300;
+  color: var(--text-secondary);
 }
 
 .slogan-divider {
@@ -460,6 +473,7 @@ const games = [
   margin-bottom: 3rem;
   font-weight: 800;
   letter-spacing: -1px;
+  color: var(--accent-orange-dim);
 }
 
 .philosophy-desc {
@@ -467,6 +481,8 @@ const games = [
   line-height: 1.8;
   color: var(--text-secondary);
   font-weight: 300;
+  letter-spacing: 0.5px;
+  white-space: pre-wrap;
 }
 
 .highlight {
@@ -534,11 +550,10 @@ const games = [
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 200px; /* Massive icon */
-  color: rgba(255, 255, 255, 0.2); /* Very transparent */
+  color: rgba(255, 255, 255, 0.6); /* Very transparent */
   z-index: 10;
   transition: all 0.5s ease;
   filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5)); /* Shadow to define shape */
-  /* backdrop-filter: blur(2px); */ /* Optional glass effect */
 }
 
 /* Showcase Section (Refactored) */
@@ -778,7 +793,7 @@ const games = [
 }
 
 .social-link:hover {
-  color: var(--brand-blue);
+  color: var(--text-primary);
 }
 
 .copyright {
