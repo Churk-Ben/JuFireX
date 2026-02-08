@@ -19,9 +19,9 @@
             </template>
             查询
           </NButton>
-          <NButton @click="handleReset">
+          <NButton secondary @click="handleReset">
             <template #icon>
-              <FontAwesomeIcon icon="rotate" />
+              <FontAwesomeIcon icon="arrow-rotate-right" />
             </template>
             重置
           </NButton>
@@ -57,12 +57,12 @@
       <!-- 表格 -->
       <div class="table-wrapper">
         <NDataTable
-          remote
+          :remote="!!request"
           flex-height
           :columns="columns"
-          :data="dataList"
+          :data="finalData"
           :loading="loading"
-          :pagination="pagination"
+          :pagination="finalPagination"
           :row-key="rowKey"
           :scroll-x="scrollX"
           style="height: 100%"
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { NCard, NDataTable, NButton } from "naive-ui";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import type { DataTableColumns, PaginationProps } from "naive-ui";
@@ -83,79 +83,141 @@ defineOptions({
   name: "CommonTable",
 });
 
-const props = defineProps<{
+export interface CommonTableProps {
+  /** 表格标题 */
   title?: string;
+  /** 列定义 */
   columns: DataTableColumns<any>;
-  scrollX?: number;
-  rowKey?: (row: any) => string | number;
-  request: (params: {
+  /** 静态数据源 (优先级高于 request) */
+  data?: any[];
+  /**
+   * 数据加载函数
+   * @param params 分页参数
+   * @returns Promise<{ list: any[]; total?: number }> | Promise<any[]>
+   */
+  request?: (params: {
     page: number;
     pageSize: number;
-  }) => Promise<{ list: any[]; total: number }>;
-}>();
+  }) => Promise<{ list: any[]; total?: number } | any[]>;
+  /**
+   * 分页配置
+   * - false: 关闭分页
+   * - undefined: 使用默认分页
+   * - PaginationProps: 自定义分页配置
+   */
+  pagination?: boolean | PaginationProps;
+  /** 行主键 */
+  rowKey?: (row: any) => string | number;
+  /** 横向滚动宽度 */
+  scrollX?: number;
+}
+
+const props = withDefaults(defineProps<CommonTableProps>(), {
+  pagination: true,
+  request: async () => [],
+});
 
 const emit = defineEmits<{
   (e: "reset"): void;
   (e: "search"): void;
+  (e: "update:page", page: number): void;
+  (e: "update:pageSize", pageSize: number): void;
 }>();
 
 const loading = ref(false);
-const dataList = ref<any[]>([]);
+const internalData = ref<any[]>([]);
 
-const pagination = reactive<PaginationProps>({
+// 计算最终使用的数据
+const finalData = computed(() => props.data || internalData.value);
+
+// 分页状态管理
+const internalPagination = reactive<PaginationProps>({
   page: 1,
   pageSize: 10,
   showSizePicker: true,
-  pageSizes: [10, 20, 50, 100],
+  pageSizes: [5, 10, 20, 50],
   itemCount: 0,
   showQuickJumper: true,
   prefix: ({ itemCount }) => `共 ${itemCount} 条`,
   onUpdatePage: (page: number) => {
-    pagination.page = page;
+    internalPagination.page = page;
+    emit("update:page", page);
     fetchData();
   },
   onUpdatePageSize: (pageSize: number) => {
-    pagination.pageSize = pageSize;
-    pagination.page = 1;
+    internalPagination.pageSize = pageSize;
+    internalPagination.page = 1;
+    emit("update:pageSize", pageSize);
     fetchData();
   },
 });
 
+// 合并用户传入的分页配置
+const finalPagination = computed(() => {
+  if (props.pagination === false) return false;
+
+  // 显式构造新对象，避免复杂类型推断
+  const result: any = { ...internalPagination };
+
+  if (typeof props.pagination === "object") {
+    Object.assign(result, props.pagination);
+  }
+
+  return result as PaginationProps;
+});
+
 const fetchData = async () => {
+  // 如果提供了静态数据，则不进行请求
+  if (props.data) return;
+
   loading.value = true;
   try {
-    const { list, total } = await props.request({
-      page: pagination.page || 1,
-      pageSize: pagination.pageSize || 10,
-    });
-    dataList.value = list;
-    pagination.itemCount = total;
+    const params = {
+      page: internalPagination.page || 1,
+      pageSize: internalPagination.pageSize || 10,
+    };
+
+    const response = await props.request(params);
+
+    if (Array.isArray(response)) {
+      internalData.value = response;
+      // 如果返回纯数组，且启用了分页，尝试自动推断 total (前端分页场景暂不处理，仅赋值)
+      if (props.pagination !== false) {
+        internalPagination.itemCount = response.length;
+      }
+    } else {
+      internalData.value = response.list;
+      if (response.total !== undefined) {
+        internalPagination.itemCount = response.total;
+      }
+    }
   } catch (error) {
     console.error("Failed to fetch data:", error);
+    internalData.value = [];
   } finally {
     loading.value = false;
   }
 };
 
 const handleSearch = () => {
-  pagination.page = 1;
+  internalPagination.page = 1;
   fetchData();
   emit("search");
 };
 
 const handleReset = () => {
   emit("reset");
-  pagination.page = 1;
+  internalPagination.page = 1;
   fetchData();
 };
 
 const reload = () => {
-  // 刷新时保持当前页码，除非你需要重置到第一页
+  // 刷新时保持当前页码
   fetchData();
 };
 
 const reset = () => {
-  pagination.page = 1;
+  internalPagination.page = 1;
   fetchData();
 };
 

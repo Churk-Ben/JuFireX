@@ -28,9 +28,6 @@ const BlogDetail = () => import("@/pages/blog/Detail.vue");
 const ProjectOverview = () => import("@/pages/project/Overview.vue");
 const ProjectFileTreeView = () => import("@/pages/project/FileTreeView.vue");
 
-// pages/demo/
-const DemoComplexTable = () => import("@/pages/demo/ComplexTable.vue");
-
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -39,7 +36,6 @@ const router = createRouter({
     { path: "/projects", component: Projects },
     { path: "/blogs", component: Blogs },
     { path: "/test", component: ApiTest },
-    { path: "/demo/table", component: DemoComplexTable },
     { path: "/login", component: Login },
     { path: "/register", component: Register },
     { path: "/user", redirect: "/user/profile" },
