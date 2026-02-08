@@ -11,6 +11,19 @@
       "select": "选择图片",
       "confirm": "确认",
       "cancel": "取消"
+    },
+    "commonTable": {
+      "search": {
+        "action": {
+          "search": "查询",
+          "reset": "重置"
+        }
+      },
+      "table": {
+        "action": {
+          "reload": "刷新"
+        }
+      }
     }
   },
   "sider": {
@@ -139,7 +152,13 @@
     },
     "admin": {
       "users": {
-        "title": "用户管理"
+        "title": "用户管理",
+        "search": {
+          "title": "筛选条件"
+        },
+        "table": {
+          "title": "用户管理"
+        }
       },
       "navigations": {
         "title": "导航管理"

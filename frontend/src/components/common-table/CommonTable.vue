@@ -65,7 +65,7 @@
           :remote="false"
           :columns="columns"
           :data="finalData"
-          :loading="loading"
+          :loading="props.loading"
           :pagination="finalPagination"
           :row-key="rowKey"
           :scroll-x="scrollX"
@@ -114,7 +114,13 @@ const props = defineProps({
     type: Number,
     default: undefined,
   },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
 });
+
+const allData = computed(() => props.data || []);
 
 // 内置分页配置
 const internalPagination = reactive<PaginationProps>({
@@ -148,27 +154,9 @@ const finalPagination = computed(() => {
   return result as PaginationProps;
 });
 
-const loading = ref(false);
-const allData = computed(() => props.data || []);
-
 // 计算显示的数据
 const finalData = computed(() => {
-  const data = allData.value;
-  if (props.pagination === false) return data;
-
-  const page = internalPagination.page || 1;
-  const pageSize = internalPagination.pageSize || 10;
-
-  // 确保页码不越界
-  const maxPage = Math.ceil(data.length / pageSize) || 1;
-  if (page > maxPage) {
-    internalPagination.page = maxPage;
-    return data.slice((maxPage - 1) * pageSize, maxPage * pageSize);
-  }
-
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
-  return data.slice(start, end);
+  return allData.value;
 });
 
 const emit = defineEmits<{
