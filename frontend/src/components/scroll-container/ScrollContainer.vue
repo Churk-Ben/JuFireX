@@ -34,6 +34,7 @@ export interface ContentWrapperProps extends /* @vue-ignore */ ScrollbarProps {
 }
 
 defineOptions({
+  name: "ScrollContainer",
   inheritAttrs: false,
 });
 

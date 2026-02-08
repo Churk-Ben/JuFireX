@@ -47,6 +47,10 @@ import { NModal, NButton, NSpace } from "naive-ui";
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.css";
 
+defineOptions({
+  name: "AvatarCropper",
+});
+
 const emit = defineEmits(["cropped", "error"]);
 
 const fileInput = ref<HTMLInputElement | null>(null);
