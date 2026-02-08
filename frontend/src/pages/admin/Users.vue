@@ -13,50 +13,44 @@
       @reload="fetchUsers"
     >
       <template #search>
-        <NForm ref="formRef" :model="form" inline label-placement="left">
-          <NFormItem label="用户名" path="username">
-            <NInput
+        <n-form ref="formRef" :model="form" inline label-placement="left">
+          <n-form-item label="用户名" path="username">
+            <n-input
               v-model:value="form.username"
               clearable
               placeholder="请输入用户名"
             />
-          </NFormItem>
-          <NFormItem label="角色" path="role">
-            <NSelect
+          </n-form-item>
+          <n-form-item label="角色" path="role">
+            <n-select
               v-model:value="form.role"
               :options="roleOptions"
               clearable
               style="width: 120px"
               placeholder="请选择"
             />
-          </NFormItem>
-        </NForm>
+          </n-form-item>
+        </n-form>
       </template>
     </CommonTable>
 
-    <!-- 弹窗组件复用 -->
+    <!-- TODO: 弹窗组件 -->
   </div>
 </template>
 
-<script setup lang="tsx">
+<script setup lang="ts">
 import { ref, reactive, h, onMounted } from "vue";
-import {
-  NForm,
-  NFormItem,
-  NInput,
-  NSelect,
-  NButton,
-  NTag,
-  NPopconfirm,
-  NTime,
-} from "naive-ui";
-import CommonTable from "@/components/common-table/CommonTable.vue";
+import { NForm, NFormItem, NInput, NSelect, NTag, NTime } from "naive-ui";
+import { CommonTable } from "@/components/common-table";
 import { userService } from "@/services/user";
 import type { User } from "@/types/models";
 import type { DataTableColumns } from "naive-ui";
 import { notification } from "@/utils/notification";
 
-// 表单数据
+const loading = ref(false);
+const users = ref<User[]>([]);
+
+// 筛选表单
 const form = reactive({
   username: "",
   role: null as string | null,
@@ -69,9 +63,11 @@ const roleOptions = [
   { label: "游客", value: "0" },
 ];
 
-const tableRef = ref();
-const loading = ref(false);
-const users = ref<User[]>([]);
+const onReset = () => {
+  form.username = "";
+  form.role = null;
+  fetchUsers();
+};
 
 // 数据加载函数
 const fetchUsers = async () => {
@@ -94,21 +90,6 @@ const fetchUsers = async () => {
     notification.error({ content: "加载失败", title: "错误" });
   } finally {
     loading.value = false;
-  }
-};
-
-const onReset = () => {
-  form.username = "";
-  form.role = null;
-  fetchUsers();
-};
-
-const handleDelete = async (uuid: string) => {
-  try {
-    notification.success({ content: "删除成功", title: "成功" });
-    tableRef.value?.reload();
-  } catch (e) {
-    notification.error({ content: "删除失败", title: "错误" });
   }
 };
 
@@ -148,31 +129,6 @@ const columns: DataTableColumns<User> = [
     key: "actions",
     align: "center",
     width: 150,
-    render: (row: User) => (
-      <div class="d-flex gap-1">
-        <NButton
-          size="small"
-          secondary
-          type="primary"
-          onClick={() =>
-            notification.info({ content: "编辑 " + row.uuid, title: "提示" })
-          }
-        >
-          编辑
-        </NButton>
-        <NPopconfirm
-          onPositiveClick={() => handleDelete(row.uuid)}
-          v-slots={{
-            trigger: () => (
-              <NButton size="small" secondary type="error">
-                删除
-              </NButton>
-            ),
-            default: () => "确认删除吗？",
-          }}
-        />
-      </div>
-    ),
   },
 ];
 

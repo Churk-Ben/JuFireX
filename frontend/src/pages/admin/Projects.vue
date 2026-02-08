@@ -1,83 +1,89 @@
 <template>
   <div class="page-container">
-    <n-space vertical size="large">
-      <n-space justify="space-between" align="center">
-        <n-h1 style="margin: 0">{{ t("sider.menu.admin.projects") }}</n-h1>
+    <CommonTable
+      ref="tableRef"
+      :searchTitle="$t('page.admin.users.search.title')"
+      :tableTitle="$t('page.admin.users.table.title')"
+      :columns="columns"
+      :data="projects"
+      :loading="loading"
+      :row-key="(row) => row.uuid"
+      @search="fetchProjects"
+      @reset="onReset"
+      @reload="fetchProjects"
+    >
+      <template #toolbar>
         <n-button type="primary" @click="openModal()"> Add Project </n-button>
-      </n-space>
-
-      <n-card>
-        <n-data-table
-          :columns="columns"
-          :data="projects"
-          :loading="loading"
-          :pagination="pagination"
-        />
-      </n-card>
-
-      <n-modal
-        v-model:show="showModal"
-        preset="card"
-        :title="modalTitle"
-        style="width: 700px"
-      >
-        <n-form
-          ref="formRef"
-          :model="formModel"
-          :rules="rules"
-          label-placement="left"
-          label-width="100"
-        >
-          <n-form-item label="Title" path="title">
-            <n-input
-              v-model:value="formModel.title"
-              placeholder="Project Title"
-            />
-          </n-form-item>
-          <n-form-item label="Description" path="description">
-            <n-input
-              v-model:value="formModel.description"
-              type="textarea"
-              placeholder="Short description"
-            />
-          </n-form-item>
-          <n-form-item label="README" path="readme">
-            <n-input
-              v-model:value="formModel.readme"
-              type="textarea"
-              placeholder="README content (Markdown)"
-              :rows="5"
-            />
-          </n-form-item>
-          <n-form-item label="URL" path="url">
-            <n-input
-              v-model:value="formModel.url"
-              placeholder="Project Link / Demo"
-            />
-          </n-form-item>
-          <n-form-item label="Icon" path="icon">
-            <n-input v-model:value="formModel.icon" placeholder="Icon URL" />
-          </n-form-item>
-          <n-form-item label="Tags" path="tags">
-            <n-dynamic-tags v-model:value="formModel.tags" />
-          </n-form-item>
-          <n-form-item label="Public" path="is_public">
-            <n-switch v-model:value="formModel.is_public" />
-          </n-form-item>
-          <n-form-item label="Order" path="order">
-            <n-input-number v-model:value="formModel.order" />
-          </n-form-item>
+      </template>
+      <template #search>
+        <n-form ref="formRef" :model="form" inline label-placement="left">
         </n-form>
-        <template #footer>
-          <n-space justify="end">
-            <n-button @click="showModal = false">Cancel</n-button>
-            <n-button type="primary" :loading="submitting" @click="handleSubmit"
-              >Save</n-button
-            >
-          </n-space>
-        </template>
-      </n-modal>
-    </n-space>
+      </template>
+    </CommonTable>
+
+    <!-- 项目弹窗 -->
+    <n-modal
+      v-model:show="showModal"
+      preset="card"
+      :title="modalTitle"
+      style="width: 700px"
+    >
+      <n-form
+        ref="formRef"
+        :model="formModel"
+        :rules="rules"
+        label-placement="left"
+        label-width="100"
+      >
+        <n-form-item label="Title" path="title">
+          <n-input
+            v-model:value="formModel.title"
+            placeholder="Project Title"
+          />
+        </n-form-item>
+        <n-form-item label="Description" path="description">
+          <n-input
+            v-model:value="formModel.description"
+            type="textarea"
+            placeholder="Short description"
+          />
+        </n-form-item>
+        <n-form-item label="README" path="readme">
+          <n-input
+            v-model:value="formModel.readme"
+            type="textarea"
+            placeholder="README content (Markdown)"
+            :rows="5"
+          />
+        </n-form-item>
+        <n-form-item label="URL" path="url">
+          <n-input
+            v-model:value="formModel.url"
+            placeholder="Project Link / Demo"
+          />
+        </n-form-item>
+        <n-form-item label="Icon" path="icon">
+          <n-input v-model:value="formModel.icon" placeholder="Icon URL" />
+        </n-form-item>
+        <n-form-item label="Tags" path="tags">
+          <n-dynamic-tags v-model:value="formModel.tags" />
+        </n-form-item>
+        <n-form-item label="Public" path="is_public">
+          <n-switch v-model:value="formModel.is_public" />
+        </n-form-item>
+        <n-form-item label="Order" path="order">
+          <n-input-number v-model:value="formModel.order" />
+        </n-form-item>
+      </n-form>
+      <template #footer>
+        <n-space justify="end">
+          <n-button @click="showModal = false">Cancel</n-button>
+          <n-button type="primary" :loading="submitting" @click="handleSubmit"
+            >Save</n-button
+          >
+        </n-space>
+      </template>
+    </n-modal>
   </div>
 </template>
 
@@ -85,9 +91,7 @@
 import { ref, reactive, onMounted, h } from "vue";
 import { useI18n } from "vue-i18n";
 import {
-  NCard,
   NButton,
-  NDataTable,
   NModal,
   NForm,
   NFormItem,
@@ -97,17 +101,16 @@ import {
   NTag,
   NSpace,
   NDynamicTags,
-  NH1,
 } from "naive-ui";
 import { projectService } from "@/services/project";
 import type { Project } from "@/types/models";
 import type { CreateProjectDto } from "@/types/api";
+import { CommonTable } from "@/components/common-table";
 
 const { t } = useI18n();
 
 const loading = ref(false);
 const projects = ref<Project[]>([]);
-const pagination = { pageSize: 10 };
 
 const showModal = ref(false);
 const submitting = ref(false);
@@ -115,6 +118,17 @@ const formRef = ref(null);
 const isEditing = ref(false);
 const currentUuid = ref("");
 
+// 筛选表单
+const form = reactive({
+  title: "",
+});
+
+const onReset = () => {
+  form.title = "";
+  fetchProjects();
+};
+
+// 弹窗模型
 const formModel = reactive<CreateProjectDto>({
   title: "",
   description: "",
@@ -290,6 +304,8 @@ onMounted(() => {
 
 <style scoped>
 .page-container {
-  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 </style>
