@@ -43,8 +43,14 @@ def list_users():
             }
         )
 
-    return jsonify(
-        {"level": "success", "message": "获取用户列表成功", "data": user_list}
+    return (
+        jsonify(
+            {
+                "level": "success",
+                "data": user_list,
+            },
+        ),
+        200,
     )
 
 

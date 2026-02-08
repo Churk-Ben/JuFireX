@@ -1,77 +1,99 @@
 <template>
   <div class="page-container">
-    <n-space vertical size="large">
-      <n-space justify="space-between" align="center">
-        <n-h1 style="margin: 0">{{ $t("page.admin.navigations.title") }}</n-h1>
+    <CommonTable
+      ref="tableRef"
+      :searchTitle="$t('page.admin.navigations.title')"
+      :tableTitle="$t('page.admin.navigations.title')"
+      :columns="columns"
+      :data="navigations"
+      :loading="loading"
+      :row-key="(row) => row.uuid"
+      @search="fetchNavigations"
+      @reset="onReset"
+      @reload="fetchNavigations"
+    >
+      <template #toolbar>
         <n-button type="primary" @click="openModal()">
           Add Navigation
         </n-button>
-      </n-space>
+      </template>
 
-      <n-card>
-        <n-data-table
-          :columns="columns"
-          :data="navigations"
-          :loading="loading"
-          :pagination="pagination"
-        />
-      </n-card>
-
-      <n-modal
-        v-model:show="showModal"
-        preset="card"
-        :title="modalTitle"
-        style="width: 600px"
-      >
+      <template #search>
         <n-form
-          ref="formRef"
-          :model="formModel"
-          :rules="rules"
+          ref="searchFormRef"
+          :model="searchForm"
+          inline
           label-placement="left"
-          label-width="100"
         >
           <n-form-item label="Title" path="title">
-            <n-input v-model:value="formModel.title" placeholder="Title" />
-          </n-form-item>
-          <n-form-item label="URL" path="url">
-            <n-input v-model:value="formModel.url" placeholder="https://..." />
-          </n-form-item>
-          <n-form-item label="Icon" path="icon">
             <n-input
-              v-model:value="formModel.icon"
-              placeholder="Icon URL or Class"
+              v-model:value="searchForm.title"
+              clearable
+              placeholder="Title"
             />
           </n-form-item>
           <n-form-item label="Category" path="category">
             <n-input
-              v-model:value="formModel.category"
+              v-model:value="searchForm.category"
+              clearable
               placeholder="Category"
             />
           </n-form-item>
-          <n-form-item label="Description" path="description">
-            <n-input
-              v-model:value="formModel.description"
-              type="textarea"
-              placeholder="Description"
-            />
-          </n-form-item>
-          <n-form-item label="Public" path="is_public">
-            <n-switch v-model:value="formModel.is_public" />
-          </n-form-item>
-          <n-form-item label="Order" path="order">
-            <n-input-number v-model:value="formModel.order" />
-          </n-form-item>
         </n-form>
-        <template #footer>
-          <n-space justify="end">
-            <n-button @click="showModal = false">Cancel</n-button>
-            <n-button type="primary" :loading="submitting" @click="handleSubmit"
-              >Save</n-button
-            >
-          </n-space>
-        </template>
-      </n-modal>
-    </n-space>
+      </template>
+    </CommonTable>
+
+    <n-modal
+      v-model:show="showModal"
+      preset="card"
+      :title="modalTitle"
+      style="width: 600px"
+    >
+      <n-form
+        ref="formRef"
+        :model="formModel"
+        :rules="rules"
+        label-placement="left"
+        label-width="100"
+      >
+        <n-form-item label="Title" path="title">
+          <n-input v-model:value="formModel.title" placeholder="Title" />
+        </n-form-item>
+        <n-form-item label="URL" path="url">
+          <n-input v-model:value="formModel.url" placeholder="https://..." />
+        </n-form-item>
+        <n-form-item label="Icon" path="icon">
+          <n-input
+            v-model:value="formModel.icon"
+            placeholder="Icon URL or Class"
+          />
+        </n-form-item>
+        <n-form-item label="Category" path="category">
+          <n-input v-model:value="formModel.category" placeholder="Category" />
+        </n-form-item>
+        <n-form-item label="Description" path="description">
+          <n-input
+            v-model:value="formModel.description"
+            type="textarea"
+            placeholder="Description"
+          />
+        </n-form-item>
+        <n-form-item label="Public" path="is_public">
+          <n-switch v-model:value="formModel.is_public" />
+        </n-form-item>
+        <n-form-item label="Order" path="order">
+          <n-input-number v-model:value="formModel.order" />
+        </n-form-item>
+      </n-form>
+      <template #footer>
+        <n-space justify="end">
+          <n-button @click="showModal = false">Cancel</n-button>
+          <n-button type="primary" :loading="submitting" @click="handleSubmit"
+            >Save</n-button
+          >
+        </n-space>
+      </template>
+    </n-modal>
   </div>
 </template>
 
@@ -79,9 +101,7 @@
 import { ref, reactive, onMounted, h } from "vue";
 import { useI18n } from "vue-i18n";
 import {
-  NCard,
   NButton,
-  NDataTable,
   NModal,
   NForm,
   NFormItem,
@@ -90,8 +110,8 @@ import {
   NInputNumber,
   NTag,
   NSpace,
-  NH1,
 } from "naive-ui";
+import { CommonTable } from "@/components/common-table";
 import { navigationService } from "@/services/navigation";
 import type { Navigation } from "@/types/models";
 import type { CreateNavigationDto } from "@/types/api";
@@ -100,7 +120,19 @@ const { t } = useI18n();
 
 const loading = ref(false);
 const navigations = ref<Navigation[]>([]);
-const pagination = { pageSize: 10 };
+
+// Search Form
+const searchFormRef = ref(null);
+const searchForm = reactive({
+  title: "",
+  category: "",
+});
+
+const onReset = () => {
+  searchForm.title = "";
+  searchForm.category = "";
+  fetchNavigations();
+};
 
 const showModal = ref(false);
 const submitting = ref(false);
@@ -178,7 +210,22 @@ const modalTitle = ref("Add Navigation");
 async function fetchNavigations() {
   loading.value = true;
   try {
-    navigations.value = await navigationService.getAll(true);
+    const allNavs = await navigationService.getAll(true);
+    let filtered = allNavs;
+
+    if (searchForm.title) {
+      filtered = filtered.filter((n) =>
+        n.title.toLowerCase().includes(searchForm.title.toLowerCase()),
+      );
+    }
+
+    if (searchForm.category) {
+      filtered = filtered.filter((n) =>
+        n.category!.toLowerCase().includes(searchForm.category.toLowerCase()),
+      );
+    }
+
+    navigations.value = filtered;
   } catch (e) {
     console.error(e);
   } finally {
@@ -257,6 +304,8 @@ onMounted(() => {
 
 <style scoped>
 .page-container {
-  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 </style>

@@ -550,7 +550,7 @@ const games = [
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 200px; /* Massive icon */
-  color: rgba(255, 255, 255, 0.6); /* Very transparent */
+  color: rgba(255, 255, 255, 0.3); /* Very transparent */
   z-index: 10;
   transition: all 0.5s ease;
   filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5)); /* Shadow to define shape */

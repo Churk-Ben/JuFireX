@@ -1,74 +1,92 @@
 <template>
   <div class="page-container">
-    <n-space vertical size="large">
-      <n-space justify="space-between" align="center">
-        <n-h1 style="margin: 0">{{ $t("page.admin.blogs.title") }}</n-h1>
+    <CommonTable
+      ref="tableRef"
+      :searchTitle="$t('page.admin.blogs.title')"
+      :tableTitle="$t('page.admin.blogs.title')"
+      :columns="columns"
+      :data="blogs"
+      :loading="loading"
+      :row-key="(row) => row.uuid"
+      @search="fetchBlogs"
+      @reset="onReset"
+      @reload="fetchBlogs"
+    >
+      <template #toolbar>
         <n-button type="primary" @click="openModal()">Add Blog</n-button>
-      </n-space>
+      </template>
 
-      <n-card>
-        <n-data-table
-          :columns="columns"
-          :data="blogs"
-          :loading="loading"
-          :pagination="pagination"
-        />
-      </n-card>
-
-      <n-modal
-        v-model:show="showModal"
-        preset="card"
-        :title="modalTitle"
-        style="width: 800px"
-      >
+      <template #search>
         <n-form
-          ref="formRef"
-          :model="formModel"
-          :rules="rules"
+          ref="searchFormRef"
+          :model="searchForm"
+          inline
           label-placement="left"
-          label-width="100"
         >
           <n-form-item label="Title" path="title">
-            <n-input v-model:value="formModel.title" placeholder="Blog Title" />
-          </n-form-item>
-          <n-form-item label="Summary" path="summary">
             <n-input
-              v-model:value="formModel.summary"
-              type="textarea"
-              placeholder="Short summary"
+              v-model:value="searchForm.title"
+              clearable
+              placeholder="Title"
             />
-          </n-form-item>
-          <n-form-item label="Content" path="content">
-            <n-input
-              v-model:value="formModel.content"
-              type="textarea"
-              placeholder="Markdown Content"
-              :rows="10"
-            />
-          </n-form-item>
-          <n-form-item label="Cover Image" path="cover_image">
-            <n-input
-              v-model:value="formModel.cover_image"
-              placeholder="Image URL"
-            />
-          </n-form-item>
-          <n-form-item label="Tags" path="tags">
-            <n-dynamic-tags v-model:value="formModel.tags" />
-          </n-form-item>
-          <n-form-item label="Public" path="is_public">
-            <n-switch v-model:value="formModel.is_public" />
           </n-form-item>
         </n-form>
-        <template #footer>
-          <n-space justify="end">
-            <n-button @click="showModal = false">Cancel</n-button>
-            <n-button type="primary" :loading="submitting" @click="handleSubmit"
-              >Save</n-button
-            >
-          </n-space>
-        </template>
-      </n-modal>
-    </n-space>
+      </template>
+    </CommonTable>
+
+    <n-modal
+      v-model:show="showModal"
+      preset="card"
+      :title="modalTitle"
+      style="width: 800px"
+    >
+      <n-form
+        ref="formRef"
+        :model="formModel"
+        :rules="rules"
+        label-placement="left"
+        label-width="100"
+      >
+        <n-form-item label="Title" path="title">
+          <n-input v-model:value="formModel.title" placeholder="Blog Title" />
+        </n-form-item>
+        <n-form-item label="Summary" path="summary">
+          <n-input
+            v-model:value="formModel.summary"
+            type="textarea"
+            placeholder="Short summary"
+          />
+        </n-form-item>
+        <n-form-item label="Content" path="content">
+          <n-input
+            v-model:value="formModel.content"
+            type="textarea"
+            placeholder="Markdown Content"
+            :rows="10"
+          />
+        </n-form-item>
+        <n-form-item label="Cover Image" path="cover_image">
+          <n-input
+            v-model:value="formModel.cover_image"
+            placeholder="Image URL"
+          />
+        </n-form-item>
+        <n-form-item label="Tags" path="tags">
+          <n-dynamic-tags v-model:value="formModel.tags" />
+        </n-form-item>
+        <n-form-item label="Public" path="is_public">
+          <n-switch v-model:value="formModel.is_public" />
+        </n-form-item>
+      </n-form>
+      <template #footer>
+        <n-space justify="end">
+          <n-button @click="showModal = false">Cancel</n-button>
+          <n-button type="primary" :loading="submitting" @click="handleSubmit"
+            >Save</n-button
+          >
+        </n-space>
+      </template>
+    </n-modal>
   </div>
 </template>
 
@@ -76,9 +94,7 @@
 import { ref, reactive, onMounted, h } from "vue";
 import { useI18n } from "vue-i18n";
 import {
-  NCard,
   NButton,
-  NDataTable,
   NModal,
   NForm,
   NFormItem,
@@ -87,8 +103,8 @@ import {
   NTag,
   NSpace,
   NDynamicTags,
-  NH1,
 } from "naive-ui";
+import { CommonTable } from "@/components/common-table";
 import { blogService } from "@/services/blog";
 import type { Blog } from "@/types/models";
 import type { CreateBlogDto } from "@/types/api";
@@ -97,7 +113,17 @@ const { t } = useI18n();
 
 const loading = ref(false);
 const blogs = ref<Blog[]>([]);
-const pagination = { pageSize: 10 };
+
+// Search Form
+const searchFormRef = ref(null);
+const searchForm = reactive({
+  title: "",
+});
+
+const onReset = () => {
+  searchForm.title = "";
+  fetchBlogs();
+};
 
 const showModal = ref(false);
 const submitting = ref(false);
@@ -179,7 +205,16 @@ const modalTitle = ref("Add Blog");
 async function fetchBlogs() {
   loading.value = true;
   try {
-    blogs.value = await blogService.getAll(true);
+    const allBlogs = await blogService.getAll(true);
+    let filtered = allBlogs;
+
+    if (searchForm.title) {
+      filtered = filtered.filter((b) =>
+        b.title.toLowerCase().includes(searchForm.title.toLowerCase()),
+      );
+    }
+
+    blogs.value = filtered;
   } catch (e) {
     console.error(e);
   } finally {
@@ -256,6 +291,8 @@ onMounted(() => {
 
 <style scoped>
 .page-container {
-  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 </style>
