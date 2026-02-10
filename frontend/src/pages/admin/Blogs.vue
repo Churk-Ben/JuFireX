@@ -2,8 +2,8 @@
   <div class="page-container">
     <CommonTable
       ref="tableRef"
-      :searchTitle="$t('page.admin.blogs.title')"
-      :tableTitle="$t('page.admin.blogs.title')"
+      :searchTitle="$t('page.admin.blogs.search.title')"
+      :tableTitle="$t('page.admin.blogs.table.title')"
       :columns="columns"
       :data="blogs"
       :loading="loading"
@@ -13,7 +13,9 @@
       @reload="fetchBlogs"
     >
       <template #toolbar>
-        <n-button type="primary" @click="openModal()">Add Blog</n-button>
+        <n-button type="primary" @click="openModal()">
+          {{ $t("page.admin.blogs.table.toolbar.add") }}
+        </n-button>
       </template>
 
       <template #search>
@@ -23,34 +25,33 @@
           inline
           label-placement="left"
         >
-          <n-form-item label="Title" path="title">
-            <n-input
-              v-model:value="searchForm.title"
-              clearable
-              placeholder="Title"
-            />
+          <n-form-item
+            :label="$t('page.admin.blogs.search.items.title')"
+            path="title"
+          >
+            <n-input v-model:value="searchForm.title" clearable />
           </n-form-item>
-          <n-form-item label="Author" path="author">
-            <n-input
-              v-model:value="searchForm.author"
-              clearable
-              placeholder="Author"
-            />
+          <n-form-item
+            :label="$t('page.admin.blogs.search.items.author')"
+            path="author"
+          >
+            <n-input v-model:value="searchForm.author" clearable />
           </n-form-item>
-          <n-form-item label="Tags" path="tags">
-            <n-input
-              v-model:value="searchForm.tags"
-              clearable
-              placeholder="Tags"
-            />
+          <n-form-item
+            :label="$t('page.admin.blogs.search.items.tags')"
+            path="tags"
+          >
+            <n-input v-model:value="searchForm.tags" clearable />
           </n-form-item>
-          <n-form-item label="Public" path="is_public">
+          <n-form-item
+            :label="$t('page.admin.blogs.search.items.public')"
+            path="is_public"
+          >
             <n-select
               v-model:value="searchForm.is_public"
               :options="publicOptions"
+              class="selector"
               clearable
-              style="width: 120px"
-              placeholder="Select"
             />
           </n-form-item>
         </n-form>
@@ -121,6 +122,7 @@ import { useI18n } from "vue-i18n";
 import type { Blog } from "@/types/models";
 import type { CreateBlogDto } from "@/types/api";
 import { blogService } from "@/services/blog";
+import { notification } from "@/utils/notification";
 import { CommonTable } from "@/components/common-table";
 
 import type { DataTableColumns } from "naive-ui";
@@ -285,6 +287,11 @@ const fetchBlogs = async () => {
     blogs.value = filtered;
   } catch (e) {
     console.error(e);
+    notification.error({
+      content: String(e),
+      duration: 4000,
+      keepAliveOnHover: true,
+    });
   } finally {
     loading.value = false;
   }
@@ -383,5 +390,9 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.selector {
+  width: 200px;
 }
 </style>

@@ -8,42 +8,67 @@
       :data="users"
       :loading="loading"
       :row-key="(row) => row.uuid"
+      :scroll-x="1500"
       @search="fetchUsers"
       @reset="onReset"
       @reload="fetchUsers"
     >
+      <!-- TODO -->
+      <template #toolbar>
+        <n-button
+          type="primary"
+          @click="
+            () => {
+              notification.info({
+                content: 'Add User',
+                duration: 1000,
+              });
+            }
+          "
+        >
+          {{ $t("page.admin.users.table.toolbar.add") }}
+        </n-button>
+      </template>
+
       <template #search>
-        <n-form ref="formRef" :model="searchForm" inline label-placement="left">
-          <n-form-item label="用户名" path="username">
-            <n-input
-              v-model:value="searchForm.username"
-              clearable
-              placeholder="请输入用户名"
-            />
+        <n-form
+          ref="searchFormRef"
+          :model="searchForm"
+          inline
+          label-placement="left"
+        >
+          <n-form-item
+            :label="$t('page.admin.users.search.items.username')"
+            path="username"
+          >
+            <n-input v-model:value="searchForm.username" clearable />
           </n-form-item>
-          <n-form-item label="邮箱" path="email">
-            <n-input
-              v-model:value="searchForm.email"
-              clearable
-              placeholder="请输入邮箱"
-            />
+          <n-form-item
+            :label="$t('page.admin.users.search.items.email')"
+            path="email"
+          >
+            <n-input v-model:value="searchForm.email" clearable />
           </n-form-item>
-          <n-form-item label="角色" path="role">
+          <n-form-item
+            :label="$t('page.admin.users.search.items.role')"
+            path="role"
+          >
             <n-select
               v-model:value="searchForm.role"
               :options="roleOptions"
               clearable
-              style="width: 120px"
-              placeholder="请选择"
+              class="selector"
             />
           </n-form-item>
-          <n-form-item label="状态" path="status">
+          <n-form-item
+            :label="$t('page.admin.users.search.items.status')"
+            path="status"
+          >
             <n-select
               v-model:value="searchForm.status"
               :options="statusOptions"
               clearable
-              style="width: 120px"
-              placeholder="请选择"
+              class="selector"
             />
           </n-form-item>
         </n-form>
@@ -54,8 +79,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, reactive, h, onMounted } from "vue";
+<script setup lang="tsx">
+import { ref, reactive, h, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import type { User } from "@/types/models";
@@ -72,6 +97,8 @@ import {
   NTag,
   NTime,
   NModal,
+  NAvatar,
+  NButton,
 } from "naive-ui";
 
 const { t } = useI18n();
@@ -80,44 +107,125 @@ const loading = ref(false);
 const users = ref<User[]>([]);
 
 // 表格信息
-const columns: DataTableColumns<User> = [
-  { title: "Username", key: "username" },
-  { title: "Email", key: "email" },
+const columns = computed<DataTableColumns<User>>(() => [
   {
-    title: "Role",
+    title: t("page.admin.users.table.columns.avatar"),
+    key: "avatar",
+    width: 100,
+    align: "center",
+    render: (row: User) => (
+      <NAvatar
+        src={`/api/user/avatar/${row.uuid}/avatar.png`}
+        size={32}
+        round={true}
+      />
+    ),
+  },
+  {
+    title: t("page.admin.users.table.columns.username"),
+    key: "username",
+    width: 120,
+  },
+  {
+    title: t("page.admin.users.table.columns.email"),
+    key: "email",
+    width: 200,
+  },
+  {
+    title: t("page.admin.users.table.columns.uuid"),
+    key: "uuid",
+    width: 360,
+  },
+  {
+    title: t("page.admin.users.table.columns.role"),
     key: "role",
+    width: 120,
+    // TODO: 这里之后用自定义组件, 包括各种各样的 Tag
     render: (row: User) => {
-      return h(
-        NTag,
-        {
-          type: row.role >= 2 ? "error" : "success", // 2=Admin, 3=SuperAdmin
-          size: "small",
-        },
-        { default: () => row.role_name || row.role },
+      let type:
+        | "default"
+        | "error"
+        | "primary"
+        | "success"
+        | "info"
+        | "warning";
+      switch (row.role) {
+        case 3: // SuperAdmin
+          type = "error";
+          break;
+        case 2: // Admin
+          type = "warning";
+          break;
+        case 1: // Member
+          type = "success";
+          break;
+        case 0: // Guest
+        default:
+          type = "default";
+          break;
+      }
+
+      return (
+        <NTag type={type} size="small">
+          {row.role_name || row.role}
+        </NTag>
       );
     },
   },
   {
-    title: "Status",
+    title: t("page.admin.users.table.columns.status.title"),
     key: "is_active",
-    render: (row: User) => (row.is_active ? "Active" : "Inactive"),
-  },
-  {
-    title: "Created At",
-    key: "created_at",
+    width: 120,
     render: (row: User) => {
-      return row.created_at
-        ? h(NTime, { time: new Date(row.created_at) })
-        : "-";
+      return row.is_active
+        ? t("page.admin.users.table.columns.status.active")
+        : t("page.admin.users.table.columns.status.inactive");
     },
   },
   {
-    title: "操作",
+    title: t("page.admin.users.table.columns.createdAt"),
+    key: "created_at",
+    width: 200,
+    render: (row: User) => {
+      return row.created_at ? <NTime time={new Date(row.created_at)} /> : "-";
+    },
+  },
+  {
+    title: t("page.admin.users.table.columns.actions.title"),
     key: "actions",
     align: "center",
     width: 150,
+    fixed: "right",
+    render: (row: User) => (
+      <div style="display: flex; justify-content: center; gap: 8px;">
+        <NButton
+          type="primary"
+          size="small"
+          onClick={() => {
+            isEditing.value = true;
+            currentUuid.value = row.uuid;
+            modalTitle.value = t("page.admin.users.table.columns.actions.edit");
+            showModal.value = true;
+          }}
+        >
+          {t("page.admin.users.table.columns.actions.edit")}
+        </NButton>
+        <NButton
+          type="error"
+          size="small"
+          onClick={() => {
+            notification.warning({
+              content: "Delete action not implemented",
+              duration: 2000,
+            });
+          }}
+        >
+          {t("page.admin.users.table.columns.actions.delete")}
+        </NButton>
+      </div>
+    ),
   },
-];
+]);
 
 // 筛选表单
 const searchForm = reactive({
@@ -154,7 +262,7 @@ const fetchUsers = async () => {
     const allUsers = await userService.getAll();
     let filtered = allUsers;
 
-    // 简单的内存过滤
+    // 内存过滤
     if (searchForm.username) {
       filtered = filtered.filter((u) =>
         u.username.includes(searchForm.username),
@@ -175,7 +283,11 @@ const fetchUsers = async () => {
     users.value = filtered;
   } catch (e) {
     console.error(e);
-    notification.error({ content: "加载失败", title: "错误" });
+    notification.error({
+      content: String(e),
+      duration: 4000,
+      keepAliveOnHover: true,
+    });
   } finally {
     loading.value = false;
   }
@@ -199,5 +311,9 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.selector {
+  width: 200px;
 }
 </style>

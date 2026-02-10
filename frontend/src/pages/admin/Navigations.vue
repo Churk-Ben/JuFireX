@@ -2,19 +2,20 @@
   <div class="page-container">
     <CommonTable
       ref="tableRef"
-      :searchTitle="$t('page.admin.navigations.title')"
-      :tableTitle="$t('page.admin.navigations.title')"
+      :searchTitle="$t('page.admin.navigations.search.title')"
+      :tableTitle="$t('page.admin.navigations.table.title')"
       :columns="columns"
       :data="navigations"
       :loading="loading"
       :row-key="(row) => row.uuid"
+      :scroll-x="1500"
       @search="fetchNavigations"
       @reset="onReset"
       @reload="fetchNavigations"
     >
       <template #toolbar>
         <n-button type="primary" @click="openModal()">
-          Add Navigation
+          {{ $t("page.admin.navigations.table.toolbar.add") }}
         </n-button>
       </template>
 
@@ -25,27 +26,27 @@
           inline
           label-placement="left"
         >
-          <n-form-item label="Title" path="title">
-            <n-input
-              v-model:value="searchForm.title"
-              clearable
-              placeholder="Title"
-            />
+          <n-form-item
+            :label="$t('page.admin.navigations.search.items.title')"
+            path="title"
+          >
+            <n-input v-model:value="searchForm.title" clearable />
           </n-form-item>
-          <n-form-item label="Category" path="category">
-            <n-input
-              v-model:value="searchForm.category"
-              clearable
-              placeholder="Category"
-            />
+          <n-form-item
+            :label="$t('page.admin.navigations.search.items.category')"
+            path="category"
+          >
+            <n-input v-model:value="searchForm.category" clearable />
           </n-form-item>
-          <n-form-item label="Public" path="is_public">
+          <n-form-item
+            :label="$t('page.admin.navigations.search.items.public')"
+            path="is_public"
+          >
             <n-select
               v-model:value="searchForm.is_public"
               :options="publicOptions"
               clearable
-              style="width: 120px"
-              placeholder="Select"
+              class="selector"
             />
           </n-form-item>
         </n-form>
@@ -107,14 +108,16 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, reactive, onMounted, h } from "vue";
+<script setup lang="tsx">
+import { ref, reactive, onMounted, h, computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import type { Navigation } from "@/types/models";
 import type { CreateNavigationDto } from "@/types/api";
 import { navigationService } from "@/services/navigation";
+import { notification } from "@/utils/notification";
 import { CommonTable } from "@/components/common-table";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 import type { DataTableColumns } from "naive-ui";
 import {
@@ -139,15 +142,27 @@ const loading = ref(false);
 const navigations = ref<Navigation[]>([]);
 
 // 表格信息
-const columns: DataTableColumns<Navigation> = [
+const columns = computed<DataTableColumns<Navigation>>(() => [
   {
     title: "Icon",
     key: "icon",
     width: 60,
-    render: (row: Navigation) =>
-      row.icon
-        ? h(NAvatar, { src: row.icon, size: "small" })
-        : h(NAvatar, { size: "small" }, { default: () => row.title[0] }),
+    render: (row: Navigation) => {
+      if (
+        row.icon &&
+        (row.icon.startsWith("http") || row.icon.startsWith("/"))
+      ) {
+        return <NAvatar src={row.icon} size="small" />;
+      }
+      if (row.icon) {
+        return (
+          <NAvatar size="small" color="transparent" style="color: inherit">
+            <FontAwesomeIcon icon={navigationService.getIcon(row.icon)} />
+          </NAvatar>
+        );
+      }
+      return <NAvatar size="small">{row.title ? row.title[0] : "?"}</NAvatar>;
+    },
   },
   { title: "Title", key: "title", width: 150 },
   {
@@ -193,41 +208,29 @@ const columns: DataTableColumns<Navigation> = [
   {
     title: "Created At",
     key: "created_at",
-    width: 150,
-    render: (row: Navigation) =>
-      row.created_at ? h(NTime, { time: new Date(row.created_at) }) : "-",
+    width: 200,
+    render: (row: Navigation) => {
+      return row.created_at ? <NTime time={new Date(row.created_at)} /> : "-";
+    },
   },
   {
     title: "Actions",
     key: "actions",
-    fixed: "right" as const,
+    align: "center",
     width: 150,
-    render(row: Navigation) {
-      return h(
-        NSpace,
-        {},
-        {
-          default: () => [
-            h(
-              NButton,
-              { size: "small", onClick: () => openModal(row) },
-              { default: () => "Edit" },
-            ),
-            h(
-              NButton,
-              {
-                size: "small",
-                type: "error",
-                onClick: () => handleDelete(row),
-              },
-              { default: () => "Delete" },
-            ),
-          ],
-        },
-      );
-    },
+    fixed: "right",
+    render: (row: Navigation) => (
+      <div style="display: flex; justify-content: center; gap: 8px;">
+        <NButton size="small" onClick={() => openModal(row)}>
+          Edit
+        </NButton>
+        <NButton size="small" type="error" onClick={() => handleDelete(row)}>
+          Delete
+        </NButton>
+      </div>
+    ),
   },
-];
+]);
 
 // 筛选表单
 const searchForm = reactive({
@@ -276,6 +279,11 @@ const fetchNavigations = async () => {
     navigations.value = filtered;
   } catch (e) {
     console.error(e);
+    notification.error({
+      content: String(e),
+      duration: 4000,
+      keepAliveOnHover: true,
+    });
   } finally {
     loading.value = false;
   }
@@ -378,5 +386,9 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.selector {
+  width: 200px;
 }
 </style>

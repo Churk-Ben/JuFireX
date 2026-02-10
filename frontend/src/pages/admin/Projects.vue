@@ -2,8 +2,8 @@
   <div class="page-container">
     <CommonTable
       ref="tableRef"
-      :searchTitle="$t('page.admin.users.search.title')"
-      :tableTitle="$t('page.admin.users.table.title')"
+      :searchTitle="$t('page.admin.projects.search.title')"
+      :tableTitle="$t('page.admin.projects.table.title')"
       :columns="columns"
       :data="projects"
       :loading="loading"
@@ -13,31 +13,39 @@
       @reload="fetchProjects"
     >
       <template #toolbar>
-        <n-button type="primary" @click="openModal()"> Add Project </n-button>
+        <n-button type="primary" @click="openModal()">
+          {{ $t("page.admin.projects.table.toolbar.add") }}
+        </n-button>
       </template>
+
       <template #search>
-        <n-form ref="formRef" :model="searchForm" inline label-placement="left">
-          <n-form-item label="Title" path="title">
-            <n-input
-              v-model:value="searchForm.title"
-              clearable
-              placeholder="Title"
-            />
+        <n-form
+          ref="searchFormRef"
+          :model="searchForm"
+          inline
+          label-placement="left"
+        >
+          <n-form-item
+            :label="$t('page.admin.projects.search.items.title')"
+            path="title"
+          >
+            <n-input v-model:value="searchForm.title" clearable />
           </n-form-item>
-          <n-form-item label="Tags" path="tags">
-            <n-input
-              v-model:value="searchForm.tags"
-              clearable
-              placeholder="Tags"
-            />
+          <n-form-item
+            :label="$t('page.admin.projects.search.items.tags')"
+            path="tags"
+          >
+            <n-input v-model:value="searchForm.tags" clearable />
           </n-form-item>
-          <n-form-item label="Public" path="is_public">
+          <n-form-item
+            :label="$t('page.admin.projects.search.items.public')"
+            path="is_public"
+          >
             <n-select
               v-model:value="searchForm.is_public"
               :options="publicOptions"
               clearable
-              style="width: 120px"
-              placeholder="Select"
+              class="selector"
             />
           </n-form-item>
         </n-form>
@@ -117,6 +125,7 @@ import { useI18n } from "vue-i18n";
 import type { Project } from "@/types/models";
 import type { CreateProjectDto } from "@/types/api";
 import { projectService } from "@/services/project";
+import { notification } from "@/utils/notification";
 import { CommonTable } from "@/components/common-table";
 
 import type { DataTableColumns } from "naive-ui";
@@ -269,6 +278,11 @@ const fetchProjects = async () => {
     projects.value = filtered;
   } catch (e) {
     console.error(e);
+    notification.error({
+      content: String(e),
+      duration: 4000,
+      keepAliveOnHover: true,
+    });
   } finally {
     loading.value = false;
   }
@@ -396,5 +410,9 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.selector {
+  width: 200px;
 }
 </style>
