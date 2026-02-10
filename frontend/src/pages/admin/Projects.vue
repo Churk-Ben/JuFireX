@@ -17,6 +17,29 @@
       </template>
       <template #search>
         <n-form ref="formRef" :model="form" inline label-placement="left">
+          <n-form-item label="Title" path="title">
+            <n-input
+              v-model:value="form.title"
+              clearable
+              placeholder="Title"
+            />
+          </n-form-item>
+          <n-form-item label="Tags" path="tags">
+            <n-input
+              v-model:value="form.tags"
+              clearable
+              placeholder="Tags"
+            />
+          </n-form-item>
+          <n-form-item label="Public" path="is_public">
+            <n-select
+              v-model:value="form.is_public"
+              :options="publicOptions"
+              clearable
+              style="width: 120px"
+              placeholder="Select"
+            />
+          </n-form-item>
         </n-form>
       </template>
     </CommonTable>
@@ -101,6 +124,9 @@ import {
   NTag,
   NSpace,
   NDynamicTags,
+  NSelect,
+  NTime,
+  NAvatar,
 } from "naive-ui";
 import { projectService } from "@/services/project";
 import type { Project } from "@/types/models";
@@ -121,10 +147,19 @@ const currentUuid = ref("");
 // 筛选表单
 const form = reactive({
   title: "",
+  tags: "",
+  is_public: null as string | null,
 });
+
+const publicOptions = [
+  { label: "Public", value: "true" },
+  { label: "Private", value: "false" },
+];
 
 const onReset = () => {
   form.title = "";
+  form.tags = "";
+  form.is_public = null;
   fetchProjects();
 };
 
@@ -145,7 +180,28 @@ const rules = {
 };
 
 const columns = [
+  {
+    title: "Icon",
+    key: "icon",
+    width: 60,
+    render: (row: Project) =>
+      row.icon
+        ? h(NAvatar, { src: row.icon, size: "small" })
+        : h(NAvatar, { size: "small" }, { default: () => row.title[0] }),
+  },
   { title: "Title", key: "title" },
+  {
+    title: "URL",
+    key: "url",
+    render: (row: Project) =>
+      row.url
+        ? h(
+            "a",
+            { href: row.url, target: "_blank", style: "text-decoration: none" },
+            "Link"
+          )
+        : "-",
+  },
   {
     title: "Tags",
     key: "tags",
@@ -159,12 +215,20 @@ const columns = [
       );
     },
   },
+  { title: "Views", key: "views" },
+  { title: "Stars", key: "stars" },
   {
     title: "Public",
     key: "is_public",
     render: (row: Project) => (row.is_public ? "Yes" : "No"),
   },
   { title: "Order", key: "order" },
+  {
+    title: "Created At",
+    key: "created_at",
+    render: (row: Project) =>
+      row.created_at ? h(NTime, { time: new Date(row.created_at) }) : "-",
+  },
   {
     title: "Actions",
     key: "actions",
@@ -200,7 +264,26 @@ const modalTitle = ref("Add Project");
 async function fetchProjects() {
   loading.value = true;
   try {
-    projects.value = await projectService.getAll(true);
+    const allProjects = await projectService.getAll(true);
+    let filtered = allProjects;
+
+    if (form.title) {
+      filtered = filtered.filter((p) =>
+        p.title.toLowerCase().includes(form.title.toLowerCase())
+      );
+    }
+    if (form.tags) {
+      filtered = filtered.filter((p) =>
+        p.tags.some((t) => t.toLowerCase().includes(form.tags.toLowerCase()))
+      );
+    }
+    if (form.is_public) {
+      filtered = filtered.filter(
+        (p) => String(p.is_public) === form.is_public
+      );
+    }
+
+    projects.value = filtered;
   } catch (e) {
     console.error(e);
   } finally {

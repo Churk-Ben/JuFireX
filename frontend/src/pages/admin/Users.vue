@@ -21,10 +21,26 @@
               placeholder="请输入用户名"
             />
           </n-form-item>
+          <n-form-item label="邮箱" path="email">
+            <n-input
+              v-model:value="form.email"
+              clearable
+              placeholder="请输入邮箱"
+            />
+          </n-form-item>
           <n-form-item label="角色" path="role">
             <n-select
               v-model:value="form.role"
               :options="roleOptions"
+              clearable
+              style="width: 120px"
+              placeholder="请选择"
+            />
+          </n-form-item>
+          <n-form-item label="状态" path="status">
+            <n-select
+              v-model:value="form.status"
+              :options="statusOptions"
               clearable
               style="width: 120px"
               placeholder="请选择"
@@ -53,7 +69,9 @@ const users = ref<User[]>([]);
 // 筛选表单
 const form = reactive({
   username: "",
+  email: "",
   role: null as string | null,
+  status: null as string | null, // 'true' | 'false'
 });
 
 const roleOptions = [
@@ -63,9 +81,16 @@ const roleOptions = [
   { label: "游客", value: "0" },
 ];
 
+const statusOptions = [
+  { label: "激活", value: "true" },
+  { label: "禁用", value: "false" },
+];
+
 const onReset = () => {
   form.username = "";
+  form.email = "";
   form.role = null;
+  form.status = null;
   fetchUsers();
 };
 
@@ -80,8 +105,14 @@ const fetchUsers = async () => {
     if (form.username) {
       filtered = filtered.filter((u) => u.username.includes(form.username));
     }
+    if (form.email) {
+      filtered = filtered.filter((u) => u.email.includes(form.email));
+    }
     if (form.role) {
       filtered = filtered.filter((u) => String(u.role) === form.role);
+    }
+    if (form.status) {
+      filtered = filtered.filter((u) => String(u.is_active) === form.status);
     }
 
     users.value = filtered;

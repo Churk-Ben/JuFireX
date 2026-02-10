@@ -30,6 +30,29 @@
               placeholder="Title"
             />
           </n-form-item>
+          <n-form-item label="Author" path="author">
+            <n-input
+              v-model:value="searchForm.author"
+              clearable
+              placeholder="Author"
+            />
+          </n-form-item>
+          <n-form-item label="Tags" path="tags">
+            <n-input
+              v-model:value="searchForm.tags"
+              clearable
+              placeholder="Tags"
+            />
+          </n-form-item>
+          <n-form-item label="Public" path="is_public">
+            <n-select
+              v-model:value="searchForm.is_public"
+              :options="publicOptions"
+              clearable
+              style="width: 120px"
+              placeholder="Select"
+            />
+          </n-form-item>
         </n-form>
       </template>
     </CommonTable>
@@ -103,6 +126,10 @@ import {
   NTag,
   NSpace,
   NDynamicTags,
+  NSelect,
+  NImage,
+  NTime,
+  NEllipsis,
 } from "naive-ui";
 import { CommonTable } from "@/components/common-table";
 import { blogService } from "@/services/blog";
@@ -118,10 +145,21 @@ const blogs = ref<Blog[]>([]);
 const searchFormRef = ref(null);
 const searchForm = reactive({
   title: "",
+  author: "",
+  tags: "",
+  is_public: null as string | null,
 });
+
+const publicOptions = [
+  { label: "Public", value: "true" },
+  { label: "Private", value: "false" },
+];
 
 const onReset = () => {
   searchForm.title = "";
+  searchForm.author = "";
+  searchForm.tags = "";
+  searchForm.is_public = null;
   fetchBlogs();
 };
 
@@ -145,10 +183,32 @@ const rules = {
 };
 
 const columns = [
-  { title: "Title", key: "title" },
+  {
+    title: "Cover",
+    key: "cover_image",
+    width: 80,
+    render: (row: Blog) =>
+      row.cover_image
+        ? h(NImage, { src: row.cover_image, width: 50, height: 35 })
+        : "-",
+  },
+  { title: "Title", key: "title", width: 200 },
+  {
+    title: "Summary",
+    key: "summary",
+    width: 200,
+    render: (row: Blog) =>
+      h(
+        NEllipsis,
+        { style: "max-width: 200px" },
+        { default: () => row.summary || "-" },
+      ),
+  },
+  { title: "Author", key: "author_name", width: 120 },
   {
     title: "Tags",
     key: "tags",
+    width: 200,
     render: (row: Blog) => {
       return row.tags.map((tag) =>
         h(
@@ -162,17 +222,22 @@ const columns = [
   {
     title: "Public",
     key: "is_public",
+    width: 80,
     render: (row: Blog) => (row.is_public ? "Yes" : "No"),
   },
-  { title: "Views", key: "views" },
+  { title: "Views", key: "views", width: 80 },
   {
     title: "Date",
     key: "created_at",
-    render: (row: Blog) => new Date(row.created_at).toLocaleDateString(),
+    width: 150,
+    render: (row: Blog) =>
+      row.created_at ? h(NTime, { time: new Date(row.created_at) }) : "-",
   },
   {
     title: "Actions",
     key: "actions",
+    fixed: "right" as const,
+    width: 150,
     render(row: Blog) {
       return h(
         NSpace,
@@ -211,6 +276,25 @@ async function fetchBlogs() {
     if (searchForm.title) {
       filtered = filtered.filter((b) =>
         b.title.toLowerCase().includes(searchForm.title.toLowerCase()),
+      );
+    }
+    if (searchForm.author) {
+      filtered = filtered.filter((b) =>
+        (b.author_name || "")
+          .toLowerCase()
+          .includes(searchForm.author.toLowerCase()),
+      );
+    }
+    if (searchForm.tags) {
+      filtered = filtered.filter((b) =>
+        b.tags.some((t) =>
+          t.toLowerCase().includes(searchForm.tags.toLowerCase()),
+        ),
+      );
+    }
+    if (searchForm.is_public) {
+      filtered = filtered.filter(
+        (b) => String(b.is_public) === searchForm.is_public,
       );
     }
 

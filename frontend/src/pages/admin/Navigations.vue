@@ -39,6 +39,15 @@
               placeholder="Category"
             />
           </n-form-item>
+          <n-form-item label="Public" path="is_public">
+            <n-select
+              v-model:value="searchForm.is_public"
+              :options="publicOptions"
+              clearable
+              style="width: 120px"
+              placeholder="Select"
+            />
+          </n-form-item>
         </n-form>
       </template>
     </CommonTable>
@@ -110,6 +119,10 @@ import {
   NInputNumber,
   NTag,
   NSpace,
+  NSelect,
+  NAvatar,
+  NTime,
+  NEllipsis,
 } from "naive-ui";
 import { CommonTable } from "@/components/common-table";
 import { navigationService } from "@/services/navigation";
@@ -126,11 +139,18 @@ const searchFormRef = ref(null);
 const searchForm = reactive({
   title: "",
   category: "",
+  is_public: null as string | null,
 });
+
+const publicOptions = [
+  { label: "Public", value: "true" },
+  { label: "Private", value: "false" },
+];
 
 const onReset = () => {
   searchForm.title = "";
   searchForm.category = "";
+  searchForm.is_public = null;
   fetchNavigations();
 };
 
@@ -156,28 +176,68 @@ const rules = {
 };
 
 const columns = [
-  { title: "Title", key: "title" },
+  {
+    title: "Icon",
+    key: "icon",
+    width: 60,
+    render: (row: Navigation) =>
+      row.icon
+        ? h(NAvatar, { src: row.icon, size: "small" })
+        : h(NAvatar, { size: "small" }, { default: () => row.title[0] }),
+  },
+  { title: "Title", key: "title", width: 150 },
+  {
+    title: "Description",
+    key: "description",
+    width: 200,
+    render: (row: Navigation) =>
+      h(
+        NEllipsis,
+        { style: "max-width: 200px" },
+        { default: () => row.description || "-" },
+      ),
+  },
   {
     title: "URL",
     key: "url",
+    width: 200,
     render: (row: Navigation) =>
-      h("a", { href: row.url, target: "_blank" }, row.url),
+      h(
+        "a",
+        {
+          href: row.url,
+          target: "_blank",
+          style: "text-decoration: none; color: inherit;",
+        },
+        row.url,
+      ),
   },
   {
     title: "Category",
     key: "category",
+    width: 120,
     render: (row: Navigation) =>
       h(NTag, { type: "info" }, { default: () => row.category }),
   },
   {
     title: "Public",
     key: "is_public",
+    width: 80,
     render: (row: Navigation) => (row.is_public ? "Yes" : "No"),
   },
-  { title: "Order", key: "order" },
+  { title: "Order", key: "order", width: 80 },
+  {
+    title: "Created At",
+    key: "created_at",
+    width: 150,
+    render: (row: Navigation) =>
+      row.created_at ? h(NTime, { time: new Date(row.created_at) }) : "-",
+  },
   {
     title: "Actions",
     key: "actions",
+    fixed: "right" as const,
+    width: 150,
     render(row: Navigation) {
       return h(
         NSpace,
@@ -222,6 +282,12 @@ async function fetchNavigations() {
     if (searchForm.category) {
       filtered = filtered.filter((n) =>
         n.category!.toLowerCase().includes(searchForm.category.toLowerCase()),
+      );
+    }
+
+    if (searchForm.is_public) {
+      filtered = filtered.filter(
+        (n) => String(n.is_public) === searchForm.is_public,
       );
     }
 
