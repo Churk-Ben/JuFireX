@@ -52,6 +52,7 @@
       </template>
     </CommonTable>
 
+    <!-- 模态框 -->
     <n-modal
       v-model:show="showModal"
       preset="card"
@@ -109,6 +110,13 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, h } from "vue";
 import { useI18n } from "vue-i18n";
+
+import type { Navigation } from "@/types/models";
+import type { CreateNavigationDto } from "@/types/api";
+import { navigationService } from "@/services/navigation";
+import { CommonTable } from "@/components/common-table";
+
+import type { DataTableColumns } from "naive-ui";
 import {
   NButton,
   NModal,
@@ -124,58 +132,14 @@ import {
   NTime,
   NEllipsis,
 } from "naive-ui";
-import { CommonTable } from "@/components/common-table";
-import { navigationService } from "@/services/navigation";
-import type { Navigation } from "@/types/models";
-import type { CreateNavigationDto } from "@/types/api";
 
 const { t } = useI18n();
 
 const loading = ref(false);
 const navigations = ref<Navigation[]>([]);
 
-// Search Form
-const searchFormRef = ref(null);
-const searchForm = reactive({
-  title: "",
-  category: "",
-  is_public: null as string | null,
-});
-
-const publicOptions = [
-  { label: "Public", value: "true" },
-  { label: "Private", value: "false" },
-];
-
-const onReset = () => {
-  searchForm.title = "";
-  searchForm.category = "";
-  searchForm.is_public = null;
-  fetchNavigations();
-};
-
-const showModal = ref(false);
-const submitting = ref(false);
-const formRef = ref(null);
-const isEditing = ref(false);
-const currentUuid = ref("");
-
-const formModel = reactive<CreateNavigationDto>({
-  title: "",
-  url: "",
-  icon: "",
-  description: "",
-  category: "default",
-  is_public: true,
-  order: 0,
-});
-
-const rules = {
-  title: { required: true, message: "Title is required", trigger: "blur" },
-  url: { required: true, message: "URL is required", trigger: "blur" },
-};
-
-const columns = [
+// 表格信息
+const columns: DataTableColumns<Navigation> = [
   {
     title: "Icon",
     key: "icon",
@@ -265,9 +229,27 @@ const columns = [
   },
 ];
 
-const modalTitle = ref("Add Navigation");
+// 筛选表单
+const searchForm = reactive({
+  title: "",
+  category: "",
+  is_public: null as string | null,
+});
 
-async function fetchNavigations() {
+const publicOptions = [
+  { label: "Public", value: "true" },
+  { label: "Private", value: "false" },
+];
+
+const onReset = () => {
+  searchForm.title = "";
+  searchForm.category = "";
+  searchForm.is_public = null;
+  fetchNavigations();
+};
+
+// 数据加载函数
+const fetchNavigations = async () => {
   loading.value = true;
   try {
     const allNavs = await navigationService.getAll(true);
@@ -297,9 +279,32 @@ async function fetchNavigations() {
   } finally {
     loading.value = false;
   }
-}
+};
 
-function openModal(nav?: Navigation) {
+// 模态框
+const modalTitle = ref("Add Navigation");
+const showModal = ref(false);
+const submitting = ref(false);
+const formRef = ref(null);
+const isEditing = ref(false);
+const currentUuid = ref("");
+
+const formModel = reactive<CreateNavigationDto>({
+  title: "",
+  url: "",
+  icon: "",
+  description: "",
+  category: "default",
+  is_public: true,
+  order: 0,
+});
+
+const rules = {
+  title: { required: true, message: "Title is required", trigger: "blur" },
+  url: { required: true, message: "URL is required", trigger: "blur" },
+};
+
+async function openModal(nav?: Navigation) {
   if (nav) {
     isEditing.value = true;
     currentUuid.value = nav.uuid;

@@ -57,6 +57,7 @@
       </template>
     </CommonTable>
 
+    <!-- 模态框 -->
     <n-modal
       v-model:show="showModal"
       preset="card"
@@ -116,6 +117,13 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, h } from "vue";
 import { useI18n } from "vue-i18n";
+
+import type { Blog } from "@/types/models";
+import type { CreateBlogDto } from "@/types/api";
+import { blogService } from "@/services/blog";
+import { CommonTable } from "@/components/common-table";
+
+import type { DataTableColumns } from "naive-ui";
 import {
   NButton,
   NModal,
@@ -131,58 +139,14 @@ import {
   NTime,
   NEllipsis,
 } from "naive-ui";
-import { CommonTable } from "@/components/common-table";
-import { blogService } from "@/services/blog";
-import type { Blog } from "@/types/models";
-import type { CreateBlogDto } from "@/types/api";
 
 const { t } = useI18n();
 
 const loading = ref(false);
 const blogs = ref<Blog[]>([]);
 
-// Search Form
-const searchFormRef = ref(null);
-const searchForm = reactive({
-  title: "",
-  author: "",
-  tags: "",
-  is_public: null as string | null,
-});
-
-const publicOptions = [
-  { label: "Public", value: "true" },
-  { label: "Private", value: "false" },
-];
-
-const onReset = () => {
-  searchForm.title = "";
-  searchForm.author = "";
-  searchForm.tags = "";
-  searchForm.is_public = null;
-  fetchBlogs();
-};
-
-const showModal = ref(false);
-const submitting = ref(false);
-const formRef = ref(null);
-const isEditing = ref(false);
-const currentUuid = ref("");
-
-const formModel = reactive<CreateBlogDto>({
-  title: "",
-  summary: "",
-  content: "",
-  cover_image: "",
-  tags: [],
-  is_public: true,
-});
-
-const rules = {
-  title: { required: true, message: "Title is required", trigger: "blur" },
-};
-
-const columns = [
+// 表格信息
+const columns: DataTableColumns<Blog> = [
   {
     title: "Cover",
     key: "cover_image",
@@ -265,9 +229,29 @@ const columns = [
   },
 ];
 
-const modalTitle = ref("Add Blog");
+// 筛选表单
+const searchForm = reactive({
+  title: "",
+  author: "",
+  tags: "",
+  is_public: null as string | null,
+});
 
-async function fetchBlogs() {
+const publicOptions = [
+  { label: "Public", value: "true" },
+  { label: "Private", value: "false" },
+];
+
+const onReset = () => {
+  searchForm.title = "";
+  searchForm.author = "";
+  searchForm.tags = "";
+  searchForm.is_public = null;
+  fetchBlogs();
+};
+
+// 数据获取函数
+const fetchBlogs = async () => {
   loading.value = true;
   try {
     const allBlogs = await blogService.getAll(true);
@@ -304,9 +288,30 @@ async function fetchBlogs() {
   } finally {
     loading.value = false;
   }
-}
+};
 
-function openModal(blog?: Blog) {
+// 模态框
+const modalTitle = ref("Add Blog");
+const showModal = ref(false);
+const submitting = ref(false);
+const formRef = ref(null);
+const isEditing = ref(false);
+const currentUuid = ref("");
+
+const formModel = reactive<CreateBlogDto>({
+  title: "",
+  summary: "",
+  content: "",
+  cover_image: "",
+  tags: [],
+  is_public: true,
+});
+
+const rules = {
+  title: { required: true, message: "Title is required", trigger: "blur" },
+};
+
+async function openModal(blog?: Blog) {
   if (blog) {
     isEditing.value = true;
     currentUuid.value = blog.uuid;

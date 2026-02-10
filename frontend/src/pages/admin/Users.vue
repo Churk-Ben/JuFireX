@@ -13,24 +13,24 @@
       @reload="fetchUsers"
     >
       <template #search>
-        <n-form ref="formRef" :model="form" inline label-placement="left">
+        <n-form ref="formRef" :model="searchForm" inline label-placement="left">
           <n-form-item label="用户名" path="username">
             <n-input
-              v-model:value="form.username"
+              v-model:value="searchForm.username"
               clearable
               placeholder="请输入用户名"
             />
           </n-form-item>
           <n-form-item label="邮箱" path="email">
             <n-input
-              v-model:value="form.email"
+              v-model:value="searchForm.email"
               clearable
               placeholder="请输入邮箱"
             />
           </n-form-item>
           <n-form-item label="角色" path="role">
             <n-select
-              v-model:value="form.role"
+              v-model:value="searchForm.role"
               :options="roleOptions"
               clearable
               style="width: 120px"
@@ -39,7 +39,7 @@
           </n-form-item>
           <n-form-item label="状态" path="status">
             <n-select
-              v-model:value="form.status"
+              v-model:value="searchForm.status"
               :options="statusOptions"
               clearable
               style="width: 120px"
@@ -50,80 +50,36 @@
       </template>
     </CommonTable>
 
-    <!-- TODO: 弹窗组件 -->
+    <!-- TODO: 模态框 -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, h, onMounted } from "vue";
-import { NForm, NFormItem, NInput, NSelect, NTag, NTime } from "naive-ui";
-import { CommonTable } from "@/components/common-table";
-import { userService } from "@/services/user";
+import { useI18n } from "vue-i18n";
+
 import type { User } from "@/types/models";
-import type { DataTableColumns } from "naive-ui";
+import { userService } from "@/services/user";
 import { notification } from "@/utils/notification";
+import { CommonTable } from "@/components/common-table";
+
+import type { DataTableColumns } from "naive-ui";
+import {
+  NForm,
+  NFormItem,
+  NInput,
+  NSelect,
+  NTag,
+  NTime,
+  NModal,
+} from "naive-ui";
+
+const { t } = useI18n();
 
 const loading = ref(false);
 const users = ref<User[]>([]);
 
-// 筛选表单
-const form = reactive({
-  username: "",
-  email: "",
-  role: null as string | null,
-  status: null as string | null, // 'true' | 'false'
-});
-
-const roleOptions = [
-  { label: "超级管理员", value: "3" },
-  { label: "管理员", value: "2" },
-  { label: "成员", value: "1" },
-  { label: "游客", value: "0" },
-];
-
-const statusOptions = [
-  { label: "激活", value: "true" },
-  { label: "禁用", value: "false" },
-];
-
-const onReset = () => {
-  form.username = "";
-  form.email = "";
-  form.role = null;
-  form.status = null;
-  fetchUsers();
-};
-
-// 数据加载函数
-const fetchUsers = async () => {
-  loading.value = true;
-  try {
-    const allUsers = await userService.getAll();
-    let filtered = allUsers;
-
-    // 简单的内存过滤
-    if (form.username) {
-      filtered = filtered.filter((u) => u.username.includes(form.username));
-    }
-    if (form.email) {
-      filtered = filtered.filter((u) => u.email.includes(form.email));
-    }
-    if (form.role) {
-      filtered = filtered.filter((u) => String(u.role) === form.role);
-    }
-    if (form.status) {
-      filtered = filtered.filter((u) => String(u.is_active) === form.status);
-    }
-
-    users.value = filtered;
-  } catch (e) {
-    console.error(e);
-    notification.error({ content: "加载失败", title: "错误" });
-  } finally {
-    loading.value = false;
-  }
-};
-
+// 表格信息
 const columns: DataTableColumns<User> = [
   { title: "Username", key: "username" },
   { title: "Email", key: "email" },
@@ -162,6 +118,76 @@ const columns: DataTableColumns<User> = [
     width: 150,
   },
 ];
+
+// 筛选表单
+const searchForm = reactive({
+  username: "",
+  email: "",
+  role: null as string | null,
+  status: null as string | null,
+});
+
+const roleOptions = [
+  { label: "超级管理员", value: "3" },
+  { label: "管理员", value: "2" },
+  { label: "成员", value: "1" },
+  { label: "游客", value: "0" },
+];
+
+const statusOptions = [
+  { label: "激活", value: "true" },
+  { label: "禁用", value: "false" },
+];
+
+const onReset = () => {
+  searchForm.username = "";
+  searchForm.email = "";
+  searchForm.role = null;
+  searchForm.status = null;
+  fetchUsers();
+};
+
+// 数据加载函数
+const fetchUsers = async () => {
+  loading.value = true;
+  try {
+    const allUsers = await userService.getAll();
+    let filtered = allUsers;
+
+    // 简单的内存过滤
+    if (searchForm.username) {
+      filtered = filtered.filter((u) =>
+        u.username.includes(searchForm.username),
+      );
+    }
+    if (searchForm.email) {
+      filtered = filtered.filter((u) => u.email.includes(searchForm.email));
+    }
+    if (searchForm.role) {
+      filtered = filtered.filter((u) => String(u.role) === searchForm.role);
+    }
+    if (searchForm.status) {
+      filtered = filtered.filter(
+        (u) => String(u.is_active) === searchForm.status,
+      );
+    }
+
+    users.value = filtered;
+  } catch (e) {
+    console.error(e);
+    notification.error({ content: "加载失败", title: "错误" });
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 模态框
+const modalTitle = ref("Add User");
+const showModal = ref(false);
+const submitting = ref(false);
+const formRef = ref(null);
+const isEditing = ref(false);
+const currentUuid = ref("");
 
 onMounted(() => {
   fetchUsers();

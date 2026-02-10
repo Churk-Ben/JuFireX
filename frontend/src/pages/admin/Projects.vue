@@ -16,24 +16,24 @@
         <n-button type="primary" @click="openModal()"> Add Project </n-button>
       </template>
       <template #search>
-        <n-form ref="formRef" :model="form" inline label-placement="left">
+        <n-form ref="formRef" :model="searchForm" inline label-placement="left">
           <n-form-item label="Title" path="title">
             <n-input
-              v-model:value="form.title"
+              v-model:value="searchForm.title"
               clearable
               placeholder="Title"
             />
           </n-form-item>
           <n-form-item label="Tags" path="tags">
             <n-input
-              v-model:value="form.tags"
+              v-model:value="searchForm.tags"
               clearable
               placeholder="Tags"
             />
           </n-form-item>
           <n-form-item label="Public" path="is_public">
             <n-select
-              v-model:value="form.is_public"
+              v-model:value="searchForm.is_public"
               :options="publicOptions"
               clearable
               style="width: 120px"
@@ -44,7 +44,7 @@
       </template>
     </CommonTable>
 
-    <!-- 项目弹窗 -->
+    <!-- 模态框 -->
     <n-modal
       v-model:show="showModal"
       preset="card"
@@ -113,6 +113,13 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, h } from "vue";
 import { useI18n } from "vue-i18n";
+
+import type { Project } from "@/types/models";
+import type { CreateProjectDto } from "@/types/api";
+import { projectService } from "@/services/project";
+import { CommonTable } from "@/components/common-table";
+
+import type { DataTableColumns } from "naive-ui";
 import {
   NButton,
   NModal,
@@ -128,58 +135,14 @@ import {
   NTime,
   NAvatar,
 } from "naive-ui";
-import { projectService } from "@/services/project";
-import type { Project } from "@/types/models";
-import type { CreateProjectDto } from "@/types/api";
-import { CommonTable } from "@/components/common-table";
 
 const { t } = useI18n();
 
 const loading = ref(false);
 const projects = ref<Project[]>([]);
 
-const showModal = ref(false);
-const submitting = ref(false);
-const formRef = ref(null);
-const isEditing = ref(false);
-const currentUuid = ref("");
-
-// 筛选表单
-const form = reactive({
-  title: "",
-  tags: "",
-  is_public: null as string | null,
-});
-
-const publicOptions = [
-  { label: "Public", value: "true" },
-  { label: "Private", value: "false" },
-];
-
-const onReset = () => {
-  form.title = "";
-  form.tags = "";
-  form.is_public = null;
-  fetchProjects();
-};
-
-// 弹窗模型
-const formModel = reactive<CreateProjectDto>({
-  title: "",
-  description: "",
-  readme: "",
-  url: "",
-  icon: "",
-  tags: [],
-  is_public: true,
-  order: 0,
-});
-
-const rules = {
-  title: { required: true, message: "Title is required", trigger: "blur" },
-};
-
-const columns = [
+// 表格信息
+const columns: DataTableColumns<Project> = [
   {
     title: "Icon",
     key: "icon",
@@ -198,7 +161,7 @@ const columns = [
         ? h(
             "a",
             { href: row.url, target: "_blank", style: "text-decoration: none" },
-            "Link"
+            "Link",
           )
         : "-",
   },
@@ -259,27 +222,47 @@ const columns = [
   },
 ];
 
-const modalTitle = ref("Add Project");
+// 筛选表单
+const searchForm = reactive({
+  title: "",
+  tags: "",
+  is_public: null as string | null,
+});
 
-async function fetchProjects() {
+const publicOptions = [
+  { label: "Public", value: "true" },
+  { label: "Private", value: "false" },
+];
+
+const onReset = () => {
+  searchForm.title = "";
+  searchForm.tags = "";
+  searchForm.is_public = null;
+  fetchProjects();
+};
+
+// 数据加载函数
+const fetchProjects = async () => {
   loading.value = true;
   try {
     const allProjects = await projectService.getAll(true);
     let filtered = allProjects;
 
-    if (form.title) {
+    if (searchForm.title) {
       filtered = filtered.filter((p) =>
-        p.title.toLowerCase().includes(form.title.toLowerCase())
+        p.title.toLowerCase().includes(searchForm.title.toLowerCase()),
       );
     }
-    if (form.tags) {
+    if (searchForm.tags) {
       filtered = filtered.filter((p) =>
-        p.tags.some((t) => t.toLowerCase().includes(form.tags.toLowerCase()))
+        p.tags.some((t) =>
+          t.toLowerCase().includes(searchForm.tags.toLowerCase()),
+        ),
       );
     }
-    if (form.is_public) {
+    if (searchForm.is_public) {
       filtered = filtered.filter(
-        (p) => String(p.is_public) === form.is_public
+        (p) => String(p.is_public) === searchForm.is_public,
       );
     }
 
@@ -289,7 +272,30 @@ async function fetchProjects() {
   } finally {
     loading.value = false;
   }
-}
+};
+
+// 模态框
+const modalTitle = ref("Add Project");
+const showModal = ref(false);
+const submitting = ref(false);
+const formRef = ref(null);
+const isEditing = ref(false);
+const currentUuid = ref("");
+
+const formModel = reactive<CreateProjectDto>({
+  title: "",
+  description: "",
+  readme: "",
+  url: "",
+  icon: "",
+  tags: [],
+  is_public: true,
+  order: 0,
+});
+
+const rules = {
+  title: { required: true, message: "Title is required", trigger: "blur" },
+};
 
 async function openModal(proj?: Project) {
   if (proj) {
