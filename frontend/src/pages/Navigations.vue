@@ -29,7 +29,7 @@
                   <template #header>
                     <n-space align="center" :wrap="false" :size="10">
                       <FontAwesomeIcon
-                        :icon="getIcon(nav.icon)"
+                        :icon="navigationService.getIcon(nav.icon)"
                         class="text-xl"
                       />
                       <n-ellipsis style="max-width: 100%">
@@ -99,20 +99,6 @@ async function fetchNavigations() {
   } finally {
     loading.value = false;
   }
-}
-
-function getIcon(iconClass: string | undefined): any {
-  if (!iconClass) return ["fas", "link"];
-
-  // format: "fas:link" or "fab:github"
-  if (iconClass.includes(":")) {
-    const parts = iconClass.split(":");
-    if (parts.length === 2) {
-      return [parts[0], parts[1]];
-    }
-  }
-
-  return iconClass;
 }
 
 function openLink(url: string) {

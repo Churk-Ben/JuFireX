@@ -173,12 +173,22 @@
             "add": "添加用户"
           },
           "columns": {
+            "avatar": "头像",
             "username": "用户名",
             "email": "邮箱",
+            "uuid": "UUID",
             "role": "角色",
-            "status": "状态",
+            "status": {
+              "title": "状态",
+              "active": "启用",
+              "inactive": "封禁"
+            },
             "createdAt": "创建时间",
-            "updatedAt": "更新时间"
+            "actions": {
+              "title": "操作",
+              "edit": "编辑",
+              "delete": "删除"
+            }
           }
         }
       },

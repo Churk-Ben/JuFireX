@@ -3,6 +3,20 @@ import type { Navigation } from "@/types/models";
 import type { CreateNavigationDto, UpdateNavigationDto } from "@/types/api";
 
 export const navigationService = {
+  getIcon(iconClass: string | undefined): any {
+    if (!iconClass) return ["fas", "link"];
+
+    // format: "fas:link" or "fab:github"
+    if (iconClass.includes(":")) {
+      const parts = iconClass.split(":");
+      if (parts.length === 2) {
+        return [parts[0], parts[1]];
+      }
+    }
+
+    return iconClass;
+  },
+
   async getAll(showAll: boolean = false): Promise<Navigation[]> {
     return request<Navigation[]>(`/api/navigation/?all=${showAll}`);
   },
