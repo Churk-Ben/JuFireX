@@ -7,7 +7,7 @@
     <!-- 搜索栏 -->
     <NCard
       v-if="$slots.search"
-      :title="searchTitle"
+      :title="finalSearchTitle"
       class="search-card"
       content-class="d-flex"
       bordered
@@ -38,7 +38,7 @@
 
     <!-- 表格主体 -->
     <NCard
-      :title="tableTitle"
+      :title="finalTableTitle"
       class="table-card"
       content-class="d-flex flex-column h-100 px-4"
       bordered
@@ -76,10 +76,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, type PropType } from "vue";
+import { reactive, computed } from "vue";
 import { NCard, NDataTable, NButton } from "naive-ui";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+import type { PropType } from "vue";
 import type { DataTableColumns, PaginationProps } from "naive-ui";
+
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 defineOptions({
   name: "CommonTable",
@@ -88,11 +95,11 @@ defineOptions({
 const props = defineProps({
   searchTitle: {
     type: String,
-    default: "筛选表单",
+    default: undefined,
   },
   tableTitle: {
     type: String,
-    default: "数据表格",
+    default: undefined,
   },
   columns: {
     type: Array as PropType<DataTableColumns<any>>,
@@ -120,6 +127,13 @@ const props = defineProps({
   },
 });
 
+const finalSearchTitle = computed(
+  () => props.searchTitle ?? t("common.commonTable.search.title"),
+);
+const finalTableTitle = computed(
+  () => props.tableTitle ?? t("common.commonTable.table.title"),
+);
+
 const allData = computed(() => props.data || []);
 
 // 内置分页配置
@@ -127,10 +141,11 @@ const internalPagination = reactive<PaginationProps>({
   page: 1,
   pageSize: 10,
   showSizePicker: true,
-  pageSizes: [5, 10, 20, 50],
+  pageSizes: [5, 10, 20, 50, 100],
   itemCount: 0,
   showQuickJumper: true,
-  prefix: ({ itemCount }) => `共 ${itemCount} 条`,
+  prefix: ({ itemCount }) =>
+    t("common.commonTable.table.pagination.prefix", { itemCount }),
   onUpdatePage: (page: number) => {
     internalPagination.page = page;
   },

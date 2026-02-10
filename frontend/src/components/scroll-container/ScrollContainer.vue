@@ -21,11 +21,11 @@
 </template>
 
 <script setup lang="ts">
-import { NScrollbar } from "naive-ui";
 import { getCurrentInstance } from "vue";
+import { NScrollbar } from "naive-ui";
 
-import type { ScrollbarProps } from "naive-ui";
 import type { CSSProperties, ComponentPublicInstance } from "vue";
+import type { ScrollbarProps } from "naive-ui";
 
 export interface ContentWrapperProps extends /* @vue-ignore */ ScrollbarProps {
   scrollable?: boolean;

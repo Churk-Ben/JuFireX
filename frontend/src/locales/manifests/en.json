@@ -11,6 +11,24 @@
       "select": "Select Image",
       "confirm": "Confirm",
       "cancel": "Cancel"
+    },
+    "commonTable": {
+      "search": {
+        "title": "Filter Form",
+        "action": {
+          "search": "Search",
+          "reset": "Reset"
+        }
+      },
+      "table": {
+        "title": "Data Table",
+        "action": {
+          "reload": "Reload"
+        },
+        "pagination": {
+          "prefix": "{itemCount} items total"
+        }
+      }
     }
   },
   "sider": {
