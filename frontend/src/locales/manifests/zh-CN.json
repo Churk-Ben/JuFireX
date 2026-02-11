@@ -198,7 +198,8 @@
           "items": {
             "title": "标题",
             "category": "分类",
-            "public": "公开"
+            "public": "公开",
+            "owner": "所有者"
           }
         },
         "table": {
@@ -211,6 +212,7 @@
             "path": "路径",
             "category": "分类",
             "public": "公开",
+            "owner": "所有者",
             "status": {
               "title": "状态",
               "public": "公开",

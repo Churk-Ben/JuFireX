@@ -4,6 +4,7 @@
     <n-tag
       round
       bordered
+      class="my-1"
       :type="getTypeByUserRole(currentUser)"
       :size="size"
       :strong="strong"
@@ -63,7 +64,7 @@
   </template>
 
   <template v-else>
-    <n-tag :type="type" :size="size" :strong="strong">
+    <n-tag :type="type" :size="size" :strong="strong" :round="round">
       {{ text }}
     </n-tag>
   </template>
@@ -91,6 +92,10 @@ const props = defineProps({
     default: "medium",
   },
   strong: {
+    type: Boolean,
+    default: false,
+  },
+  round: {
     type: Boolean,
     default: false,
   },

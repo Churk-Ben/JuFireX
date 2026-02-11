@@ -49,6 +49,12 @@
               class="selector"
             />
           </n-form-item>
+          <n-form-item
+            :label="$t('page.admin.navigations.search.items.owner')"
+            path="owner_uuid"
+          >
+            <n-input v-model:value="searchForm.owner_uuid" clearable />
+          </n-form-item>
         </n-form>
       </template>
     </CommonTable>
@@ -132,7 +138,6 @@ import {
   NTag,
   NSpace,
   NSelect,
-  NAvatar,
   NTime,
   NEllipsis,
 } from "naive-ui";
@@ -198,10 +203,14 @@ const columns = computed<DataTableColumns<Navigation>>(() => [
   {
     title: "Owner",
     key: "owner_uuid",
-    width: 120,
-    render: (row: Navigation) => (
-      <CommonTag preset="user" size="small" user_uuid={row.owner_uuid} />
-    ),
+    width: 150,
+    render: (row: Navigation) => {
+      return row.owner_uuid ? (
+        <CommonTag preset="user" size="small" user_uuid={row.owner_uuid} />
+      ) : (
+        <CommonTag type="primary" size="small" text="System" round />
+      );
+    },
   },
   {
     title: "Created At",
@@ -243,6 +252,7 @@ const searchForm = reactive({
   title: "",
   category: "",
   is_public: null as string | null,
+  owner_uuid: "",
 });
 
 const publicOptions = [
@@ -254,6 +264,7 @@ const onReset = () => {
   searchForm.title = "";
   searchForm.category = "";
   searchForm.is_public = null;
+  searchForm.owner_uuid = "";
   fetchNavigations();
 };
 
@@ -280,6 +291,10 @@ const fetchNavigations = async () => {
       filtered = filtered.filter(
         (n) => String(n.is_public) === searchForm.is_public,
       );
+    }
+
+    if (searchForm.owner_uuid) {
+      filtered = filtered.filter((n) => n.owner_uuid === searchForm.owner_uuid);
     }
 
     navigations.value = filtered;
