@@ -398,6 +398,7 @@ const games = [
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  /* font-family: "Maple Mono"; */
 }
 
 .studio-suffix {
@@ -432,7 +433,7 @@ const games = [
 .slogan-sub {
   font-size: 1rem;
   color: var(--text-secondary);
-  font-family: "Maple Mono", monospace;
+  /* font-family: "Maple Mono"; */
 }
 
 .scroll-indicator {
