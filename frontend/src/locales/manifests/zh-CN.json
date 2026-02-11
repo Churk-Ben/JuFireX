@@ -173,8 +173,7 @@
             "add": "添加用户"
           },
           "columns": {
-            "avatar": "头像",
-            "username": "用户名",
+            "user": "用户",
             "email": "邮箱",
             "uuid": "UUID",
             "role": "角色",
@@ -210,6 +209,13 @@
           "columns": {
             "title": "标题",
             "path": "路径",
+            "category": "分类",
+            "public": "公开",
+            "status": {
+              "title": "状态",
+              "public": "公开",
+              "private": "私有"
+            },
             "createdAt": "创建时间",
             "updatedAt": "更新时间"
           }

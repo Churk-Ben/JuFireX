@@ -87,6 +87,7 @@ import type { User } from "@/types/models";
 import { userService } from "@/services/user";
 import { notification } from "@/utils/notification";
 import { CommonTable } from "@/components/common-table";
+import { CommonTag } from "@/components/common-tag";
 
 import type { DataTableColumns } from "naive-ui";
 import {
@@ -109,22 +110,10 @@ const users = ref<User[]>([]);
 // 表格信息
 const columns = computed<DataTableColumns<User>>(() => [
   {
-    title: t("page.admin.users.table.columns.avatar"),
-    key: "avatar",
-    width: 100,
-    align: "center",
-    render: (row: User) => (
-      <NAvatar
-        src={`/api/user/avatar/${row.uuid}/avatar.png`}
-        size={32}
-        round={true}
-      />
-    ),
-  },
-  {
-    title: t("page.admin.users.table.columns.username"),
-    key: "username",
-    width: 120,
+    title: t("page.admin.users.table.columns.user"),
+    key: "user",
+    width: 150,
+    render: (row: User) => <CommonTag preset="user" size="medium" user={row} />,
   },
   {
     title: t("page.admin.users.table.columns.email"),
@@ -140,47 +129,15 @@ const columns = computed<DataTableColumns<User>>(() => [
     title: t("page.admin.users.table.columns.role"),
     key: "role",
     width: 120,
-    // TODO: 这里之后用自定义组件, 包括各种各样的 Tag
-    render: (row: User) => {
-      let type:
-        | "default"
-        | "error"
-        | "primary"
-        | "success"
-        | "info"
-        | "warning";
-      switch (row.role) {
-        case 3: // SuperAdmin
-          type = "error";
-          break;
-        case 2: // Admin
-          type = "warning";
-          break;
-        case 1: // Member
-          type = "success";
-          break;
-        case 0: // Guest
-        default:
-          type = "default";
-          break;
-      }
-
-      return (
-        <NTag type={type} size="small">
-          {row.role_name || row.role}
-        </NTag>
-      );
-    },
+    render: (row: User) => <CommonTag preset="role" size="small" user={row} />,
   },
   {
     title: t("page.admin.users.table.columns.status.title"),
     key: "is_active",
     width: 120,
-    render: (row: User) => {
-      return row.is_active
-        ? t("page.admin.users.table.columns.status.active")
-        : t("page.admin.users.table.columns.status.inactive");
-    },
+    render: (row: User) => (
+      <CommonTag preset="user_status" size="small" user={row} />
+    ),
   },
   {
     title: t("page.admin.users.table.columns.createdAt"),

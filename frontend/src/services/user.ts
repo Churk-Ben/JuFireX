@@ -3,6 +3,10 @@ import type { User } from "@/types/models";
 import type { UserAvatar } from "@/types/api";
 
 export const userService = {
+  getAvatarUrl(uuid: string, filename: string = "avatar.png"): string {
+    return `/api/user/avatar/${uuid}/${filename}`;
+  },
+
   async getAll(): Promise<User[]> {
     return request<User[]>("/api/user/list");
   },
@@ -15,9 +19,5 @@ export const userService = {
       method: "POST",
       body: formData,
     });
-  },
-
-  getAvatarUrl(uuid: string, filename: string = "avatar.png"): string {
-    return `/api/user/avatar/${uuid}/${filename}`;
   },
 };
