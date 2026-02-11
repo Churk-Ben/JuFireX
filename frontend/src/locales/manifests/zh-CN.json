@@ -208,10 +208,11 @@
             "add": "添加导航"
           },
           "columns": {
+            "icon": "图标",
             "title": "标题",
-            "path": "路径",
+            "description": "描述",
+            "url": "链接",
             "category": "分类",
-            "public": "公开",
             "owner": "所有者",
             "status": {
               "title": "状态",
@@ -219,7 +220,12 @@
               "private": "私有"
             },
             "createdAt": "创建时间",
-            "updatedAt": "更新时间"
+            "updatedAt": "更新时间",
+            "actions": {
+              "title": "操作",
+              "edit": "编辑",
+              "delete": "删除"
+            }
           }
         }
       },

@@ -9,7 +9,7 @@
       v-if="$slots.search"
       :title="finalSearchTitle"
       class="search-card"
-      content-class="d-flex"
+      content-class="d-flex pb-0"
       bordered
     >
       <!-- 工具栏 -->

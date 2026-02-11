@@ -8,7 +8,7 @@
       :data="navigations"
       :loading="loading"
       :row-key="(row) => row.uuid"
-      :scroll-x="1500"
+      :scroll-x="1800"
       @search="fetchNavigations"
       @reset="onReset"
       @reload="fetchNavigations"
@@ -150,16 +150,20 @@ const navigations = ref<Navigation[]>([]);
 // 表格信息
 const columns = computed<DataTableColumns<Navigation>>(() => [
   {
-    title: "Icon",
+    title: t("page.admin.navigations.table.columns.icon"),
     key: "icon",
     width: 60,
     render: (row: Navigation) => (
       <FontAwesomeIcon icon={navigationService.getIcon(row.icon)} />
     ),
   },
-  { title: "Title", key: "title", width: 150 },
   {
-    title: "Description",
+    title: t("page.admin.navigations.table.columns.title"),
+    key: "title",
+    width: 150,
+  },
+  {
+    title: t("page.admin.navigations.table.columns.description"),
     key: "description",
     width: 200,
     render: (row: Navigation) => (
@@ -169,7 +173,7 @@ const columns = computed<DataTableColumns<Navigation>>(() => [
     ),
   },
   {
-    title: "URL",
+    title: t("page.admin.navigations.table.columns.url"),
     key: "url",
     width: 200,
     render: (row: Navigation) => (
@@ -183,9 +187,9 @@ const columns = computed<DataTableColumns<Navigation>>(() => [
     ),
   },
   {
-    title: "Category",
+    title: t("page.admin.navigations.table.columns.category"),
     key: "category",
-    width: 120,
+    width: 100,
     render: (row: Navigation) => (
       <NTag type="info" size="small">
         {{ default: () => row.category || "-" }}
@@ -193,15 +197,15 @@ const columns = computed<DataTableColumns<Navigation>>(() => [
     ),
   },
   {
-    title: "Public",
+    title: t("page.admin.navigations.table.columns.status.title"),
     key: "is_public",
-    width: 80,
+    width: 100,
     render: (row: Navigation) => (
       <CommonTag preset="nav_status" size="small" navigation={row} />
     ),
   },
   {
-    title: "Owner",
+    title: t("page.admin.navigations.table.columns.owner"),
     key: "owner_uuid",
     width: 150,
     render: (row: Navigation) => {
@@ -213,34 +217,34 @@ const columns = computed<DataTableColumns<Navigation>>(() => [
     },
   },
   {
-    title: "Created At",
+    title: t("page.admin.navigations.table.columns.createdAt"),
     key: "created_at",
-    width: 200,
+    width: 150,
     render: (row: Navigation) => {
       return row.created_at ? <NTime time={new Date(row.created_at)} /> : "-";
     },
   },
   {
-    title: "Updated At",
+    title: t("page.admin.navigations.table.columns.updatedAt"),
     key: "updated_at",
-    width: 200,
+    width: 150,
     render: (row: Navigation) => {
       return row.updated_at ? <NTime time={new Date(row.updated_at)} /> : "-";
     },
   },
   {
-    title: "Actions",
+    title: t("page.admin.navigations.table.columns.actions.title"),
     key: "actions",
     align: "center",
     width: 150,
     fixed: "right",
     render: (row: Navigation) => (
       <div style="display: flex; justify-content: center; gap: 8px;">
-        <NButton size="small" onClick={() => openModal(row)}>
-          Edit
+        <NButton size="small" type="primary" onClick={() => openModal(row)}>
+          {t("page.admin.navigations.table.columns.actions.edit")}
         </NButton>
         <NButton size="small" type="error" onClick={() => handleDelete(row)}>
-          Delete
+          {t("page.admin.navigations.table.columns.actions.delete")}
         </NButton>
       </div>
     ),

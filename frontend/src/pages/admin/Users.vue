@@ -8,7 +8,7 @@
       :data="users"
       :loading="loading"
       :row-key="(row) => row.uuid"
-      :scroll-x="1500"
+      :scroll-x="1200"
       @search="fetchUsers"
       @reset="onReset"
       @reload="fetchUsers"
@@ -90,17 +90,7 @@ import { CommonTable } from "@/components/common-table";
 import { CommonTag } from "@/components/common-tag";
 
 import type { DataTableColumns } from "naive-ui";
-import {
-  NForm,
-  NFormItem,
-  NInput,
-  NSelect,
-  NTag,
-  NTime,
-  NModal,
-  NAvatar,
-  NButton,
-} from "naive-ui";
+import { NForm, NFormItem, NInput, NSelect, NTime, NButton } from "naive-ui";
 
 const { t } = useI18n();
 
@@ -118,23 +108,23 @@ const columns = computed<DataTableColumns<User>>(() => [
   {
     title: t("page.admin.users.table.columns.email"),
     key: "email",
-    width: 200,
+    width: 150,
   },
   {
     title: t("page.admin.users.table.columns.uuid"),
     key: "uuid",
-    width: 360,
+    width: 300,
   },
   {
     title: t("page.admin.users.table.columns.role"),
     key: "role",
-    width: 120,
+    width: 100,
     render: (row: User) => <CommonTag preset="role" size="small" user={row} />,
   },
   {
     title: t("page.admin.users.table.columns.status.title"),
     key: "is_active",
-    width: 120,
+    width: 100,
     render: (row: User) => (
       <CommonTag preset="user_status" size="small" user={row} />
     ),
@@ -142,7 +132,7 @@ const columns = computed<DataTableColumns<User>>(() => [
   {
     title: t("page.admin.users.table.columns.createdAt"),
     key: "created_at",
-    width: 200,
+    width: 150,
     render: (row: User) => {
       return row.created_at ? <NTime time={new Date(row.created_at)} /> : "-";
     },
