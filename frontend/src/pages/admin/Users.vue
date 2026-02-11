@@ -8,7 +8,7 @@
       :data="users"
       :loading="loading"
       :row-key="(row) => row.uuid"
-      :scroll-x="1200"
+      :scroll-x="1500"
       @search="fetchUsers"
       @reset="onReset"
       @reload="fetchUsers"
@@ -108,7 +108,7 @@ const columns = computed<DataTableColumns<User>>(() => [
   {
     title: t("page.admin.users.table.columns.email"),
     key: "email",
-    width: 150,
+    width: 200,
   },
   {
     title: t("page.admin.users.table.columns.uuid"),
