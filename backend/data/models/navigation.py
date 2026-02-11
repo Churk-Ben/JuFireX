@@ -33,6 +33,7 @@ class Navigation(db.Model):
             "icon": self.icon,
             "description": self.description,
             "category": self.category,
+            "owner_uuid": self.owner_uuid,
             "is_public": self.is_public,
             "order": self.order,
             "created_at": self.created_at.isoformat() if self.created_at else None,

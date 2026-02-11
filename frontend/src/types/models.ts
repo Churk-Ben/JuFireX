@@ -53,6 +53,7 @@ export interface Navigation {
   title: string;
   url: string;
   icon?: string;
+  owner_uuid?: string;
   description?: string;
   category?: string;
   is_public: boolean;
