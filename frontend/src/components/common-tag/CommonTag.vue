@@ -4,14 +4,14 @@
     <n-tag
       round
       bordered
-      :type="getTypeByUserRole(user)"
+      :type="getTypeByUserRole(currentUser)"
       :size="size"
       :strong="strong"
     >
       <template #avatar>
-        <n-avatar :src="userService.getAvatarUrl(user?.uuid)" />
+        <n-avatar :src="userService.getAvatarUrl(currentUser?.uuid!)" />
       </template>
-      {{ user?.username || "Unknown" }}
+      {{ currentUser?.username || "Unknown" }}
     </n-tag>
   </template>
 
@@ -20,11 +20,11 @@
     <n-tag
       round
       bordered
-      :type="getTypeByUserRole(user)"
+      :type="getTypeByUserRole(currentUser)"
       :size="size"
       :strong="strong"
     >
-      {{ user?.role_name || "Unknown" }}
+      {{ currentUser?.role_name || "Unknown" }}
     </n-tag>
   </template>
 
@@ -33,12 +33,12 @@
     <n-tag
       round
       bordered
-      :type="getTypeByUserStatus(user)"
+      :type="getTypeByUserStatus(currentUser)"
       :size="size"
       :strong="strong"
     >
       {{
-        user?.is_active
+        currentUser?.is_active
           ? $t("page.admin.users.table.columns.status.active")
           : $t("page.admin.users.table.columns.status.inactive")
       }}
@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { type PropType } from "vue";
+import { type PropType, ref, watch } from "vue";
 
 import { NTag, NAvatar } from "naive-ui";
 
@@ -108,11 +108,38 @@ const props = defineProps({
     type: Object as PropType<User>,
     default: null,
   },
+  user_uuid: {
+    type: String,
+    default: "",
+  },
   navigation: {
     type: Object as PropType<Navigation>,
     default: null,
   },
 });
+
+const currentUser = ref<User | null>(null);
+
+watch(
+  () => [props.user, props.user_uuid],
+  async () => {
+    if (props.user) {
+      currentUser.value = props.user;
+    } else if (props.user_uuid) {
+      try {
+        currentUser.value = await userService.get(props.user_uuid, {
+          silent: true,
+        });
+      } catch (e) {
+        // Ignore error
+        currentUser.value = null;
+      }
+    } else {
+      currentUser.value = null;
+    }
+  },
+  { immediate: true },
+);
 
 const getTypeByUserRole = (user: User | null) => {
   if (!user) return "default";

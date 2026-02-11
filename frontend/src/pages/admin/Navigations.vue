@@ -117,6 +117,7 @@ import type { CreateNavigationDto } from "@/types/api";
 import { navigationService } from "@/services/navigation";
 import { notification } from "@/utils/notification";
 import { CommonTable } from "@/components/common-table";
+import { CommonTag } from "@/components/common-tag";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 import type { DataTableColumns } from "naive-ui";
@@ -147,70 +148,75 @@ const columns = computed<DataTableColumns<Navigation>>(() => [
     title: "Icon",
     key: "icon",
     width: 60,
-    render: (row: Navigation) => {
-      if (
-        row.icon &&
-        (row.icon.startsWith("http") || row.icon.startsWith("/"))
-      ) {
-        return <NAvatar src={row.icon} size="small" />;
-      }
-      if (row.icon) {
-        return (
-          <NAvatar size="small" color="transparent" style="color: inherit">
-            <FontAwesomeIcon icon={navigationService.getIcon(row.icon)} />
-          </NAvatar>
-        );
-      }
-      return <NAvatar size="small">{row.title ? row.title[0] : "?"}</NAvatar>;
-    },
+    render: (row: Navigation) => (
+      <FontAwesomeIcon icon={navigationService.getIcon(row.icon)} />
+    ),
   },
   { title: "Title", key: "title", width: 150 },
   {
     title: "Description",
     key: "description",
     width: 200,
-    render: (row: Navigation) =>
-      h(
-        NEllipsis,
-        { style: "max-width: 200px" },
-        { default: () => row.description || "-" },
-      ),
+    render: (row: Navigation) => (
+      <NEllipsis style="max-width: 200px">
+        {{ default: () => row.description || "-" }}
+      </NEllipsis>
+    ),
   },
   {
     title: "URL",
     key: "url",
     width: 200,
-    render: (row: Navigation) =>
-      h(
-        "a",
-        {
-          href: row.url,
-          target: "_blank",
-          style: "text-decoration: none; color: inherit;",
-        },
-        row.url,
-      ),
+    render: (row: Navigation) => (
+      <a
+        href={row.url}
+        target="_blank"
+        style="text-decoration: none; color: inherit;"
+      >
+        {row.url}
+      </a>
+    ),
   },
   {
     title: "Category",
     key: "category",
     width: 120,
-    render: (row: Navigation) =>
-      h(NTag, { type: "info" }, { default: () => row.category }),
+    render: (row: Navigation) => (
+      <NTag type="info" size="small">
+        {{ default: () => row.category || "-" }}
+      </NTag>
+    ),
   },
   {
     title: "Public",
     key: "is_public",
     width: 80,
-    render: (row: Navigation) => (row.is_public ? "Yes" : "No"),
+    render: (row: Navigation) => (
+      <CommonTag preset="nav_status" size="small" navigation={row} />
+    ),
   },
-  { title: "Order", key: "order", width: 80 },
+  {
+    title: "Owner",
+    key: "owner_uuid",
+    width: 120,
+    render: (row: Navigation) => (
+      <CommonTag preset="user" size="small" user_uuid={row.owner_uuid} />
+    ),
+  },
   {
     title: "Created At",
     key: "created_at",
     width: 200,
     render: (row: Navigation) => {
       return row.created_at ? <NTime time={new Date(row.created_at)} /> : "-";
+    },
+  },
+  {
+    title: "Updated At",
+    key: "updated_at",
+    width: 200,
+    render: (row: Navigation) => {
+      return row.updated_at ? <NTime time={new Date(row.updated_at)} /> : "-";
     },
   },
   {

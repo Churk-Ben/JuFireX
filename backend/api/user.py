@@ -54,6 +54,44 @@ def list_users():
     )
 
 
+@user_bp.route("/<uuid>", methods=["GET"])
+def get_user_info(uuid):
+    """
+    @name: 获取指定用户信息
+    """
+    user = user_service.get_profile(uuid)
+    if not user:
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": "用户不存在",
+                }
+            ),
+            404,
+        )
+
+    # 仅返回公开信息
+    user_data = {
+        "uuid": user.uuid,
+        "username": user.username,
+        "role": user.role,
+        "role_name": user.get_role_name(),
+        "is_active": user.is_active,
+        "created_at": user.created_at.isoformat() if user.created_at else None,
+    }
+
+    return (
+        jsonify(
+            {
+                "level": "success",
+                "data": user_data,
+            },
+        ),
+        200,
+    )
+
+
 @user_bp.route("/avatar", methods=["POST"])
 @require_login
 def upload_avatar():

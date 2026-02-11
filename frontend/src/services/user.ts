@@ -7,6 +7,10 @@ export const userService = {
     return `/api/user/avatar/${uuid}/${filename}`;
   },
 
+  async get(uuid: string, config?: { silent?: boolean }): Promise<User> {
+    return request<User>(`/api/user/${uuid}`, {}, config);
+  },
+
   async getAll(): Promise<User[]> {
     return request<User[]>("/api/user/list");
   },
