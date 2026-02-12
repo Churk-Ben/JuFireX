@@ -209,6 +209,7 @@
           },
           "columns": {
             "icon": "图标",
+            "order": "优先级",
             "title": "标题",
             "description": "描述",
             "url": "链接",

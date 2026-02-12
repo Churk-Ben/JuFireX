@@ -8,7 +8,7 @@
       :data="navigations"
       :loading="loading"
       :row-key="(row) => row.uuid"
-      :scroll-x="1800"
+      :scroll-x="1900"
       @search="fetchNavigations"
       @reset="onReset"
       @reload="fetchNavigations"
@@ -156,6 +156,11 @@ const columns = computed<DataTableColumns<Navigation>>(() => [
     render: (row: Navigation) => (
       <FontAwesomeIcon icon={navigationService.getIcon(row.icon)} />
     ),
+  },
+  {
+    title: t("page.admin.navigations.table.columns.order"),
+    key: "order",
+    width: 60,
   },
   {
     title: t("page.admin.navigations.table.columns.title"),
