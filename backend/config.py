@@ -29,8 +29,11 @@ ROLE_NAMES = {
 
 
 class Config:
-    DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
+    # 环境变量配置
     SECRET_KEY = os.environ.get("SECRET_KEY", "JuFireX-Secret-Key-Change-Me")
+    LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
+    DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
+    SEED = os.environ.get("SEED", "false").lower() == "true"
 
     # 一级目录
     PROJECT_ROOT = PROJECT_ROOT
@@ -51,9 +54,6 @@ class Config:
     PROJECTS_DB_PATH = PROJECTS_DIR / "projects.db"
     BLOGS_DB_PATH = BLOGS_DIR / "blogs.db"
 
-    # 日志配置
-    LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
-
     # SQLAlchemy 配置
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{PROFILES_DB_PATH}"
     SQLALCHEMY_BINDS = {
@@ -63,6 +63,15 @@ class Config:
         "blogs": f"sqlite:///{BLOGS_DB_PATH}",
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # 默认超级管理员播种配置
+    KEEP_SUPER_ADMIN_EXIST = True
+    SUPER_ADMIN_NAME = "System"
+    SUPER_ADMIN_EMAIL = "admin@jufirex.com"
+
+    # 默认导航项播种配置
+    RESEED_DEFAULT_NAVIGATIONS = True
+    OWNER_UUID = None
 
     @staticmethod
     def ensure_dirs():

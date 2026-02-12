@@ -1,6 +1,6 @@
 <!-- @author: Churk -->
 <!-- @description: 通用表格组件，用于展示数据表格，支持搜索、分页、排序、操作列等功能 -->
-<!-- @status: 待审查 -->
+<!-- @status: 阶段性完工 -->
 
 <template>
   <div class="common-table-container">

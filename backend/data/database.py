@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+from backend.config import Config
 
 
 class Base(DeclarativeBase):
@@ -22,7 +23,10 @@ def init_db(app: Flask):
         from backend.data.models.navigation import Navigation
         from backend.data.models.project import Project
         from backend.data.models.blog import Blog
-        from backend.data.seed import seed_admin
 
         db.create_all()
-        seed_admin()
+
+        if Config.SEED:
+            from backend.data.seed import seed
+
+            seed()
