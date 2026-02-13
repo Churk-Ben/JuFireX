@@ -27,7 +27,7 @@
             </n-spin>
           </ScrollContainer>
           <template #header-extra>
-            <n-button type="primary" @click="router.back()"> 返回 </n-button>
+            <n-button type="default" @click="router.back()"> 返回 </n-button>
           </template>
         </n-card>
       </div>

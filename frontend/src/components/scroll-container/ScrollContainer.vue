@@ -1,6 +1,6 @@
-<!-- @author: Lithe-Admin -->
-<!-- @description: 滚动容器组件，用于包裹内容并添加滚动条 -->
+<!-- @author: Lithe-Admin / Churk -->
 <!-- @status: 完工 -->
+<!-- @description: 滚动容器组件，用于包裹内容并添加滚动条 -->
 
 <template>
   <div class="scroll-container-root">

@@ -1,6 +1,6 @@
 <!-- @author: Churk -->
-<!-- @description: 头像裁剪组件，用于裁剪用户上传的头像 -->
 <!-- @status: 完工 -->
+<!-- @description: 头像裁剪组件，用于裁剪用户上传的头像 -->
 
 <template>
   <div class="avatar-cropper-trigger" @click="triggerSelect">

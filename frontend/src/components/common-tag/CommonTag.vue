@@ -1,3 +1,7 @@
+<!-- @author: Churk -->
+<!-- @status: 阶段性完工 -->
+<!-- @description: 通用标签组件，用于展示用户标签、角色标签、用户状态标签、导航项公开状态标签等 -->
+
 <template>
   <!-- 用户标签/徽章 -->
   <template v-if="$props.preset === 'user'">

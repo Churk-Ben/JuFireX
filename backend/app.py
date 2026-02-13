@@ -1,6 +1,5 @@
 from pathlib import Path
 import sys
-import os
 
 from flask import Flask
 from flask_cors import CORS

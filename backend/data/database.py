@@ -1,3 +1,9 @@
+# ------------------------------------------------------------
+# @author: Churk
+# @status: 阶段性完工
+# @description: 数据库模块
+# ------------------------------------------------------------
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase

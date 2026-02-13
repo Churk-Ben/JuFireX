@@ -1,3 +1,9 @@
+# ------------------------------------------------------------
+# @author: Churk
+# @status: 阶段性完工
+# @description: 数据库播种模块
+# ------------------------------------------------------------
+
 import json
 from pathlib import Path
 import random
