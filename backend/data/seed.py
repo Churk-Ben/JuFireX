@@ -56,8 +56,8 @@ def seed_super_admin():
     )
     logger.info(msg)
 
-    # 在根目录生成密码文件
-    with (Config.PROJECT_ROOT / "password.txt").open("w") as f:
+    # 在Defaults目录生成初始密码文件
+    with (Config.DEFAULTS_DIR / "password.txt").open("w") as f:
         f.write("# format: uuid:password\n")
         f.write(f"{super_admin.uuid}:{init_password}")
 
