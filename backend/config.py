@@ -3,13 +3,15 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# 一级目录
+# 重要目录
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 BACKEND_DIR = PROJECT_ROOT / "backend"
 DATABASE_DIR = PROJECT_ROOT / "database"
-DEFAULTS_DIR = PROJECT_ROOT / "defaults"
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
 LOG_DIR = PROJECT_ROOT / "logs"
+
+DEFAULTS_DIR = DATABASE_DIR / "defaults"
+BACKUP_ROOT = DATABASE_DIR / "backups"
 
 # 加载环境变量
 load_dotenv(PROJECT_ROOT / ".env")
@@ -35,13 +37,15 @@ class Config:
     DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
     SEED = os.environ.get("SEED", "false").lower() == "true"
 
-    # 一级目录
+    # 重要目录
     PROJECT_ROOT = PROJECT_ROOT
     BACKEND_DIR = BACKEND_DIR
     DATABASE_DIR = DATABASE_DIR
-    DEFAULTS_DIR = DEFAULTS_DIR
     FRONTEND_DIR = FRONTEND_DIR
     LOG_DIR = LOG_DIR
+
+    DEFAULTS_DIR = DEFAULTS_DIR
+    BACKUP_ROOT = BACKUP_ROOT
 
     # 数据仓库及数据库路径
     PROFILES_DIR = DATABASE_DIR / "profiles"
@@ -80,6 +84,8 @@ class Config:
         Config.NAVIGATIONS_DIR.mkdir(parents=True, exist_ok=True)
         Config.BLOGS_DIR.mkdir(parents=True, exist_ok=True)
         Config.LOG_DIR.mkdir(parents=True, exist_ok=True)
+        Config.DEFAULTS_DIR.mkdir(parents=True, exist_ok=True)
+        Config.BACKUP_ROOT.mkdir(parents=True, exist_ok=True)
 
 
 if __name__ == "__main__":

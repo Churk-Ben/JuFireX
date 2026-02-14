@@ -86,7 +86,7 @@ class UserRepository:
 
         if user_dir.exists():
             # 备份到 profiles/backups/uuid_backup (只保留一份, 防止滥用存储)
-            backup_root = Config.PROFILES_DIR / "backups"
+            backup_root = Config.BACKUP_ROOT / "profiles"
             backup_dir = backup_root / f"{user.uuid}_backup"
 
             try:
