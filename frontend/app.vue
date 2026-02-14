@@ -386,3 +386,16 @@ watch(
   padding: var(--padding);
 }
 </style>
+
+<style>
+/* Fix for NImage preview toolbar spacing conflict with Bootstrap */
+.n-image-preview-toolbar .n-base-icon {
+  margin: 0 12px !important;
+}
+
+/* Acrylic effect for NImage preview overlay */
+.n-image-preview-overlay {
+  backdrop-filter: blur(20px) saturate(180%);
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+</style>

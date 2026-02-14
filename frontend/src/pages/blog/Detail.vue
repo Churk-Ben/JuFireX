@@ -32,9 +32,7 @@
           />
         </div>
 
-        <n-card :bordered="false" content-style="padding: 0">
-          <div class="markdown-body" v-html="renderedContent"></div>
-        </n-card>
+        <MarkdownContainer :content="blog.content" />
 
         <n-space v-if="blog.tags && blog.tags.length" class="tags-container">
           <n-tag v-for="tag in blog.tags" :key="tag" round :bordered="false">
@@ -78,17 +76,13 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { blogService } from "@/services/blog";
 import type { Blog } from "@/types/models";
-import { marked } from "marked";
+
+import { MarkdownContainer } from "@/components/markdown-container";
 
 const route = useRoute();
 const router = useRouter();
 const loading = ref(false);
 const blog = ref<Blog | null>(null);
-
-const renderedContent = computed(() => {
-  if (!blog.value?.content) return "";
-  return marked.parse(blog.value.content);
-});
 
 async function fetchDetail() {
   const uuid = route.params.uuid as string;
@@ -110,10 +104,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-container {
-  padding: 24px;
-}
-
 .content-wrapper {
   max-width: 800px;
   margin: 0 auto;
@@ -142,14 +132,6 @@ onMounted(() => {
   width: 100%;
   max-height: 400px;
   display: block;
-}
-
-/* Ensure markdown content has good line height */
-.markdown-body {
-  line-height: 1.8;
-  font-size: 16px;
-  color: var(--n-text-color);
-  padding: 24px;
 }
 
 .tags-container {

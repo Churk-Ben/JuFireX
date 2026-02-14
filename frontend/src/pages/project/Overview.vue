@@ -50,9 +50,7 @@
 
         <n-divider />
 
-        <n-card title="README" :bordered="false" content-style="padding: 0">
-          <div class="markdown-body" v-html="renderedReadme"></div>
-        </n-card>
+        <MarkdownContainer :content="project.readme" />
       </div>
 
       <n-result
@@ -90,6 +88,8 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { projectService } from "@/services/project";
 import type { Project } from "@/types/models";
 import { marked } from "marked";
+
+import { MarkdownContainer } from "@/components/markdown-container";
 
 const route = useRoute();
 const router = useRouter();
