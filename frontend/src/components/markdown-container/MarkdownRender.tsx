@@ -215,9 +215,8 @@ export default defineComponent({
               <NCode
                 code={token.text}
                 language={token.lang}
-                word-wrap={true}
-                show-line-numbers={true}
-                internal-font-size={14}
+                showLineNumbers={true}
+                internalFontSize={14}
               />
             </div>
           );
