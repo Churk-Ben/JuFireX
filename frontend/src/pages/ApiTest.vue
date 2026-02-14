@@ -1,31 +1,12 @@
 <template>
-  <div class="container">
+  <ScrollContainer class="container">
     <div class="row g-2">
-      <div class="col-8">
-        <!-- Authentication Section -->
-        <n-card title="Authentication" class="my-2">
-          <n-space vertical>
-            <n-space>
-              <n-input
-                v-model:value="loginForm.identifier"
-                placeholder="Email / UUID"
-              />
-              <n-input
-                v-model:value="loginForm.password"
-                placeholder="Password"
-                type="password"
-              />
-              <n-button-group>
-                <n-button @click="login">登录</n-button>
-                <n-button @click="logout">注销</n-button>
-                <n-button @click="checkMe">检查</n-button>
-              </n-button-group>
-            </n-space>
-          </n-space>
-        </n-card>
-
+      <div class="col-8 offset-2">
         <!-- Generic Request Section -->
         <n-card title="Generic Request" class="my-2">
+          <template #header-extra>
+            <n-button @click="checkMe">检查</n-button>
+          </template>
           <n-space vertical>
             <n-space>
               <n-select
@@ -78,7 +59,7 @@
         </n-card>
       </div>
     </div>
-  </div>
+  </ScrollContainer>
 </template>
 
 <script setup lang="ts">
@@ -95,6 +76,8 @@ import {
   NButtonGroup,
 } from "naive-ui";
 
+import { ScrollContainer } from "@/components/scroll-container";
+
 // State
 const currentUser = ref<any>(null);
 const lastResponse = reactive({
@@ -104,7 +87,6 @@ const lastResponse = reactive({
 });
 
 const loginForm = reactive({ identifier: "", password: "" });
-const navForm = reactive({ name: "", icon: "fas fa-link", order: 0 });
 const generic = reactive({
   method: "GET",
   url: "/api/",

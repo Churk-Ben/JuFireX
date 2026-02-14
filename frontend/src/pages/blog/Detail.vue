@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">
+  <ScrollContainer>
     <n-spin :show="loading">
       <div v-if="blog" class="content-wrapper">
         <n-button text @click="router.back()" class="mb-3">
@@ -53,7 +53,7 @@
         </template>
       </n-result>
     </n-spin>
-  </div>
+  </ScrollContainer>
 </template>
 
 <script setup lang="ts">
@@ -77,6 +77,7 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { blogService } from "@/services/blog";
 import type { Blog } from "@/types/models";
 
+import { ScrollContainer } from "@/components/scroll-container";
 import { MarkdownContainer } from "@/components/markdown-container";
 
 const route = useRoute();
@@ -105,7 +106,7 @@ onMounted(() => {
 
 <style scoped>
 .content-wrapper {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
