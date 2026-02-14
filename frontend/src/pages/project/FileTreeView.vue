@@ -54,7 +54,6 @@
               <n-code
                 :code="currentFileContent"
                 :language="detectedLanguage"
-                show-line-numbers
                 word-wrap
               />
             </div>
