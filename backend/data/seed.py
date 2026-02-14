@@ -100,20 +100,14 @@ def seed():
     # 处理导航项
     if Config.RESEED_DEFAULT_NAVIGATIONS:
         nav_file = Config.DEFAULTS_DIR / "navigation.json"
+        flag_file = Config.DEFAULTS_DIR / "navigation.seeded"
         if not nav_file.exists():
             logger.warning(f"默认导航文件不存在: {nav_file}")
+        elif flag_file.exists():
+            logger.info(f"默认导航项已播种: {flag_file}")
         else:
             with nav_file.open("r", encoding="utf-8") as f:
-                data = json.load(f)
-                seeded = data.get("seeded", False)
-                navs = data.get("navs", [])
-
-            if not seeded:
-                seed_navigations(navs)
-                # 更新 seeded 状态
-                with nav_file.open("r+", encoding="utf-8") as f:
-                    data = json.load(f)
-                    data["seeded"] = True
-                    f.seek(0)
-                    json.dump(data, f, ensure_ascii=False, indent=2)
-                    f.truncate()
+                navs = json.load(f) or []
+            seed_navigations(navs)
+            # 创建标志文件 seeded 状态
+            flag_file.touch()
