@@ -1,21 +1,27 @@
 <!-- @author: Churk -->
-<!-- @status: 待完成 -->
+<!-- @status: 完成 -->
 <!-- @description: 通用Markdown容器组件，用于展示Markdown内容 -->
 
 <template>
-  <div class="markdown-container">
-    <n-markdown :content="content" />
-  </div>
+  <n-card class="markdown-container">
+    <MarkdownRender :content="content" />
+  </n-card>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import {} from "naive-ui";
+import { NCard } from "naive-ui";
+import MarkdownRender from "./MarkdownRender";
 
-const props = defineProps({
+defineProps({
   content: {
     type: String,
     default: "",
   },
 });
 </script>
+
+<style scoped>
+.markdown-container {
+  padding: 32px;
+}
+</style>
