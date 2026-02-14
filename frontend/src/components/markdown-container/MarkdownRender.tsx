@@ -135,7 +135,10 @@ export default defineComponent({
                   objectFit="contain"
                   imgProps={{
                     title: token.title,
-                    style: { borderRadius: "8px", maxWidth: "100%" },
+                    style: {
+                      borderRadius: "var(--global-radius)",
+                      maxWidth: "100%",
+                    },
                   }}
                 />
               </div>
@@ -208,7 +211,7 @@ export default defineComponent({
                 margin: "16px 0",
                 padding: "12px",
                 border: "1px solid rgba(255, 255, 255, 0.09)",
-                borderRadius: "8px",
+                borderRadius: "var(--global-radius)",
                 overflow: "auto",
               }}
             >
@@ -264,6 +267,13 @@ export default defineComponent({
 
     return () => (
       <div class="markdown-body">
+        <style>
+          {`
+            .markdown-body {
+              --global-radius: 8px;
+            }
+          `}
+        </style>
         {tokens.value.map((t, i) => renderToken(t, i))}
       </div>
     );
