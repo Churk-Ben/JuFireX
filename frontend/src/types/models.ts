@@ -19,6 +19,7 @@ export interface Blog {
   tags: string[];
   is_public: boolean;
   views: number;
+  likes: number;
   author_name?: string;
   created_at: string;
   updated_at: string;

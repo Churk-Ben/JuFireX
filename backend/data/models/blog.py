@@ -17,6 +17,7 @@ class Blog(db.Model):
     owner_uuid = db.Column(db.String(36), nullable=False)
     is_public = db.Column(db.Boolean, default=True)
     views = db.Column(db.Integer, default=0)
+    likes = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
@@ -26,6 +27,10 @@ class Blog(db.Model):
             "owner_uuid": self.owner_uuid,
             "is_public": self.is_public,
             "views": self.views,
+            "likes": self.likes,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
+
+    def __repr__(self):
+        return f"<Blog {self.uuid}>"

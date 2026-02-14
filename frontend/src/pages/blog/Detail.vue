@@ -2,15 +2,16 @@
   <div class="page-container">
     <n-spin :show="loading">
       <div v-if="blog" class="content-wrapper">
-        <n-button text @click="router.back()" class="back-button">
+        <n-button text @click="router.back()" class="mb-3">
           <template #icon>
             <n-icon>
-              <font-awesome-icon :icon="faArrowLeft" />
+              <FontAwesomeIcon :icon="faArrowLeft" />
             </n-icon>
           </template>
           Back to Blogs
         </n-button>
 
+        <!-- TODO: 这里到时候要做大banner和meta信息, 要搞得像博客一样好看 -->
         <n-h1 class="blog-title">{{ blog.title }}</n-h1>
 
         <n-space align="center" size="small" class="blog-meta">
@@ -148,6 +149,7 @@ onMounted(() => {
   line-height: 1.8;
   font-size: 16px;
   color: var(--n-text-color);
+  padding: 24px;
 }
 
 .tags-container {
