@@ -22,6 +22,6 @@ defineProps({
 
 <style scoped>
 .markdown-container {
-  padding: 32px;
+  padding: 0 32px 16px;
 }
 </style>
