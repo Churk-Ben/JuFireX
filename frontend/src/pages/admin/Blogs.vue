@@ -326,11 +326,30 @@ async function openModal(blog?: Blog) {
     Object.assign(formModel, {
       title: blog.title,
       summary: blog.summary,
-      content: blog.content,
+      content: blog.content || "",
       cover_image: blog.cover_image,
       tags: [...blog.tags],
       is_public: blog.is_public,
     });
+
+    showModal.value = true;
+
+    // 异步获取完整详情（主要是为了获取 content）
+    try {
+      const fullBlog = await blogService.getDetail(blog.uuid);
+      if (fullBlog) {
+        Object.assign(formModel, {
+          title: fullBlog.title,
+          summary: fullBlog.summary,
+          content: fullBlog.content || "",
+          cover_image: fullBlog.cover_image,
+          tags: [...fullBlog.tags],
+          is_public: fullBlog.is_public,
+        });
+      }
+    } catch (e) {
+      console.error("Failed to fetch blog details", e);
+    }
   } else {
     isEditing.value = false;
     currentUuid.value = "";
@@ -343,8 +362,8 @@ async function openModal(blog?: Blog) {
       tags: [],
       is_public: true,
     });
+    showModal.value = true;
   }
-  showModal.value = true;
 }
 
 async function handleSubmit() {
