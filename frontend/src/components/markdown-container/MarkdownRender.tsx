@@ -1,5 +1,6 @@
 import { defineComponent, computed, type VNode } from "vue";
 import { marked, type Tokens } from "marked";
+import markedKatex from "marked-katex-extension";
 import DOMPurify from "dompurify";
 import {
   NH1,
@@ -22,58 +23,7 @@ import {
   NEquation,
 } from "naive-ui";
 
-// Custom tokenizer for block math $$...$$
-const mathBlock = {
-  name: "math",
-  level: "block",
-  start(src: string) {
-    // 修复：严格限制行首，避免代码块内误判
-    return src.match(/^\$\$/) ? 0 : undefined;
-  },
-  tokenizer(src: string, tokens: any) {
-    // 修复：增加负向预查 (?!\$) 避免跨块匹配风险，但允许单行 Block
-    const match = /^\$\$([\s\S]+?)\$\$(?!\$)/.exec(src);
-    if (match) {
-      return {
-        type: "math",
-        raw: match[0],
-        text: match[1].trim(),
-        displayMode: true,
-      };
-    }
-  },
-  renderer(token: any) {
-    return token.text;
-  },
-};
-
-// Custom tokenizer for inline math $...$
-const mathInline = {
-  name: "inlineMath",
-  level: "inline",
-  start(src: string) {
-    // 修复：跳过转义的 \$ (支持 ES2018 lookbehind)
-    const match = src.match(/(?<!\\)\$/);
-    return match?.index;
-  },
-  tokenizer(src: string, tokens: any) {
-    // 修复：支持内部转义字符 (如 \$)，排除 $$ 开头
-    const match = /^\$(?!\$)((?:\\.|[^$\n])*?)\$/.exec(src);
-    if (match) {
-      return {
-        type: "inlineMath",
-        raw: match[0],
-        text: match[1].trim(),
-        displayMode: false,
-      };
-    }
-  },
-  renderer(token: any) {
-    return token.text;
-  },
-};
-
-marked.use({ extensions: [mathBlock, mathInline] as any });
+marked.use(markedKatex({ throwOnError: false }));
 
 export default defineComponent({
   name: "MarkdownRender",
@@ -156,7 +106,7 @@ export default defineComponent({
             return (
               <span key={key} innerHTML={DOMPurify.sanitize(token.text)} />
             );
-          case "inlineMath":
+          case "inlineKatex":
             return <NEquation key={key} value={token.text} />;
           default:
             return token.text;
@@ -257,7 +207,7 @@ export default defineComponent({
           return null;
         case "html":
           return <div key={key} innerHTML={DOMPurify.sanitize(token.text)} />;
-        case "math":
+        case "blockKatex":
           return (
             <NEquation
               key={key}
