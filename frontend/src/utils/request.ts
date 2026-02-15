@@ -6,7 +6,29 @@ export async function request<T = any>(
   config: { silent?: boolean } = {},
 ): Promise<T> {
   const headers = new Headers(options.headers);
-  if (!headers.has("Content-Type") && !(options.body instanceof FormData)) {
+  const method = (options.method || "GET").toUpperCase();
+  const body = options.body;
+  const hasBody = body !== undefined && body !== null;
+
+  const isFormData =
+    typeof FormData !== "undefined" && body instanceof FormData;
+  const isURLSearchParams =
+    typeof URLSearchParams !== "undefined" && body instanceof URLSearchParams;
+  const isBlob = typeof Blob !== "undefined" && body instanceof Blob;
+  const isStream =
+    typeof ReadableStream !== "undefined" && body instanceof ReadableStream;
+
+  const shouldSetJSON =
+    hasBody &&
+    method !== "GET" &&
+    method !== "HEAD" &&
+    !isFormData &&
+    !isURLSearchParams &&
+    !isBlob &&
+    !isStream &&
+    !headers.has("Content-Type");
+
+  if (shouldSetJSON) {
     headers.set("Content-Type", "application/json");
   }
 
