@@ -1,7 +1,16 @@
-import { defineComponent, computed, type VNode } from "vue";
+import {
+  defineComponent,
+  computed,
+  type VNode,
+  onMounted,
+  nextTick,
+  ref,
+  watch,
+} from "vue";
 import { marked, type Tokens } from "marked";
 import markedKatex from "marked-katex-extension";
 import DOMPurify from "dompurify";
+import mermaid from "mermaid";
 import {
   NH1,
   NH2,
@@ -35,10 +44,57 @@ export default defineComponent({
     },
   },
   setup(props) {
+    // Mermaid initialization
+    onMounted(() => {
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        securityLevel: "loose",
+        logLevel: 5, // 禁用错误日志
+      });
+      renderMermaid();
+    });
+
+    const renderMermaid = async () => {
+      await nextTick();
+      const nodes = document.querySelectorAll(".mermaid-diagram");
+
+      // 并发渲染以提高速度
+      await Promise.all(
+        Array.from(nodes).map(async (node) => {
+          if (node.querySelector("svg") || node.getAttribute("data-processed"))
+            return;
+
+          const content = node.textContent || "";
+          const cleanContent = content.trim();
+          if (!cleanContent) return;
+
+          // 标记正在处理，防止重复
+          node.setAttribute("data-processed", "true");
+
+          const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+          try {
+            const { svg } = await mermaid.render(id, cleanContent);
+            node.innerHTML = svg;
+          } catch (error) {
+            console.error("Mermaid rendering failed:", error);
+            node.innerHTML = `<pre style="color: #ff6b6b; background: #2d2d2d; padding: 12px; border-radius: 4px; overflow: auto; white-space: pre-wrap;">Mermaid Error:\n${(error as any).message || error}</pre>`;
+          }
+        }),
+      );
+    };
+
     const tokens = computed(() => {
       if (!props.content) return [];
       return marked.lexer(props.content);
     });
+
+    watch(
+      () => props.content,
+      () => {
+        renderMermaid();
+      },
+    );
 
     const renderInline = (inlineTokens?: Tokens.Generic[]): any[] => {
       if (!inlineTokens) return [];
@@ -159,6 +215,15 @@ export default defineComponent({
             </NLi>
           );
         case "code":
+          // Mermaid support
+          if (token.lang === "mermaid") {
+            return (
+              <div key={key} class="mermaid-container">
+                <div class="mermaid-diagram">{token.text}</div>
+              </div>
+            );
+          }
+
           return (
             <div
               key={key}
