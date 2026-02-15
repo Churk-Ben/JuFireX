@@ -5,8 +5,6 @@
     :theme="naiveTheme"
     :date-locale="naiveDateLocale"
     :locale="naiveLocale"
-    :hljs="hljs"
-    :katex="katex"
   >
     <div class="app" :style="route.path === '/' ? '--padding: 0' : ''">
       <n-layout has-sider style="height: 100vh">
@@ -77,11 +75,6 @@
 import { computed, h, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterView, useRoute, useRouter } from "vue-router";
-
-import katex from "katex";
-import "katex/dist/katex.min.css";
-import hljs from "highlight.js";
-import "highlight.js/styles/atom-one-dark.min.css";
 
 import { useUserStore } from "@/stores/user";
 import { useThemeStore } from "@/stores/theme";
