@@ -27,10 +27,12 @@ const mathBlock = {
   name: "math",
   level: "block",
   start(src: string) {
-    return src.match(/\$\$/)?.index;
+    // 修复：严格限制行首，避免代码块内误判
+    return src.match(/^\$\$/) ? 0 : undefined;
   },
   tokenizer(src: string, tokens: any) {
-    const match = /^\$\$([\s\S]+?)\$\$/.exec(src);
+    // 修复：增加负向预查 (?!\$) 避免跨块匹配风险，但允许单行 Block
+    const match = /^\$\$([\s\S]+?)\$\$(?!\$)/.exec(src);
     if (match) {
       return {
         type: "math",
@@ -50,10 +52,13 @@ const mathInline = {
   name: "inlineMath",
   level: "inline",
   start(src: string) {
-    return src.match(/\$/)?.index;
+    // 修复：跳过转义的 \$ (支持 ES2018 lookbehind)
+    const match = src.match(/(?<!\\)\$/);
+    return match?.index;
   },
   tokenizer(src: string, tokens: any) {
-    const match = /^\$([^$\n]+?)\$/.exec(src);
+    // 修复：支持内部转义字符 (如 \$)，排除 $$ 开头
+    const match = /^\$(?!\$)((?:\\.|[^$\n])*?)\$/.exec(src);
     if (match) {
       return {
         type: "inlineMath",
