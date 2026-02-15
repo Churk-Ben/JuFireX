@@ -42,13 +42,17 @@ export default defineComponent({
       required: true,
       default: "",
     },
+    assetsBaseUrl: {
+      type: String,
+      default: "",
+    },
   },
   setup(props) {
     // Mermaid initialization
     onMounted(() => {
       mermaid.initialize({
         startOnLoad: false,
-        theme: "dark",
+        theme: "dark", // 暂时使用暗色主题
         securityLevel: "loose",
         logLevel: 5, // 禁用错误日志
       });
@@ -130,6 +134,20 @@ export default defineComponent({
               </NA>
             );
           case "image":
+            let imgSrc = token.href;
+            if (imgSrc.startsWith("blog://") && props.assetsBaseUrl) {
+              const filename = imgSrc.replace("blog://", "");
+              // 确保 baseUrl 没有结尾的斜杠
+              const baseUrl = props.assetsBaseUrl.endsWith("/")
+                ? props.assetsBaseUrl.slice(0, -1)
+                : props.assetsBaseUrl;
+              // 确保 filename 没有开头的斜杠
+              const cleanFilename = filename.startsWith("/")
+                ? filename.slice(1)
+                : filename;
+              imgSrc = `${baseUrl}/${cleanFilename}`;
+            }
+
             return (
               <div
                 key={key}
@@ -141,7 +159,7 @@ export default defineComponent({
                 }}
               >
                 <NImage
-                  src={token.href}
+                  src={imgSrc}
                   alt={token.text}
                   objectFit="contain"
                   imgProps={{

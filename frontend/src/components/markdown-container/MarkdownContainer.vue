@@ -24,6 +24,10 @@ defineProps({
     type: String,
     default: "",
   },
+  assetsBaseUrl: {
+    type: String,
+    default: "",
+  },
 });
 </script>
 
