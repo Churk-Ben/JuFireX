@@ -12,9 +12,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { MdEditor } from "md-editor-v3";
+import { MdEditor, config } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
+import JP_JP from "@vavt/cm-extension/dist/locale/jp-JP";
 import { useI18n } from "vue-i18n";
+
+config({
+  editorConfig: {
+    languageUserDefined: {
+      "jp-JP": JP_JP,
+    },
+  },
+});
 import { useThemeStore } from "@/stores/theme";
 
 import { blogService } from "@/services/blog";
@@ -37,6 +46,8 @@ const language = computed(() => {
       return "zh-CN";
     case "en":
       return "en-US";
+    case "jp":
+      return "jp-JP";
     default:
       return "en-US";
   }

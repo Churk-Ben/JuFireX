@@ -16,6 +16,7 @@
     "@popperjs/core": "^2.11.8",
     "@types/dompurify": "^3.0.5",
     "@types/katex": "^0.16.8",
+    "@vavt/cm-extension": "^1.11.2",
     "bootstrap": "^5.3.8",
     "cropperjs": "^1.6.2",
     "dompurify": "^3.3.1",
