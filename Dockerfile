@@ -12,6 +12,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     TZ=Asia/Shanghai
 
+# 使用清华源替换 Debian 默认源 (加速 apt update)
+RUN sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list.d/debian.sources && \
+    sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list.d/debian.sources
+
 # 安装系统级依赖
 # 虽然 slim 镜像很精简，但有些 Python 包可能需要编译工具
 # 如果遇到 Pillow 或其他库的安装问题，可能需要解开下面的注释
@@ -25,9 +29,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# 复制依赖文件并安装
+# 复制依赖文件并安装 (使用清华源加速 pip)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 复制项目代码
 # 我们只复制 backend 目录，保持结构一致性

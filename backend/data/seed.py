@@ -42,7 +42,8 @@ def seed_super_admin():
 
     # 在日志中记录播种信息
     msg = (
-        "=" * 50
+        "\n"
+        + "=" * 50
         + f"""
         创建默认超级管理员账户:
         - 用户名: {Config.SUPER_ADMIN_NAME}
