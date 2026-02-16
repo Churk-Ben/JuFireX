@@ -5,7 +5,7 @@
 <template>
   <n-config-provider :hljs="hljs" :katex="katex">
     <n-card class="markdown-container">
-      <MarkdownRender :content="content" :assets-base-url="assetsBaseUrl" />
+      <MarkdownRender :content="content" />
     </n-card>
   </n-config-provider>
 </template>
@@ -21,10 +21,6 @@ import "highlight.js/styles/atom-one-dark.min.css";
 
 defineProps({
   content: {
-    type: String,
-    default: "",
-  },
-  assetsBaseUrl: {
     type: String,
     default: "",
   },

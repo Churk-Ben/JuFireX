@@ -22,7 +22,7 @@ const AdminProjects = () => import("@/pages/admin/Projects.vue");
 const AdminBlogs = () => import("@/pages/admin/Blogs.vue");
 
 // pages/blog/
-const BlogDetail = () => import("@/pages/blog/Detail.vue");
+const BlogOverview = () => import("@/pages/blog/Overview.vue");
 
 // pages/project
 const ProjectOverview = () => import("@/pages/project/Overview.vue");
@@ -48,7 +48,7 @@ const router = createRouter({
     { path: "/admin/projects", component: AdminProjects },
     { path: "/admin/blogs", component: AdminBlogs },
     { path: "/blog", redirect: "/blogs" },
-    { path: "/blog/:uuid", component: BlogDetail },
+    { path: "/blog/:uuid", component: BlogOverview },
     { path: "/project/:uuid", component: ProjectOverview },
     { path: "/project/:uuid/files", component: ProjectFileTreeView },
   ],
