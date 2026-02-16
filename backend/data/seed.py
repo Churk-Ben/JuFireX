@@ -105,7 +105,7 @@ def seed():
         if not nav_file.exists():
             logger.warning(f"默认导航文件不存在: {nav_file}")
         elif flag_file.exists():
-            logger.info(f"默认导航项已播种: {flag_file}")
+            logger.info(f"默认导航项已播种: 跳过.")
         else:
             with nav_file.open("r", encoding="utf-8") as f:
                 navs = json.load(f) or []
