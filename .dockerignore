@@ -1,0 +1,41 @@
+# 忽略 Git 相关文件
+.git
+.gitignore
+.gitattributes
+
+# 忽略虚拟环境
+.venv
+.venv-linux
+venv
+env
+
+# 忽略 Python 缓存
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# 忽略前端文件（构建时不需要，除非你在 Docker 里构建前端）
+frontend/node_modules
+frontend/dist
+frontend/.output
+frontend/.nuxt
+frontend/static
+
+# 忽略数据和日志（这些通过 volume 挂载）
+# 注意：第一次构建时可能需要 database 目录结构，但不要包含具体的 .db 文件
+database/profiles/*.db
+database/projects/*.db
+database/navigations/*.db
+database/blogs/*.db
+logs/*
+
+# 忽略本地配置
+.env
+.vscode
+.idea
+*.sh
+*.ps1

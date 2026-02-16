@@ -1,0 +1,35 @@
+services:
+  jufirex-backend:
+    build: .
+    container_name: jufirex-backend
+    restart: always
+    ports:
+      # 映射到宿主机的 8000 端口
+      # 1Panel 配置反向代理时可使用 http://127.0.0.1:8000
+      - "127.0.0.1:8000:8000"
+    volumes:
+      # 挂载数据库目录，确保持久化
+      - ./database:/app/database
+      # 挂载日志目录
+      - ./logs:/app/logs
+      # 挂载环境变量文件（如果有的话）
+      # - ./.env:/app/.env
+    environment:
+      # 如果不挂载 .env 文件，可以直接在这里配置
+      - SECRET_KEY=${SECRET_KEY:-ChangeMePlease}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DEBUG=${DEBUG:-false}
+      - SEED=${SEED:-true}
+      - TZ=Asia/Shanghai
+    # 如果你在国内，可能需要配置 pip 源，可以在 Dockerfile 中配置，也可以在这里通过环境变量
+    # 比如: PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+
+  # 只有在你不想用 1Panel 托管前端静态文件时才需要这个服务
+  # 推荐使用 1Panel 的 "静态网站" 功能，这里仅作参考
+  # jufirex-frontend:
+  #   image: nginx:alpine
+  #   volumes:
+  #     - ./static:/usr/share/nginx/html
+  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf
+  #   ports:
+  #     - "8080:80"
