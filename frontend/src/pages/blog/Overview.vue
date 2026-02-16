@@ -2,14 +2,28 @@
   <ScrollContainer>
     <n-spin :show="loading">
       <div v-if="blog" class="content-wrapper">
-        <n-button text @click="router.back()" class="mb-3">
-          <template #icon>
-            <n-icon>
-              <FontAwesomeIcon :icon="faArrowLeft" />
-            </n-icon>
-          </template>
-          Back to Blogs
-        </n-button>
+        <n-space>
+          <n-button text @click="router.back()" class="mb-3">
+            <template #icon>
+              <n-icon>
+                <FontAwesomeIcon :icon="faArrowLeft" />
+              </n-icon>
+            </template>
+            Back to Blogs
+          </n-button>
+          <n-button
+            text
+            @click="router.push(`/blog/${blog.uuid}/editor`)"
+            class="edit-button"
+          >
+            <template #icon>
+              <n-icon>
+                <FontAwesomeIcon :icon="faEdit" />
+              </n-icon>
+            </template>
+            Edit Article
+          </n-button>
+        </n-space>
 
         <!-- TODO: 这里到时候要做大banner和meta信息, 要搞得像博客一样好看 -->
         <n-h1 class="blog-title">{{ blog.title }}</n-h1>
@@ -73,7 +87,7 @@ import {
   NIcon,
 } from "naive-ui";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faEdit } from "@fortawesome/free-solid-svg-icons";
 import { blogService } from "@/services/blog";
 import type { Blog } from "@/types/models";
 

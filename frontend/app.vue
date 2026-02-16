@@ -266,7 +266,7 @@ const ctrlOptions = computed(() => [
     label: themeLabel.value,
     key: "toggleTheme",
     icon: renderIcon(
-      themeMode.value === "light" && route.path !== "/" ? faMoon : faSun,
+      themeStore.themeMode === "light" && route.path !== "/" ? faMoon : faSun,
     ),
   },
   {
@@ -301,22 +301,11 @@ function toggleCollapsed() {
 }
 
 // 应用主题模式
-const prefersDark = () => {
-  if (localStorage.getItem("themeMode")) {
-    return localStorage.getItem("themeMode") === "dark";
-  }
-  return (
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  );
-};
-const themeMode = ref<"light" | "dark">(prefersDark() ? "dark" : "light");
-
 const effectiveThemeMode = computed(() => {
   if (route.path === "/") {
     return "dark";
   }
-  return themeMode.value;
+  return themeStore.themeMode;
 });
 
 const naiveTheme = computed(() =>
@@ -330,8 +319,7 @@ const themeLabel = computed(() =>
 );
 
 function toggleTheme() {
-  themeMode.value = themeMode.value === "light" ? "dark" : "light";
-  localStorage.setItem("themeMode", themeMode.value);
+  themeStore.toggleThemeMode();
 }
 
 // 应用语言选项

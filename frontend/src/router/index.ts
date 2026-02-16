@@ -23,10 +23,11 @@ const AdminBlogs = () => import("@/pages/admin/Blogs.vue");
 
 // pages/blog/
 const BlogOverview = () => import("@/pages/blog/Overview.vue");
+const BlogEditor = () => import("@/pages/blog/Editor.vue");
 
 // pages/project
 const ProjectOverview = () => import("@/pages/project/Overview.vue");
-const ProjectFileTreeView = () => import("@/pages/project/FileTreeView.vue");
+const ProjectExplorer = () => import("@/pages/project/Explorer.vue");
 
 const router = createRouter({
   history: createWebHistory(),
@@ -49,8 +50,10 @@ const router = createRouter({
     { path: "/admin/blogs", component: AdminBlogs },
     { path: "/blog", redirect: "/blogs" },
     { path: "/blog/:uuid", component: BlogOverview },
+    { path: "/blog/:uuid/editor", component: BlogEditor },
+    { path: "/project", redirect: "/projects" },
     { path: "/project/:uuid", component: ProjectOverview },
-    { path: "/project/:uuid/files", component: ProjectFileTreeView },
+    { path: "/project/:uuid/explorer", component: ProjectExplorer },
   ],
 });
 
