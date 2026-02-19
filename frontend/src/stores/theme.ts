@@ -1,8 +1,14 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import { themes } from "@/themes";
 
 export const useThemeStore = defineStore("theme", () => {
   const currentTheme = ref<string>("default");
+
+  // 获取当前主题配置
+  const currentThemeConfig = computed(() => {
+    return themes[currentTheme.value] || themes["default"];
+  });
 
   // 主题模式: light | dark
   const themeMode = ref<"light" | "dark">("light");
@@ -35,6 +41,7 @@ export const useThemeStore = defineStore("theme", () => {
 
   return {
     currentTheme,
+    currentThemeConfig,
     themeMode,
     setTheme,
     toggleThemeMode,

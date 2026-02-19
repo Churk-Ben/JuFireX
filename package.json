@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@vavt/cm-extension": "^1.11.2",
-    "md-editor-v3": "^6.3.1"
-  }
-}
