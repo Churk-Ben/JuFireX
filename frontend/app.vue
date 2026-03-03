@@ -266,7 +266,7 @@ const ctrlOptions = computed(() => [
     label: themeLabel.value,
     key: "toggleTheme",
     icon: renderIcon(
-      themeStore.themeMode === "light" && route.path !== "/" ? faMoon : faSun,
+      themeStore.themeMode === "light" && route.path !== "/" ? faMoon : faSun
     ),
   },
   {
@@ -309,13 +309,13 @@ const effectiveThemeMode = computed(() => {
 });
 
 const naiveTheme = computed(() =>
-  effectiveThemeMode.value === "dark" ? darkTheme : null,
+  effectiveThemeMode.value === "dark" ? darkTheme : null
 );
 
 const themeLabel = computed(() =>
   effectiveThemeMode.value === "light"
     ? t("sider.appCtrl.theme.dark")
-    : t("sider.appCtrl.theme.light"),
+    : t("sider.appCtrl.theme.light")
 );
 
 function toggleTheme() {
@@ -362,7 +362,7 @@ watch(
   (p) => {
     menuValue.value = p;
     userValue.value = p;
-  },
+  }
 );
 </script>
 

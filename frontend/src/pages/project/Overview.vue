@@ -116,7 +116,7 @@ async function fetchDetail() {
 }
 
 function viewFiles() {
-  router.push(`/project/${project.value?.uuid}/files`);
+  router.push(`/project/${project.value?.uuid}/explorer`);
 }
 
 onMounted(() => {
