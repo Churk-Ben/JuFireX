@@ -1,5 +1,5 @@
 <template>
-  <div class="page-container">
+  <ScrollContainer>
     <n-spin :show="loading">
       <div v-if="project" class="content-wrapper">
         <n-button text @click="router.push('/projects')" class="back-button">
@@ -65,7 +65,7 @@
         </template>
       </n-result>
     </n-spin>
-  </div>
+  </ScrollContainer>
 </template>
 
 <script setup lang="ts">
@@ -90,6 +90,7 @@ import type { Project } from "@/types/models";
 import { marked } from "marked";
 
 import { MarkdownContainer } from "@/components/markdown-container";
+import { ScrollContainer } from "@/components/scroll-container";
 
 const route = useRoute();
 const router = useRouter();

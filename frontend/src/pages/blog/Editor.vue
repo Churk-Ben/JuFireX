@@ -34,8 +34,6 @@
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { MdEditor, config } from "md-editor-v3";
-import "md-editor-v3/lib/style.css";
-import JP_JP from "@vavt/cm-extension/dist/locale/jp-JP";
 
 import { useI18n } from "vue-i18n";
 import { NButton, NSpace, NH1, NTag } from "naive-ui";
@@ -43,6 +41,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 import { useThemeStore } from "@/stores/theme";
 import { blogService } from "@/services/blog";
+
+import JP_JP from "@vavt/cm-extension/dist/locale/jp-JP";
+import "md-editor-v3/lib/style.css";
 
 const route = useRoute();
 const router = useRouter();
@@ -59,8 +60,10 @@ const theme = computed(() => {
 
 const editorStyle = computed(() => {
   return {
-    "--md-color": themeStore.themeMode === "dark" ? "#e6e6e6" : "#24292e",
-    "--md-bk-color": themeStore.themeMode === "dark" ? "#1a1a1a" : "#ffffff",
+    "--md-bk-color":
+      themeStore.themeMode === "dark"
+        ? "rgb(24, 24, 26)"
+        : "rgb(255, 255, 255)",
   };
 });
 
