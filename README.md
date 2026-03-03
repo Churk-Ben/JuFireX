@@ -7,6 +7,7 @@
 ## 一、项目整体结构概览
 
 - **后端 (`backend/`)**：Flask 应用，提供 RESTful API，实际接口详见 `docs/api.md`。
+
   - `backend/app.py`：Flask 应用入口，`create_app` 工厂 + CORS + 数据库初始化 + 蓝图注册。
   - `backend/api/`：按领域拆分的蓝图（`auth.py`, `blog.py`, `navigation.py`, `project.py`, `user.py`）。
   - `backend/data/`：数据库相关（`database.py`、`models/`、`repositories/`），以及 `seed.py`、`seed_large.py` 数据填充脚本。
@@ -14,6 +15,7 @@
   - `backend/core/`：基础设施，如日志、权限/安全工具等。
 
 - **前端 (`frontend/`)**：Vue 3 + Vite + TypeScript 单页应用。
+
   - `frontend/src/pages/`：页面路由视图，例如登录/注册、博客列表与详情、导航、项目等。
   - `frontend/src/components/`：可复用组件（如 `avatar-cropper`、`common-table`、`markdown-container` 等）。
   - `frontend/src/stores/`：Pinia 状态管理（如 `user`、`theme`）。
@@ -21,7 +23,7 @@
   - `frontend/src/utils/request.ts`：HTTP 请求封装，统一处理 baseURL、错误提示等。
 
 - **启动脚本**
-  - `setup-linux.sh`：在 Linux 下初始化 Python 虚拟环境 `.venv-linux`，并安装前端依赖。
+  - `setup.sh`：在 Linux 下初始化 Python 虚拟环境 `.venv-linux`，并安装前端依赖。
   - `start.sh`：同时启动后端（通过 `uv` 运行 `backend/app.py`）与前端（`npm run dev`），用于本地开发。
 
 ---
@@ -34,7 +36,7 @@
 - **Python**：版本见项目根目录 `pyproject.toml` / `.python-version`
 - **Node.js**：建议与 `frontend` 中 `package-lock.json` 匹配的 LTS 版本
 - **包管理**：
-  - 后端：`uv`（通过 `setup-linux.sh` 调用）
+  - 后端：`uv`（通过 `setup.sh` 调用）
   - 前端：`npm`
 
 ### 2. 一次性初始化（Linux）
@@ -42,7 +44,7 @@
 在项目根目录执行：
 
 ```bash
-./setup-linux.sh
+./setup.sh
 ```
 
 该脚本会：
@@ -74,6 +76,7 @@
 以「新增某个业务模块」为例（如以后要加 `Task` 模块）：
 
 1. **后端**
+
    - 在 `backend/data/models/` 中定义模型（如 `task.py`）。
    - 在 `backend/data/repositories/` 中为模型写仓储访问逻辑。
    - 在 `backend/services/` 中编写业务服务（如 `task_service.py`）。
@@ -82,6 +85,7 @@
    - 如有需要，更新 `docs/api.md`，补充 API 文档。
 
 2. **前端**
+
    - 在 `frontend/src/services/` 中添加 `task.ts`，封装对后端 API 的调用。
    - 在 `frontend/src/pages/` 下新增对应页面，如 `pages/admin/Tasks.vue` 或用户侧页面。
    - 在 `frontend/src/router/index.ts` 中增加路由配置。
