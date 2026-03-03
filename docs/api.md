@@ -75,7 +75,7 @@
 ```json
 {
   "level": "error",
-  "message": "用户名或密码错误"
+  "message": "用户不存在或密码错误"
 }
 ```
 
@@ -215,7 +215,7 @@
 ```json
 {
   "level": "success",
-  "message": "创建成功",
+  "message": "文章创建成功",
   "data": { ... } // 创建后的博客对象
 }
 ```
@@ -240,7 +240,7 @@
 ```json
 {
   "level": "success",
-  "message": "更新成功",
+  "message": "文章更新成功",
   "data": { ... }
 }
 ```
@@ -256,7 +256,7 @@
 ```json
 {
   "level": "success",
-  "message": "删除成功"
+  "message": "文章删除成功"
 }
 ```
 
@@ -318,9 +318,11 @@
 {
   "title": "New Site",
   "url": "https://example.com",
+  "icon": "fas:link",
   "category": "Tools",
   "description": "A useful site",
-  "is_public": true
+  "is_public": true,
+  "order": 1
 }
 ```
 
@@ -482,7 +484,7 @@
 
 - **URL**: `/`
 - **Method**: `POST`
-- **Description**: 创建新项目。
+- **Description**: 创建新项目。需要管理员权限。
 
 **Request Body**:
 
@@ -490,7 +492,12 @@
 {
   "title": "New Project",
   "description": "Project description",
-  "is_public": false
+  "readme": "# README content...",
+  "url": "https://example.com",
+  "icon": "fas:code",
+  "tags": ["python", "web"],
+  "is_public": false,
+  "order": 1
 }
 ```
 
@@ -554,7 +561,7 @@
 
 - **URL**: `/list`
 - **Method**: `GET`
-- **Description**: 获取系统中所有用户。需要超级管理员权限。
+- **Description**: 获取系统中所有用户。需要管理员权限。
 
 **Response**:
 
@@ -572,7 +579,29 @@
 }
 ```
 
-### 2. 上传头像
+### 2. 获取指定用户信息
+
+- **URL**: `/<uuid>`
+- **Method**: `GET`
+- **Description**: 获取指定用户的公开信息。
+
+**Response**:
+
+```json
+{
+  "level": "success",
+  "data": {
+    "uuid": "...",
+    "username": "user1",
+    "role": 1,
+    "role_name": "成员",
+    "is_active": true,
+    "created_at": "2025-01-01T12:00:00Z"
+  }
+}
+```
+
+### 3. 上传头像
 
 - **URL**: `/avatar`
 - **Method**: `POST`
@@ -603,7 +632,7 @@
 
 **Response**: 图片流
 
-### 4. 重建用户目录
+### 5. 重建用户目录
 
 - **URL**: `/rebuild/<uuid>`
 - **Method**: `POST`
