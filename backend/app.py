@@ -14,6 +14,11 @@ from backend.api import register_blueprints
 
 
 def create_app(config_class=Config):
+    # 检查环境变量配置文件
+    if not (Config.PROJECT_ROOT / ".env").exists():
+        print(f"错误: 环境变量配置文件 {Config.PROJECT_ROOT / '.env'} 不存在.")
+        sys.exit(1)
+
     # 确保目录存在
     Config.ensure_dirs()
 
