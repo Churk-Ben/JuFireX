@@ -1,66 +1,81 @@
 <template>
   <div class="editor-container">
+    <n-space>
+      <n-button @click="router.back()">
+        <FontAwesomeIcon icon="arrow-left" />
+      </n-button>
+      <n-h1>{{ title }}</n-h1>
+      <n-tag
+        v-for="tag in tags"
+        :key="tag"
+        :bordered="false"
+        type="info"
+        size="small"
+      >
+        {{ tag }}
+      </n-tag>
+    </n-space>
     <MdEditor
-      v-model="content"
-      :theme="theme"
-      :language="language"
-      :style="editorStyle"
-      preview-theme="default"
-      code-theme="atom"
       class="editor"
+      v-model="content"
+      autoDetectCode
+      :theme="theme"
+      :style="editorStyle"
+      :language="language"
+      :preview-theme="previewTheme"
+      :code-theme="codeTheme"
+      @on-save="onSave"
+      @on-upload-img="onUploadImg"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { MdEditor, config } from "md-editor-v3";
-import "md-editor-v3/lib/style.css";
-import JP_JP from "@vavt/cm-extension/dist/locale/jp-JP";
+
 import { useI18n } from "vue-i18n";
+import { NButton, NSpace, NH1, NTag } from "naive-ui";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-config({
-  editorConfig: {
-    languageUserDefined: {
-      "jp-JP": JP_JP,
-    },
-  },
-});
 import { useThemeStore } from "@/stores/theme";
-
 import { blogService } from "@/services/blog";
 
+import JP_JP from "@vavt/cm-extension/dist/locale/jp-JP";
+import "md-editor-v3/lib/style.css";
+
 const route = useRoute();
+const router = useRouter();
 const { locale } = useI18n();
 const themeStore = useThemeStore();
 
 const content = ref("");
+const title = ref("");
+const tags = ref<string[]>([]);
 
 const theme = computed(() => {
   return themeStore.themeMode === "dark" ? "dark" : "light";
 });
 
 const editorStyle = computed(() => {
-  const primaryColor =
-    themeStore.currentThemeConfig?.common?.primaryColor || "#2A7BE4FF";
   return {
-    "--md-color": themeStore.themeMode === "dark" ? "#e6e6e6" : "#24292e",
-    "--md-bk-color": themeStore.themeMode === "dark" ? "#1a1a1a" : "#ffffff",
-    // 设置主题色变量
-    "--md-theme-color": primaryColor,
-    // 链接颜色
-    "--md-theme-link-color": primaryColor,
-    // 供下方样式使用的自定义变量
-    "--user-primary-color": primaryColor,
-    // 覆盖悬停背景色（使用主色调的低透明度版本）
-    "--md-bk-hover": `${primaryColor}1A`,
+    "--md-bk-color":
+      themeStore.themeMode === "dark"
+        ? "rgb(24, 24, 26)"
+        : "rgb(255, 255, 255)",
   };
 });
 
+const previewTheme = computed(() => {
+  return "github";
+});
+
+const codeTheme = computed(() => {
+  return "atom";
+});
+
 const language = computed(() => {
-  // md-editor-v3 supports 'zh-CN', 'en-US'
-  // Our app uses 'zh-CN', 'en', 'jp'
   switch (locale.value) {
     case "zh-CN":
       return "zh-CN";
@@ -73,11 +88,46 @@ const language = computed(() => {
   }
 });
 
+config({
+  editorConfig: {
+    languageUserDefined: {
+      "jp-JP": JP_JP,
+    },
+  },
+});
+
+const onSave = async (v: string, h: Promise<string>) => {
+  const uuid = route.params.uuid as string;
+  if (!uuid) return;
+  await blogService.update(uuid, {
+    content: v,
+  });
+};
+
+const onUploadImg = async (
+  files: Array<File>,
+  callback: (urls: Array<string>) => void
+) => {
+  const res = await Promise.all(
+    files.map((file) => {
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+      });
+    })
+  );
+  callback(res);
+};
+
 onMounted(() => {
   const uuid = route.params.uuid as string;
   if (!uuid) return;
   blogService.getDetail(uuid).then((blog) => {
     content.value = blog.content || "";
+    title.value = blog.title || "Blog Editor";
+    tags.value = blog.tags || [];
   });
 });
 </script>
@@ -92,41 +142,5 @@ onMounted(() => {
 .editor {
   height: 100%;
   border-radius: 8px;
-}
-
-/* 覆盖工具栏图标悬停颜色 */
-:deep(.md-editor-toolbar-item:hover) {
-  color: var(--user-primary-color);
-  background-color: var(--md-bk-hover);
-}
-
-/* 覆盖菜单项激活/悬停颜色 */
-:deep(.md-editor-menu-item:hover),
-:deep(.md-editor-menu-item.md-editor-menu-item-active) {
-  color: var(--user-primary-color);
-  background-color: var(--md-bk-hover);
-}
-
-/* 覆盖链接颜色 */
-:deep(.md-editor-content .md-editor-preview a),
-:deep(.md-editor-preview-wrapper a) {
-  color: var(--user-primary-color);
-}
-
-/* 覆盖代码块选中颜色 */
-:deep(.cm-selectionBackground),
-:deep(.cm-focused .cm-selectionBackground) {
-  background-color: var(--user-primary-color) !important;
-  opacity: 0.3;
-}
-
-/* 覆盖光标颜色 */
-:deep(.cm-cursor) {
-  border-left-color: var(--user-primary-color) !important;
-}
-
-/* 覆盖页脚统计信息选中颜色 */
-:deep(.md-editor-footer-item:hover) {
-  color: var(--user-primary-color);
 }
 </style>

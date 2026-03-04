@@ -5,6 +5,7 @@
 # ------------------------------------------------------------
 
 import json
+import shutil
 from pathlib import Path
 import random
 
@@ -17,6 +18,25 @@ from backend.data.models.user import User
 
 
 logger = get_logger("Seeder")
+
+
+def seed_default_dir():
+    """复制样板文件"""
+    # 将examples目录下的文件复制到Defaults目录
+    examples_dir = Config.BACKEND_DIR / "data" / "examples"
+    defaults_dir = Config.DEFAULTS_DIR
+
+    for item in examples_dir.iterdir():
+        if not item.is_file():
+            continue
+        try:
+            dest = defaults_dir / item.name
+            if dest.exists():
+                logger.info(f"{item.name} 已存在: 跳过.")
+                continue
+            shutil.copy2(item, dest)
+        except Exception as e:
+            logger.error(f"复制文件失败: {item.name} - {e}")
 
 
 def seed_super_admin():
@@ -41,21 +61,16 @@ def seed_super_admin():
     user_folder.mkdir(parents=True, exist_ok=True)
 
     # 在日志中记录播种信息
-    msg = (
-        "\n"
-        + "=" * 50
-        + f"""
-        创建默认超级管理员账户:
-        - 用户名: {Config.SUPER_ADMIN_NAME}
-        - 邮箱: {Config.SUPER_ADMIN_EMAIL}
-        - 初始密码: {init_password}
-        - UUID: {super_admin.uuid}
-        
-        请务必记录好初始密码! 后续登录后请及时修改密码!
-        """
-        + "=" * 50
-    )
-    logger.info(msg)
+    logger.info("创建默认超级管理员账户:")
+
+    logger.info("=" * 50)
+    logger.info(f"用户名: {Config.SUPER_ADMIN_NAME}")
+    logger.info(f"邮箱: {Config.SUPER_ADMIN_EMAIL}")
+    logger.info(f"初始密码: {init_password}")
+    logger.info(f"UUID: {super_admin.uuid}")
+    logger.info("=" * 50)
+
+    logger.info("请务必记录好初始密码! 后续登录后请及时修改密码!")
 
     # 在Defaults目录生成初始密码文件
     with (Config.DEFAULTS_DIR / "password.txt").open("w") as f:
@@ -93,6 +108,10 @@ def seed_navigations(navs: list):
 
 def seed():
     """数据库播种"""
+    # 复制样板文件
+    if (Config.BACKEND_DIR / "data" / "examples").exists():
+        seed_default_dir()
+
     # 处理超级管理员
     if Config.KEEP_SUPER_ADMIN_EXIST:
         if not User.query.filter_by(role=ROLE_SUPER_ADMIN).first():
