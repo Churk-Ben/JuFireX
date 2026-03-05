@@ -6,6 +6,7 @@
 
 import json
 from pathlib import Path
+import re
 import shutil
 from typing import Any, Dict, List, Optional
 
@@ -95,6 +96,31 @@ class BlogRepository:
 
         return {**base_data, **file_data}
 
+    def _clean_unused_assets(self, uuid: str):
+        blog_dir = self._get_blog_dir(uuid)
+        article_path = blog_dir / "article.md"
+        assets_dir = blog_dir / "assets"
+        if not assets_dir.exists() or not article_path.exists():
+            return
+
+        # 获取article中的所有资产ID
+        with article_path.open("r", encoding="utf-8") as f:
+            content = f.read()
+            asset_ids = set()
+            for line in content.splitlines():
+                # 提取模式 /api/blog/<*>/assets/<assets-uuid> 中的UUID
+                match = re.search(r"/api/blog/[^/]+/assets/([a-f0-9-]+)", line)
+                if match:
+                    asset_ids.add(match.group(1))
+
+        # 遍历资产目录, 删除未被引用的资产
+        for asset_file in assets_dir.iterdir():
+            if asset_file.is_file() and asset_file.suffix:
+                asset_id = asset_file.stem
+                if asset_id not in asset_ids:
+                    asset_file.unlink()
+                    logger.info(f"删除未被引用的资产 {asset_id}")
+
     def get_all(
         self, user_uuid: Optional[str] = None, view_all: bool = False
     ) -> List[Dict[str, Any]]:
@@ -167,6 +193,9 @@ class BlogRepository:
                 current_data[key] = data[key]
 
         self._save_files(uuid, current_data)
+
+        # 删除未使用的资产文件
+        self._clean_unused_assets(uuid)
 
         return self._merge_blog_data(blog)
 

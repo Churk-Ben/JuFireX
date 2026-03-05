@@ -6,6 +6,8 @@
 
 from typing import Any, Dict, List, Optional, Tuple
 
+from werkzeug.datastructures import FileStorage
+
 from backend.config import ROLE_ADMIN, ROLE_GUEST
 from backend.data import BlogRepository
 
@@ -103,9 +105,75 @@ class BlogService:
             success = self.blog_repo.delete(uuid)
             if success:
                 return True, "文章删除成功"
-            return False, "文章不存在"
+            return False, "文章删除失败"
         except Exception as e:
-            return False, f"删除失败: {str(e)}"
+            return False, f"文章删除失败: {str(e)}"
+
+    def upload_asset(
+        self,
+        blog_uuid: str,
+        file_obj: FileStorage,
+        user_uuid: Optional[str] = None,
+        user_role: int = ROLE_GUEST,
+    ) -> Tuple[bool, str, Optional[str]]:
+        try:
+            # 检查博客是否存在
+            blog = self.blog_repo.get_by_uuid(blog_uuid)
+            if not blog:
+                return False, "文章不存在", None
+
+            # 验权
+            is_admin = user_role >= ROLE_ADMIN
+            is_owner = user_uuid and user_uuid == blog.get("owner_uuid")
+
+            if not (is_admin or is_owner):
+                return False, "权限不足", None
+
+            import uuid
+            from pathlib import Path
+
+            from backend.config import Config
+
+            # 确保目录存在
+            assets_dir = Config.BLOGS_DIR / blog_uuid / "assets"
+            assets_dir.mkdir(parents=True, exist_ok=True)
+
+            # 生成文件名
+            ext = Path(file_obj.filename).suffix
+            if not ext:
+                ext = ".png"  # 默认扩展名
+
+            asset_uuid = str(uuid.uuid4())
+            filename = f"{asset_uuid}{ext}"
+            file_path = assets_dir / filename
+
+            # 保存文件
+            file_obj.save(file_path)
+
+            return True, "上传成功", asset_uuid
+        except Exception as e:
+            return False, f"上传失败: {str(e)}", None
+
+    def get_asset_path(
+        self,
+        blog_uuid: str,
+        asset_uuid: str,
+    ) -> Tuple[bool, Optional[str]]:
+        try:
+            from backend.config import Config
+            import glob
+
+            # 查找文件 (因为不知道扩展名)
+            assets_dir = Config.BLOGS_DIR / blog_uuid / "assets"
+            pattern = str(assets_dir / f"{asset_uuid}.*")
+            files = glob.glob(pattern)
+
+            if not files:
+                return False, None
+
+            return True, files[0]
+        except Exception:
+            return False, None
 
     def increment_views(self, uuid: str):
         self.blog_repo.increment_views(uuid)

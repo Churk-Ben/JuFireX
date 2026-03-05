@@ -46,7 +46,7 @@
           />
         </div>
 
-        <MarkdownContainer :content="blog.content" />
+        <MarkdownContainer :content="blog.content" :blog-id="blog.uuid" />
 
         <n-space v-if="blog.tags && blog.tags.length" class="tags-container">
           <n-tag v-for="tag in blog.tags" :key="tag" round :bordered="false">

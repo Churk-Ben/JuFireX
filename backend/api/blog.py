@@ -4,7 +4,7 @@
 # @description: 博客模块
 # ------------------------------------------------------------
 
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request, send_file, session
 
 from backend.config import ROLE_ADMIN, ROLE_GUEST
 from backend.core.Logger import get_logger
@@ -56,43 +56,6 @@ def get_blogs():
             {
                 "level": "success",
                 "data": blogs,
-            },
-        ),
-        200,
-    )
-
-
-@blog_bp.route("/<uuid>", methods=["GET"])
-def get_blog_detail(uuid):
-    """获取博客详情"""
-    user_uuid = session.get("user_uuid")
-    user_role = session.get("role", ROLE_GUEST)
-
-    success, message, blog = blog_service.get_by_uuid(uuid, user_uuid, user_role)
-
-    if not success:
-        # 如果是权限不足, 返回 403; 如果是不存在, 返回 404
-        # 为了安全, 也可以统一返回 404, 但这里为了清晰区分, 使用 403
-        code = 403 if message == "权限不足" else 404
-        return (
-            jsonify(
-                {
-                    "level": "error",
-                    "message": message,
-                },
-            ),
-            code,
-        )
-
-    # 增加访问量并更新视图数
-    blog_service.increment_views(uuid)
-    blog["views"] = blog.get("views", 0) + 1
-
-    return (
-        jsonify(
-            {
-                "level": "success",
-                "data": blog,
             },
         ),
         200,
@@ -157,6 +120,43 @@ def create_blog():
             ),
             500,
         )
+
+
+@blog_bp.route("/<uuid>", methods=["GET"])
+def get_blog_detail(uuid):
+    """获取博客详情"""
+    user_uuid = session.get("user_uuid")
+    user_role = session.get("role", ROLE_GUEST)
+
+    success, message, blog = blog_service.get_by_uuid(uuid, user_uuid, user_role)
+
+    if not success:
+        # 如果是权限不足, 返回 403; 如果是不存在, 返回 404
+        # 为了安全, 也可以统一返回 404, 但这里为了清晰区分, 使用 403
+        code = 403 if message == "权限不足" else 404
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": message,
+                },
+            ),
+            code,
+        )
+
+    # 增加访问量并更新视图数
+    blog_service.increment_views(uuid)
+    blog["views"] = blog.get("views", 0) + 1
+
+    return (
+        jsonify(
+            {
+                "level": "success",
+                "data": blog,
+            },
+        ),
+        200,
+    )
 
 
 @blog_bp.route("/<uuid>", methods=["PUT"])
@@ -233,3 +233,91 @@ def delete_blog(uuid):
             ),
             code,
         )
+
+
+@blog_bp.route("/<uuid>/assets", methods=["POST"])
+@require_member
+def upload_asset(uuid):
+    """
+    @name: 上传博客资源(图片等)
+    """
+    if "file" not in request.files:
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": "没有文件部分",
+                },
+            ),
+            400,
+        )
+
+    file = request.files["file"]
+    if file.filename == "":
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": "没有选择文件",
+                },
+            ),
+            400,
+        )
+
+    user_uuid = session.get("user_uuid")
+    user_role = session.get("role", ROLE_GUEST)
+
+    success, message, asset_uuid = blog_service.upload_asset(
+        uuid, file, user_uuid, user_role
+    )
+
+    if not success:
+        match message:
+            case "权限不足":
+                code = 403
+            case "文章不存在":
+                code = 404
+            case _:
+                code = 500
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": message,
+                },
+            ),
+            code,
+        )
+
+    return (
+        jsonify(
+            {
+                "level": "success",
+                "message": message,
+                "data": {"uuid": asset_uuid},
+            }
+        ),
+        200,
+    )
+
+
+@blog_bp.route("/<blog_uuid>/assets/<asset_uuid>", methods=["GET"])
+def get_asset(blog_uuid, asset_uuid):
+    """
+    @name: 获取博客资源
+    """
+
+    success, file_path = blog_service.get_asset_path(blog_uuid, asset_uuid)
+
+    if not success or not file_path:
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": "资源不存在",
+                },
+            ),
+            404,
+        )
+
+    return send_file(file_path)

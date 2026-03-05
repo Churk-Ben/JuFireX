@@ -30,4 +30,24 @@ export const blogService = {
       method: "DELETE",
     });
   },
+
+  async uploadAsset(uuid: string, file: File): Promise<{ uuid: string }> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return request<{ uuid: string }>(`/api/blog/${uuid}/assets`, {
+      method: "POST",
+      body: formData,
+    });
+  },
+
+  async getAsset(uuid: string, assetId: string): Promise<Blob> {
+    return request<Blob>(`/api/blog/${uuid}/assets/${assetId}`, {
+      method: "GET",
+    });
+  },
+
+  getAssetUrl(uuid: string, assetId: string): string {
+    return `/api/blog/${uuid}/assets/${assetId}`;
+  },
 };

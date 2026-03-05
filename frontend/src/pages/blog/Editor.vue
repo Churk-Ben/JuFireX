@@ -105,20 +105,26 @@ const onSave = async (v: string, h: Promise<string>) => {
 };
 
 const onUploadImg = async (
-  files: Array<File>,
-  callback: (urls: Array<string>) => void
+  files: File[],
+  callback: (urls: string[]) => void
 ) => {
+  const uuid = route.params.uuid as string;
+  if (!uuid) return;
+
   const res = await Promise.all(
-    files.map((file) => {
-      return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-      });
+    files.map(async (file) => {
+      try {
+        const result = await blogService.uploadAsset(uuid, file);
+        // 使用 assets:// 协议
+        return blogService.getAssetUrl(uuid, result.uuid);
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
     })
   );
-  callback(res);
+
+  callback(res.filter((url): url is string => url !== null));
 };
 
 onMounted(() => {
