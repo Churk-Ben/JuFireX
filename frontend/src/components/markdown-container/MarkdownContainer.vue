@@ -15,11 +15,20 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { MdPreview } from "md-editor-v3";
+import { MdPreview, config } from "md-editor-v3";
 import { useThemeStore } from "@/stores/theme";
 import { NCard } from "naive-ui";
 
 import "md-editor-v3/lib/preview.css";
+// @ts-ignore
+import markdownItImageLazysizes from "markdown-it-image-lazysizes";
+import "lazysizes";
+
+config({
+  markdownItConfig(md) {
+    md.use(markdownItImageLazysizes);
+  },
+});
 
 const props = defineProps({
   content: {
