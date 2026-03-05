@@ -119,6 +119,9 @@ Thumbs.db
 .env.local
 .env.*.local
 config_local.py
+temp_update/
+temp_update/*
+temp_update.zip
 
 # Database
 *.sqlite3
