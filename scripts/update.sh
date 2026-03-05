@@ -8,6 +8,7 @@
 APP_DIR="/opt/1panel/apps/jufirex"
 BACKUP_DIR="${APP_DIR}/backups/$(date +%Y%m%d_%H%M%S)"
 TEMP_UPDATE_DIR="${APP_DIR}/temp_update"
+OPENRESTY_INDEX_DIR="/opt/1panel/apps/openresty/openresty/www/sites/jufirex/index"
 
 # 颜色输出
 GREEN='\033[0;32m'
@@ -64,6 +65,13 @@ if [ -d "${TEMP_UPDATE_DIR}/static" ]; then
     cp -r "${TEMP_UPDATE_DIR}/static" "${APP_DIR}/"
     echo "前端静态文件已更新"
 fi
+if [ -d "${TEMP_UPDATE_DIR}/static" ]; then
+    rm -rf "${OPENRESTY_INDEX_DIR}"
+    mkdir -p "${OPENRESTY_INDEX_DIR}"
+    cp -r "${TEMP_UPDATE_DIR}/static"/* "${OPENRESTY_INDEX_DIR}/"
+    echo "前端静态文件已同步至 OpenResty index 目录"
+fi
+
 
 # 更新配置文件
 if [ -f "${TEMP_UPDATE_DIR}/requirements.txt" ]; then
