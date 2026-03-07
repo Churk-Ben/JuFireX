@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import json
 
 from flask import Flask
 from flask_cors import CORS
@@ -40,6 +41,20 @@ def create_app(config_class=Config):
     # 注册 API 蓝图
     logger.info("正在注册 API 蓝图...")
     register_blueprints(app)
+
+    # 打印版本信息
+    try:
+        v_json = Config.VERSION_JSON
+        if v_json.exists():
+            with open(v_json, "r", encoding="utf-8") as f:
+                v_info = json.load(f)
+                version = v_info.get("version")
+                commit_hash = v_info.get("commit_hash")
+                build_time = v_info.get("build_time")
+                logger.info(f"版本: {version} ({commit_hash})")
+                logger.info(f"构建时间: {build_time}")
+    except Exception as e:
+        logger.warning(f"无法读取版本信息: {e}")
 
     logger.info("JuFireX Backend 已就绪")
     return app

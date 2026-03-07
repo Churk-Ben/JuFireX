@@ -58,6 +58,10 @@ class Config:
     PROJECTS_DB_PATH = PROJECTS_DIR / "projects.db"
     BLOGS_DB_PATH = BLOGS_DIR / "blogs.db"
 
+    # 版本信息
+    VERSION_JSON = BACKEND_DIR / "version.json"
+    VERSION_FILE = PROJECT_ROOT / "version"
+
     # SQLAlchemy 配置
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{PROFILES_DB_PATH}"
     SQLALCHEMY_BINDS = {

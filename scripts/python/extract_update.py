@@ -1,11 +1,12 @@
 from __future__ import annotations
-
 import argparse
-import shutil
-import sys
 from datetime import datetime
 from pathlib import Path
+import shutil
+import sys
 from zipfile import ZIP_DEFLATED, ZipFile
+
+import generate_version
 
 
 UPDATE_ITEMS = [
@@ -109,6 +110,11 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     project_root = resolve_project_root(args.project_root)
+
+    # Generate version info
+    print("正在生成版本信息...")
+    generate_version.main()
+
     output_dir = (
         Path(args.output_dir).expanduser().resolve()
         if args.output_dir
