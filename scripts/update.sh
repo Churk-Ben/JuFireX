@@ -1,13 +1,17 @@
 #!/bin/bash
 
 # JuFireX 安全更新脚本
-# 使用方法: 
-# 1. 确保新代码已上传到服务器 (例如 /opt/1panel/apps/jufirex/temp_update)
-# 2. 运行此脚本: ./update.sh
+# 使用方法: ./update.sh
 
-APP_DIR="/opt/1panel/apps/jufirex"
+# 获取脚本所在目录的上一级目录 (项目根目录)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# 切换到项目根目录
+cd "$PROJECT_ROOT"
+
+APP_DIR="$PROJECT_ROOT"
 BACKUP_DIR="${APP_DIR}/backups/$(date +%Y%m%d_%H%M%S)"
-TEMP_UPDATE_DIR="${APP_DIR}/temp_update"
 OPENRESTY_INDEX_DIR="/opt/1panel/apps/openresty/openresty/www/sites/jufirex/index"
 
 # 颜色输出
@@ -16,25 +20,29 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${YELLOW}开始执行 JuFireX 安全更新流程...${NC}"
+echo -e "${YELLOW}开始执行 JuFireX 自动更新流程...${NC}"
 
-# 1. 检查更新文件是否存在
-if [ ! -d "$TEMP_UPDATE_DIR" ]; then
-    echo -e "${RED}错误: 未找到更新文件目录 $TEMP_UPDATE_DIR${NC}"
-    echo "请先将新版本代码上传到该目录"
+# 1. 检查环境依赖
+if ! command -v git &> /dev/null; then
+    echo -e "${RED}错误: 未找到 git，请先安装 git${NC}"
+    exit 1
+fi
+
+if ! command -v npm &> /dev/null; then
+    echo -e "${RED}错误: 未找到 npm，请先安装 Node.js 和 npm${NC}"
     exit 1
 fi
 
 # 2. 创建备份
 echo -e "${GREEN}[1/5] 正在备份当前版本...${NC}"
 mkdir -p "$BACKUP_DIR"
-# 备份后端代码
+# 备份后端代码 (虽然有 git，但保留备份以防万一)
 if [ -d "${APP_DIR}/backend" ]; then
     cp -r "${APP_DIR}/backend" "${BACKUP_DIR}/"
 fi
 # 备份前端静态文件
-if [ -d "${APP_DIR}/static" ]; then
-    cp -r "${APP_DIR}/static" "${BACKUP_DIR}/"
+if [ -d "${APP_DIR}/frontend/static" ]; then
+    cp -r "${APP_DIR}/frontend/static" "${BACKUP_DIR}/static_backup"
 fi
 # 备份配置文件
 if [ -f "${APP_DIR}/requirements.txt" ]; then
@@ -49,63 +57,74 @@ fi
 
 echo -e "备份已保存至: ${BACKUP_DIR}"
 
-# 3. 更新文件
-echo -e "${GREEN}[2/5] 正在应用更新...${NC}"
-
-# 更新后端代码
-if [ -d "${TEMP_UPDATE_DIR}/backend" ]; then
-    rm -rf "${APP_DIR}/backend"
-    cp -r "${TEMP_UPDATE_DIR}/backend" "${APP_DIR}/"
-    echo "后端代码已更新"
+# 3. 拉取最新代码
+echo -e "${GREEN}[2/5] 正在拉取最新代码...${NC}"
+git pull origin main
+if [ $? -ne 0 ]; then
+    echo -e "${RED}代码拉取失败，请检查 git 状态或网络连接${NC}"
+    exit 1
 fi
 
-# 更新前端静态文件
-if [ -d "${TEMP_UPDATE_DIR}/static" ]; then
-    rm -rf "${APP_DIR}/static"
-    cp -r "${TEMP_UPDATE_DIR}/static" "${APP_DIR}/"
-    echo "前端静态文件已更新"
+# 4. 构建前端
+echo -e "${GREEN}[3/5] 正在构建前端...${NC}"
+if [ -d "${APP_DIR}/frontend" ]; then
+    cd "${APP_DIR}/frontend"
+    echo "安装前端依赖..."
+    npm install
+    echo "构建前端项目..."
+    npm run build
+    
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}前端构建失败${NC}"
+        exit 1
+    fi
+    
+    # 检查构建产物
+    # vite.config.ts 配置输出目录为 frontend/static
+    if [ -d "static" ]; then
+        echo "前端构建成功，正在更新静态文件..."
+        
+        # 同步到 OpenResty 目录
+        if [ -d "${OPENRESTY_INDEX_DIR}" ]; then
+            # 清空旧文件
+            rm -rf "${OPENRESTY_INDEX_DIR:?}/"*
+            # 复制新文件
+            cp -r static/* "${OPENRESTY_INDEX_DIR}/"
+            echo "前端静态文件已同步至 OpenResty index 目录"
+        else
+            echo -e "${YELLOW}警告: 未找到 OpenResty 目录 ${OPENRESTY_INDEX_DIR}，跳过同步${NC}"
+        fi
+
+        # 同步到项目根目录 static (以备不时之需，如 Docker 挂载)
+        if [ -d "${APP_DIR}/static" ]; then
+            rm -rf "${APP_DIR}/static"/*
+        else
+            mkdir -p "${APP_DIR}/static"
+        fi
+        cp -r static/* "${APP_DIR}/static/"
+        echo "前端静态文件已同步至项目根目录 static"
+    else
+        echo -e "${RED}错误: 构建后未找到 static 目录${NC}"
+        exit 1
+    fi
+    
+    cd "$APP_DIR"
+else
+    echo -e "${RED}错误: 未找到 frontend 目录${NC}"
+    exit 1
 fi
-if [ -d "${TEMP_UPDATE_DIR}/static" ]; then
-    rm -rf "${OPENRESTY_INDEX_DIR}"
-    mkdir -p "${OPENRESTY_INDEX_DIR}"
-    cp -r "${TEMP_UPDATE_DIR}/static"/* "${OPENRESTY_INDEX_DIR}/"
-    echo "前端静态文件已同步至 OpenResty index 目录"
+
+# 5. 重建并重启后端容器
+echo -e "${GREEN}[4/5] 正在重建后端容器...${NC}"
+
+# 强制重新构建并重启服务
+if docker compose version &> /dev/null; then
+    docker compose up -d --build jufirex-backend
+else
+    docker-compose up -d --build jufirex-backend
 fi
 
-
-# 更新配置文件
-if [ -f "${TEMP_UPDATE_DIR}/requirements.txt" ]; then
-    cp "${TEMP_UPDATE_DIR}/requirements.txt" "${APP_DIR}/"
-fi
-if [ -f "${TEMP_UPDATE_DIR}/docker-compose.yml" ]; then
-    cp "${TEMP_UPDATE_DIR}/docker-compose.yml" "${APP_DIR}/"
-fi
-if [ -f "${TEMP_UPDATE_DIR}/Dockerfile" ]; then
-    cp "${TEMP_UPDATE_DIR}/Dockerfile" "${APP_DIR}/"
-fi
-
-# 4. 重建并重启后端容器
-echo -e "${GREEN}[3/5] 正在重建后端容器...${NC}"
-cd "$APP_DIR" || exit
-
-# 检查是否需要重新构建镜像 (依赖变更)
-REBUILD_NEEDED=false
-if [ -f "${TEMP_UPDATE_DIR}/requirements.txt" ] || [ -f "${TEMP_UPDATE_DIR}/Dockerfile" ]; then
-    REBUILD_NEEDED=true
-fi
-
-if [ "$REBUILD_NEEDED" = true ]; then
-    echo "检测到依赖或配置变更，正在重新构建镜像..."
-    docker-compose build --no-cache
-fi
-
-echo "重启服务..."
-docker-compose up -d
-
-# 5. 清理临时文件
-echo -e "${GREEN}[4/5] 清理临时文件...${NC}"
-rm -rf "$TEMP_UPDATE_DIR"
-
+# 6. 清理
 echo -e "${GREEN}[5/5] 更新完成!${NC}"
-echo -e "${YELLOW}如果遇到问题，可以使用备份文件回滚: ${BACKUP_DIR}${NC}"
-echo -e "请检查网站是否正常运行: http://YOUR_DOMAIN"
+echo -e "${YELLOW}如果遇到问题，可以使用 git reset 回滚代码，或查看备份: ${BACKUP_DIR}${NC}"
+echo -e "请检查网站是否正常运行。"

@@ -15,7 +15,7 @@ NC='\033[0m'
 
 echo -e "${YELLOW}开始执行 JuFireX Docker 部署流程...${NC}"
 
-# 1. 检查 Docker 环境
+# 1. 检查环境依赖
 if ! command -v docker &> /dev/null; then
     echo -e "${RED}错误: 未找到 Docker，请先安装 Docker 和 Docker Compose${NC}"
     exit 1
@@ -23,6 +23,16 @@ fi
 
 if ! docker compose version &> /dev/null && ! command -v docker-compose &> /dev/null; then
     echo -e "${RED}错误: 未找到 Docker Compose 插件或命令${NC}"
+    exit 1
+fi
+
+if ! command -v npm &> /dev/null; then
+    echo -e "${RED}错误: 未找到 npm，请先安装 Node.js 和 npm${NC}"
+    exit 1
+fi
+
+if ! command -v git &> /dev/null; then
+    echo -e "${RED}错误: 未找到 git，请先安装 git${NC}"
     exit 1
 fi
 
@@ -46,7 +56,30 @@ mkdir -p logs \
     database/navigations \
     database/blogs
 
-# 4. 启动服务
+# 4. 构建前端
+echo -e "${GREEN}正在构建前端项目...${NC}"
+if [ -d "frontend" ]; then
+    cd frontend
+    echo "安装依赖..."
+    npm install
+    echo "构建项目..."
+    npm run build
+    cd ..
+    
+    # 将构建产物复制到 static 目录
+    if [ -d "frontend/static" ]; then
+        echo "前端构建成功，正在同步静态文件..."
+        mkdir -p static
+        cp -r frontend/static/* static/
+    else
+        echo -e "${RED}前端构建失败: 未找到 frontend/static 目录${NC}"
+        # 不强制退出，因为可能只运行后端
+    fi
+else
+    echo -e "${YELLOW}警告: 未找到 frontend 目录，跳过前端构建${NC}"
+fi
+
+# 5. 启动服务
 echo -e "${GREEN}正在启动 Docker 容器...${NC}"
 # 优先尝试 docker compose (V2), 失败则尝试 docker-compose (V1)
 if docker compose version &> /dev/null; then
