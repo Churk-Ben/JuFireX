@@ -70,6 +70,8 @@ echo -e "${GREEN}[3/5] 正在构建前端...${NC}"
 if [ -d "${APP_DIR}/frontend" ]; then
     cd "${APP_DIR}/frontend"
     echo "安装前端依赖..."
+    export NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
+    export NODE_OPTIONS="--max-old-space-size=1536"
     npm install
     echo "构建前端项目..."
     npm run build
