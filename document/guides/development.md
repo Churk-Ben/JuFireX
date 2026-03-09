@@ -1,73 +1,4 @@
-## JuFireX 开发指导
-
-本指南面向未来继续维护 / 扩展 JuFireX 的开发者，帮助你快速了解项目结构、启动方式，以及可以继续推进的方向。
-
----
-
-## 一、项目整体结构概览
-
-- **后端 (`backend/`)**：Flask 应用，提供 RESTful API，实际接口详见 `docs/api.md`。
-  - `backend/app.py`：Flask 应用入口，`create_app` 工厂 + CORS + 数据库初始化 + 蓝图注册。
-  - `backend/api/`：按领域拆分的蓝图（`auth.py`, `blog.py`, `navigation.py`, `project.py`, `user.py`）。
-  - `backend/data/`：数据库相关（`database.py`、`models/`、`repositories/`），以及 `seed.py`、`seed_large.py` 数据填充脚本。
-  - `backend/services/`：领域服务层，封装业务逻辑，避免在视图里写太多逻辑。
-  - `backend/core/`：基础设施，如日志、权限/安全工具等。
-
-- **前端 (`frontend/`)**：Vue 3 + Vite + TypeScript 单页应用。
-  - `frontend/src/pages/`：页面路由视图，例如登录/注册、博客列表与详情、导航、项目等。
-  - `frontend/src/components/`：可复用组件（如 `avatar-cropper`、`common-table`、`markdown-container` 等）。
-  - `frontend/src/stores/`：Pinia 状态管理（如 `user`、`theme`）。
-  - `frontend/src/services/`：访问后端 API 的封装层（`auth.ts`, `blog.ts`, `project.ts` 等）。
-  - `frontend/src/utils/request.ts`：HTTP 请求封装，统一处理 baseURL、错误提示等。
-
-- **启动脚本**
-  - `setup-linux.sh`：在 Linux 下初始化 Python 虚拟环境 `.venv-linux`，并安装前端依赖。
-  - `start.sh`：同时启动后端（通过 `uv` 运行 `backend/app.py`）与前端（`npm run dev`），用于本地开发。
-
----
-
-## 二、本地开发环境准备与启动
-
-### 1. 环境要求
-
-- **系统**：Linux（脚本已针对 Linux 做了适配；Windows 使用 PowerShell 脚本）
-- **Python**：版本见项目根目录 `pyproject.toml` / `.python-version`
-- **Node.js**：建议与 `frontend` 中 `package-lock.json` 匹配的 LTS 版本
-- **包管理**：
-  - 后端：`uv`（通过 `setup-linux.sh` 调用）
-  - 前端：`npm`
-
-### 2. 一次性初始化（Linux）
-
-在项目根目录执行：
-
-```bash
-./setup-linux.sh
-```
-
-该脚本会：
-
-- 创建 / 更新 `.venv-linux` 虚拟环境并安装 Python 依赖
-- 删除 Windows 平台的 `node_modules`，重新安装 Linux 平台的前端依赖
-
-### 3. 启动开发环境
-
-同样在项目根目录执行：
-
-```bash
-./start.sh
-```
-
-脚本会：
-
-- 启动后端：在 `.venv-linux` 中运行 `backend/app.py`（Flask），监听 `0.0.0.0:5000`
-- 启动前端：在 `frontend` 目录执行 `npm run dev`，默认 Vite Dev Server（通常是 `http://localhost:5173`）
-
-在浏览器中访问前端地址即可开始调试，前端会通过代理 / 直接请求后端 `/api/...` 接口。
-
----
-
-## 三、日常开发流程建议
+## 日常开发流程建议
 
 ### 1. 新功能开发基本步骤
 
@@ -109,7 +40,7 @@
 
 ---
 
-## 四、推荐的推进方向（Roadmap 建议）
+## 推荐的推进方向（Roadmap 建议）
 
 ### 1. 完善基础文档
 
@@ -162,7 +93,7 @@
 
 ---
 
-## 五、代码风格与约定（可逐步补充）
+## 代码风格与约定（可逐步补充）
 
 暂定一些推荐约定，后续可根据实际情况在此文件继续完善：
 
