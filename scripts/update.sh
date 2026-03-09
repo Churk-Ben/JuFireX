@@ -24,26 +24,29 @@ echo -e "${YELLOW}开始执行 JuFireX 自动更新流程...${NC}"
 
 # 1. 检查环境依赖
 if ! command -v git &> /dev/null; then
-    echo -e "${RED}错误: 未找到 git，请先安装 git${NC}"
+    echo -e "${RED}错误: 未找到 git, 请先安装 git${NC}"
     exit 1
 fi
 
 if ! command -v npm &> /dev/null; then
-    echo -e "${RED}错误: 未找到 npm，请先安装 Node.js 和 npm${NC}"
+    echo -e "${RED}错误: 未找到 npm, 请先安装 Node.js 和 npm${NC}"
     exit 1
 fi
 
 # 2. 创建备份
 echo -e "${GREEN}[1/5] 正在备份当前版本...${NC}"
 mkdir -p "$BACKUP_DIR"
+
 # 备份后端代码 (虽然有 git，但保留备份以防万一)
 if [ -d "${APP_DIR}/backend" ]; then
     cp -r "${APP_DIR}/backend" "${BACKUP_DIR}/"
 fi
+
 # 备份前端静态文件
 if [ -d "${APP_DIR}/frontend/static" ]; then
     cp -r "${APP_DIR}/frontend/static" "${BACKUP_DIR}/static_backup"
 fi
+
 # 备份配置文件
 if [ -f "${APP_DIR}/requirements.txt" ]; then
     cp "${APP_DIR}/requirements.txt" "${BACKUP_DIR}/"
@@ -59,9 +62,18 @@ echo -e "备份已保存至: ${BACKUP_DIR}"
 
 # 3. 拉取最新代码
 echo -e "${GREEN}[2/5] 正在拉取最新代码...${NC}"
+
+# 先强制对本地仓库进行重置
+git reset --hard origin/main
+if [ $? -ne 0 ]; then
+    echo -e "${RED}重置本地仓库失败, 请检查 git 状态${NC}"
+    exit 1
+fi
+
+# 拉取最新代码
 git pull origin main
 if [ $? -ne 0 ]; then
-    echo -e "${RED}代码拉取失败，请检查 git 状态或网络连接${NC}"
+    echo -e "${RED}代码拉取失败, 请检查 git 状态或网络连接${NC}"
     exit 1
 fi
 
@@ -136,3 +148,6 @@ fi
 echo -e "${GREEN}[5/5] 更新完成!${NC}"
 echo -e "${YELLOW}如果遇到问题，可以使用 git reset 回滚代码，或查看备份: ${BACKUP_DIR}${NC}"
 echo -e "请检查网站是否正常运行。"
+
+# 清理未使用的镜像
+docker image prune -f

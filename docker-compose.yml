@@ -19,6 +19,8 @@ services:
       - ./logs:/app/logs
       # 挂载环境变量文件（如果有的话）
       - ./.env:/app/.env
+      # 挂载版本标识
+      - ./version:/app/version
     environment:
       # 如果不挂载 .env 文件，可以直接在这里配置
       # - SECRET_KEY=${SECRET_KEY:-ChangeMePlease}
