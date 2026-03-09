@@ -63,26 +63,48 @@ echo -e "备份已保存至: ${BACKUP_DIR}"
 # 3. 拉取最新代码
 echo -e "${GREEN}[2/5] 正在拉取最新代码...${NC}"
 
-# 先强制对本地仓库进行重置
-git reset --hard origin/main
+# 固定使用 Gitee，幂等设置（执行多次结果一样）
+GITEE_URL="https://gitee.com/church-zhang/JuFireX.git"
+GITHUB_URL="https://github.com/Churk-Ben/JuFireX.git"
+
+# 检查并设置 origin 为 Gitee（如果已经是则不操作）
+CURRENT_URL=$(git remote get-url origin 2>/dev/null || echo "")
+if [ "$CURRENT_URL" != "$GITEE_URL" ]; then
+    echo "配置远程仓库为 Gitee..."
+    if [ -z "$CURRENT_URL" ]; then
+        git remote add origin "$GITEE_URL"
+    else
+        git remote set-url origin "$GITEE_URL"
+    fi
+fi
+
+# 保留 GitHub 作为备用 remote（如果不存在则添加）
+if ! git remote get-url github &>/dev/null; then
+    git remote add github "$GITHUB_URL" 2>/dev/null || true
+fi
+
+# 获取最新分支信息
+git fetch origin main
 if [ $? -ne 0 ]; then
-    echo -e "${RED}重置本地仓库失败, 请检查 git 状态${NC}"
+    echo -e "${RED}获取远程分支失败，请检查网络连接${NC}"
     exit 1
 fi
 
-# 拉取最新代码
-git pull origin main
+# 强制重置到远程 main（丢弃所有本地修改，以远程为准）
+git reset --hard origin/main
 if [ $? -ne 0 ]; then
-    echo -e "${RED}代码拉取失败, 请检查 git 状态或网络连接${NC}"
+    echo -e "${RED}重置本地仓库失败${NC}"
     exit 1
 fi
+
+echo -e "${GREEN}代码已更新至最新版本${NC}"
 
 # 4. 构建前端
 echo -e "${GREEN}[3/5] 正在构建前端...${NC}"
 if [ -d "${APP_DIR}/frontend" ]; then
     cd "${APP_DIR}/frontend"
     echo "安装前端依赖..."
-    export NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
+    export NPM_CONFIG_REGISTRY=https://registry.npmmirror.com 
     export NODE_OPTIONS="--max-old-space-size=1536"
     npm install
     echo "构建前端项目..."
