@@ -1,10 +1,16 @@
+# ------------------------------------------------------------
+# @author: Churk
+# @status: 完成
+# @description: 版本模块
+# ------------------------------------------------------------
+
 from datetime import datetime
-import json
-from pathlib import Path
 import subprocess
 
+from backend.config import Config
 
-def get_git_info(cwd):
+
+def get_git_info(cwd) -> dict:
     try:
         commit_hash = (
             subprocess.check_output(
@@ -35,7 +41,9 @@ def get_git_info(cwd):
         )
         message = (
             subprocess.check_output(
-                ["git", "log", "-1", "--pretty=%B"], cwd=cwd, stderr=subprocess.DEVNULL
+                ["git", "log", "-1", "--pretty=%B"],
+                cwd=cwd,
+                stderr=subprocess.DEVNULL,
             )
             .decode()
             .strip()
@@ -44,56 +52,39 @@ def get_git_info(cwd):
             "commit_hash": commit_hash,
             "branch": branch,
             "commit_date": commit_date,
-            "message": message,
         }
     except subprocess.CalledProcessError:
         return {
             "commit_hash": "unknown",
             "branch": "unknown",
             "commit_date": "unknown",
-            "message": "unknown",
         }
     except FileNotFoundError:
         return {
             "commit_hash": "no-git",
             "branch": "no-git",
             "commit_date": "no-git",
-            "message": "no-git",
         }
 
 
-def main():
-    # Resolve project root (assuming this script is in scripts/python/)
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parents[1]
-
-    version_file = project_root / "version"
-    output_file = project_root / "backend" / "version.json"
-
-    # Read semantic version
+def get_version_info() -> dict:
+    # 从 VERSION_FILE 读取语义版本
     try:
-        semantic_version = version_file.read_text(encoding="utf-8").strip()
+        semantic_version = Config.VERSION_FILE.read_text(encoding="utf-8").strip()
     except FileNotFoundError:
         semantic_version = "0.0.0"
 
-    # Get git info
-    git_info = get_git_info(project_root)
+    # 从 git 仓库获取版本信息
+    git_info = get_git_info(Config.PROJECT_ROOT)
 
-    # Build version data
+    # 构建版本字典
     version_data = {
         "version": semantic_version,
-        "build_time": datetime.now().isoformat(),
+        "query_time": datetime.now().isoformat(),
         **git_info,
     }
 
-    # Write to file
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(version_data, f, indent=2, ensure_ascii=False)
-
-    print(f"Version info generated at {output_file}")
-    # print(json.dumps(version_data, indent=2, ensure_ascii=False))
+    return version_data
 
 
-if __name__ == "__main__":
-    main()
+# TODO: 此类以后将承包项目历史提交功能的查询

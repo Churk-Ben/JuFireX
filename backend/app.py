@@ -9,7 +9,8 @@ from flask_cors import CORS
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from backend.config import Config
-from backend.core import Logger
+from backend.core.Logger import get_logger
+from backend.core.Version import get_version_info
 from backend.data.database import init_db
 from backend.api import register_blueprints
 
@@ -25,13 +26,13 @@ def create_app(config_class=Config):
         )
 
     # 初始化日志记录器
-    logger = Logger.get_logger("JuFireX_Backend")
+    logger = get_logger("JuFireX_Backend")
 
     # 创建 Flask 应用实例
     logger.info("正在创建后端实例...")
     app = Flask(__name__)
     app.config.from_object(config_class)
-    app.logger = Logger.get_logger("Clash_Error")
+    app.logger = get_logger("Clash_Error")
     CORS(app)
 
     # 初始化数据库
@@ -43,19 +44,11 @@ def create_app(config_class=Config):
     register_blueprints(app)
 
     # 打印版本信息
-    try:
-        v_json = Config.VERSION_JSON
-        if v_json.exists():
-            with open(v_json, "r", encoding="utf-8") as f:
-                v_info = json.load(f)
-                version = v_info.get("version")
-                commit_hash = v_info.get("commit_hash")
-                build_time = v_info.get("build_time")
-                logger.info(f"版本: {version} ({commit_hash})")
-                logger.info(f"构建时间: {build_time}")
-    except Exception as e:
-        logger.warning(f"无法读取版本信息: {e}")
+    version = get_version_info()
+    logger.info(f"版本: {version['version']} ({version['commit_hash']})")
+    logger.info(f"版本提交时间: {version['commit_date']}")
 
+    # 就绪
     logger.info("JuFireX Backend 已就绪")
     return app
 

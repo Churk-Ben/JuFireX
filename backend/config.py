@@ -59,7 +59,6 @@ class Config:
     BLOGS_DB_PATH = BLOGS_DIR / "blogs.db"
 
     # 版本信息
-    VERSION_JSON = BACKEND_DIR / "version.json"
     VERSION_FILE = PROJECT_ROOT / "version"
 
     # SQLAlchemy 配置
