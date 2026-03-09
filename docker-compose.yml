@@ -13,13 +13,13 @@ services:
       # 挂载日志目录
       - ./logs:/app/logs
       # 挂载环境变量文件（如果有的话）
-      # - ./.env:/app/.env
+      - ./.env:/app/.env
     environment:
       # 如果不挂载 .env 文件，可以直接在这里配置
-      - SECRET_KEY=${SECRET_KEY:-ChangeMePlease}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - DEBUG=${DEBUG:-false}
-      - SEED=${SEED:-true}
+      # - SECRET_KEY=${SECRET_KEY:-ChangeMePlease}
+      # - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      # - DEBUG=${DEBUG:-false}
+      # - SEED=${SEED:-true}
       - TZ=Asia/Shanghai
     # 如果你在国内，可能需要配置 pip 源，可以在 Dockerfile 中配置，也可以在这里通过环境变量
       - PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
