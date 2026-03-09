@@ -6,11 +6,20 @@
 
 from datetime import datetime
 import subprocess
+import os
 
 from backend.config import Config
 
 
 def get_git_info(cwd) -> dict:
+    # 优先使用环境变量中的 Git 信息
+    if os.environ.get("GIT_COMMIT_HASH"):
+        return {
+            "commit_hash": os.environ["GIT_COMMIT_HASH"],
+            "branch": os.environ.get("GIT_BRANCH", "unknown"),
+            "commit_date": os.environ.get("GIT_COMMIT_DATE", "unknown"),
+        }
+
     try:
         commit_hash = (
             subprocess.check_output(

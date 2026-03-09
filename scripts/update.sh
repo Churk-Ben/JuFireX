@@ -119,6 +119,12 @@ fi
 # 5. 重建并重启后端容器
 echo -e "${GREEN}[4/5] 正在重建后端容器...${NC}"
 
+# 获取 git 信息并导出为环境变量，供 docker-compose 使用
+export GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
+export GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+export GIT_COMMIT_DATE=$(git log -1 --format=%cd --date=iso)
+echo "Git Info: ${GIT_COMMIT_HASH} / ${GIT_BRANCH} / ${GIT_COMMIT_DATE}"
+
 # 强制重新构建并重启服务
 if docker compose version &> /dev/null; then
     docker compose up -d --build jufirex-backend

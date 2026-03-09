@@ -81,6 +81,12 @@ fi
 
 # 5. 启动服务
 echo -e "${GREEN}正在启动 Docker 容器...${NC}"
+
+# 获取 git 信息并导出为环境变量，供 docker-compose 使用
+export GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
+export GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+export GIT_COMMIT_DATE=$(git log -1 --format=%cd --date=iso)
+
 # 优先尝试 docker compose (V2), 失败则尝试 docker-compose (V1)
 if docker compose version &> /dev/null; then
     docker compose up -d --build

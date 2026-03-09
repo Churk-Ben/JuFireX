@@ -43,6 +43,14 @@ RUN mkdir -p logs database/defaults database/backups database/profiles database/
 # 暴露端口
 EXPOSE 8000
 
+# 构建时传入 Git 信息
+ARG GIT_COMMIT_HASH
+ARG GIT_BRANCH
+ARG GIT_COMMIT_DATE
+ENV GIT_COMMIT_HASH=${GIT_COMMIT_HASH}
+ENV GIT_BRANCH=${GIT_BRANCH}
+ENV GIT_COMMIT_DATE=${GIT_COMMIT_DATE}
+
 # 启动命令
 # 使用 gunicorn 作为生产级 WSGI 服务器
 # -w 4: 4个 worker 进程

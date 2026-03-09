@@ -1,6 +1,11 @@
 services:
   jufirex-backend:
-    build: .
+    build:
+      context: .
+      args:
+        GIT_COMMIT_HASH: ${GIT_COMMIT_HASH:-}
+        GIT_BRANCH: ${GIT_BRANCH:-}
+        GIT_COMMIT_DATE: ${GIT_COMMIT_DATE:-}
     container_name: jufirex-backend
     restart: always
     ports:
