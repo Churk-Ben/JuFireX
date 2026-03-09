@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# 部署脚本
+# 该脚本用于部署 JuFireX 项目的 Docker 容器
+# 但是注意! 该脚本未经过严格审查和广泛验证, 目前还是建议手配.
+
 # 获取脚本所在目录的上一级目录 (项目根目录)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"

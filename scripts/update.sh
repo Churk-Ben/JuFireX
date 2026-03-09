@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # JuFireX 安全更新脚本
-# 使用方法: ./update.sh
+# 使用方法: chmod +x ./update.sh && ./update.sh
 
 # 获取脚本所在目录的上一级目录 (项目根目录)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -167,9 +167,11 @@ else
 fi
 
 # 6. 清理
-echo -e "${GREEN}[5/5] 更新完成!${NC}"
-echo -e "${YELLOW}如果遇到问题，可以使用 git reset 回滚代码，或查看备份: ${BACKUP_DIR}${NC}"
-echo -e "请检查网站是否正常运行。"
+echo -e "${GREEN}[5/5] 正在清理未使用的镜像...${NC}"
 
 # 清理未使用的镜像
 docker image prune -f
+
+echo -e "${GREEN}更新完成!${NC}"
+echo -e "${YELLOW}如果遇到问题，可以使用 git reset 回滚代码，或查看备份: ${BACKUP_DIR}${NC}"
+echo -e "请检查网站是否正常运行。"
