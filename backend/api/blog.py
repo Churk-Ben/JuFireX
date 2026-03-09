@@ -15,7 +15,7 @@ logger = get_logger("API_Blog")
 blog_bp = Blueprint("blog", __name__)
 
 
-@blog_bp.route("/", methods=["GET"])
+@blog_bp.route("/", methods=["GET"], strict_slashes=False)
 def get_blogs():
     """
     @name: 获取博客列表
@@ -62,7 +62,7 @@ def get_blogs():
     )
 
 
-@blog_bp.route("/", methods=["POST"])
+@blog_bp.route("/", methods=["POST"], strict_slashes=False)
 @require_member
 def create_blog():
     """

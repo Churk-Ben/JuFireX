@@ -15,7 +15,7 @@ logger = get_logger("API_Project")
 project_bp = Blueprint("project", __name__)
 
 
-@project_bp.route("/", methods=["GET"])
+@project_bp.route("/", methods=["GET"], strict_slashes=False)
 def get_projects():
     """获取项目列表"""
     # 检查是否请求所有 (管理员)
@@ -163,7 +163,7 @@ def get_file_content(uuid):
     )
 
 
-@project_bp.route("/", methods=["POST"])
+@project_bp.route("/", methods=["POST"], strict_slashes=False)
 def create_project():
     """创建项目"""
     data: dict = request.json

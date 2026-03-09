@@ -13,11 +13,11 @@ logger = get_logger("API_Version")
 version_bp = Blueprint("version", __name__)
 
 
-@version_bp.route("/", methods=["GET"])
+@version_bp.route("/", methods=["GET"], strict_slashes=False)
 def get_version():
     """获取后端版本信息"""
     version = get_version_info()
-    logger.info(f"获取版本信息: {version}")
+    logger.debug(f"获取版本信息: {version}")
 
     return (
         jsonify(

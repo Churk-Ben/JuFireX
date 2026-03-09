@@ -60,7 +60,7 @@ def get_categories():
         )
 
 
-@nav_bp.route("/", methods=["GET"])
+@nav_bp.route("/", methods=["GET"], strict_slashes=False)
 def get_navigations():
     """获取导航列表"""
     user_uuid = session.get("user_uuid")
@@ -95,7 +95,7 @@ def get_navigations():
     )
 
 
-@nav_bp.route("/", methods=["POST"])
+@nav_bp.route("/", methods=["POST"], strict_slashes=False)
 @require_member
 def create_navigation():
     """创建导航"""
