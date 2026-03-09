@@ -114,3 +114,33 @@
   "message": "文章删除成功"
 }
 ```
+
+### 6. 上传博客资源
+
+- **URL**: `/<uuid>/assets`
+- **Method**: `POST`
+- **Description**: 上传博客资源(图片等)。需要所有者或管理员权限。
+
+**Request Body**:
+
+- `file`: 文件对象 (multipart/form-data)
+
+**Response**:
+
+```json
+{
+  "level": "success",
+  "message": "资源上传成功",
+  "data": {
+    "uuid": "asset_uuid"
+  }
+}
+```
+
+### 7. 获取博客资源
+
+- **URL**: `/<blog_uuid>/assets/<asset_uuid>`
+- **Method**: `GET`
+- **Description**: 获取博客资源文件。
+
+**Response**: 资源文件流

@@ -20,3 +20,4 @@
   - [导航模块 (Navigation)](./api/navigation.md)
   - [项目模块 (Project)](./api/project.md)
   - [用户模块 (User)](./api/user.md)
+  - [版本模块 (Version)](./api/version.md)
