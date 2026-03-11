@@ -1,36 +1,39 @@
 <template>
-  <div class="user-profile">
-    <n-card title="My Profile">
-      <div class="profile-header">
-        <div class="avatar-section">
-          <n-avatar round :size="128" :src="avatarUrl" class="mb-3" />
-          <AvatarCropper @cropped="handleAvatarCrop">
-            <n-button>Change Avatar</n-button>
-          </AvatarCropper>
-        </div>
+  <ScrollContainer>
+    <n-space vertical size="large">
+      <n-h1>{{ $t("page.user.profile.title") }}</n-h1>
+      <n-card title="My Profile" class="user-profile">
+        <div class="profile-header">
+          <div class="avatar-section">
+            <n-avatar round :size="128" :src="avatarUrl" class="mb-3" />
+            <AvatarCropper @cropped="handleAvatarCrop">
+              <n-button>Change Avatar</n-button>
+            </AvatarCropper>
+          </div>
 
-        <div class="info-section">
-          <n-descriptions label-placement="left" bordered :column="1">
-            <n-descriptions-item label="Username">
-              {{ userStore.currentUser?.username }}
-            </n-descriptions-item>
-            <n-descriptions-item label="Email">
-              {{ userStore.currentUser?.email }}
-            </n-descriptions-item>
-            <n-descriptions-item label="Role">
-              {{ userStore.currentUser?.role_name }}
-            </n-descriptions-item>
-            <n-descriptions-item label="UUID">
-              {{ userStore.currentUser?.uuid }}
-            </n-descriptions-item>
-            <n-descriptions-item label="Joined At">
-              {{ formatDate(userStore.currentUser?.created_at) }}
-            </n-descriptions-item>
-          </n-descriptions>
+          <div class="info-section">
+            <n-descriptions label-placement="left" bordered :column="1">
+              <n-descriptions-item label="Username">
+                {{ userStore.currentUser?.username }}
+              </n-descriptions-item>
+              <n-descriptions-item label="Email">
+                {{ userStore.currentUser?.email }}
+              </n-descriptions-item>
+              <n-descriptions-item label="Role">
+                {{ userStore.currentUser?.role_name }}
+              </n-descriptions-item>
+              <n-descriptions-item label="UUID">
+                {{ userStore.currentUser?.uuid }}
+              </n-descriptions-item>
+              <n-descriptions-item label="Joined At">
+                {{ formatDate(userStore.currentUser?.created_at) }}
+              </n-descriptions-item>
+            </n-descriptions>
+          </div>
         </div>
-      </div>
-    </n-card>
-  </div>
+      </n-card>
+    </n-space>
+  </ScrollContainer>
 </template>
 
 <script setup lang="ts">
@@ -39,11 +42,14 @@ import { useUserStore } from "@/stores/user";
 import { userService } from "@/services/user";
 import {
   NCard,
+  NSpace,
+  NH1,
   NAvatar,
   NButton,
   NDescriptions,
   NDescriptionsItem,
 } from "naive-ui";
+import { ScrollContainer } from "@/components/scroll-container";
 import { AvatarCropper } from "@/components/avatar-cropper";
 
 const userStore = useUserStore();
