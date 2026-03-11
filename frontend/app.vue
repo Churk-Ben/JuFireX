@@ -1,6 +1,6 @@
 <template>
   <n-config-provider
-    :theme-overrides="themes[themeStore.currentTheme]"
+    :theme-overrides="themeStore.currentThemeConfig"
     :inline-theme-disabled="true"
     :theme="naiveTheme"
     :date-locale="naiveDateLocale"
@@ -78,7 +78,6 @@ import { RouterView, useRoute, useRouter } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
 import { useThemeStore } from "@/stores/theme";
-import { themes } from "@/themes";
 import { userService } from "@/services/user";
 
 import {

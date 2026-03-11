@@ -1,12 +1,16 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { themes } from "@/themes";
+import type { GlobalThemeOverrides } from "naive-ui";
 
 export const useThemeStore = defineStore("theme", () => {
-  const currentTheme = ref<string>("default");
+  const savedTheme = localStorage.getItem("theme");
+  const currentTheme = ref<string>(
+    savedTheme && themes[savedTheme] ? savedTheme : "default"
+  );
 
   // 获取当前主题配置
-  const currentThemeConfig = computed(() => {
+  const currentThemeConfig = computed<GlobalThemeOverrides>(() => {
     return themes[currentTheme.value] || themes["default"];
   });
 
@@ -33,7 +37,10 @@ export const useThemeStore = defineStore("theme", () => {
   };
 
   function setTheme(theme: string) {
-    currentTheme.value = theme;
+    if (themes[theme]) {
+      currentTheme.value = theme;
+      localStorage.setItem("theme", theme);
+    }
   }
 
   // 初始化
