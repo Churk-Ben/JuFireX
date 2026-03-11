@@ -179,6 +179,47 @@ def upload_avatar():
         )
 
 
+@user_bp.route("/update", methods=["POST"])
+@require_login
+def update_profile():
+    """
+    @name: 更新用户个人信息
+    """
+    data: dict = request.get_json()
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
+
+    user_uuid = session.get("user_uuid")
+
+    success, message = user_service.update_profile(
+        user_uuid, username=username, email=email, password=password
+    )
+
+    if success:
+        logger.info(f"用户 {user_uuid} 更新个人信息成功")
+        return (
+            jsonify(
+                {
+                    "level": "success",
+                    "message": message,
+                }
+            ),
+            200,
+        )
+    else:
+        logger.warning(f"用户 {user_uuid} 更新个人信息失败: {message}")
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": message,
+                }
+            ),
+            400,
+        )
+
+
 @user_bp.route("/avatar/<uuid>/<filename>")
 def get_avatar(uuid, filename):
     """

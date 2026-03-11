@@ -24,4 +24,15 @@ export const userService = {
       body: formData,
     });
   },
+
+  async updateProfile(data: {
+    username?: string;
+    email?: string;
+    password?: string;
+  }) {
+    return request("/api/user/update", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
 };

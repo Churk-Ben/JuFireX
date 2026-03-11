@@ -123,3 +123,36 @@ class UserService:
             return True, "头像更新成功", filename
         except Exception as e:
             return False, f"头像保存失败: {str(e)}", ""
+
+    def update_profile(
+        self,
+        user_uuid: str,
+        username: str = None,
+        email: str = None,
+        password: str = None,
+    ) -> Tuple[bool, str]:
+        """更新用户个人信息"""
+        user = self.user_repo.get_by_uuid(user_uuid)
+        if not user:
+            return False, "用户不存在"
+
+        if username and username != user.username:
+            user.username = username
+
+        if email:
+            # 如果修改了, 检查邮箱是否重复
+            if email != user.email:
+                existing = self.user_repo.get_by_email(email)
+                if existing and existing.uuid != user.uuid:
+                    return False, "邮箱已被使用"
+                user.email = email
+
+        # TODO: 计划添加更严格的鉴权机制
+        if password:
+            user.set_password(password)
+
+        try:
+            self.user_repo.save(user)
+            return True, "个人信息更新成功"
+        except Exception as e:
+            return False, f"更新失败: {str(e)}"
