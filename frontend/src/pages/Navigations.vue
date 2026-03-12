@@ -1,3 +1,7 @@
+<!-- @author: Churk -->
+<!-- @status: 完工 -->
+<!-- @description: Navigations 导航页 -->
+
 <template>
   <ScrollContainer>
     <n-space vertical size="large">
@@ -7,11 +11,12 @@
         <n-result
           v-if="Object.keys(groupedNavs).length === 0 && !loading"
           status="404"
-          title="No Navigations Found"
-          description="There are no navigation items to display."
+          style="margin-top: 25vh"
+          :title="$t('page.navigations.noResult.title')"
+          :description="$t('page.navigations.noResult.description')"
         />
 
-        <n-space vertical size="large" v-else>
+        <n-space v-else vertical size="large">
           <div v-for="(navs, category) in groupedNavs" :key="category">
             <n-h3 prefix="bar" align-text>{{ category }}</n-h3>
             <n-grid
@@ -24,10 +29,10 @@
                 <n-card
                   hoverable
                   @click="openLink(nav.url)"
-                  class="cursor-pointer"
+                  style="cursor: pointer"
                 >
                   <template #header>
-                    <n-space align="center" :wrap="false" :size="10">
+                    <n-space :wrap="false" :size="10">
                       <FontAwesomeIcon
                         :icon="navigationService.getIcon(nav.icon)"
                         class="text-xl"
@@ -40,7 +45,7 @@
                   <n-ellipsis
                     :line-clamp="2"
                     :tooltip="false"
-                    class="description"
+                    style="height: 4em"
                   >
                     {{ nav.description || nav.url }}
                   </n-ellipsis>
@@ -56,25 +61,22 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
-import { useI18n } from "vue-i18n";
-import { ScrollContainer } from "@/components/scroll-container";
 import {
   NGrid,
   NGridItem,
   NCard,
   NSpin,
-  NAvatar,
   NSpace,
   NH1,
   NH3,
   NEllipsis,
   NResult,
 } from "naive-ui";
-import { navigationService } from "@/services/navigation";
 import type { Navigation } from "@/types/models";
+import { navigationService } from "@/services/navigation";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { ScrollContainer } from "@/components/scroll-container";
 
-const { t } = useI18n();
 const loading = ref(false);
 const navigations = ref<Navigation[]>([]);
 
@@ -93,7 +95,7 @@ const groupedNavs = computed(() => {
 async function fetchNavigations() {
   loading.value = true;
   try {
-    navigations.value = await navigationService.getAll(false); // public only
+    navigations.value = await navigationService.getAll(false);
   } catch (e) {
     console.error(e);
   } finally {
@@ -109,16 +111,3 @@ onMounted(() => {
   fetchNavigations();
 });
 </script>
-
-<style scoped>
-.cursor-pointer {
-  cursor: pointer;
-}
-.nav-icon {
-  background-color: transparent;
-}
-.description {
-  height: 44px; /* Approximate height for 2 lines */
-  color: var(--n-text-color-3);
-}
-</style>
