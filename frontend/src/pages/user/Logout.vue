@@ -1,19 +1,33 @@
+<!-- @author: Churk -->
+<!-- @status: 待修缮, 我要在这个页面疯狂藏彩蛋 :P -->
+<!-- @description: Logout 注销页 -->
+
 <template>
-  <div class="container">
-    <div class="row justify-content-center">
-      <h1>{{ t("sider.menu.user.logout") }}</h1>
-      <p>Logging out...</p>
-    </div>
-  </div>
+  <ScrollContainer>
+    <n-space vertical size="large">
+      <n-h1>{{ $t("page.user.logout.title") }}</n-h1>
+
+      <n-result
+        status="success"
+        style="margin-top: 25vh"
+        :title="$t('page.user.logout.result.title')"
+        :description="$t('page.user.logout.result.description')"
+      >
+        <template #footer>
+          <n-button @click="onLogout">临时按钮</n-button>
+        </template>
+      </n-result>
+    </n-space>
+  </ScrollContainer>
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { onMounted } from "vue";
 import { useUserStore } from "@/stores/user";
+import { NH1, NSpace, NButton, NResult } from "naive-ui";
+import { ScrollContainer } from "@/components/scroll-container";
 
-const { t } = useI18n();
 const router = useRouter();
 const userStore = useUserStore();
 
@@ -24,8 +38,8 @@ async function onLogout() {
 
 onMounted(() => {
   // 等待一秒后再执行注销操作
-  setTimeout(() => {
-    onLogout();
-  }, 1000);
+  // setTimeout(() => {
+  //   onLogout();
+  // }, 1000);
 });
 </script>

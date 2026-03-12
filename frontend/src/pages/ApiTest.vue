@@ -80,6 +80,12 @@
                       language="json"
                       :code="JSON.stringify(lastResponse.data, null, 2)"
                     />
+                    <n-code
+                      v-else
+                      show-line-numbers
+                      language="python"
+                      :code="welcomeLogo"
+                    />
                   </ScrollContainer>
                 </n-config-provider>
               </n-space>
@@ -128,6 +134,17 @@ const methods = ["GET", "POST", "PUT", "DELETE"].map((m) => ({
   label: m,
   value: m,
 }));
+
+const welcomeLogo = `#
+#         █████            ███████████  ███                     █████ █████
+#        ░░███            ░░███░░░░░░█ ░░░                     ░░███ ░░███
+#         ░███  █████ ████ ░███   █ ░  ████  ████████   ██████  ░░███ ███
+#         ░███ ░░███ ░███  ░███████   ░░███ ░░███░░███ ███░░███  ░░█████
+#         ░███  ░███ ░███  ░███░░░█    ░███  ░███ ░░░ ░███████    ███░███
+#   ███   ░███  ░███ ░███  ░███  ░     ░███  ░███     ░███░░░    ███ ░░███
+#  ░░████████   ░░████████ █████       █████ █████    ░░██████  █████ █████
+#   ░░░░░░░░     ░░░░░░░░ ░░░░░       ░░░░░ ░░░░░      ░░░░░░  ░░░░░ ░░░░░
+#`;
 
 // Helper
 async function request(url: string, options: RequestInit = {}) {
