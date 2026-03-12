@@ -4,7 +4,12 @@
 
 <template>
   <div class="scroll-container-root">
-    <NScrollbar v-if="scrollable" :ref="forwardRef" v-bind="$attrs">
+    <NScrollbar
+      v-if="scrollable"
+      :ref="forwardRef"
+      v-bind="$attrs"
+      class="scroll-container-scrollbar"
+    >
       <div class="scroll-content" :class="wrapperClass" :style="wrapperStyle">
         <slot />
       </div>
@@ -64,6 +69,10 @@ function forwardRef(ref: Element | ComponentPublicInstance | null) {
 .scroll-content {
   padding: 16px;
   min-height: 100%;
+}
+
+.scroll-container-scrollbar {
+  height: 100%;
 }
 
 /* Mobile padding adjustment */
