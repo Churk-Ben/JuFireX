@@ -1,3 +1,7 @@
+<!-- @author: Churk -->
+<!-- @status: 待重构. 因为这个写的不太能展示我们技术力, 太过死板了 -->
+<!-- @description: Projects 项目页 -->
+
 <template>
   <ScrollContainer>
     <n-space vertical size="large">
@@ -7,8 +11,9 @@
         <n-result
           v-if="projects.length === 0 && !loading"
           status="404"
-          title="No Projects Found"
-          description="There are no projects to display."
+          style="margin-top: 25vh"
+          :title="$t('page.projects.noResult.title')"
+          :description="$t('page.projects.noResult.description')"
         />
 
         <n-grid
