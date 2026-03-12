@@ -7,7 +7,7 @@
         <div class="row">
           <div class="col-md-8 offset-md-2">
             <n-card>
-              <n-tabs type="line" animated>
+              <n-tabs type="line" size="large" animated>
                 <!-- 个人信息设置 -->
                 <n-tab-pane
                   name="profile"
@@ -21,6 +21,9 @@
                     label-width="200"
                     require-mark-placement="right-hanging"
                   >
+                    <n-divider title-placement="left">
+                      <span class="divider-title"> 档案 </span>
+                    </n-divider>
                     <n-form-item
                       :label="$t('page.user.settings.profile.avatar')"
                     >
@@ -34,6 +37,8 @@
                         <n-button
                           style="transform: translateX(-75%) translateY(125%)"
                           circle
+                          secondary
+                          bordered
                           type="primary"
                         >
                           <template #icon>
@@ -175,7 +180,9 @@
                     label-width="200"
                   >
                     <n-divider title-placement="left">
-                      {{ $t("page.user.settings.preference.theme_settings") }}
+                      <span class="divider-title">
+                        {{ $t("page.user.settings.preference.theme_settings") }}
+                      </span>
                     </n-divider>
                     <n-form-item
                       :label="$t('page.user.settings.preference.theme')"
@@ -200,7 +207,10 @@
                     </n-form-item>
 
                     <n-divider title-placement="left">
-                      {{ $t("page.user.settings.preference.privacy_settings") }}
+                      <span class="divider-title">
+                        <!-- prettier-ignore -->
+                        {{ $t("page.user.settings.preference.privacy_settings") }}
+                      </span>
                     </n-divider>
                     <n-form-item
                       :label="
@@ -334,3 +344,11 @@ onMounted(() => {
   }
 });
 </script>
+
+<style scoped>
+.divider-title {
+  font-size: small;
+  font-weight: 300;
+  opacity: 0.85;
+}
+</style>
