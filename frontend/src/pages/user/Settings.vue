@@ -1,57 +1,78 @@
 <template>
   <ScrollContainer>
     <n-space vertical size="large">
-      <n-h1>{{ t("page.user.settings.title") }}</n-h1>
+      <n-h1>{{ $t("page.user.settings.title") }}</n-h1>
 
       <div class="container">
         <div class="row">
-          <div class="col-md-12">
+          <div class="col-md-8 offset-md-2">
             <n-card>
               <n-tabs type="line" animated>
                 <!-- 个人信息设置 -->
                 <n-tab-pane
                   name="profile"
                   display-directive="show"
-                  :tab="t('page.user.settings.profile.title')"
+                  :tab="$t('page.user.settings.profile.title')"
                 >
                   <n-form
                     ref="profileFormRef"
                     :model="profileForm"
                     label-placement="left"
-                    label-width="120"
+                    label-width="200"
                     require-mark-placement="right-hanging"
                   >
                     <n-form-item
-                      :label="t('page.user.settings.profile.avatar')"
+                      :label="$t('page.user.settings.profile.avatar')"
                     >
-                      <div class="d-flex align-items-center gap-3">
-                        <div class="avatar-section">
-                          <n-avatar
-                            round
-                            :size="128"
-                            :src="avatarUrl"
-                            class="mb-3"
-                          />
-                          <AvatarCropper @cropped="handleAvatarCrop">
-                            <n-button>Change Avatar</n-button>
-                          </AvatarCropper>
-                        </div>
-                      </div>
+                      <n-avatar
+                        round
+                        :size="128"
+                        :src="avatarUrl"
+                        class="mb-3"
+                      />
+                      <AvatarCropper @cropped="handleAvatarCrop">
+                        <n-button
+                          style="transform: translateX(-75%) translateY(125%)"
+                          circle
+                          type="primary"
+                        >
+                          <template #icon>
+                            <FontAwesomeIcon :icon="faCamera" />
+                          </template>
+                        </n-button>
+                      </AvatarCropper>
                     </n-form-item>
                     <n-form-item
-                      :label="t('page.user.settings.profile.username')"
+                      :label="$t('page.user.settings.profile.username')"
                       path="username"
+                      required
                     >
                       <n-input
                         v-model:value="profileForm.username"
                         :placeholder="
-                          t('page.user.settings.profile.username_placeholder')
+                          $t('page.user.settings.profile.username_placeholder')
                         "
                       />
                     </n-form-item>
-                    <n-form-item>
+                    <n-form-item
+                      :label="$t('page.user.settings.profile.bio')"
+                      path="bio"
+                    >
+                      <n-input
+                        v-model:value="profileForm.bio"
+                        type="textarea"
+                        :placeholder="
+                          $t('page.user.settings.profile.bio_placeholder')
+                        "
+                        :rows="4"
+                        :maxlength="128"
+                      />
+                    </n-form-item>
+                    <n-form-item
+                      style="display: flex; justify-content: flex-end"
+                    >
                       <n-button type="primary" @click="handleSaveProfile">
-                        {{ t("page.user.settings.common.save") }}
+                        {{ $t("page.user.settings.common.save") }}
                       </n-button>
                     </n-form-item>
                   </n-form>
@@ -61,7 +82,7 @@
                 <n-tab-pane
                   name="account"
                   display-directive="show"
-                  :tab="t('page.user.settings.account.title')"
+                  :tab="$t('page.user.settings.account.title')"
                 >
                   <n-list>
                     <n-list-item>
@@ -71,13 +92,13 @@
                         </n-icon>
                       </template>
                       <n-thing
-                        :title="t('page.user.settings.account.email')"
+                        :title="$t('page.user.settings.account.email')"
                         :description="userStore.currentUser?.email"
                       >
                       </n-thing>
                       <template #suffix>
                         <n-button secondary type="primary">
-                          {{ t("page.user.settings.account.verify_email") }}
+                          {{ $t("page.user.settings.account.verify_email") }}
                         </n-button>
                       </template>
                     </n-list-item>
@@ -88,15 +109,15 @@
                         </n-icon>
                       </template>
                       <n-thing
-                        :title="t('page.user.settings.account.password')"
+                        :title="$t('page.user.settings.account.password')"
                         :description="
-                          t('page.user.settings.account.password_desc')
+                          $t('page.user.settings.account.password_desc')
                         "
                       >
                       </n-thing>
                       <template #suffix>
                         <n-button secondary>
-                          {{ t("page.user.settings.account.change_password") }}
+                          {{ $t("page.user.settings.account.change_password") }}
                         </n-button>
                       </template>
                     </n-list-item>
@@ -107,15 +128,15 @@
                         </n-icon>
                       </template>
                       <n-thing
-                        :title="t('page.user.settings.account.rebuild_folder')"
+                        :title="$t('page.user.settings.account.rebuild_folder')"
                         :description="
-                          t('page.user.settings.account.rebuild_folder_desc')
+                          $t('page.user.settings.account.rebuild_folder_desc')
                         "
                       >
                       </n-thing>
                       <template #suffix>
                         <n-button secondary type="warning">
-                          {{ t("page.user.settings.account.rebuild") }}
+                          {{ $t("page.user.settings.account.rebuild") }}
                         </n-button>
                       </template>
                     </n-list-item>
@@ -126,15 +147,15 @@
                         </n-icon>
                       </template>
                       <n-thing
-                        :title="t('page.user.settings.account.delete_account')"
+                        :title="$t('page.user.settings.account.delete_account')"
                         :description="
-                          t('page.user.settings.account.delete_account_desc')
+                          $t('page.user.settings.account.delete_account_desc')
                         "
                       >
                       </n-thing>
                       <template #suffix>
                         <n-button secondary type="error">
-                          {{ t("page.user.settings.account.delete") }}
+                          {{ $t("page.user.settings.account.delete") }}
                         </n-button>
                       </template>
                     </n-list-item>
@@ -145,14 +166,19 @@
                 <n-tab-pane
                   name="preference"
                   display-directive="show"
-                  :tab="t('page.user.settings.preference.title')"
+                  :tab="$t('page.user.settings.preference.title')"
                 >
-                  <n-form label-placement="left" label-width="auto">
-                    <n-divider title-placement="left">{{
-                      t("page.user.settings.preference.theme_settings")
-                    }}</n-divider>
+                  <n-form
+                    ref="preferenceFormRef"
+                    :model="preferenceForm"
+                    label-placement="left"
+                    label-width="200"
+                  >
+                    <n-divider title-placement="left">
+                      {{ $t("page.user.settings.preference.theme_settings") }}
+                    </n-divider>
                     <n-form-item
-                      :label="t('page.user.settings.preference.theme')"
+                      :label="$t('page.user.settings.preference.theme')"
                     >
                       <n-select
                         v-model:value="currentTheme"
@@ -160,31 +186,33 @@
                       />
                     </n-form-item>
                     <n-form-item
-                      :label="t('page.user.settings.preference.custom_theme')"
+                      :label="$t('page.user.settings.preference.custom_theme')"
                     >
                       <n-input
                         type="textarea"
                         :placeholder="
-                          t(
-                            'page.user.settings.preference.custom_theme_placeholder'
+                          $t(
+                            'page.user.settings.preference.custom_theme_placeholder',
                           )
                         "
                         :autosize="{ minRows: 3 }"
                       />
                     </n-form-item>
 
-                    <n-divider title-placement="left">{{
-                      t("page.user.settings.preference.privacy_settings")
-                    }}</n-divider>
+                    <n-divider title-placement="left">
+                      {{ $t("page.user.settings.preference.privacy_settings") }}
+                    </n-divider>
                     <n-form-item
-                      :label="t('page.user.settings.preference.public_profile')"
+                      :label="
+                        $t('page.user.settings.preference.public_profile')
+                      "
                     >
                       <n-switch>
                         <template #checked>
-                          {{ t("page.user.settings.common.enabled") }}
+                          {{ $t("page.user.settings.common.enabled") }}
                         </template>
                         <template #unchecked>
-                          {{ t("page.user.settings.common.disabled") }}
+                          {{ $t("page.user.settings.common.disabled") }}
                         </template>
                       </n-switch>
                     </n-form-item>
@@ -201,7 +229,6 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, reactive, watch } from "vue";
-import { useI18n } from "vue-i18n";
 import {
   NForm,
   NFormItem,
@@ -228,6 +255,7 @@ import {
   faKey,
   faFolderOpen,
   faTrash,
+  faCamera,
 } from "@fortawesome/free-solid-svg-icons";
 import { useThemeStore } from "@/stores/theme";
 import { useUserStore } from "@/stores/user";
@@ -235,12 +263,61 @@ import { themeOptions } from "@/themes";
 import { userService } from "@/services/user";
 import { notification } from "@/utils/notification";
 import { ScrollContainer } from "@/components/scroll-container";
+import { AvatarCropper } from "@/components/avatar-cropper";
 
-const { t } = useI18n();
-const themeStore = useThemeStore();
 const userStore = useUserStore();
+const themeStore = useThemeStore();
 
-// Theme
+// Profile (TODO: 增加签名之类的)
+const avatarUrl = computed(() => {
+  if (!userStore.currentUser?.uuid) return "";
+  return (
+    userService.getAvatarUrl(userStore.currentUser.uuid) +
+    `?t=${userStore.avatarTimestamp}`
+  );
+});
+
+const profileForm = reactive({
+  username: userStore.currentUser?.username || "",
+  bio: userStore.currentUser?.bio || "",
+});
+
+const handleAvatarCrop = async (blob: Blob) => {
+  try {
+    const file = new File([blob], "avatar.png", { type: "image/png" });
+    await userService.uploadAvatar(file);
+    userStore.refreshAvatar();
+  } catch (e: any) {
+    console.error(e);
+  }
+};
+
+const handleSaveProfile = async () => {
+  try {
+    await userService.updateProfile({
+      username: profileForm.username,
+    });
+    await userStore.checkAuth();
+  } catch (e: any) {
+    console.error(e);
+  }
+};
+
+watch(
+  () => userStore.currentUser,
+  (user) => {
+    if (user) {
+      profileForm.username = user.username;
+    }
+  },
+  { immediate: true },
+);
+
+// Preferences & Privacy
+const preferenceForm = reactive({
+  theme: themeStore.currentTheme,
+});
+
 const currentTheme = computed({
   get() {
     return themeStore.currentTheme;
@@ -250,75 +327,10 @@ const currentTheme = computed({
   },
 });
 
-// Profile
-const profileForm = reactive({
-  username: userStore.currentUser?.username || "",
-});
-
-watch(
-  () => userStore.currentUser,
-  (user) => {
-    if (user) {
-      profileForm.username = user.username;
-    }
-  },
-  { immediate: true }
-);
-
-const handleAvatarFinish = () => {
-  userStore.refreshAvatar();
-  notification.success({
-    content: t("page.user.settings.notification.avatar_updated"),
-    duration: 2000,
-  });
-};
-
-const handleSaveProfile = async () => {
-  try {
-    await userService.updateProfile({
-      username: profileForm.username,
-    });
-    await userStore.checkAuth();
-  } catch (e) {
-    console.error(e);
-  }
-};
-
-const avatarUrl = computed(() => {
-  if (!userStore.currentUser?.uuid) return "";
-  return (
-    userService.getAvatarUrl(userStore.currentUser.uuid) +
-    `?t=${userStore.avatarTimestamp}`
-  );
-});
-
-function formatDate(dateStr?: string) {
-  if (!dateStr) return "-";
-  return new Date(dateStr).toLocaleString();
-}
-
-async function handleAvatarCrop(blob: Blob) {
-  try {
-    const file = new File([blob], "avatar.png", { type: "image/png" });
-    await userService.uploadAvatar(file);
-    userStore.refreshAvatar();
-  } catch (e: any) {
-    console.error(e);
-  }
-}
-
+// 初始化
 onMounted(() => {
   if (!userStore.currentUser) {
     userStore.checkAuth();
   }
 });
 </script>
-
-<style scoped>
-.avatar-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 150px;
-}
-</style>
