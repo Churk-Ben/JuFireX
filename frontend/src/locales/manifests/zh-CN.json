@@ -81,16 +81,30 @@
       }
     },
     "navigations": {
-      "title": "导航"
+      "title": "导航",
+      "noResult": {
+        "title": "无结果",
+        "description": "不应该啊, 我估计不是你的问题, 可能是服务器出了点问题."
+      }
     },
     "projects": {
-      "title": "项目"
+      "title": "项目",
+      "noResult": {
+        "title": "无结果",
+        "description": "还没有公开展示的项目~"
+      }
     },
     "blogs": {
       "title": "文章"
     },
     "apiTest": {
-      "title": "API测试"
+      "title": "测试",
+      "genericRequest": {
+        "title": "通用请求",
+        "check": "检查",
+        "send": "发送"
+      },
+      "responseConsole": "响应控制台"
     },
     "login": {
       "title": "登录",
@@ -150,7 +164,12 @@
       },
       "settings": {
         "title": "设置",
-        "theme": "主题",
+        "common": {
+          "save": "保存",
+          "cancel": "取消",
+          "enabled": "启用",
+          "disabled": "禁用"
+        },
         "profile": {
           "title": "个人信息",
           "avatar": "头像",
@@ -184,7 +203,11 @@
         }
       },
       "logout": {
-        "title": "登出"
+        "title": "登出",
+        "result": {
+          "title": "退出登录",
+          "description": "白白~~"
+        }
       }
     },
     "admin": {

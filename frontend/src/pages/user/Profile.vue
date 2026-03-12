@@ -2,6 +2,7 @@
   <ScrollContainer>
     <n-space vertical size="large">
       <n-h1>{{ $t("page.user.profile.title") }}</n-h1>
+
       <n-card title="My Profile" class="user-profile">
         <div class="profile-header">
           <div class="avatar-section">
