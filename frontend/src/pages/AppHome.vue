@@ -1,3 +1,7 @@
+<!-- @author: Churk -->
+<!-- @status: 还得修缮修缮 -->
+<!-- @description: AppHome 首页 -->
+
 <template>
   <ScrollContainer @scroll="handleScroll">
     <div
@@ -292,12 +296,7 @@ const games = [
   overflow: hidden;
   position: relative;
   user-select: none;
-  font-family:
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     sans-serif;
 }
 
@@ -316,8 +315,7 @@ const games = [
 .grid-overlay {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(var(--grid-color) 1px, transparent 1px),
+  background-image: linear-gradient(var(--grid-color) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
   background-size: 60px 60px; /* Slightly larger grid */
   /* Opacity controlled by mask in script */
