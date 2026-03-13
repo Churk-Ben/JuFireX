@@ -31,8 +31,10 @@ ROLE_NAMES = {
 
 
 class Config:
-    # 环境变量配置
-    SECRET_KEY = os.environ.get("SECRET_KEY", "secretkey")
+    # 密钥配置
+    FLASK_SECRET_KEY = os.environ.get("FLASK_SECRET_KEY", "secretkey")
+
+    # 其他配置
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
     DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
     SEED = os.environ.get("SEED", "false").lower() == "true"

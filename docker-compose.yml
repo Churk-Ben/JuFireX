@@ -23,7 +23,7 @@ services:
       - ./version:/app/version
     environment:
       # 如果不挂载 .env 文件，可以直接在这里配置
-      # - SECRET_KEY=${SECRET_KEY:-ChangeMePlease}
+      # - FLASK_SECRET_KEY=${FLASK_SECRET_KEY:-ChangeMePlease}
       # - LOG_LEVEL=${LOG_LEVEL:-INFO}
       # - DEBUG=${DEBUG:-false}
       # - SEED=${SEED:-true}

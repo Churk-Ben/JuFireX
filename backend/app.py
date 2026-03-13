@@ -32,6 +32,7 @@ def create_app(config_class=Config):
     logger.info("正在创建后端实例...")
     app = Flask(__name__)
     app.config.from_object(config_class)
+    app.secret_key = app.config.get("FLASK_SECRET_KEY")
     app.logger = get_logger("Clash_Error")
     CORS(app)
 

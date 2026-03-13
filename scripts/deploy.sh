@@ -43,7 +43,7 @@ fi
 # 2. 创建 .env 配置文件 (如果不存在)
 if [ ! -f .env ]; then
     echo -e "${GREEN}正在创建默认 .env 配置文件...${NC}"
-    echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
+    echo "FLASK_SECRET_KEY=$(openssl rand -hex 32)" > .env
     echo "LOG_LEVEL=INFO" >> .env
     echo "DEBUG=false" >> .env
     echo "SEED=true" >> .env

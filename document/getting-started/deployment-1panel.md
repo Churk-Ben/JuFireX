@@ -40,7 +40,7 @@ docker build -t jufirex-backend:latest .
   - `./.env` -> `/app/.env` (只读)
   - `./version` -> `/app/version` (只读)
 - **环境**: (可选，如果不想用 .env 文件)
-  - `SECRET_KEY`: 设置一个随机字符串
+  - `FLASK_SECRET_KEY`: 设置一个随机字符串
   - `TZ`: `Asia/Shanghai`
 - **启动命令**: 默认即可 (`gunicorn ...`)
 
