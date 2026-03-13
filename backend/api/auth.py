@@ -211,3 +211,41 @@ def get_current_user():
         ),
         200,
     )
+
+
+@auth_bp.route("/totp", methods=["GET"])
+@require_login
+def generate_totp():
+    """
+    @name: 生成 TOTP 链接
+    @expect: None
+    @return:
+    {
+        "level": "success",
+        "message": "生成 TOTP 链接成功",
+        "data": {
+            "uri": "otpauth://totp/...",
+        }
+    }
+    """
+    pass
+
+
+@auth_bp.route("/totp", methods=["POST"])
+@require_login
+def verify_totp():
+    """
+    @name: 验证 TOTP 码
+    @expect:
+    {
+        "identifier": "email/uuid/id",
+        "totp_code": "123456"
+    }
+    @return:
+    {
+        "level": "success",
+        "message": "验证成功",
+        "data": user_obj,
+    }
+    """
+    pass
