@@ -28,10 +28,6 @@ if ! command -v git &> /dev/null; then
     exit 1
 fi
 
-if ! command -v npm &> /dev/null; then
-    echo -e "${RED}错误: 未找到 npm, 请先安装 Node.js 和 npm${NC}"
-    exit 1
-fi
 
 # 2. 创建备份
 echo -e "${GREEN}[1/5] 正在备份当前版本...${NC}"
@@ -99,56 +95,39 @@ fi
 
 echo -e "${GREEN}代码已更新至最新版本${NC}"
 
-# 4. 构建前端
-echo -e "${GREEN}[3/5] 正在构建前端...${NC}"
-if [ -d "${APP_DIR}/frontend" ]; then
-    cd "${APP_DIR}/frontend"
-    echo "安装前端依赖..."
-    export NPM_CONFIG_REGISTRY=https://registry.npmmirror.com 
-    export NODE_OPTIONS="--max-old-space-size=1536"
-    npm install
-    echo "构建前端项目..."
-    npm run build
-    
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}前端构建失败${NC}"
-        exit 1
-    fi
-    
-    # 检查构建产物
-    # vite.config.ts 配置输出目录为 frontend/static
-    if [ -d "static" ]; then
-        echo "前端构建成功，正在更新静态文件..."
-        
-        # 同步到 OpenResty 目录
-        if [ -d "${OPENRESTY_INDEX_DIR}" ]; then
-            # 清空旧文件
-            rm -rf "${OPENRESTY_INDEX_DIR:?}/"*
-            # 复制新文件
-            cp -r static/* "${OPENRESTY_INDEX_DIR}/"
-            echo "前端静态文件已同步至 OpenResty index 目录"
-        else
-            echo -e "${YELLOW}警告: 未找到 OpenResty 目录 ${OPENRESTY_INDEX_DIR}，跳过同步${NC}"
-        fi
+# 4. 同步前端静态文件 (不再服务器构建)
+echo -e "${GREEN}[3/5] 正在同步前端静态文件...${NC}"
 
-        # 同步到项目根目录 static (以备不时之需，如 Docker 挂载)
-        if [ -d "${APP_DIR}/static" ]; then
-            rm -rf "${APP_DIR}/static"/*
-        else
-            mkdir -p "${APP_DIR}/static"
-        fi
-        cp -r static/* "${APP_DIR}/static/"
-        echo "前端静态文件已同步至项目根目录 static"
-    else
-        echo -e "${RED}错误: 构建后未找到 static 目录${NC}"
-        exit 1
-    fi
+# 检查仓库中是否存在预构建的静态文件
+if [ -d "${APP_DIR}/frontend/static" ]; then
+    echo "找到预构建的静态文件，正在同步..."
     
-    cd "$APP_DIR"
+    # 同步到 OpenResty 目录
+    if [ -d "${OPENRESTY_INDEX_DIR}" ]; then
+        # 清空旧文件
+        rm -rf "${OPENRESTY_INDEX_DIR:?}/"*
+        # 复制新文件
+        cp -r "${APP_DIR}/frontend/static/"* "${OPENRESTY_INDEX_DIR}/"
+        echo "前端静态文件已同步至 OpenResty index 目录"
+    else
+        echo -e "${YELLOW}警告: 未找到 OpenResty 目录 ${OPENRESTY_INDEX_DIR}，跳过同步${NC}"
+    fi
+
+    # 同步到项目根目录 static (以备不时之需，如 Docker 挂载)
+    if [ -d "${APP_DIR}/static" ]; then
+        rm -rf "${APP_DIR}/static"/*
+    else
+        mkdir -p "${APP_DIR}/static"
+    fi
+    cp -r "${APP_DIR}/frontend/static/"* "${APP_DIR}/static/"
+    echo "前端静态文件已同步至项目根目录 static"
 else
-    echo -e "${RED}错误: 未找到 frontend 目录${NC}"
+    echo -e "${RED}错误: 未找到预构建的 static 目录 (${APP_DIR}/frontend/static)${NC}"
+    echo -e "${YELLOW}提示: 请确保在本地构建前端并将 frontend/static 目录提交到 Git${NC}"
     exit 1
 fi
+
+cd "$APP_DIR"
 
 # 5. 重建并重启后端容器
 echo -e "${GREEN}[4/5] 正在重建后端容器...${NC}"

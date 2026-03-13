@@ -77,8 +77,8 @@ frontend/dist/
 dist/
 dist-ssr/
 *.local
-frontend/static/
-static/
+# frontend/static/
+# static/
 
 # ==========================================
 # IDEs / Editors
