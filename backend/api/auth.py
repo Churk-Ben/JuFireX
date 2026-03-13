@@ -8,7 +8,7 @@ from flask import Blueprint, jsonify, request, session
 
 from backend.core.Logger import get_logger
 from backend.core.Security import require_login
-from backend.services import user_service
+from backend.services import user_service, verification_service
 
 
 logger = get_logger("API_Auth")
@@ -88,7 +88,8 @@ def register():
     {
         "username": "user",
         "email": "user@example.com",
-        "password": "123456"
+        "password": "123456",
+        "code": "123456"
     }
     @return:
     {
@@ -101,20 +102,21 @@ def register():
     username = data.get("username")
     email = data.get("email")
     password = data.get("password")
+    code = data.get("code")
 
-    if not all([username, email, password]):
-        logger.debug("注册请求缺少用户名/邮箱/密码")
+    if not all([username, email, password, code]):
+        logger.debug("注册请求缺少用户名/邮箱/密码/验证码")
         return (
             jsonify(
                 {
                     "level": "warning",
-                    "message": "请填写完整注册信息",
+                    "message": "请填写完整注册信息(含验证码)",
                 }
             ),
             400,
         )
 
-    success, message, user = user_service.register(username, email, password)
+    success, message, user = user_service.register(username, email, password, code)
 
     if success:
         logger.info(f"用户 {user.username} 注册成功, uuid: {user.uuid}")
@@ -213,11 +215,137 @@ def get_current_user():
     )
 
 
-@auth_bp.route("/totp", methods=["GET"])
-@require_login
-def generate_totp():
+@auth_bp.route("/code/send", methods=["POST"])
+def send_code():
     """
-    @name: 生成 TOTP 链接
+    @name: 发送验证码 (通用)
+    @expect:
+    {
+        "identifier": "user@example.com",
+        "method": "email",
+        "scene": "register"
+    }
+    @return:
+    {
+        "level": "success",
+        "message": "验证码发送成功",
+    }
+    """
+    data: dict = request.get_json()
+    identifier = data.get("identifier")
+    method = data.get("method", "email")
+    scene = data.get("scene", "register")
+
+    if not identifier:
+        return (
+            jsonify(
+                {
+                    "level": "warning",
+                    "message": "请输入邮箱",
+                },
+            ),
+            400,
+        )
+
+    if scene == "register" and method == "email":
+        if user_service.is_email_registered(identifier):
+            return (
+                jsonify(
+                    {
+                        "level": "warning",
+                        "message": "该邮箱已被注册",
+                    }
+                ),
+                400,
+            )
+
+    success, message = verification_service.send_code(identifier, method, scene)
+
+    if success:
+        return (
+            jsonify(
+                {
+                    "level": "success",
+                    "message": message,
+                }
+            ),
+            200,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": message,
+                }
+            ),
+            400,
+        )
+
+
+@auth_bp.route("/code/verify", methods=["POST"])
+def verify_code():
+    """
+    @name: 验证验证码 (通用，不消耗)
+    @expect:
+    {
+        "identifier": "user@example.com",
+        "code": "123456",
+        "method": "email",
+        "scene": "register"
+    }
+    @return:
+    {
+        "level": "success",
+        "message": "验证成功",
+    }
+    """
+    data: dict = request.get_json()
+    identifier = data.get("identifier")
+    code = data.get("code")
+    method = data.get("method", "email")
+    scene = data.get("scene", "register")
+
+    if not all([identifier, code]):
+        return (
+            jsonify(
+                {
+                    "level": "warning",
+                    "message": "请输入完整验证信息",
+                },
+            ),
+            400,
+        )
+
+    success, message = verification_service.verify_code(identifier, code, method, scene)
+
+    if success:
+        return (
+            jsonify(
+                {
+                    "level": "success",
+                    "message": message,
+                }
+            ),
+            200,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": message,
+                }
+            ),
+            400,
+        )
+
+
+@auth_bp.route("/2fa/setup", methods=["GET"])
+@require_login
+def setup_2fa():
+    """
+    @name: 生成 TOTP 链接 (设置 2FA)
     @expect: None
     @return:
     {
@@ -228,24 +356,66 @@ def generate_totp():
         }
     }
     """
-    pass
+    # TODO: 实现 TOTP 生成逻辑
+    return (
+        jsonify(
+            {
+                "level": "info",
+                "message": "功能开发中",
+            },
+        ),
+        200,
+    )
 
 
-@auth_bp.route("/totp", methods=["POST"])
+@auth_bp.route("/2fa/enable", methods=["POST"])
 @require_login
-def verify_totp():
+def enable_2fa():
     """
-    @name: 验证 TOTP 码
+    @name: 验证并启用 2FA
     @expect:
     {
-        "identifier": "email/uuid/id",
-        "totp_code": "123456"
+        "code": "123456",
     }
     @return:
     {
         "level": "success",
-        "message": "验证成功",
-        "data": user_obj,
+        "message": "2FA 已启用",
     }
     """
-    pass
+    # TODO: 实现 TOTP 验证并绑定逻辑
+    return (
+        jsonify(
+            {
+                "level": "info",
+                "message": "功能开发中",
+            },
+        ),
+        200,
+    )
+
+
+@auth_bp.route("/2fa/verify", methods=["POST"])
+def verify_2fa():
+    """
+    @name: 登录二次验证
+    @expect:
+    {
+        "uuid": "user_uuid",
+        "code": "123456"
+    }
+    @return:
+    {
+        "level": "success",
+        "message": "登录成功",
+    }
+    """
+    return (
+        jsonify(
+            {
+                "level": "info",
+                "message": "功能开发中",
+            },
+        ),
+        200,
+    )

@@ -1,9 +1,11 @@
 # ------------------------------------------------------------
 # @author: Churk
-# @status: 阶段性完工
+# @status: 待审查
 # @description: 用户服务层, 包含用户登录, 注册, 注销等业务逻辑
 # ------------------------------------------------------------
 
+import random
+import string
 from typing import Optional, Tuple
 
 from werkzeug.datastructures import FileStorage
@@ -11,11 +13,31 @@ from werkzeug.datastructures import FileStorage
 from backend.config import Config, ROLE_GUEST
 from backend.data import UserRepository
 from backend.data.models.user import User
+from backend.data.repositories.verification_repo import VerificationRepo
 
 
 class UserService:
-    def __init__(self, user_repo: UserRepository):
+    def __init__(self, user_repo: UserRepository, verification_repo: VerificationRepo):
         self.user_repo = user_repo
+        self.verification_repo = verification_repo
+
+    def send_verification_code(
+        self, identifier: str, method: str = "email", scene: str = "register"
+    ) -> Tuple[bool, str]:
+        # 已移至 VerificationService, API 层应直接调用 VerificationService
+        pass
+
+    def verify_code(
+        self, identifier: str, code: str, method: str = "email", scene: str = "register"
+    ) -> Tuple[bool, str]:
+        # 已移至 VerificationService, API 层应直接调用 VerificationService
+        pass
+
+    def is_email_registered(self, email: str) -> bool:
+        """
+        检查邮箱是否已被注册
+        """
+        return self.user_repo.get_by_email(email) is not None
 
     def login(self, identifier: str, password: str) -> Tuple[bool, str, Optional[User]]:
         """
@@ -43,15 +65,28 @@ class UserService:
         return True, f"欢迎回来, {user.username}", user
 
     def register(
-        self, username: str, email: str, password: str
+        self, username: str, email: str, password: str, code: str = None
     ) -> Tuple[bool, str, Optional[User]]:
         """
         用户注册逻辑
         :return: (是否成功, 消息, 新用户对象)
         """
-        # 检查邮箱是否已存在
+        # 再次检查邮箱是否已存在 (防并发)
         if self.user_repo.get_by_email(email):
             return False, "该邮箱已被注册", None
+
+        # 验证并消耗验证码
+        if code:
+            # 尝试消耗验证码
+            vc = self.verification_repo.get_valid_code(
+                email, code, method="email", scene="register"
+            )
+            if vc:
+                self.verification_repo.mark_as_used(vc)
+            else:
+                return False, "验证码无效或已过期", None
+        else:
+            return False, "缺少验证码", None
 
         new_user = User(
             username=username,
