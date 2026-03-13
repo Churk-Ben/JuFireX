@@ -45,7 +45,7 @@
                   <n-ellipsis
                     :line-clamp="2"
                     :tooltip="false"
-                    style="height: 4em"
+                    style="height: 44px"
                   >
                     {{ nav.description || nav.url }}
                   </n-ellipsis>

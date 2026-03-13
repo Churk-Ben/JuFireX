@@ -17,7 +17,7 @@
             >
               <template #header-extra>
                 <n-space size="small">
-                  <n-button @click="checkMe">
+                  <n-button @click="check">
                     {{ $t("page.apiTest.genericRequest.check") }}
                   </n-button>
                   <n-button type="primary" @click="sendGeneric">
@@ -173,8 +173,8 @@ async function request(url: string, options: RequestInit = {}) {
   }
 }
 
-async function checkMe() {
-  const res = await request("/api/auth/me");
+async function check() {
+  const res = await request("/api/version");
   if (res.ok) {
     currentUser.value = lastResponse.data;
   } else {
