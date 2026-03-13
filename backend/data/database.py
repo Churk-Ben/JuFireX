@@ -26,6 +26,7 @@ def init_db(app: Flask):
     with app.app_context():
         # 导入模型确保它们被注册到 SQLAlchemy
         from backend.data.models.user import User
+        from backend.data.models.verification_code import VerificationCode
         from backend.data.models.navigation import Navigation
         from backend.data.models.project import Project
         from backend.data.models.blog import Blog

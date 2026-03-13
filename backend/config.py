@@ -84,6 +84,9 @@ class Config:
     RESEED_DEFAULT_NAVIGATIONS = True
     OWNER_UUID = None
 
+    # RESEND 配置
+    SENDER_EMAIL = "noreply@support.jufirex.com"
+
     @staticmethod
     def ensure_dirs():
         Config.PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
