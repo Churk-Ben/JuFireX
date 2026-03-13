@@ -33,6 +33,8 @@ ROLE_NAMES = {
 class Config:
     # 密钥配置
     FLASK_SECRET_KEY = os.environ.get("FLASK_SECRET_KEY", "secretkey")
+    RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "resendkey")
+    TOTP_MASTER_KEY = os.environ.get("TOTP_MASTER_KEY", "totpkey")
 
     # 其他配置
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")

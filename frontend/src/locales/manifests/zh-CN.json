@@ -110,6 +110,7 @@
       "title": "登录",
       "login": "登录",
       "register": "还没有账号? 前往注册",
+      "forgetPassword": "忘记密码?",
       "identifier": {
         "label": "邮箱 / ID",
         "placeholder": "请输入邮箱 / ID",
@@ -132,8 +133,8 @@
       "register": "注册",
       "username": {
         "label": "用户名",
-        "placeholder": "我们不使用唯一用户名, 所以随意就好",
-        "validation": "请输入用户名昵称"
+        "placeholder": "昵称随意就好",
+        "validation": "诶? 但是至少得有啊.."
       },
       "email": {
         "label": "邮箱",
