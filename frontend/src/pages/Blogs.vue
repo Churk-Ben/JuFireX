@@ -11,8 +11,9 @@
         <n-result
           v-if="blogs.length === 0 && !loading"
           status="404"
-          title="No Articles Found"
-          description="There are no blog posts to display."
+          style="margin-top: 25vh"
+          :title="$t('page.blogs.noResult.title')"
+          :description="$t('page.blogs.noResult.description')"
         />
 
         <div v-else class="blog-list-container">

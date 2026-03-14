@@ -95,7 +95,11 @@
       }
     },
     "blogs": {
-      "title": "文章"
+      "title": "文章",
+      "noResult": {
+        "title": "无结果",
+        "description": "还没有公开展示的文章~"
+      }
     },
     "apiTest": {
       "title": "测试",
@@ -226,7 +230,8 @@
         "title": "登出",
         "result": {
           "title": "退出登录",
-          "description": "白白~~"
+          "description": "你真的要离开了吗😟",
+          "confirm": "真的"
         }
       }
     },

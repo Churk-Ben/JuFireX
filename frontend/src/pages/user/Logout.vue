@@ -8,13 +8,15 @@
       <n-h1>{{ $t("page.user.logout.title") }}</n-h1>
 
       <n-result
-        status="success"
+        status="warning"
         style="margin-top: 25vh"
         :title="$t('page.user.logout.result.title')"
         :description="$t('page.user.logout.result.description')"
       >
         <template #footer>
-          <n-button @click="onLogout">临时按钮</n-button>
+          <n-button @click="onLogout">
+            {{ $t("page.user.logout.result.confirm") }}
+          </n-button>
         </template>
       </n-result>
     </n-space>
