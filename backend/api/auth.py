@@ -266,7 +266,6 @@ def send_code():
             jsonify(
                 {
                     "level": "success",
-                    "message": message,
                 }
             ),
             200,

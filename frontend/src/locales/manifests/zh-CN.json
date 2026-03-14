@@ -131,6 +131,8 @@
       "title": "注册",
       "login": "已经有账号了? 去登录",
       "register": "注册",
+      "next": "下一步",
+      "back": "返回",
       "username": {
         "label": "用户名",
         "placeholder": "昵称随意就好",
@@ -140,6 +142,14 @@
         "label": "邮箱",
         "placeholder": "请输入邮箱",
         "validation": "请输入邮箱"
+      },
+      "code": {
+        "label": "验证码",
+        "placeholder": "请输入验证码",
+        "validation": "请输入验证码",
+        "send": "发送验证码",
+        "resend": "重新发送 ({time})",
+        "sent": "验证码已发送"
       },
       "password": {
         "label": "密码",
@@ -156,7 +166,14 @@
       },
       "notification": {
         "emptyFields": "请完整填写信息",
-        "passwordsDoNotMatch": "两次输入的密码不一致"
+        "passwordsDoNotMatch": "两次输入的密码不一致",
+        "agreeToPolicy": "请同意隐私服务协议和服务条款"
+      },
+      "policy": {
+        "agree": "我已阅读并同意",
+        "privacy": "隐私服务协议",
+        "and": "和",
+        "terms": "服务条款"
       }
     },
     "user": {
