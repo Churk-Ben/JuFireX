@@ -80,69 +80,6 @@ def login():
         )
 
 
-@auth_bp.route("/register", methods=["POST"])
-def register():
-    """
-    @name: 用户注册
-    @expect:
-    {
-        "username": "user",
-        "email": "user@example.com",
-        "password": "123456",
-        "code": "123456"
-    }
-    @return:
-    {
-        "level": "success",
-        "message": "注册成功",
-        "data": user_obj,
-    }
-    """
-    data: dict = request.get_json()
-    username = data.get("username")
-    email = data.get("email")
-    password = data.get("password")
-    code = data.get("code")
-
-    if not all([username, email, password, code]):
-        logger.debug("注册请求缺少用户名/邮箱/密码/验证码")
-        return (
-            jsonify(
-                {
-                    "level": "warning",
-                    "message": "请填写完整注册信息(含验证码)",
-                }
-            ),
-            400,
-        )
-
-    success, message, user = user_service.register(username, email, password, code)
-
-    if success:
-        logger.info(f"用户 {user.username} 注册成功, uuid: {user.uuid}")
-        return (
-            jsonify(
-                {
-                    "level": "success",
-                    "message": message,
-                    "data": user.to_dict(),
-                }
-            ),
-            201,
-        )
-    else:
-        logger.debug(f"用户 {user.username} 注册失败: {message}")
-        return (
-            jsonify(
-                {
-                    "level": "error",
-                    "message": message,
-                }
-            ),
-            400,
-        )
-
-
 @auth_bp.route("/logout", methods=["POST"])
 def logout():
     """
@@ -213,6 +150,69 @@ def get_current_user():
         ),
         200,
     )
+
+
+@auth_bp.route("/register", methods=["POST"])
+def register():
+    """
+    @name: 用户注册
+    @expect:
+    {
+        "username": "user",
+        "email": "user@example.com",
+        "password": "123456",
+        "code": "123456"
+    }
+    @return:
+    {
+        "level": "success",
+        "message": "注册成功",
+        "data": user_obj,
+    }
+    """
+    data: dict = request.get_json()
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
+    code = data.get("code")
+
+    if not all([username, email, password, code]):
+        logger.debug("注册请求缺少用户名/邮箱/密码/验证码")
+        return (
+            jsonify(
+                {
+                    "level": "warning",
+                    "message": "请填写完整注册信息",
+                }
+            ),
+            400,
+        )
+
+    success, message, user = user_service.register(username, email, password, code)
+
+    if success:
+        logger.info(f"用户 {user.username} 注册成功, uuid: {user.uuid}")
+        return (
+            jsonify(
+                {
+                    "level": "success",
+                    "message": message,
+                    "data": user.to_dict(),
+                }
+            ),
+            201,
+        )
+    else:
+        logger.debug(f"用户 {user.username} 注册失败: {message}")
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": message,
+                }
+            ),
+            400,
+        )
 
 
 @auth_bp.route("/code/send", methods=["POST"])

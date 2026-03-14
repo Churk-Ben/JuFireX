@@ -1,6 +1,6 @@
 # ------------------------------------------------------------
 # @author: Churk
-# @status: 待审查
+# @status: 已审查
 # @description: 用户服务层, 包含用户登录, 注册, 注销等业务逻辑
 # ------------------------------------------------------------
 
@@ -20,18 +20,6 @@ class UserService:
     def __init__(self, user_repo: UserRepository, verification_repo: VerificationRepo):
         self.user_repo = user_repo
         self.verification_repo = verification_repo
-
-    def send_verification_code(
-        self, identifier: str, method: str = "email", scene: str = "register"
-    ) -> Tuple[bool, str]:
-        # 已移至 VerificationService, API 层应直接调用 VerificationService
-        pass
-
-    def verify_code(
-        self, identifier: str, code: str, method: str = "email", scene: str = "register"
-    ) -> Tuple[bool, str]:
-        # 已移至 VerificationService, API 层应直接调用 VerificationService
-        pass
 
     def is_email_registered(self, email: str) -> bool:
         """

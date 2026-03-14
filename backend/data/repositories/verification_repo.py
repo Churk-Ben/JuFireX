@@ -1,6 +1,6 @@
 # ------------------------------------------------------------
 # @author: Churk
-# @status: 待审查
+# @status: 完工
 # @description: 验证码数据仓库, 封装 VerificationCode 模型的所有数据库操作
 # ------------------------------------------------------------
 
@@ -40,11 +40,19 @@ class VerificationRepo:
         return vc
 
     def get_valid_code(
-        self, identifier: str, code: str, method: str, scene: str
+        self,
+        identifier: str,
+        code: str,
+        method: str,
+        scene: str,
     ) -> Optional[VerificationCode]:
         """获取有效且未使用的验证码"""
         stmt = select(self.model).filter_by(
-            identifier=identifier, code=code, method=method, scene=scene, is_used=False
+            identifier=identifier,
+            code=code,
+            method=method,
+            scene=scene,
+            is_used=False,
         )
         vc = db.session.scalars(stmt).first()
         if vc and vc.is_valid():
