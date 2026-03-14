@@ -114,13 +114,13 @@ if [ -d "${APP_DIR}/frontend/static" ]; then
     fi
 
     # 同步到项目根目录 static (以备不时之需，如 Docker 挂载)
-    if [ -d "${APP_DIR}/static" ]; then
-        rm -rf "${APP_DIR}/static"/*
-    else
-        mkdir -p "${APP_DIR}/static"
-    fi
-    cp -r "${APP_DIR}/frontend/static/"* "${APP_DIR}/static/"
-    echo "前端静态文件已同步至项目根目录 static"
+    # if [ -d "${APP_DIR}/static" ]; then
+    #     rm -rf "${APP_DIR}/static"/*
+    # else
+    #     mkdir -p "${APP_DIR}/static"
+    # fi
+    # cp -r "${APP_DIR}/frontend/static/"* "${APP_DIR}/static/"
+    # echo "前端静态文件已同步至项目根目录 static"
 else
     echo -e "${RED}错误: 未找到预构建的 static 目录 (${APP_DIR}/frontend/static)${NC}"
     echo -e "${YELLOW}提示: 请确保在本地构建前端并将 frontend/static 目录提交到 Git${NC}"
