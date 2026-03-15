@@ -35,4 +35,11 @@ export const userService = {
       body: JSON.stringify(data),
     });
   },
+
+  async rebuildUserDir(uuid: string) {
+    return request(`/api/user/rebuild/${uuid}`, {
+      method: "POST",
+      body: JSON.stringify({ uuid }),
+    });
+  },
 };

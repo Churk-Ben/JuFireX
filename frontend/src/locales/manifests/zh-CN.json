@@ -205,7 +205,8 @@
             "bio_placeholder": "请输入签名"
           },
           "urls": {
-            "title": "外链"
+            "title": "外链",
+            "desc": "你可以在这里添加你的个人网站, 博客, Twitter 等账号. 这些账号会在你的档案中显示"
           }
         },
         "account_security": {
@@ -215,7 +216,7 @@
             "email": "注册邮箱",
             "email_verify": "验证邮箱",
             "rebuild_folder": "重建账户",
-            "rebuild_folder_desc": "这会清空你的头像, 签名, 外链等低敏感信息! 重要的加密数据不会受到影响. 一般情况下你不会用到此功能. 在下方输入你的 UUID 以确认重建",
+            "rebuild_folder_desc": "这会清空你的头像, 签名, 外链, 自定义主题配置等低敏感信息! 重要的加密数据不会受到影响. 一般情况下你不会用到此功能. 在下方输入你的 UUID 以确认重建",
             "rebuild": "确认重建",
             "delete_account": "注销账户",
             "delete_account_desc": "你的所有数据将被永久删除! 我们会动用最严格的验证流程来确保是你本人在操作",

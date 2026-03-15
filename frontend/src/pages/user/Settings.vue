@@ -74,13 +74,18 @@
                     :model="urlForm"
                     label-placement="left"
                     label-width="200"
-                    require-mark-placement="right-hanging"
                   >
                     <n-divider title-placement="left">
                       <span class="divider-title">
                         {{ $t("page.user.settings.personal.urls.title") }}
                       </span>
                     </n-divider>
+                    <n-form-item path="urls">
+                      <div class="desc">
+                        <!-- prettier-ignore -->
+                        {{ $t("page.user.settings.personal.urls.desc") }}
+                      </div>
+                    </n-form-item>
                     <n-form-item style="display: flex; justify-content: flex-end">
                       <n-button type="primary">
                         {{ $t("page.user.settings.common.save") }}
@@ -118,8 +123,13 @@
                           {{ $t("page.user.settings.account_security.account.rebuild_folder_desc") }}
                         </div>
                         <n-input-group>
-                          <n-input />
-                          <n-button secondary type="warning">
+                          <n-input v-model:value="rebuildConfirm" placeholder="UUID" />
+                          <n-button
+                            secondary
+                            type="warning"
+                            @click="handleRebuildUserDir"
+                            :disabled="!rebuildConfirm"
+                          >
                             {{ $t("page.user.settings.account_security.account.rebuild") }}
                           </n-button>
                         </n-input-group>
@@ -395,6 +405,24 @@ const urlForm = reactive({
 
 // --------- Account_Security 账户与安全设置 ---------
 // Account
+const rebuildConfirm = ref("");
+
+const handleRebuildUserDir = async () => {
+  if (!userStore.currentUser?.uuid) return;
+  if (rebuildConfirm.value !== userStore.currentUser.uuid) {
+    notification.error({
+      content: "UUID 输入错误",
+      duration: 3000,
+    });
+    return;
+  }
+  try {
+    await userService.rebuildUserDir(userStore.currentUser.uuid);
+    rebuildConfirm.value = "";
+  } catch (e: any) {
+    console.error(e);
+  }
+};
 
 // Security
 const passwordForm = reactive({
