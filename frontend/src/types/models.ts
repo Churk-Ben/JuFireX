@@ -8,6 +8,7 @@ export interface User {
   role_name?: string;
   is_active: boolean;
   created_at?: string;
+  urls?: Record<string, string>;
 }
 
 export interface Blog {

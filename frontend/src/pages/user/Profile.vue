@@ -7,9 +7,6 @@
         <div class="profile-header">
           <div class="avatar-section">
             <n-avatar round :size="128" :src="avatarUrl" class="mb-3" />
-            <AvatarCropper @cropped="handleAvatarCrop">
-              <n-button>Change Avatar</n-button>
-            </AvatarCropper>
           </div>
 
           <div class="info-section">
@@ -41,41 +38,19 @@
 import { ref, computed, onMounted } from "vue";
 import { useUserStore } from "@/stores/user";
 import { userService } from "@/services/user";
-import {
-  NCard,
-  NSpace,
-  NH1,
-  NAvatar,
-  NButton,
-  NDescriptions,
-  NDescriptionsItem,
-} from "naive-ui";
+import { NCard, NSpace, NH1, NAvatar, NButton, NDescriptions, NDescriptionsItem } from "naive-ui";
 import { ScrollContainer } from "@/components/scroll-container";
-import { AvatarCropper } from "@/components/avatar-cropper";
 
 const userStore = useUserStore();
 
 const avatarUrl = computed(() => {
   if (!userStore.currentUser?.uuid) return "";
-  return (
-    userService.getAvatarUrl(userStore.currentUser.uuid) +
-    `?t=${userStore.avatarTimestamp}`
-  );
+  return userService.getAvatarUrl(userStore.currentUser.uuid) + `?t=${userStore.avatarTimestamp}`;
 });
 
 function formatDate(dateStr?: string) {
   if (!dateStr) return "-";
   return new Date(dateStr).toLocaleString();
-}
-
-async function handleAvatarCrop(blob: Blob) {
-  try {
-    const file = new File([blob], "avatar.png", { type: "image/png" });
-    await userService.uploadAvatar(file);
-    userStore.refreshAvatar();
-  } catch (e: any) {
-    console.error(e);
-  }
 }
 
 onMounted(() => {

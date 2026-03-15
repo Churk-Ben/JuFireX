@@ -44,6 +44,7 @@ class MailService:
         subject_map = {
             "register": "JuFireX 注册验证码",
             "login": "JuFireX 登录验证码",
+            "update_password": "JuFireX 修改密码验证码",
             "reset_password": "JuFireX 重置密码验证码",
             "bind_2fa": "JuFireX 绑定验证",
         }

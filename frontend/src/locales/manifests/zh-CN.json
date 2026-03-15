@@ -192,38 +192,64 @@
           "enabled": "启用",
           "disabled": "禁用"
         },
-        "profile": {
+        "personal": {
           "title": "个人信息",
-          "avatar": "头像",
-          "upload_avatar": "上传头像",
-          "avatar_updated": "头像更新成功",
-          "username": "用户名",
-          "username_placeholder": "请输入用户名",
-          "bio": "签名",
-          "bio_placeholder": "请输入签名"
+          "profile": {
+            "title": "档案",
+            "avatar": "头像",
+            "avatar_upload": "上传头像",
+            "avatar_updated": "头像更新成功",
+            "username": "用户名",
+            "username_placeholder": "请输入用户名",
+            "bio": "签名",
+            "bio_placeholder": "请输入签名"
+          },
+          "urls": {
+            "title": "外链"
+          }
         },
-        "account": {
-          "title": "账户安全",
-          "email": "邮箱",
-          "verify_email": "验证邮箱",
-          "password": "密码",
-          "password_desc": "定期修改密码可以保护您的账户安全",
-          "change_password": "修改密码",
-          "rebuild_folder": "重建用户文件夹",
-          "rebuild_folder_desc": "如果您的文件出现异常，可以尝试重建文件夹",
-          "rebuild": "重建",
-          "delete_account": "注销账户",
-          "delete_account_desc": "注销账户后，您的所有数据将被永久删除",
-          "delete": "注销"
+        "account_security": {
+          "title": "账户与安全",
+          "account": {
+            "title": "此账户",
+            "email": "注册邮箱",
+            "email_verify": "验证邮箱",
+            "rebuild_folder": "重建账户",
+            "rebuild_folder_desc": "这会清空你的头像, 签名, 外链等低敏感信息! 重要的加密数据不会受到影响. 一般情况下你不会用到此功能. 在下方输入你的 UUID 以确认重建",
+            "rebuild": "确认重建",
+            "delete_account": "注销账户",
+            "delete_account_desc": "你的所有数据将被永久删除! 我们会动用最严格的验证流程来确保是你本人在操作",
+            "delete": "注销账户"
+          },
+          "security": {
+            "title": "安全",
+            "password": "修改密码",
+            "password_desc": "我们墙裂建议你使用强密码, 包含字母, 数字和特殊字符, 长度至少为 8 个字符",
+            "old_password_placeholder": "请输入旧密码",
+            "new_password_placeholder": "请输入新密码",
+            "confirm_password_placeholder": "请确认新密码",
+            "verify_code_placeholder": "请输入验证码",
+            "verify_code_send": "发送验证码",
+            "verify_code_resend": "重新发送验证码",
+            "verify_code_sent": "验证码已发送",
+            "password_update": "修改密码",
+            "password_forgot": "忘记密码",
+            "2fa": "两步验证",
+            "2fa_desc": "启用两步验证可以增加账户的安全性. 你可以使用 Google Authenticator 等应用程序来进行两步验证",
+            "2fa_enable": "启用两步验证"
+          }
         },
-        "preference": {
+        "preference_privacy": {
           "title": "个性化与隐私",
-          "theme_settings": "主题设置",
-          "theme": "网站主题",
-          "custom_theme": "自定义主题配置",
-          "custom_theme_placeholder": "请输入自定义主题 JSON 配置",
-          "privacy_settings": "隐私设置",
-          "public_profile": "允许在主页公开展示的卡片"
+          "preference": {
+            "title": "个性化",
+            "theme_settings": "主题设置",
+            "theme": "网站主题",
+            "custom_theme": "自定义主题配置",
+            "custom_theme_placeholder": "请输入自定义主题 JSON 配置",
+            "privacy_settings": "隐私设置",
+            "public_profile": "允许在主页公开展示的卡片"
+          }
         }
       },
       "logout": {

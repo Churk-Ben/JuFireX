@@ -2,11 +2,11 @@ import { request } from "@/utils/request";
 import type { User } from "@/types/models";
 
 export const authService = {
-  login(data: any) {
+  login(data: any, config?: { silent?: boolean }) {
     return request<User>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
-    });
+    }, config);
   },
 
   logout() {
@@ -22,25 +22,25 @@ export const authService = {
     });
   },
 
-  sendCode(email: string) {
+  sendCode(email: string, scene: string = "register") {
     return request("/api/auth/code/send", {
       method: "POST",
       body: JSON.stringify({
         identifier: email,
         method: "email",
-        scene: "register",
+        scene: scene,
       }),
     });
   },
 
-  verifyCode(email: string, code: string) {
+  verifyCode(email: string, code: string, scene: string = "register") {
     return request("/api/auth/code/verify", {
       method: "POST",
       body: JSON.stringify({
         identifier: email,
         code,
         method: "email",
-        scene: "register",
+        scene,
       }),
     });
   },
