@@ -77,8 +77,8 @@
                           path="urls"
                           v-model:value="value"
                           preset="pair"
-                          key-placeholder="环境变量名"
-                          value-placeholder="环境变量值"
+                          :key-placeholder="$t('page.user.settings.personal.urls.url_name_placeholder')"
+                          :value-placeholder="$t('page.user.settings.personal.urls.url_placeholder')"
                         />
                       </n-space>
                     </n-form-item>
@@ -260,37 +260,39 @@
                   display-directive="show"
                   :tab="$t('page.user.settings.preference_privacy.title')"
                 >
+                  <!-- 主题设置表单 -->
                   <n-form ref="preferenceFormRef" :model="preferenceForm" label-placement="left" label-width="180">
                     <n-divider title-placement="left">
                       <span class="divider-title">
-                        {{ $t("page.user.settings.preference_privacy.preference.theme_settings") }}
+                        {{ $t("page.user.settings.preference_privacy.preference.title") }}
                       </span>
                     </n-divider>
                     <n-form-item :label="$t('page.user.settings.preference_privacy.preference.theme')">
                       <n-select v-model:value="currentTheme" :options="themeOptions" />
                     </n-form-item>
                     <n-form-item :label="$t('page.user.settings.preference_privacy.preference.custom_theme')">
-                      <n-input
-                        type="textarea"
-                        :placeholder="$t('page.user.settings.preference_privacy.preference.custom_theme_placeholder')"
-                        :autosize="{ minRows: 3 }"
-                      />
+                      <n-space vertical size="large" style="width: 100%">
+                        <div class="desc">
+                          {{ $t("page.user.settings.preference_privacy.preference.custom_theme_desc") }}
+                        </div>
+                        <n-input
+                          type="textarea"
+                          :placeholder="$t('page.user.settings.preference_privacy.preference.custom_theme_placeholder')"
+                          :autosize="{ minRows: 3 }"
+                        />
+                      </n-space>
                     </n-form-item>
+                  </n-form>
 
+                  <!-- 隐私设置表单 -->
+                  <n-form ref="preferenceFormRef" :model="preferenceForm" label-placement="left" label-width="180">
                     <n-divider title-placement="left">
                       <span class="divider-title">
-                        {{ $t("page.user.settings.preference_privacy.preference.privacy_settings") }}
+                        {{ $t("page.user.settings.preference_privacy.privacy.title") }}
                       </span>
                     </n-divider>
-                    <n-form-item :label="$t('page.user.settings.preference_privacy.preference.public_profile')">
-                      <n-switch>
-                        <template #checked>
-                          {{ $t("page.user.settings.common.enabled") }}
-                        </template>
-                        <template #unchecked>
-                          {{ $t("page.user.settings.common.disabled") }}
-                        </template>
-                      </n-switch>
+                    <n-form-item :label="$t('page.user.settings.preference_privacy.privacy.public_profile')">
+                      <n-switch />
                     </n-form-item>
                   </n-form>
                 </n-tab-pane>

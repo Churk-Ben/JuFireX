@@ -207,7 +207,11 @@
           "urls": {
             "title": "外链",
             "urls_list": "外链列表",
-            "urls_list_desc": "你可以在这里添加你的个人网站, 博客, Twitter 等账号. 这些账号会在你的主页显示"
+            "urls_list_desc": "你可以在这里添加你的个人网站, 博客, Twitter 等账号. 这些账号会在你的主页显示",
+            "url_name": "名称",
+            "url_name_placeholder": "请输入名称",
+            "url": "链接",
+            "url_placeholder": "请输入链接"
           }
         },
         "account_security": {
@@ -252,11 +256,13 @@
           "title": "个性化与隐私",
           "preference": {
             "title": "个性化",
-            "theme_settings": "主题设置",
-            "theme": "网站主题",
-            "custom_theme": "自定义主题配置",
-            "custom_theme_placeholder": "请输入自定义主题 JSON 配置",
-            "privacy_settings": "隐私设置",
+            "theme": "网站主题预设",
+            "custom_theme": "自定义网站主题",
+            "custom_theme_desc": "你可以在这里输入自定义的网站主题 JSON 配置. 这会覆盖默认的网站主题. 主题自定义请参考 Naive UI 主页右下的主题编辑器 (https://www.naiveui.com/zh-CN/os-theme)",
+            "custom_theme_placeholder": "请输入自定义主题 JSON 配置"
+          },
+          "privacy": {
+            "title": "隐私",
             "public_profile": "在主页公开展示的卡片"
           }
         }
