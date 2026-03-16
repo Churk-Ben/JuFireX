@@ -206,7 +206,8 @@
           },
           "urls": {
             "title": "外链",
-            "desc": "你可以在这里添加你的个人网站, 博客, Twitter 等账号. 这些账号会在你的档案中显示"
+            "urls_list": "外链列表",
+            "urls_list_desc": "你可以在这里添加你的个人网站, 博客, Twitter 等账号. 这些账号会在你的主页显示"
           }
         },
         "account_security": {
@@ -222,22 +223,29 @@
             "delete_account_desc": "你的所有数据将被永久删除! 我们会动用最严格的验证流程来确保是你本人在操作",
             "delete": "注销账户"
           },
-          "security": {
-            "title": "安全",
-            "password": "修改密码",
-            "password_desc": "我们墙裂建议你使用强密码, 包含字母, 数字和特殊字符, 长度至少为 8 个字符",
+          "password": {
+            "title": "修改密码",
+            "old_password": "旧密码",
             "old_password_placeholder": "请输入旧密码",
+            "new_password": "新密码",
+            "new_password_desc": "我们墙裂建议你使用强密码, 包含字母, 数字和特殊字符, 长度至少为 8 个字符",
             "new_password_placeholder": "请输入新密码",
+            "confirm_password": "确认密码",
             "confirm_password_placeholder": "请确认新密码",
+            "verify_code": "验证码",
             "verify_code_placeholder": "请输入验证码",
             "verify_code_send": "发送验证码",
             "verify_code_resend": "重新发送验证码",
             "verify_code_sent": "验证码已发送",
             "password_update": "修改密码",
-            "password_forgot": "忘记密码",
-            "2fa": "两步验证",
-            "2fa_desc": "启用两步验证可以增加账户的安全性. 你可以使用 Google Authenticator 等应用程序来进行两步验证",
-            "2fa_enable": "启用两步验证"
+            "password_forgot": "忘记密码"
+          },
+          "2fa": {
+            "title": "两步验证",
+            "2fa_enable": "是否启用两步验证",
+            "2fa_enable_desc": "启用两步验证可以增加账户的安全性. 你可以使用 Google Authenticator 等应用程序来进行两步验证",
+            "enable": "启用",
+            "reset": "重置"
           }
         },
         "preference_privacy": {
@@ -249,7 +257,7 @@
             "custom_theme": "自定义主题配置",
             "custom_theme_placeholder": "请输入自定义主题 JSON 配置",
             "privacy_settings": "隐私设置",
-            "public_profile": "允许在主页公开展示的卡片"
+            "public_profile": "在主页公开展示的卡片"
           }
         }
       },

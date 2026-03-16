@@ -9,16 +9,13 @@
             <n-card>
               <n-tabs type="line" size="large" animated>
                 <!-- 个人信息设置 -->
-                <n-tab-pane
-                  name="personal"
-                  display-directive="show"
-                  :tab="$t('page.user.settings.personal.title')"
-                >
+                <n-tab-pane name="personal" display-directive="show" :tab="$t('page.user.settings.personal.title')">
+                  <!-- 档案表单 -->
                   <n-form
                     ref="profileFormRef"
                     :model="profileForm"
                     label-placement="left"
-                    label-width="200"
+                    label-width="180"
                     require-mark-placement="right-hanging"
                   >
                     <n-divider title-placement="left">
@@ -42,16 +39,10 @@
                         </n-button>
                       </AvatarCropper>
                     </n-form-item>
-                    <n-form-item
-                      :label="$t('page.user.settings.personal.profile.username')"
-                      path="username"
-                      required
-                    >
+                    <n-form-item :label="$t('page.user.settings.personal.profile.username')" path="username" required>
                       <n-input
                         v-model:value="profileForm.username"
-                        :placeholder="
-                          $t('page.user.settings.personal.profile.username_placeholder')
-                        "
+                        :placeholder="$t('page.user.settings.personal.profile.username_placeholder')"
                       />
                     </n-form-item>
                     <n-form-item :label="$t('page.user.settings.personal.profile.bio')" path="bio">
@@ -69,22 +60,27 @@
                       </n-button>
                     </n-form-item>
                   </n-form>
-                  <n-form
-                    ref="urlFormRef"
-                    :model="urlForm"
-                    label-placement="left"
-                    label-width="200"
-                  >
+
+                  <!-- URL表单 -->
+                  <n-form ref="urlFormRef" :model="urlForm" label-placement="left" label-width="180">
                     <n-divider title-placement="left">
                       <span class="divider-title">
                         {{ $t("page.user.settings.personal.urls.title") }}
                       </span>
                     </n-divider>
-                    <n-form-item path="urls">
-                      <div class="desc">
-                        <!-- prettier-ignore -->
-                        {{ $t("page.user.settings.personal.urls.desc") }}
-                      </div>
+                    <n-form-item :label="$t('page.user.settings.personal.urls.urls_list')">
+                      <n-space vertical size="large" style="width: 100%">
+                        <div class="desc">
+                          {{ $t("page.user.settings.personal.urls.urls_list_desc") }}
+                        </div>
+                        <n-dynamic-input
+                          path="urls"
+                          v-model:value="value"
+                          preset="pair"
+                          key-placeholder="环境变量名"
+                          value-placeholder="环境变量值"
+                        />
+                      </n-space>
                     </n-form-item>
                     <n-form-item style="display: flex; justify-content: flex-end">
                       <n-button type="primary">
@@ -100,7 +96,8 @@
                   display-directive="show"
                   :tab="$t('page.user.settings.account_security.title')"
                 >
-                  <n-form label-placement="left" label-width="200">
+                  <!-- 此账户表单 -->
+                  <n-form label-placement="left" label-width="180">
                     <n-divider title-placement="left">
                       <span class="divider-title">
                         {{ $t("page.user.settings.account_security.account.title") }}
@@ -114,137 +111,142 @@
                         </n-button>
                       </n-input-group>
                     </n-form-item>
-                    <n-form-item
-                      :label="$t('page.user.settings.account_security.account.rebuild_folder')"
-                    >
+                    <n-form-item :label="$t('page.user.settings.account_security.account.rebuild_folder')">
                       <n-space vertical size="large" style="width: 100%">
                         <div class="desc">
-                          <!-- prettier-ignore -->
                           {{ $t("page.user.settings.account_security.account.rebuild_folder_desc") }}
                         </div>
                         <n-input-group>
                           <n-input v-model:value="rebuildConfirm" placeholder="UUID" />
-                          <n-button
-                            secondary
-                            type="warning"
-                            @click="handleRebuildUserDir"
-                            :disabled="!rebuildConfirm"
-                          >
+                          <n-button secondary type="warning" @click="handleRebuildUserDir" :disabled="!rebuildConfirm">
                             {{ $t("page.user.settings.account_security.account.rebuild") }}
                           </n-button>
                         </n-input-group>
                       </n-space>
                     </n-form-item>
-                    <n-form-item
-                      :label="$t('page.user.settings.account_security.account.delete_account')"
-                    >
+                    <n-form-item :label="$t('page.user.settings.account_security.account.delete_account')">
                       <n-space vertical size="large" style="width: 100%">
                         <div class="desc">
-                          <!-- prettier-ignore -->
                           {{ $t("page.user.settings.account_security.account.delete_account_desc") }}
                         </div>
-                        <div style="display: flex; justify-content: flex-end">
+                        <n-input-group>
+                          <n-input v-model:value="deleteConfirm" placeholder="UUID" />
                           <n-button secondary disabled type="error">
                             {{ $t("page.user.settings.account_security.account.delete") }}
                           </n-button>
-                        </div>
+                        </n-input-group>
                       </n-space>
                     </n-form-item>
                   </n-form>
+
+                  <!-- 修改密码表单 -->
                   <n-form
                     ref="passwordFormRef"
                     :model="passwordForm"
                     :rules="passwordRules"
                     label-placement="left"
-                    label-width="200"
+                    label-width="180"
                   >
                     <n-divider title-placement="left">
                       <span class="divider-title">
-                        {{ $t("page.user.settings.account_security.security.title") }}
+                        {{ $t("page.user.settings.account_security.password.title") }}
                       </span>
                     </n-divider>
                     <n-form-item
-                      :label="$t('page.user.settings.account_security.security.password')"
+                      :label="$t('page.user.settings.account_security.password.old_password')"
+                      path="oldPassword"
+                    >
+                      <n-input
+                        type="password"
+                        v-model:value="passwordForm.oldPassword"
+                        :placeholder="$t('page.user.settings.account_security.password.old_password_placeholder')"
+                        show-password-on="click"
+                      />
+                    </n-form-item>
+                    <n-form-item
+                      :label="$t('page.user.settings.account_security.password.new_password')"
+                      path="newPassword"
                     >
                       <n-space vertical size="large" style="width: 100%">
                         <div class="desc">
-                          {{ $t("page.user.settings.account_security.security.password_desc") }}
+                          {{ $t("page.user.settings.account_security.password.new_password_desc") }}
                         </div>
-                        <div>
-                          <n-form-item path="oldPassword">
-                            <!-- prettier-ignore -->
-                            <n-input
-                              type="password"
-                              v-model:value="passwordForm.oldPassword"
-                              :placeholder="$t('page.user.settings.account_security.security.old_password_placeholder')"
-                              show-password-on="click"
-                            />
-                          </n-form-item>
-                          <n-form-item path="newPassword">
-                            <!-- prettier-ignore -->
-                            <n-input
-                              type="password"
-                              v-model:value="passwordForm.newPassword"
-                              :placeholder="$t('page.user.settings.account_security.security.new_password_placeholder')"
-                              show-password-on="click"
-                            />
-                          </n-form-item>
-                          <n-form-item path="confirmPassword">
-                            <!-- prettier-ignore -->
-                            <n-input
-                              type="password"
-                              v-model:value="passwordForm.confirmPassword"
-                              :placeholder="$t('page.user.settings.account_security.security.confirm_password_placeholder')"
-                              show-password-on="click"
-                            />
-                          </n-form-item>
-                          <n-form-item path="verifyCode">
-                            <n-input-group>
-                              <!-- prettier-ignore -->
-                              <n-input
-                                type="text"
-                                v-model:value="passwordForm.verifyCode"
-                                :placeholder="$t('page.user.settings.account_security.security.verify_code_placeholder')"
-                              />
-                              <n-button
-                                type="primary"
-                                secondary
-                                :disabled="countdown > 0"
-                                @click="sendCode"
-                              >
-                                {{
-                                  countdown > 0
-                                    ? $t("page.register.code.resend", { time: countdown })
-                                    : $t("page.register.code.send")
-                                }}
-                              </n-button>
-                            </n-input-group>
-                          </n-form-item>
-                        </div>
-                        <div style="display: flex; justify-content: flex-end">
-                          <n-space size="small">
-                            <n-button tertiary disabled type="primary">
-                              <!-- prettier-ignore -->
-                              {{ $t("page.user.settings.account_security.security.password_forgot") }}
-                            </n-button>
-                            <n-button secondary type="primary" @click="handleSavePassword">
-                              <!-- prettier-ignore -->
-                              {{ $t("page.user.settings.account_security.security.password_update") }}
-                            </n-button>
-                          </n-space>
-                        </div>
+                        <n-input
+                          type="password"
+                          v-model:value="passwordForm.newPassword"
+                          :placeholder="$t('page.user.settings.account_security.password.new_password_placeholder')"
+                          show-password-on="click"
+                        />
+                      </n-space>
+                    </n-form-item>
+                    <n-form-item
+                      :label="$t('page.user.settings.account_security.password.confirm_password')"
+                      path="confirmPassword"
+                    >
+                      <n-input
+                        type="password"
+                        v-model:value="passwordForm.confirmPassword"
+                        :placeholder="$t('page.user.settings.account_security.password.confirm_password_placeholder')"
+                        show-password-on="click"
+                      />
+                    </n-form-item>
+                    <n-form-item
+                      :label="$t('page.user.settings.account_security.password.verify_code')"
+                      path="verifyCode"
+                    >
+                      <n-input-group>
+                        <n-input
+                          type="text"
+                          v-model:value="passwordForm.verifyCode"
+                          :placeholder="$t('page.user.settings.account_security.password.verify_code_placeholder')"
+                        />
+                        <n-button
+                          type="primary"
+                          secondary
+                          :disabled="
+                            countdown > 0 ||
+                            !passwordForm.oldPassword ||
+                            !passwordForm.newPassword ||
+                            !passwordForm.confirmPassword ||
+                            passwordForm.newPassword !== passwordForm.confirmPassword
+                          "
+                          @click="sendCode"
+                        >
+                          {{
+                            countdown > 0
+                              ? $t("page.register.code.resend", { time: countdown })
+                              : $t("page.register.code.send")
+                          }}
+                        </n-button>
+                      </n-input-group>
+                    </n-form-item>
+                    <n-form-item style="display: flex; justify-content: flex-end">
+                      <n-space size="small">
+                        <n-button secondary type="primary">
+                          {{ $t("page.user.settings.account_security.password.password_forgot") }}
+                        </n-button>
+                        <n-button type="primary" @click="handleSavePassword">
+                          {{ $t("page.user.settings.account_security.password.password_update") }}
+                        </n-button>
                       </n-space>
                     </n-form-item>
                   </n-form>
-                  <n-form label-placement="left" label-width="200">
-                    <n-form-item :label="$t('page.user.settings.account_security.security.2fa')">
+
+                  <!-- 2FA表单 -->
+                  <n-form label-placement="left" label-width="180">
+                    <n-divider title-placement="left">
+                      <span class="divider-title">
+                        {{ $t("page.user.settings.account_security.2fa.title") }}
+                      </span>
+                    </n-divider>
+                    <n-form-item :label="$t('page.user.settings.account_security.2fa.2fa_enable')">
                       <n-space vertical size="large" style="width: 100%">
                         <div class="desc">
-                          {{ $t("page.user.settings.account_security.security.2fa_desc") }}
+                          {{ $t("page.user.settings.account_security.2fa.2fa_enable_desc") }}
                         </div>
                         <div style="display: flex; justify-content: flex-end">
-                          <n-button secondary disabled type="primary">
-                            {{ $t("page.user.settings.account_security.security.2fa_enable") }}
+                          <n-button type="primary">
+                            {{ $t("page.user.settings.account_security.2fa.enable") }}
                           </n-button>
                         </div>
                       </n-space>
@@ -258,44 +260,29 @@
                   display-directive="show"
                   :tab="$t('page.user.settings.preference_privacy.title')"
                 >
-                  <n-form
-                    ref="preferenceFormRef"
-                    :model="preferenceForm"
-                    label-placement="left"
-                    label-width="200"
-                  >
+                  <n-form ref="preferenceFormRef" :model="preferenceForm" label-placement="left" label-width="180">
                     <n-divider title-placement="left">
                       <span class="divider-title">
                         {{ $t("page.user.settings.preference_privacy.preference.theme_settings") }}
                       </span>
                     </n-divider>
-                    <n-form-item
-                      :label="$t('page.user.settings.preference_privacy.preference.theme')"
-                    >
+                    <n-form-item :label="$t('page.user.settings.preference_privacy.preference.theme')">
                       <n-select v-model:value="currentTheme" :options="themeOptions" />
                     </n-form-item>
-                    <n-form-item
-                      :label="$t('page.user.settings.preference_privacy.preference.custom_theme')"
-                    >
-                      <!-- prettier-ignore -->
+                    <n-form-item :label="$t('page.user.settings.preference_privacy.preference.custom_theme')">
                       <n-input
                         type="textarea"
-                        :placeholder="
-                          $t('page.user.settings.preference_privacy.preference.custom_theme_placeholder')
-                        "
+                        :placeholder="$t('page.user.settings.preference_privacy.preference.custom_theme_placeholder')"
                         :autosize="{ minRows: 3 }"
                       />
                     </n-form-item>
 
                     <n-divider title-placement="left">
                       <span class="divider-title">
-                        <!-- prettier-ignore -->
                         {{ $t("page.user.settings.preference_privacy.preference.privacy_settings") }}
                       </span>
                     </n-divider>
-                    <n-form-item
-                      :label="$t('page.user.settings.preference_privacy.preference.public_profile')"
-                    >
+                    <n-form-item :label="$t('page.user.settings.preference_privacy.preference.public_profile')">
                       <n-switch>
                         <template #checked>
                           {{ $t("page.user.settings.common.enabled") }}
@@ -330,6 +317,7 @@ import {
   NInputGroup,
   NButton,
   NInput,
+  NDynamicInput,
   NDivider,
   NH1,
   NSpace,
@@ -401,11 +389,20 @@ watch(
 const urlForm = reactive({
   urls: userStore.currentUser?.urls || {},
 });
+
+const value = ref([
+  {
+    key: "",
+    value: "",
+  },
+]);
+
 // --------- Personal 个人信息设置 ---------
 
 // --------- Account_Security 账户与安全设置 ---------
 // Account
 const rebuildConfirm = ref("");
+const deleteConfirm = ref("");
 
 const handleRebuildUserDir = async () => {
   if (!userStore.currentUser?.uuid) return;
@@ -424,6 +421,8 @@ const handleRebuildUserDir = async () => {
   }
 };
 
+const handleDeleteUser = async () => {};
+
 // Security
 const passwordForm = reactive({
   oldPassword: "",
@@ -434,24 +433,6 @@ const passwordForm = reactive({
 
 const passwordFormRef = ref<FormInst | null>(null);
 const countdown = ref(0);
-
-const sendCode = async () => {
-  if (countdown.value > 0) return;
-  try {
-    if (userStore.currentUser?.email) {
-      await authService.sendCode(userStore.currentUser.email, "update_password");
-      countdown.value = 60;
-      const timer = setInterval(() => {
-        countdown.value--;
-        if (countdown.value <= 0) {
-          clearInterval(timer);
-        }
-      }, 1000);
-    }
-  } catch (e: any) {
-    console.error(e);
-  }
-};
 
 const passwordRules: FormRules = {
   oldPassword: {
@@ -485,6 +466,47 @@ const passwordRules: FormRules = {
   },
 };
 
+const sendCode = async () => {
+  if (countdown.value > 0) return;
+
+  const identifier = userStore.currentUser?.email || userStore.currentUser?.username;
+  if (!identifier) return;
+
+  // 1. 发送验证码前，先验证旧密码是否正确
+  try {
+    await authService.login(
+      {
+        identifier,
+        password: passwordForm.oldPassword,
+      },
+      { silent: true }
+    );
+  } catch (e: any) {
+    console.error(e);
+    notification.error({
+      content: "旧密码错误",
+      duration: 3000,
+    });
+    return;
+  }
+
+  // 2. 验证成功后发送验证码
+  try {
+    if (userStore.currentUser?.email) {
+      await authService.sendCode(userStore.currentUser.email, "update_password");
+      countdown.value = 60;
+      const timer = setInterval(() => {
+        countdown.value--;
+        if (countdown.value <= 0) {
+          clearInterval(timer);
+        }
+      }, 1000);
+    }
+  } catch (e: any) {
+    console.error(e);
+  }
+};
+
 const handleSavePassword = async (e: MouseEvent) => {
   e.preventDefault();
   // 1. 验证表单
@@ -497,21 +519,7 @@ const handleSavePassword = async (e: MouseEvent) => {
   const identifier = userStore.currentUser?.email || userStore.currentUser?.username;
   if (!identifier) return;
 
-  // 2. 向 auth service 验证旧密码是否正确
-  try {
-    await authService.login(
-      {
-        identifier,
-        password: passwordForm.oldPassword,
-      },
-      { silent: true }
-    );
-  } catch (e: any) {
-    console.error(e);
-    return;
-  }
-
-  // 3. 验证验证码
+  // 2. 验证验证码 (旧密码已经在发送验证码前验证过)
   try {
     await authService.verifyCode(identifier, passwordForm.verifyCode, "update_password");
   } catch (e: any) {
@@ -519,7 +527,7 @@ const handleSavePassword = async (e: MouseEvent) => {
     return;
   }
 
-  // 5. 更新密码
+  // 3. 更新密码
   try {
     await userService.updateProfile({
       password: passwordForm.newPassword,
