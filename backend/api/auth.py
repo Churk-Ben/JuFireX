@@ -55,6 +55,8 @@ def login():
             logger.info(
                 f"用户 {user.username} 密码正确, 需要 2FA 验证, uuid: {user.uuid}"
             )
+            # 设置临时 session 用于 2FA 验证
+            session["pre_2fa_user_uuid"] = user.uuid
             return (
                 jsonify(
                     {
@@ -62,6 +64,8 @@ def login():
                         "message": "请输入 2FA 验证码",
                         "data": {
                             "requires_2fa": True,
+                            # uuid 不再需要返回给前端用于验证，因为后端有 session
+                            # 但为了前端可能需要展示或其他用途，可以保留
                             "uuid": user.uuid,
                         },
                     }
@@ -432,10 +436,9 @@ def setup_2fa():
 @auth_bp.route("/2fa/verify", methods=["POST"])
 def verify_2fa():
     """
-    @name: 登录二次验证
+    @name: 登录二次验证 (登录流程第二步)
     @expect:
     {
-        "uuid": "user_uuid",
         "code": "123456"
     }
     @return:
@@ -445,25 +448,44 @@ def verify_2fa():
     }
     """
     data: dict = request.get_json() or {}
-    uuid = data.get("uuid")
     code = data.get("code")
 
-    if not uuid or not code:
+    if not code:
         return (
             jsonify(
                 {
                     "level": "warning",
-                    "message": "缺少 uuid 或验证码",
+                    "message": "请输入验证码",
                 }
             ),
             400,
         )
 
-    success, message = verification_service.verify_totp(uuid, code)
+    # 尝试从 pre_2fa_user_uuid 获取
+    user_uuid = session.get("pre_2fa_user_uuid")
+    if not user_uuid:
+        return (
+            jsonify(
+                {
+                    "level": "error",
+                    "message": "会话已过期，请重新登录",
+                }
+            ),
+            401,
+        )
+
+    # 验证 code
+    success, message = verification_service.verify_totp(
+        user_uuid, code, check_active=True
+    )
 
     if success:
-        user = user_service.get_profile(uuid)
+        user = user_service.get_profile(user_uuid)
         if user:
+            # 清除临时 session
+            session.pop("pre_2fa_user_uuid", None)
+
+            # 设置正式 session
             session["user_id"] = user.id
             session["user_uuid"] = user.uuid
             session["role"] = user.role
@@ -486,12 +508,107 @@ def verify_2fa():
                 ),
                 404,
             )
+
     return (
         jsonify(
             {
                 "level": "error",
                 "message": message,
             },
+        ),
+        400,
+    )
+
+
+@auth_bp.route("/2fa/enable", methods=["POST"])
+@require_login
+def enable_2fa():
+    """
+    @name: 激活 2FA (输入验证码确认开启)
+    @expect:
+    {
+        "code": "123456"
+    }
+    """
+    data: dict = request.get_json() or {}
+    code = data.get("code")
+    user_uuid = session.get("user_uuid")
+
+    if not code:
+        return (
+            jsonify(
+                {
+                    "level": "warning",
+                    "message": "请输入验证码",
+                }
+            ),
+            400,
+        )
+
+    success, message = verification_service.enable_totp(user_uuid, code)
+    if success:
+        return (
+            jsonify(
+                {
+                    "level": "success",
+                    "message": "2FA 已成功开启",
+                }
+            ),
+            200,
+        )
+    return (
+        jsonify(
+            {
+                "level": "error",
+                "message": message,
+            }
+        ),
+        400,
+    )
+
+
+@auth_bp.route("/2fa/disable", methods=["POST"])
+@require_login
+def disable_2fa():
+    """
+    @name: 关闭 2FA
+    @expect:
+    {
+        "code": "123456"
+    }
+    """
+    data: dict = request.get_json() or {}
+    code = data.get("code")
+    user_uuid = session.get("user_uuid")
+
+    if not code:
+        return (
+            jsonify(
+                {
+                    "level": "warning",
+                    "message": "请输入验证码确认关闭",
+                }
+            ),
+            400,
+        )
+
+    success, message = verification_service.disable_totp(user_uuid, code)
+    if success:
+        return (
+            jsonify(
+                {
+                    "level": "success",
+                    "message": "2FA 已成功关闭",
+                }
+            ),
+            200,
+        )
+    return (
+        jsonify(
+            {
+                "level": "error",
+                "message": message,
+            }
         ),
         400,
     )

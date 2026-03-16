@@ -127,6 +127,7 @@ class VerificationService:
                 uuid=identifier,
                 encrypted_totp_secret=encrypted_secret,
                 recovery_codes=hashed_recovery_codes,
+                is_active=False,
             )
             return True, {"uri": provisioning_uri, "recovery_codes": recovery_codes}
         except Exception as e:
@@ -137,9 +138,11 @@ class VerificationService:
         if not self.totp_repo:
             return False
         totp_record = self.totp_repo.get_by_uuid(identifier)
-        return totp_record is not None and bool(totp_record.encrypted_totp_secret)
+        return totp_record is not None and totp_record.is_active
 
-    def verify_totp(self, identifier: str, token: str) -> Tuple[bool, str]:
+    def verify_totp(
+        self, identifier: str, token: str, check_active: bool = True
+    ) -> Tuple[bool, str]:
         """验证 TOTP 令牌"""
         if not self.totp_repo:
             return False, "TOTP 存储未配置"
@@ -147,6 +150,9 @@ class VerificationService:
         totp_record = self.totp_repo.get_by_uuid(identifier)
         if not totp_record or not totp_record.encrypted_totp_secret:
             return False, "未配置 TOTP 验证"
+
+        if check_active and not totp_record.is_active:
+            return False, "TOTP 未激活"
 
         secret = self._decrypt_secret(self.cipher, totp_record.encrypted_totp_secret)
         window_tolerance = Config.TOTP_WINDOW_TOLERANCE
@@ -166,7 +172,26 @@ class VerificationService:
                     uuid=identifier,
                     encrypted_totp_secret=totp_record.encrypted_totp_secret,
                     recovery_codes=recovery_codes,
+                    is_active=totp_record.is_active,
                 )
                 return True, "恢复代码验证成功"
 
         return False, "TOTP 验证失败"
+
+    def enable_totp(self, identifier: str, code: str) -> Tuple[bool, str]:
+        """激活 TOTP 验证"""
+        # 验证 code，不检查激活状态（因为此时未激活）
+        success, msg = self.verify_totp(identifier, code, check_active=False)
+        if success:
+            self.totp_repo.set_active(identifier, True)
+            return True, "TOTP 已激活"
+        return False, msg
+
+    def disable_totp(self, identifier: str, code: str) -> Tuple[bool, str]:
+        """关闭 TOTP 验证"""
+        # 验证 code，必须是已激活状态
+        success, msg = self.verify_totp(identifier, code, check_active=True)
+        if success:
+            self.totp_repo.delete_by_uuid(identifier)
+            return True, "TOTP 已关闭"
+        return False, msg
