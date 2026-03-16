@@ -87,6 +87,9 @@ class Config:
     # RESEND 配置
     SENDER_EMAIL = "noreply@support.jufirex.com"
 
+    # TOTP 配置
+    TOTP_WINDOW_TOLERANCE = 1
+
     @staticmethod
     def ensure_dirs():
         Config.PROJECTS_DIR.mkdir(parents=True, exist_ok=True)

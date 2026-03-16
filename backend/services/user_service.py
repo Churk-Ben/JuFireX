@@ -13,11 +13,13 @@ from werkzeug.datastructures import FileStorage
 from backend.config import Config, ROLE_GUEST
 from backend.data import UserRepository
 from backend.data.models.user import User
-from backend.data.repositories.verification_repo import VerificationRepo
+from backend.data.repositories.verification_code_repo import VerificationCodeRepo
 
 
 class UserService:
-    def __init__(self, user_repo: UserRepository, verification_repo: VerificationRepo):
+    def __init__(
+        self, user_repo: UserRepository, verification_repo: VerificationCodeRepo
+    ):
         self.user_repo = user_repo
         self.verification_repo = verification_repo
 

@@ -13,7 +13,7 @@ from backend.data.database import db
 from backend.data.models.verification_code import VerificationCode
 
 
-class VerificationRepo:
+class VerificationCodeRepo:
     def __init__(self):
         self.model = VerificationCode
 

@@ -8,12 +8,18 @@ import random
 import string
 from typing import Tuple
 
-from backend.data import VerificationRepo
+from cryptography.fernet import Fernet
+import pyotp
+
+from backend.data import VerificationCodeRepo
+from backend.config import Config
 from backend.services import MailService
 
 
 class VerificationService:
-    def __init__(self, verification_repo: VerificationRepo, mail_service: MailService):
+    def __init__(
+        self, verification_repo: VerificationCodeRepo, mail_service: MailService
+    ):
         self.repo = verification_repo
         self.mail_service = mail_service
 
