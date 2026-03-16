@@ -7,13 +7,7 @@
     <slot>
       <n-button>{{ $t("common.avatarCropper.select") }}</n-button>
     </slot>
-    <input
-      ref="fileInput"
-      type="file"
-      accept="image/*"
-      class="d-none"
-      @change="handleFileChange"
-    />
+    <input ref="fileInput" type="file" accept="image/*" class="d-none" @change="handleFileChange" />
   </div>
 
   <n-modal

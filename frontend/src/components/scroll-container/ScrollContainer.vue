@@ -4,22 +4,12 @@
 
 <template>
   <div class="scroll-container-root">
-    <NScrollbar
-      v-if="scrollable"
-      :ref="forwardRef"
-      v-bind="$attrs"
-      class="scroll-container-scrollbar"
-    >
+    <NScrollbar v-if="scrollable" :ref="forwardRef" v-bind="$attrs" class="scroll-container-scrollbar">
       <div class="scroll-content" :class="wrapperClass" :style="wrapperStyle">
         <slot />
       </div>
     </NScrollbar>
-    <div
-      v-else
-      class="scroll-container-root scroll-content"
-      :class="wrapperClass"
-      :style="wrapperStyle"
-    >
+    <div v-else class="scroll-container-root scroll-content" :class="wrapperClass" :style="wrapperStyle">
       <slot />
     </div>
   </div>
@@ -43,11 +33,7 @@ defineOptions({
   inheritAttrs: false,
 });
 
-const {
-  scrollable = true,
-  wrapperClass,
-  wrapperStyle,
-} = defineProps<ContentWrapperProps>();
+const { scrollable = true, wrapperClass, wrapperStyle } = defineProps<ContentWrapperProps>();
 
 const instance = getCurrentInstance();
 

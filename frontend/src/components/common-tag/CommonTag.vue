@@ -5,14 +5,7 @@
 <template>
   <!-- 用户标签/徽章 -->
   <template v-if="$props.preset === 'user'">
-    <n-tag
-      round
-      bordered
-      class="my-1"
-      :type="getTypeByUserRole(currentUser)"
-      :size="size"
-      :strong="strong"
-    >
+    <n-tag round bordered class="my-1" :type="getTypeByUserRole(currentUser)" :size="size" :strong="strong">
       <template #avatar>
         <n-avatar :src="userService.getAvatarUrl(currentUser?.uuid!)" />
       </template>
@@ -22,26 +15,14 @@
 
   <!-- 角色标签/徽章 -->
   <template v-else-if="$props.preset === 'role'">
-    <n-tag
-      round
-      bordered
-      :type="getTypeByUserRole(currentUser)"
-      :size="size"
-      :strong="strong"
-    >
+    <n-tag round bordered :type="getTypeByUserRole(currentUser)" :size="size" :strong="strong">
       {{ currentUser?.role_name || "Unknown" }}
     </n-tag>
   </template>
 
   <!-- 用户状态标签 -->
   <template v-else-if="$props.preset === 'user_status'">
-    <n-tag
-      round
-      bordered
-      :type="getTypeByUserStatus(currentUser)"
-      :size="size"
-      :strong="strong"
-    >
+    <n-tag round bordered :type="getTypeByUserStatus(currentUser)" :size="size" :strong="strong">
       {{
         currentUser?.is_active
           ? $t("page.admin.users.table.columns.status.active")
@@ -52,13 +33,7 @@
 
   <!-- 导航项公开状态标签 -->
   <template v-else-if="$props.preset === 'nav_status'">
-    <n-tag
-      round
-      bordered
-      :type="getTypeByNavStatus(navigation)"
-      :size="size"
-      :strong="strong"
-    >
+    <n-tag round bordered :type="getTypeByNavStatus(navigation)" :size="size" :strong="strong">
       {{
         navigation?.is_public
           ? $t("page.admin.navigations.table.columns.status.public")
@@ -104,9 +79,7 @@ const props = defineProps({
     default: false,
   },
   type: {
-    type: String as PropType<
-      "primary" | "success" | "warning" | "error" | "default" | undefined
-    >,
+    type: String as PropType<"primary" | "success" | "warning" | "error" | "default" | undefined>,
     default: "primary",
   },
   text: {
@@ -147,7 +120,7 @@ watch(
       currentUser.value = null;
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const getTypeByUserRole = (user: User | null) => {

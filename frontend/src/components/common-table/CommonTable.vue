@@ -5,13 +5,7 @@
 <template>
   <div class="common-table-container">
     <!-- 搜索栏 -->
-    <NCard
-      v-if="$slots.search"
-      :title="finalSearchTitle"
-      class="search-card"
-      content-class="d-flex pb-0"
-      bordered
-    >
+    <NCard v-if="$slots.search" :title="finalSearchTitle" class="search-card" content-class="d-flex pb-0" bordered>
       <!-- 工具栏 -->
       <template #header-extra>
         <div class="extra-actions">
@@ -37,12 +31,7 @@
     </NCard>
 
     <!-- 表格主体 -->
-    <NCard
-      :title="finalTableTitle"
-      class="table-card"
-      content-class="d-flex flex-column h-100 px-4"
-      bordered
-    >
+    <NCard :title="finalTableTitle" class="table-card" content-class="d-flex flex-column h-100 px-4" bordered>
       <!-- 工具栏 -->
       <template #header-extra>
         <div class="extra-actions">
@@ -127,12 +116,8 @@ const props = defineProps({
   },
 });
 
-const finalSearchTitle = computed(
-  () => props.searchTitle ?? t("common.commonTable.search.title"),
-);
-const finalTableTitle = computed(
-  () => props.tableTitle ?? t("common.commonTable.table.title"),
-);
+const finalSearchTitle = computed(() => props.searchTitle ?? t("common.commonTable.search.title"));
+const finalTableTitle = computed(() => props.tableTitle ?? t("common.commonTable.table.title"));
 
 const allData = computed(() => props.data || []);
 
@@ -144,8 +129,7 @@ const internalPagination = reactive<PaginationProps>({
   pageSizes: [5, 10, 20, 50, 100],
   itemCount: 0,
   showQuickJumper: true,
-  prefix: ({ itemCount }) =>
-    t("common.commonTable.table.pagination.prefix", { itemCount }),
+  prefix: ({ itemCount }) => t("common.commonTable.table.pagination.prefix", { itemCount }),
   onUpdatePage: (page: number) => {
     internalPagination.page = page;
   },

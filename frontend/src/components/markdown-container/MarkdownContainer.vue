@@ -4,12 +4,7 @@
 
 <template>
   <n-card class="markdown-container">
-    <MdPreview
-      :modelValue="content"
-      :theme="theme"
-      :style="editorStyle"
-      :preview-theme="previewTheme"
-    />
+    <MdPreview :modelValue="content" :theme="theme" :style="editorStyle" :preview-theme="previewTheme" />
   </n-card>
 </template>
 
