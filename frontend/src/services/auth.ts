@@ -2,6 +2,10 @@ import { request } from "@/utils/request";
 import type { User } from "@/types/models";
 
 export const authService = {
+  getMe() {
+    return request<User>("/api/auth/me", {}, { silent: true });
+  },
+
   login(data: any, config?: { silent?: boolean }) {
     return request<User>("/api/auth/login", {
       method: "POST",
@@ -45,7 +49,19 @@ export const authService = {
     });
   },
 
-  getMe() {
-    return request<User>("/api/auth/me", {}, { silent: true });
+  setup2fa() {
+    return request<string>("/api/auth/2fa/setup", {
+      method: "GET",
+    });
+  },
+
+  verify2fa(uuid: string, code: string) {
+    return request("/api/auth/2fa/verify", {
+      method: "POST",
+      body: JSON.stringify({
+        uuid,
+        code,
+      }),
+    });
   },
 };

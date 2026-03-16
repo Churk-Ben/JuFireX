@@ -50,6 +50,25 @@ def login():
     success, message, user = user_service.login(identifier, password)
 
     if success:
+        # 检查是否启用了 2FA
+        if verification_service.is_totp_enabled(user.uuid):
+            logger.info(
+                f"用户 {user.username} 密码正确, 需要 2FA 验证, uuid: {user.uuid}"
+            )
+            return (
+                jsonify(
+                    {
+                        "level": "info",
+                        "message": "请输入 2FA 验证码",
+                        "data": {
+                            "requires_2fa": True,
+                            "uuid": user.uuid,
+                        },
+                    }
+                ),
+                200,
+            )
+
         # 登录成功, 设置 Session (API 层负责)
         session["user_id"] = user.id
         session["user_uuid"] = user.uuid
@@ -340,6 +359,36 @@ def verify_code():
         )
 
 
+@auth_bp.route("/2fa/check", methods=["GET"])
+@require_login
+def check_2fa():
+    """
+    @name: 检查当前用户是否启用了 2FA
+    @expect: None
+    @return:
+    {
+        "level": "success",
+        "message": "查询成功",
+        "data": {
+            "is_enabled": true/false
+        }
+    }
+    """
+    user_uuid = session.get("user_uuid")
+    is_enabled = verification_service.is_totp_enabled(user_uuid)
+
+    return (
+        jsonify(
+            {
+                "level": "success",
+                "message": "查询成功",
+                "data": {"is_enabled": is_enabled},
+            },
+        ),
+        200,
+    )
+
+
 @auth_bp.route("/2fa/setup", methods=["GET"])
 @require_login
 def setup_2fa():
@@ -355,42 +404,28 @@ def setup_2fa():
         }
     }
     """
-    # TODO: 实现 TOTP 生成逻辑
+    user_uuid = session.get("user_uuid")
+    success, result = verification_service.setup_totp(user_uuid)
+
+    if success:
+        return (
+            jsonify(
+                {
+                    "level": "success",
+                    "message": "生成 TOTP 链接成功",
+                    "data": result,
+                },
+            ),
+            200,
+        )
     return (
         jsonify(
             {
-                "level": "info",
-                "message": "功能开发中",
+                "level": "error",
+                "message": result,
             },
         ),
-        200,
-    )
-
-
-@auth_bp.route("/2fa/enable", methods=["POST"])
-@require_login
-def enable_2fa():
-    """
-    @name: 验证并启用 2FA
-    @expect:
-    {
-        "code": "123456",
-    }
-    @return:
-    {
-        "level": "success",
-        "message": "2FA 已启用",
-    }
-    """
-    # TODO: 实现 TOTP 验证并绑定逻辑
-    return (
-        jsonify(
-            {
-                "level": "info",
-                "message": "功能开发中",
-            },
-        ),
-        200,
+        400,
     )
 
 
@@ -409,12 +444,54 @@ def verify_2fa():
         "message": "登录成功",
     }
     """
+    data: dict = request.get_json() or {}
+    uuid = data.get("uuid")
+    code = data.get("code")
+
+    if not uuid or not code:
+        return (
+            jsonify(
+                {
+                    "level": "warning",
+                    "message": "缺少 uuid 或验证码",
+                }
+            ),
+            400,
+        )
+
+    success, message = verification_service.verify_totp(uuid, code)
+
+    if success:
+        user = user_service.get_profile(uuid)
+        if user:
+            session["user_id"] = user.id
+            session["user_uuid"] = user.uuid
+            session["role"] = user.role
+            session.permanent = True
+
+            logger.info(f"用户 {user.username} 2FA验证登录成功, uuid: {user.uuid}")
+            return (
+                jsonify(
+                    {"level": "success", "message": "登录成功", "data": user.to_dict()},
+                ),
+                200,
+            )
+        else:
+            return (
+                jsonify(
+                    {
+                        "level": "error",
+                        "message": "用户不存在",
+                    },
+                ),
+                404,
+            )
     return (
         jsonify(
             {
-                "level": "info",
-                "message": "功能开发中",
+                "level": "error",
+                "message": message,
             },
         ),
-        200,
+        400,
     )

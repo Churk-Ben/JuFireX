@@ -1,4 +1,11 @@
-from backend.data import blogs, navigations, projects, users, verifications
+from backend.data import (
+    blogs,
+    navigations,
+    projects,
+    users,
+    verifications,
+    totp_verifications,
+)
 
 from .blog_service import BlogService
 from .mail_service import MailService
@@ -8,7 +15,9 @@ from .user_service import UserService
 from .verification_service import VerificationService
 
 mail_service = MailService()
-verification_service = VerificationService(verifications, mail_service)
+verification_service = VerificationService(
+    verifications, mail_service, totp_verifications
+)
 user_service = UserService(users, verifications)
 navigation_service = NavigationService(navigations)
 project_service = ProjectService(projects)
