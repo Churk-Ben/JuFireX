@@ -116,7 +116,6 @@
                     :size="200"
                     :padding="0"
                     :style="{ background: 'transparent' }"
-                    :color="themeColor"
                   />
                 </div>
 
@@ -175,14 +174,11 @@ import {
   NFormItem,
   NSpace,
   NFlex,
-  useThemeVars,
 } from "naive-ui";
 import { authService } from "@/services/auth";
 import { notification } from "@/utils/notification";
 
 const { t } = useI18n();
-const themeVars = useThemeVars();
-const themeColor = computed(() => themeVars.value.textColor2 || "#000");
 
 const loading = ref(true);
 const submitting = ref(false);
@@ -341,7 +337,7 @@ onMounted(() => {
 }
 
 .qr-code-container {
-  background-color: #c2c2ca10;
+  background-color: #c2c2ca27;
   padding: 12px;
   border-radius: 8px;
 }
