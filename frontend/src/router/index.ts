@@ -13,6 +13,7 @@ const Register = () => import("@/pages/Register.vue");
 // pages/user/
 const UserProfile = () => import("@/pages/user/Profile.vue");
 const UserSettings = () => import("@/pages/user/Settings.vue");
+const UserSettingsMFA = () => import("@/pages/user/settings/MFA.vue");
 const UserLogout = () => import("@/pages/user/Logout.vue");
 
 // pages/admin/
@@ -42,6 +43,7 @@ const router = createRouter({
     { path: "/user", redirect: "/user/profile" },
     { path: "/user/profile", component: UserProfile },
     { path: "/user/settings", component: UserSettings },
+    { path: "/user/settings/mfa", component: UserSettingsMFA },
     { path: "/user/logout", component: UserLogout },
     { path: "/admin", redirect: "/admin/users" },
     { path: "/admin/users", component: AdminUsers },
