@@ -19,11 +19,7 @@
           :native-scrollbar="false"
           bordered
         >
-          <n-flex
-            vertical
-            justify="space-between"
-            class="sider-content flex-grow-1"
-          >
+          <n-flex vertical justify="space-between" class="sider-content flex-grow-1">
             <section>
               <n-menu
                 :collapsed="collapsed"
@@ -124,16 +120,13 @@ const userStore = useUserStore();
 const themeStore = useThemeStore();
 
 function renderIcon(icon: any) {
-  return () =>
-    h(NIcon, { size: 16 }, { default: () => h(FontAwesomeIcon, { icon }) });
+  return () => h(NIcon, { size: 16 }, { default: () => h(FontAwesomeIcon, { icon }) });
 }
 
 function renderUserAvatar() {
   return () => {
     const currentUser = userStore.currentUser;
-    const avatarUrl =
-      userService.getAvatarUrl(currentUser!.uuid) +
-      `?t=${userStore.avatarTimestamp}`;
+    const avatarUrl = userService.getAvatarUrl(currentUser!.uuid) + `?t=${userStore.avatarTimestamp}`;
 
     return h(NAvatar, {
       size: 22,
@@ -254,9 +247,7 @@ function onUser(key: string) {
 const ctrlValue = ref<string | null>(null);
 const ctrlOptions = computed(() => [
   {
-    label: collapsed.value
-      ? t("sider.appCtrl.expand")
-      : t("sider.appCtrl.collapse"),
+    label: collapsed.value ? t("sider.appCtrl.expand") : t("sider.appCtrl.collapse"),
     key: "toggleCollapsed",
     icon: renderIcon(faBars),
   },
@@ -264,9 +255,7 @@ const ctrlOptions = computed(() => [
     disabled: router.currentRoute.value.path === "/",
     label: themeLabel.value,
     key: "toggleTheme",
-    icon: renderIcon(
-      themeStore.themeMode === "light" && route.path !== "/" ? faMoon : faSun
-    ),
+    icon: renderIcon(themeStore.themeMode === "light" && route.path !== "/" ? faMoon : faSun),
   },
   {
     label: localeLabel.value,
@@ -307,14 +296,10 @@ const effectiveThemeMode = computed(() => {
   return themeStore.themeMode;
 });
 
-const naiveTheme = computed(() =>
-  effectiveThemeMode.value === "dark" ? darkTheme : null
-);
+const naiveTheme = computed(() => (effectiveThemeMode.value === "dark" ? darkTheme : null));
 
 const themeLabel = computed(() =>
-  effectiveThemeMode.value === "light"
-    ? t("sider.appCtrl.theme.dark")
-    : t("sider.appCtrl.theme.light")
+  effectiveThemeMode.value === "light" ? t("sider.appCtrl.theme.dark") : t("sider.appCtrl.theme.light")
 );
 
 function toggleTheme() {
