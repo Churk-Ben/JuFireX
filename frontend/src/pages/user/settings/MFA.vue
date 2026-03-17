@@ -5,7 +5,7 @@
         <n-card>
           <template #header>
             <div class="text-center">
-              <n-h1>两步验证 (TOTP)</n-h1>
+              <n-h1>{{ $t("page.user.settings.account_security.2fa.title") }}</n-h1>
             </div>
           </template>
 
@@ -16,13 +16,27 @@
           <div v-else>
             <!-- 已经开启的情况 -->
             <div v-if="isEnabled && !showRecoveryCodes" class="status-view">
-              <n-result status="success" title="两步验证已开启" description="您的账户安全已得到增强">
+              <n-result
+                status="success"
+                :title="$t('page.user.settings.account_security.2fa.status_enabled')"
+                :description="$t('page.user.settings.account_security.2fa.status_enabled_desc')"
+              >
                 <template #footer>
                   <n-space vertical>
-                    <n-button type="warning" secondary @click="notification.info({ content: '暂不支持自动重置' })">
-                      重置恢复代码
+                    <n-button
+                      type="warning"
+                      secondary
+                      @click="
+                        notification.info({
+                          content: $t('page.user.settings.account_security.2fa.reset_not_supported'),
+                        })
+                      "
+                    >
+                      {{ $t("page.user.settings.account_security.2fa.reset_recovery_codes") }}
                     </n-button>
-                    <n-button type="error" secondary @click="showDisableConfirm = true"> 关闭两步验证 </n-button>
+                    <n-button type="error" secondary @click="showDisableConfirm = true">
+                      {{ $t("page.user.settings.account_security.2fa.disable") }}
+                    </n-button>
                   </n-space>
 
                   <div v-if="showDisableConfirm">
@@ -30,7 +44,7 @@
                     <n-input-group style="justify-content: center">
                       <n-input
                         v-model:value="verificationCode"
-                        placeholder="请输入 6 位验证码"
+                        :placeholder="$t('page.user.settings.account_security.2fa.input_code_placeholder')"
                         :maxlength="6"
                         style="max-width: 200px"
                         @keyup.enter="handleDisable"
@@ -42,7 +56,7 @@
                           verificationCode = '';
                         "
                       >
-                        取消
+                        {{ $t("page.user.settings.account_security.2fa.cancel") }}
                       </n-button>
                       <n-button
                         type="error"
@@ -51,7 +65,7 @@
                         @click="handleDisable"
                         :disabled="verificationCode.length !== 6"
                       >
-                        确认关闭
+                        {{ $t("page.user.settings.account_security.2fa.confirm_disable") }}
                       </n-button>
                     </n-input-group>
                   </div>
@@ -61,11 +75,17 @@
 
             <!-- 刚刚开启成功，展示恢复代码 -->
             <div v-else-if="showRecoveryCodes" class="recovery-view">
-              <n-result status="success" title="两步验证开启成功" description="请务必保存您的恢复代码">
+              <n-result
+                status="success"
+                :title="$t('page.user.settings.account_security.2fa.setup_success_title')"
+                :description="$t('page.user.settings.account_security.2fa.setup_success_desc')"
+              >
                 <template #default>
                   <n-alert type="warning" :show-icon="false" style="margin-top: 24px; text-align: left">
-                    <p>当您无法使用认证器时，可以使用以下恢复代码登录。<strong>每个代码只能使用一次。</strong></p>
-                    <p>请将这些代码保存在安全的地方，例如密码管理器中。</p>
+                    <p>
+                      <strong>{{ $t("page.user.settings.account_security.2fa.recovery_codes_tip_1") }}</strong>
+                    </p>
+                    <p>{{ $t("page.user.settings.account_security.2fa.recovery_codes_tip_2") }}</p>
                     <div class="recovery-codes-grid">
                       <div v-for="(code, index) in recoveryCodes" :key="index" class="recovery-code-item">
                         {{ code }}
@@ -74,7 +94,9 @@
                   </n-alert>
                 </template>
                 <template #footer>
-                  <n-button type="primary" @click="finishSetup">完成</n-button>
+                  <n-button type="primary" @click="finishSetup">
+                    {{ $t("page.user.settings.account_security.2fa.finish") }}
+                  </n-button>
                 </template>
               </n-result>
             </div>
@@ -83,7 +105,7 @@
             <div v-else class="setup-view">
               <n-space vertical size="small">
                 <n-form-item class="desc">
-                  请使用 Google Authenticator、Microsoft Authenticator 或其他兼容的应用扫描此二维码。
+                  {{ $t("page.user.settings.account_security.2fa.scan_tip") }}
                 </n-form-item>
 
                 <div class="qr-code-container">
@@ -94,23 +116,23 @@
                     :size="200"
                     :padding="0"
                     :style="{ background: 'transparent' }"
+                    :color="themeColor"
                   />
                 </div>
 
                 <n-form-item>
                   <n-space vertical style="width: 100%">
-                    <div class="desc">如果无法扫描二维码，请手动输入以下密钥：</div>
+                    <div class="desc">{{ $t("page.user.settings.account_security.2fa.manual_input_tip") }}</div>
                     <n-input v-model:value="secret" type="password" show-password-on="click" readonly />
                   </n-space>
                 </n-form-item>
 
                 <n-form-item>
                   <n-space vertical style="width: 100%">
-                    <div class="desc"></div>
                     <n-input-group>
                       <n-input
                         v-model:value="verificationCode"
-                        placeholder="扫描或输入密钥后，请输入应用中显示的 6 位数字验证码"
+                        :placeholder="$t('page.user.settings.account_security.2fa.scan_input_placeholder')"
                         :maxlength="6"
                         @keyup.enter="handleEnable"
                       />
@@ -121,7 +143,7 @@
                         :disabled="verificationCode.length !== 6"
                         @click="handleEnable"
                       >
-                        验证并开启
+                        {{ $t("page.user.settings.account_security.2fa.verify_and_enable") }}
                       </n-button>
                     </n-input-group>
                   </n-space>
@@ -137,6 +159,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   NSpin,
   NResult,
@@ -152,9 +175,14 @@ import {
   NFormItem,
   NSpace,
   NFlex,
+  useThemeVars,
 } from "naive-ui";
 import { authService } from "@/services/auth";
 import { notification } from "@/utils/notification";
+
+const { t } = useI18n();
+const themeVars = useThemeVars();
+const themeColor = computed(() => themeVars.value.textColor2 || "#000");
 
 const loading = ref(true);
 const submitting = ref(false);
@@ -175,7 +203,7 @@ const secret = computed(() => {
     const url = new URL(totpUri.value);
     return url.searchParams.get("secret") || "";
   } catch (e) {
-    return "解析失败";
+    return t("page.user.settings.account_security.2fa.parse_failed");
   }
 });
 
@@ -196,7 +224,7 @@ const checkStatus = async () => {
       await startSetup();
     }
   } catch (error) {
-    notification.error({ content: "获取 2FA 状态失败" });
+    notification.error({ content: t("page.user.settings.account_security.2fa.fetch_status_failed") });
     console.error(error);
   } finally {
     loading.value = false;
@@ -215,10 +243,10 @@ const startSetup = async () => {
         recoveryCodes.value = data.recovery_codes;
       }
     } else {
-      notification.error({ content: "获取密钥失败" });
+      notification.error({ content: t("page.user.settings.account_security.2fa.fetch_secret_failed") });
     }
   } catch (error) {
-    notification.error({ content: "获取密钥失败" });
+    notification.error({ content: t("page.user.settings.account_security.2fa.fetch_secret_failed") });
     console.error(error);
   } finally {
     submitting.value = false;
@@ -231,7 +259,7 @@ const handleEnable = async () => {
   submitting.value = true;
   try {
     await authService.enable2fa(verificationCode.value);
-    notification.success({ content: "两步验证已成功开启！" });
+    notification.success({ content: t("page.user.settings.account_security.2fa.enable_success") });
     verificationCode.value = "";
     totpUri.value = "";
 
@@ -255,7 +283,7 @@ const handleDisable = async () => {
   submitting.value = true;
   try {
     await authService.disable2fa(verificationCode.value);
-    notification.success({ content: "两步验证已关闭" });
+    notification.success({ content: t("page.user.settings.account_security.2fa.disable_success") });
     isEnabled.value = false;
     showDisableConfirm.value = false;
     showResetInfo.value = false;
@@ -313,7 +341,7 @@ onMounted(() => {
 }
 
 .qr-code-container {
-  background-color: #ffffff20;
+  background-color: #c2c2ca10;
   padding: 12px;
   border-radius: 8px;
 }
