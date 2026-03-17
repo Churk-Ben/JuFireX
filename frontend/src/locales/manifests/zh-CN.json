@@ -249,7 +249,7 @@
             "2fa_enable": "是否启用两步验证",
             "2fa_enable_desc": "启用两步验证可以增加账户的安全性. 你可以使用 Google Authenticator 等应用程序来进行两步验证",
             "enable": "启用",
-            "reset": "重置"
+            "modify": "修改"
           }
         },
         "preference_privacy": {

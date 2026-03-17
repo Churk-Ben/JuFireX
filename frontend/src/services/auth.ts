@@ -50,8 +50,28 @@ export const authService = {
   },
 
   setup2fa() {
-    return request<string>("/api/auth/2fa/setup", {
+    return request<{ uri: string; recovery_codes: string[] }>("/api/auth/2fa/setup", {
       method: "GET",
+    });
+  },
+
+  check2fa() {
+    return request<{ is_enabled: boolean }>("/api/auth/2fa/check", {
+      method: "GET",
+    });
+  },
+
+  enable2fa(code: string) {
+    return request("/api/auth/2fa/enable", {
+      method: "POST",
+      body: JSON.stringify({ code }),
+    });
+  },
+
+  disable2fa(code: string) {
+    return request("/api/auth/2fa/disable", {
+      method: "POST",
+      body: JSON.stringify({ code }),
     });
   },
 

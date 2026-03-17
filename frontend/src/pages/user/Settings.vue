@@ -245,8 +245,12 @@
                           {{ $t("page.user.settings.account_security.2fa.2fa_enable_desc") }}
                         </div>
                         <div style="display: flex; justify-content: flex-end">
-                          <n-button type="primary">
-                            {{ $t("page.user.settings.account_security.2fa.enable") }}
+                          <n-button type="primary" @click="handleBtn2fa">
+                            {{
+                              isMfaEnabled
+                                ? $t("page.user.settings.account_security.2fa.modify")
+                                : $t("page.user.settings.account_security.2fa.enable")
+                            }}
                           </n-button>
                         </div>
                       </n-space>
@@ -329,6 +333,7 @@ import {
   FormItemRule,
 } from "naive-ui";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { useThemeStore } from "@/stores/theme";
@@ -342,6 +347,7 @@ import { authService } from "@/services/auth";
 
 const userStore = useUserStore();
 const themeStore = useThemeStore();
+const router = useRouter();
 const { t } = useI18n();
 
 // --------- Personal 个人信息设置 ---------
@@ -435,6 +441,7 @@ const passwordForm = reactive({
 
 const passwordFormRef = ref<FormInst | null>(null);
 const countdown = ref(0);
+const isMfaEnabled = ref(false);
 
 const passwordRules: FormRules = {
   oldPassword: {
@@ -548,6 +555,10 @@ const handleSavePassword = async (e: MouseEvent) => {
     console.error(e);
   }
 };
+
+const handleBtn2fa = () => {
+  router.push("/user/settings/mfa");
+};
 // --------- Account_Security 账户与安全设置 ---------
 
 // --------- 个性化与隐私设置 ---------
@@ -568,11 +579,21 @@ const currentTheme = computed({
 
 // --------- 个性化与隐私设置 ---------
 
+const initMfaStatus = async () => {
+  try {
+    const res = await authService.check2fa();
+    isMfaEnabled.value = res.is_enabled;
+  } catch (e: any) {
+    console.error(e);
+  }
+};
+
 // 初始化
 onMounted(() => {
   if (!userStore.currentUser) {
     userStore.checkAuth();
   }
+  initMfaStatus();
 });
 </script>
 

@@ -9,20 +9,14 @@
             </div>
           </template>
           <n-form ref="formRef" :model="formModel" :rules="rules">
-            <n-form-item
-              path="identifier"
-              :label="$t('page.login.identifier.label')"
-            >
+            <n-form-item path="identifier" :label="$t('page.login.identifier.label')">
               <n-input
                 v-model:value="formModel.identifier"
                 @keydown.enter="handleLogin"
                 :placeholder="$t('page.login.identifier.placeholder')"
               />
             </n-form-item>
-            <n-form-item
-              path="password"
-              :label="$t('page.login.password.label')"
-            >
+            <n-form-item path="password" :label="$t('page.login.password.label')">
               <n-input
                 v-model:value="formModel.password"
                 @keydown.enter="handleLogin"
@@ -32,23 +26,12 @@
               />
             </n-form-item>
             <div class="mt-4">
-              <n-button
-                type="primary"
-                block
-                :loading="userStore.loading"
-                @click="handleLogin"
-              >
+              <n-button type="primary" block :loading="userStore.loading" @click="handleLogin">
                 {{ $t("page.login.login") }}
               </n-button>
               <div class="mt-3 text-center">
                 <router-link to="/register" custom #="{ navigate, href }">
-                  <n-button
-                    tag="a"
-                    text
-                    :href="href"
-                    type="primary"
-                    @click="navigate"
-                  >
+                  <n-button tag="a" text :href="href" type="primary" @click="navigate">
                     {{ $t("page.login.register") }}
                   </n-button>
                 </router-link>

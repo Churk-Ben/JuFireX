@@ -49,48 +49,7 @@ def login():
 
     success, message, user = user_service.login(identifier, password)
 
-    if success:
-        # 检查是否启用了 2FA
-        if verification_service.is_totp_enabled(user.uuid):
-            logger.info(
-                f"用户 {user.username} 密码正确, 需要 2FA 验证, uuid: {user.uuid}"
-            )
-            # 设置临时 session 用于 2FA 验证
-            session["pre_2fa_user_uuid"] = user.uuid
-            return (
-                jsonify(
-                    {
-                        "level": "info",
-                        "message": "请输入 2FA 验证码",
-                        "data": {
-                            "requires_2fa": True,
-                            # uuid 不再需要返回给前端用于验证，因为后端有 session
-                            # 但为了前端可能需要展示或其他用途，可以保留
-                            "uuid": user.uuid,
-                        },
-                    }
-                ),
-                200,
-            )
-
-        # 登录成功, 设置 Session (API 层负责)
-        session["user_id"] = user.id
-        session["user_uuid"] = user.uuid
-        session["role"] = user.role
-        session.permanent = True
-
-        logger.info(f"用户 {user.username} 登录成功, uuid: {user.uuid}")
-        return (
-            jsonify(
-                {
-                    "level": "success",
-                    "message": message,
-                    "data": user.to_dict(),
-                }
-            ),
-            200,
-        )
-    else:
+    if not success:
         logger.debug(f"用户 {identifier} 登录失败: {message}")
         return (
             jsonify(
@@ -101,6 +60,24 @@ def login():
             ),
             401,
         )
+
+    # 登录成功, 设置 Session (API 层负责)
+    session["user_id"] = user.id
+    session["user_uuid"] = user.uuid
+    session["role"] = user.role
+    session.permanent = True
+
+    logger.info(f"用户 {user.username} 登录成功, uuid: {user.uuid}")
+    return (
+        jsonify(
+            {
+                "level": "success",
+                "message": message,
+                "data": user.to_dict(),
+            }
+        ),
+        200,
+    )
 
 
 @auth_bp.route("/logout", methods=["POST"])
@@ -372,7 +349,6 @@ def check_2fa():
     @return:
     {
         "level": "success",
-        "message": "查询成功",
         "data": {
             "is_enabled": true/false
         }
@@ -385,7 +361,6 @@ def check_2fa():
         jsonify(
             {
                 "level": "success",
-                "message": "查询成功",
                 "data": {"is_enabled": is_enabled},
             },
         ),
@@ -402,7 +377,6 @@ def setup_2fa():
     @return:
     {
         "level": "success",
-        "message": "生成 TOTP 链接成功",
         "data": {
             "uri": "otpauth://totp/...",
         }
@@ -416,7 +390,6 @@ def setup_2fa():
             jsonify(
                 {
                     "level": "success",
-                    "message": "生成 TOTP 链接成功",
                     "data": result,
                 },
             ),
