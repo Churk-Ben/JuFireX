@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # JuFireX 安全更新脚本
-# 使用方法: chmod +x ./update.sh && ./update.sh
+# 使用方法: chmod +x ./deploy.sh && ./deploy.sh
 
 # 获取脚本所在目录的上一级目录 (项目根目录)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

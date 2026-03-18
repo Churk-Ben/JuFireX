@@ -16,7 +16,7 @@ from .verification_service import VerificationService
 
 mail_service = MailService()
 verification_service = VerificationService(
-    verifications, mail_service, totp_verifications
+    mail_service, verifications, totp_verifications
 )
 user_service = UserService(users, verifications)
 navigation_service = NavigationService(navigations)
